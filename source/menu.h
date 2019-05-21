@@ -18,12 +18,10 @@
 
 struct menu {
 	int					id;
-	const char*			text[2];
+	const char*			text;
 	rect				rc;
 	//
 	operator bool() const { return id != 0; }
-	menu*				add(int id, rect rc);
 	const menu*			find(int id) const;
-	const menu*			getnext(const menu* pc, int direction) const;
 	int					getnextid(int focus, int direction) const;
 };

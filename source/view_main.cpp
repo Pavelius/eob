@@ -1,8 +1,8 @@
 #include "view.h"
 
-static menu	menu_main[] = {{NewGame, {"Create New Game", "Начать новую игру"}},
-{LoadGame, {"Load Saved game", "Загрузить сохраненную игру"}},
-{Cancel, {"Exit game", "Выйти из игры"}}
+static menu	menu_main[] = {{NewGame, "Create New Game"},
+{LoadGame, "Load Saved game"},
+{Cancel, "Exit game"},
 };
 
 static int buttons(int x, int y, int w, int focus, aref<menu> elements) {
@@ -13,7 +13,7 @@ static int buttons(int x, int y, int w, int focus, aref<menu> elements) {
 	for(auto& e : elements) {
 		y += draw::linetext(x, y, w, e.id,
 			AlignCenter | draw::getfstate(e.id, focus),
-			e.text[0]);
+			e.text);
 	}
 	return y - y0;
 }

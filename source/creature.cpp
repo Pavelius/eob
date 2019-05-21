@@ -1107,3 +1107,64 @@ void creature::addexp(int value, int killing_hit_dice) {
 		}
 	}
 }
+
+bool creature::use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive) {
+	if(firsttime)
+		*firsttime = false;
+	if(get(skill) <= 0)
+		return false;
+	if(skill == HearNoise && !set(skill, index)) {
+		if(firsttime)
+			*firsttime = true;
+		return false;
+	}
+	if(roll(skill, bonus)) {
+		if(exp)
+			addexp(exp);
+		return true;
+	} else {
+		if(interactive)
+			mslog("You are failed");
+	}
+	return false;
+}
+
+bool creature::swap(item* itm1, item* itm2) {
+	static const char* dontwear[2] = {"I don't wear this", "I do not use this"};
+	auto p1 = game::gethero(itm1);
+	auto s1 = game::getitempart(itm1);
+	auto p2 = game::gethero(itm2);
+	auto s2 = game::getitempart(itm2);
+	auto interactive = p1->ishero() || p2->ishero();
+	if(!p1->isallowremove(*itm1, s1, interactive))
+		return false;
+	if(!p1->isallowremove(*itm2, s2, interactive))
+		return false;
+	if(!p1->isallow(*itm2, s1)) {
+		if(interactive)
+			p1->say(dontwear[0]);
+		return false;
+	}
+	if(!p2->isallow(*itm1, s2)) {
+		if(interactive)
+			p2->say(dontwear[0]);
+		return false;
+	}
+	iswap(*itm1, *itm2);
+	return true;
+}
+
+bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
+	static const char* speech[] = {"It's mine!",
+		"Get yours hands off!",
+		"I don't leave this",
+	};
+	if(slot >= Head && slot <= Legs) {
+		if(i.iscursed()) {
+			if(interactive)
+				say(maprnd(speech));
+			return false;
+		}
+	}
+	return true;
+}

@@ -14,7 +14,7 @@ static creature			hero_data[32];
 
 static struct event_info {
 	unsigned			rounds;
-	creature*			pc;
+	const creature*		pc;
 	skill_s				skill;
 	short unsigned		index;
 	operator bool() const { return pc != 0; }
@@ -74,21 +74,6 @@ size_s game::getsize(item_s id) {
 			return Large;
 		return Medium;
 	}
-}
-
-bool isallowremove(creature* pc, const item i, wear_s slot, bool interactive) {
-	static const char* speech[] = {"It's mine!",
-		"Get yours hands off!",
-		"I don't leave this",
-	};
-	if(slot >= Head && slot <= Legs) {
-		if(i.iscursed()) {
-			if(interactive)
-				pc->say(maprnd(speech));
-			return false;
-		}
-	}
-	return true;
 }
 
 creature* creature::newhero() {
@@ -198,28 +183,6 @@ static int find_index(int** items, int* itm) {
 	return -1;
 }
 
-bool game::useskill(creature* pc, skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive) {
-	if(firsttime)
-		*firsttime = false;
-	if(pc->get(skill) <= 0)
-		return false;
-	if(skill == HearNoise
-		&& !setevent(pc, skill, index)) {
-		if(firsttime)
-			*firsttime = true;
-		return false;
-	}
-	if(pc->roll(skill, bonus)) {
-		if(exp)
-			pc->addexp(exp);
-		return true;
-	} else {
-		if(interactive)
-			mslog("You are failed");
-	}
-	return false;
-}
-
 int get_potion_duration() {
 	return 60 + dice::roll(1, 6) * 10;
 }
@@ -313,26 +276,26 @@ bool game::action::use(item* pi) {
 		consume = false;
 		firsttime = false;
 		if(location.get(forward_index) == CellPit) {
-			if(useskill(pc, RemoveTraps, forward_index, 15, &firsttime, 100)) {
+			if(pc->use(RemoveTraps, forward_index, 15, &firsttime, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove pit");
 			}
 		} else if(location.get(forward_index) == CellButton) {
-			if(useskill(pc, RemoveTraps, forward_index, 0, &firsttime, 100)) {
+			if(pc->use(RemoveTraps, forward_index, 0, &firsttime, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove trap");
 			}
 		} else if(po && po->type == CellTrapLauncher) {
 			if(location.isactive(po))
 				pc->say("This trap already disabled");
-			else if(useskill(pc, RemoveTraps, forward_index, 0, &firsttime, 100)) {
+			else if(pc->use(RemoveTraps, forward_index, 0, &firsttime, 100, true)) {
 				location.setactive(po, true);
 				mslog("You disable trap");
 			}
 		} else if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
 			if(location.isactive(po))
 				pc->say("This lock already open");
-			else if(useskill(pc, OpenLocks, forward_index, 0, &firsttime, 100)) {
+			else if(pc->use(OpenLocks, forward_index, 0, &firsttime, 100, true)) {
 				location.setactive(po, true);
 				mslog("You pick lock");
 			}
@@ -540,31 +503,6 @@ void game::action::camp(item& it) {
 	}
 }
 
-bool game::action::swap(item* itm1, item* itm2) {
-	static const char* dontwear[2] = {"I don't wear this", "I do not use this"};
-	auto p1 = gethero(itm1);
-	auto s1 = getitempart(itm1);
-	auto p2 = gethero(itm2);
-	auto s2 = getitempart(itm2);
-	auto interactive = p1->ishero() || p2->ishero();
-	if(!isallowremove(p1, *itm1, s1, interactive))
-		return false;
-	if(!isallowremove(p2, *itm2, s2, interactive))
-		return false;
-	if(!p1->isallow(*itm2, s1)) {
-		if(interactive)
-			p1->say(dontwear[0]);
-		return false;
-	}
-	if(!p2->isallow(*itm1, s2)) {
-		if(interactive)
-			p2->say(dontwear[0]);
-		return false;
-	}
-	iswap(*itm1, *itm2);
-	return true;
-}
-
 int game::getside(int side, direction_s dr) {
 	if(dr == Center)
 		return side;
@@ -615,7 +553,7 @@ void game::action::dropitem(item* pi, int side) {
 	if(side == -1)
 		side = autodetect_side(pi);
 	auto s1 = getitempart(pi);
-	if(!isallowremove(pc, *pi, s1, true))
+	if(!pc->isallowremove(*pi, s1, true))
 		return;
 	char temp[260]; ;
 	mslog("%1 dropped", pi->getname(temp, zendof(temp)));
@@ -1057,7 +995,7 @@ void game::hearnoises() {
 		int exp = 0;
 		if(pc->get(Theif))
 			exp = 50;
-		if(game::useskill(pc, HearNoise, door_index, 0, 0, 50, false)) {
+		if(pc->use(HearNoise, door_index, 0, 0, 50, false)) {
 			creature* sides[4]; location.getmonsters(sides, door_index, Center);
 			int count = 0;
 			for(auto e : sides) {
@@ -1176,14 +1114,14 @@ void game::enter(unsigned short index, unsigned char level) {
 		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 
-bool game::setevent(creature* pc, skill_s skill, short unsigned index) {
+bool creature::set(skill_s skill, short unsigned index) {
 	for(auto& e : events) {
-		if(e.pc == pc
+		if(e.pc == this
 			&& e.skill == skill
 			&& e.index == index)
 			return false;
 		if(!e.pc) {
-			e.pc = pc;
+			e.pc = this;
 			e.skill = skill;
 			e.index = index;
 			e.rounds = game::rounds;

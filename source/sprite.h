@@ -18,12 +18,10 @@
 
 #pragma once
 
-struct sprite : public pma
-{
+struct sprite : public pma {
 	enum flagse { NoIndex = 1 };
-	enum encodes { Auto, RAW, RLE, ALC, RAW8, RLE8};
-	struct frame
-	{
+	enum encodes { Auto, RAW, RLE, ALC, RAW8, RLE8 };
+	struct frame {
 		short int		sx, sy;
 		short int		ox, oy;
 		encodes			encode;
@@ -31,8 +29,7 @@ struct sprite : public pma
 		unsigned		offset;
 		rect			getrect(int x, int y, unsigned flags) const;
 	};
-	struct cicle
-	{
+	struct cicle {
 		short unsigned	start;
 		short unsigned	count;
 	};
@@ -59,6 +56,6 @@ struct sprite : public pma
 	int					glyph(unsigned sym) const;
 	const unsigned char* offs(unsigned o) const { return (unsigned char*)this + o; }
 	void				setup(int count, int pallette_count = 0, int cicles = 0, int cicles_indexes = 0);
-	int					store(const unsigned char* p, int width, int w, int h, int ox, int oy, sprite::encodes mode, unsigned char shadow_index=1, color* pallette = 0, int frame_index=-1, unsigned char transparent_index = 0);
+	int					store(const unsigned char* p, int width, int w, int h, int ox, int oy, sprite::encodes mode, unsigned char shadow_index = 1, color* pallette = 0, int frame_index = -1, unsigned char transparent_index = 0);
 	void				write(const char* url);
 };

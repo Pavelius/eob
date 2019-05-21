@@ -17,14 +17,12 @@
 
 #pragma once
 
-namespace draw
-{
-	struct screenshoot : public point, public surface
-	{
-		screenshoot(bool fade = false);
-		screenshoot(rect rc, bool fade = false);
-		~screenshoot();
-		void				blend(draw::surface& e, unsigned delay);
-		void				restore();
-	};
+namespace draw {
+struct screenshoot : public point, public surface {
+	screenshoot(bool fade = false);
+	screenshoot(rect rc, bool fade = false);
+	~screenshoot();
+	void				blend(draw::surface& e, unsigned delay);
+	void				restore();
+};
 }

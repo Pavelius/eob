@@ -5,17 +5,14 @@
 
 #pragma pack(push)
 #pragma pack(1)
-static struct video_8t
-{
+static struct video_8t {
 	BITMAPINFO			bmp;
 	unsigned char		bmp_pallette[256 * 4];
 } video_descriptor;
 #pragma pack(pop)
 
-static int tokey(int vk)
-{
-	switch(vk)
-	{
+static int tokey(int vk) {
+	switch(vk) {
 	case VK_CONTROL: return Ctrl;
 	case VK_MENU: return Alt;
 	case VK_SHIFT: return Shift;
@@ -55,10 +52,8 @@ static int tokey(int vk)
 	}
 }
 
-static int handle(HWND hwnd, MSG& msg)
-{
-	switch(msg.message)
-	{
+static int handle(HWND hwnd, MSG& msg) {
+	switch(msg.message) {
 	case WM_TIMER:
 		if(msg.hwnd != hwnd)
 			break;
@@ -80,13 +75,10 @@ static int handle(HWND hwnd, MSG& msg)
 	return 0;
 }
 
-static LRESULT CALLBACK WndProc(HWND hwnd, unsigned uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch(uMsg)
-	{
+static LRESULT CALLBACK WndProc(HWND hwnd, unsigned uMsg, WPARAM wParam, LPARAM lParam) {
+	switch(uMsg) {
 	case WM_ERASEBKGND:
-		if(draw::canvas)
-		{
+		if(draw::canvas) {
 			RECT rc; GetClientRect(hwnd, &rc);
 			video_descriptor.bmp.bmiHeader.biSize = sizeof(video_descriptor.bmp.bmiHeader);
 			video_descriptor.bmp.bmiHeader.biWidth = draw::canvas->width;
@@ -114,11 +106,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd, unsigned uMsg, WPARAM wParam, LPARAM 
 	return DefWindowProcA(hwnd, uMsg, wParam, lParam);
 }
 
-static const char* register_class(const char* class_name)
-{
+static const char* register_class(const char* class_name) {
 	WNDCLASS wc;
-	if(!GetClassInfoA(GetModuleHandleA(0), class_name, &wc))
-	{
+	if(!GetClassInfoA(GetModuleHandleA(0), class_name, &wc)) {
 		memset(&wc, 0, sizeof(wc));
 		wc.style = CS_OWNDC | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW; // Own DC For Window.
 		wc.lpfnWndProc = WndProc;					// WndProc Handles Messages
@@ -133,8 +123,7 @@ static const char* register_class(const char* class_name)
 
 static HWND	hwnd;
 
-bool draw::create(int width, int height)
-{
+bool draw::create(int width, int height) {
 	unsigned dwStyle = WS_CAPTION | WS_SYSMENU | WS_BORDER | WS_VISIBLE; // Windows Style;
 	RECT rc = {0, 0, width, height};
 	AdjustWindowRectEx(&rc, dwStyle, 0, 0);
@@ -143,23 +132,19 @@ bool draw::create(int width, int height)
 	return hwnd != 0;
 }
 
-int draw::rawinput()
-{
+int draw::rawinput() {
 	MSG	msg;
 	if(!hwnd)
 		return 0;
 	InvalidateRect(hwnd, 0, 1);
-	while(GetMessageA(&msg, 0, 0, 0))
-	{
+	while(GetMessageA(&msg, 0, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
 		hot::key = handle(hwnd, msg);
 		if(hot::key == InputNoUpdate)
 			continue;
-		if(hot::key)
-		{
-			if(hot::key != MouseMove && hot::key >= (int)MouseLeft)
-			{
+		if(hot::key) {
+			if(hot::key != MouseMove && hot::key >= (int)MouseLeft) {
 				if(GetKeyState(VK_SHIFT) < 0)
 					hot::key |= Shift;
 				if(GetKeyState(VK_MENU) < 0)
@@ -173,27 +158,23 @@ int draw::rawinput()
 	return 0;
 }
 
-void draw::rawredraw()
-{
+void draw::rawredraw() {
 	MSG	msg;
 	if(!hwnd)
 		return;
 	InvalidateRect(hwnd, 0, 1);
-	while(PeekMessageA(&msg, 0, 0, 0, PM_REMOVE))
-	{
+	while(PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
 		handle(hwnd, msg);
 	}
 }
 
-void draw::setcaption(const char* string)
-{
+void draw::setcaption(const char* string) {
 	SetWindowTextA(hwnd, string);
 }
 
-void draw::settimer(unsigned milleseconds)
-{
+void draw::settimer(unsigned milleseconds) {
 	if(milleseconds)
 		SetTimer(hwnd, InputTimer, milleseconds, 0);
 	else

@@ -337,7 +337,7 @@ int draw::textb(rect rc, const char* string, unsigned flags) {
 
 static void place_item(item* itm) {
 	if(drag_item) {
-		game::action::swap(drag_item, itm);
+		creature::swap(drag_item, itm);
 		drag_item = 0;
 	} else
 		drag_item = itm;

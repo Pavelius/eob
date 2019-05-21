@@ -212,6 +212,7 @@ struct class_info {
 	ability_s			ability;
 	adat<class_s, 4>	classes;
 	cflags<usability_s>	usability;
+	cflags<feat_s>		feats;
 	char				minimum[Charisma + 1];
 	adat<race_s, 12>	races;
 };
@@ -228,6 +229,13 @@ struct enchant_info {
 };
 struct gender_info {
 	const char*			name;
+};
+struct attack_info {
+	attack_s			attack;
+	damage_s			type;
+	char				speed;
+	dice				damage;
+	char				bonus;
 };
 struct item_info {
 	struct weapon_info {
@@ -450,6 +458,7 @@ public:
 	static bool			isallow(class_s id, race_s r);
 	static bool			isallow(alignment_s id, class_s c);
 	bool				isallow(const item it, wear_s slot) const;
+	bool				isallowremove(const item i, wear_s slot, bool interactive);
 	bool				isenemy(creature* target) const;
 	bool				isinvisible() const;
 	bool				ishero() const;
@@ -467,6 +476,7 @@ public:
 	void				set(gender_s value) { gender = value; }
 	void				set(monster_s type);
 	void				set(race_s value) { race = value; }
+	bool				set(skill_s skill, short unsigned index);
 	void				set(spell_s spell, char v) { spells[spell] = v; }
 	bool				set(state_s id, unsigned rounds);
 	void				set(direction_s value);
@@ -481,7 +491,9 @@ public:
 	void				setname();
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
+	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
+	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 };
 struct dungeon {
 	struct overlaydata {
@@ -612,7 +624,6 @@ bool				question(item* current_item);
 void				thrown(item* itm);
 void				rotate(direction_s direction);
 bool				use(item* itm);
-bool				swap(item* i1, item* i2);
 }
 void				enter(unsigned short index, unsigned char level);
 void				findsecrets();
@@ -641,9 +652,7 @@ void				passtime(int minutes);
 bool				read();
 extern unsigned		rounds;
 void				setcamera(short unsigned index, direction_s direction = Center);
-bool				setevent(creature* pc, skill_s skill, short unsigned index);
 void				write();
-bool				useskill(creature* pc, skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp = 0, bool interactive = true);
 }
 extern dungeon		location_above;
 extern dungeon		location;

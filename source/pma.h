@@ -13,8 +13,7 @@ limitations under the License. */
 
 #pragma once
 
-struct pma
-{
+struct pma {
 	char				name[4]; // Identifier of current block
 	int					size; // Size of all block
 	int					count; // Count of records in this block
