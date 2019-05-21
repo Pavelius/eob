@@ -165,17 +165,14 @@ static void update_poison(creature* pc, bool interactive) {
 
 bool creature::add(state_s type, unsigned duration, save_s save) {
 	const poison_effect* pe;
-	auto race = getrace();
 	if(!duration)
 		duration = xrand(2, 8);
 	switch(type) {
 	case StateParalized:
 	case StateSleeped:
 		// Elf has 90% immunity to paralization, sleep and charm
-		if(race == Elf) {
-			if(d100() < 90)
-				return false;
-		}
+		if(roll(ResistCharm))
+			return false;
 		if(save == SaveNegate && roll(SaveVsParalization))
 			return false;
 		return set(type, duration);
@@ -374,8 +371,7 @@ int	creature::getbonus(enchant_s id, wear_s slot) const {
 }
 
 bool creature::is(state_s id, wear_s slot) const {
-	return slot == RightHand
-		&& bsmeta<monsteri>::elements[type].is(id);
+	return slot == RightHand && bsmeta<monsteri>::elements[kind].is(id);
 }
 
 int creature::gethitpenalty(int bonus) const {

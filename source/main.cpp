@@ -17,6 +17,8 @@ static void test_dungeon(dungeon_s type) {
 	location.setcontent(type, 1);
 	draw::settiles(type);
 	test_room2(x, y);
+	location.addmonster(Spider, location.getindex(x, y - 1), 2, Down);
+	//location.addmonster(Ghoul, location.getindex(x, y - 1), 3, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
@@ -209,7 +211,7 @@ int main(int argc, char* argv[]) {
 				id = game::action::adventure();
 			else {
 #ifdef _DEBUG
-				if(true) {
+				if(false) {
 					random_heroes();
 					game::write();
 					game::enter(1, 1);
