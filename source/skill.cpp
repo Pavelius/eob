@@ -1,6 +1,6 @@
 #include "main.h"
 
-skill_info bsmeta<skill_info>::elements[] = {{"Save vs Paralize"},
+skilli bsmeta<skilli>::elements[] = {{"Save vs Paralize"},
 {"Save vs Poison"},
 {"Save vs Traps"},
 {"Save vs Magic"},
@@ -113,11 +113,11 @@ static int get_save_group(class_s value) {
 static int get_save_thrown(skill_s id, class_s type, const char* levels) {
 	auto index = save_index[id];
 	auto result = 20;
-	for(unsigned i = 0; i < bsmeta<class_info>::elements[type].classes.count; i++) {
+	for(unsigned i = 0; i < bsmeta<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
 		if(n < 1)
 			continue;
-		auto e = bsmeta<class_info>::elements[type].classes.data[i];
+		auto e = bsmeta<classi>::elements[type].classes.data[i];
 		auto g = get_save_group(e);
 		if(n >= sizeof(savevs_data[0][0]) / sizeof(savevs_data[0][0][0]))
 			n = sizeof(savevs_data[0][0]) / sizeof(savevs_data[0][0][0]) - 1;
@@ -130,12 +130,12 @@ static int get_save_thrown(skill_s id, class_s type, const char* levels) {
 
 static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 	auto result = 0;
-	for(unsigned i = 0; i < bsmeta<class_info>::elements[type].classes.count; i++) {
+	for(unsigned i = 0; i < bsmeta<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
 		if(n < 1)
 			continue;
-		auto e = bsmeta<class_info>::elements[type].classes.data[i];
-		if(bsmeta<skill_info>::elements[id].allow && !bsmeta<skill_info>::elements[id].allow.is(e))
+		auto e = bsmeta<classi>::elements[type].classes.data[i];
+		if(bsmeta<skilli>::elements[id].allow && !bsmeta<skilli>::elements[id].allow.is(e))
 			continue;
 		if(n > 17)
 			n = 17;
@@ -146,17 +146,17 @@ static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 }
 
 static bool allow_skill(skill_s id, class_s type) {
-	if(!bsmeta<skill_info>::elements[id].allow)
+	if(!bsmeta<skilli>::elements[id].allow)
 		return true;
-	for(auto e : bsmeta<class_info>::elements[type].classes) {
-		if(bsmeta<skill_info>::elements[id].allow.is(e))
+	for(auto e : bsmeta<classi>::elements[type].classes) {
+		if(bsmeta<skilli>::elements[id].allow.is(e))
 			return true;
 	}
 	return false;
 }
 
 int	creature::get(skill_s id) const {
-	int result = bsmeta<race_info>::elements[race].skills[id];
+	int result = bsmeta<racei>::elements[race].skills[id];
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);

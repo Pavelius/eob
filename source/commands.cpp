@@ -1,6 +1,6 @@
 #include "main.h"
 
-command_info bsmeta<command_info>::elements[] = {{"No command"},
+commandi bsmeta<commandi>::elements[] = {{"No command"},
 {"Pray for spells"},
 {"Memorize spells"},
 {"Choose levels"},

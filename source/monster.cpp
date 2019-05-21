@@ -6,7 +6,7 @@ static const int hd_experience[] = {
 	1400, 2000, 3000
 };
 
-monster_info bsmeta<monster_info>::elements[] = {{"No monster"},
+monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, {}, {3}, 3, {Bite}, {WeakPoison}},
 {"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, {}, {5}, 7, {Mace}, {}},
 {"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, {}, {2, 3}, 5, {Mace}, {}},
@@ -22,18 +22,18 @@ monster_info bsmeta<monster_info>::elements[] = {{"No monster"},
 };
 assert_enum(monster, Zombie);
 
-bool monster_info::is(state_s id) const {
+bool monsteri::is(state_s id) const {
 	return special[0] == id
 		|| special[1] == id
 		|| special[2] == id;
 }
 
-bool monster_info::is(enchant_s id) const {
+bool monsteri::is(enchant_s id) const {
 	return enchantments[0] == id
 		|| enchantments[1] == id;
 }
 
-int monster_info::getexperience() const {
+int monsteri::getexperience() const {
 	int r = hd[0];
 	if(r && hd[1] > 0)
 		r++;
@@ -52,7 +52,7 @@ int monster_info::getexperience() const {
 }
 
 dice creature::gethitdice() const {
-	dice hd = {1, (unsigned char)bsmeta<class_info>::elements[getclass(type, 0)].hd};
+	dice hd = {1, (unsigned char)bsmeta<classi>::elements[getclass(type, 0)].hd};
 	hd.c = gethd();
 	//hd.b = get(HitPointsAdjustment);
 	if(!hd.c) {
@@ -79,7 +79,7 @@ void creature::set(monster_s value) {
 		ability[Dexterity] += 2;
 		break;
 	}
-	auto& mi = bsmeta<monster_info>::elements[kind];
+	auto& mi = bsmeta<monsteri>::elements[kind];
 	alignment = mi.alignment;
 	race = mi.race;
 	gender = mi.gender;
@@ -108,7 +108,7 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 }
 
 void dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) {
-	const auto& e = bsmeta<monster_info>::elements[type];
+	const auto& e = bsmeta<monsteri>::elements[type];
 	int count = 1;
 	if(e.size == Tall)
 		count = xrand(1, 2);

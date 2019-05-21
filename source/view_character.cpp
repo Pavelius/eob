@@ -104,7 +104,7 @@ void draw::abilities(int x, int y, creature* pc) {
 	weaponi e = {0}; pc->get(e);
 	x1 = x + 7 * 10 + 4;
 	y1 += number(x1, y1, "AC", 10 - pc->getac());
-	y1 += number(x1, y1, "ATT", 20 - e.thac0);
+	y1 += number(x1, y1, "ATT", 20 - e.bonus);
 	y1 += number(x1, y1, "DAM", e);
 	y1 += number(x1, y1, "SPD", pc->getspeed());
 	y1 += number(x1, y1, "HP", pc->gethits(), pc->gethitsmaximum());
@@ -115,7 +115,7 @@ void draw::abilities(int x, int y, creature* pc) {
 	header(x1 + 6 * 11, y1, "Exp");
 	y1 += 8;
 	auto cls = pc->getclass();
-	auto exp = pc->getexperience() / bsmeta<class_info>::elements[cls].classes.count;
+	auto exp = pc->getexperience() / bsmeta<classi>::elements[cls].classes.count;
 	for(int i = 0; i < 3; i++) {
 		char temp[16];
 		auto m = pc->getclass(cls, i);

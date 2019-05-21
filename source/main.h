@@ -3,8 +3,8 @@
 #include "crt.h"
 #include "stringcreator.h"
 
-#define assert_enum(e, last) static_assert(sizeof(bsmeta<e##_info>::elements) / sizeof(bsmeta<e##_info>::elements[0]) == last + 1, "Invalid count of " #e " elements");\
-template<> const char* getstr<e##_s>(const e##_s i) { return bsmeta<e##_info>::elements[i].name; }
+#define assert_enum(e, last) static_assert(sizeof(bsmeta<e##i>::elements) / sizeof(bsmeta<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");\
+template<> const char* getstr<e##_s>(const e##_s i) { return bsmeta<e##i>::elements[i].name; }
 
 const unsigned short	Blocked = 0xFFFF;
 const int				mpx = 32;
@@ -198,14 +198,14 @@ template<typename T> struct bsmeta {
 	typedef T			data_type;
 	static T			elements[];
 };
-struct ability_info {
+struct abilityi {
 	const char*			name;
 };
-struct alignment_info {
+struct alignmenti {
 	const char*			name;
 	adat<class_s, 8>	restricted;
 };
-struct class_info {
+struct classi {
 	const char*			name;
 	char				playable;
 	char				hd;
@@ -216,36 +216,35 @@ struct class_info {
 	char				minimum[Charisma + 1];
 	adat<race_s, 12>	races;
 };
-struct command_info {
+struct commandi {
 	const char*			name;
 };
-struct direction_info {
+struct directioni {
 	const char*			name;
 };
-struct enchant_info {
+struct enchanti {
 	const char*			name;
 	char				magic;
 	const char**		names;
 };
-struct gender_info {
+struct genderi {
 	const char*			name;
 };
-struct attack_info {
+struct weaponi {
 	attack_s			attack;
 	damage_s			type;
 	char				speed;
 	dice				damage;
-	char				bonus;
+	char				bonus, critical_multiplier, critical_range;
 };
-struct item_info {
-	struct weapon_info {
-		attack_s		attack;
-		damage_s		type;
-		char			speed;
-		dice			damage[2];
-		char			bonus;
+struct itemi {
+	struct weapon_info : weaponi {
+		dice			damage_large;
+		constexpr weapon_info() : damage_large(), weaponi() {}
+		constexpr weapon_info(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0) :
+			weaponi{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
 	};
-	struct armor_info {
+	struct armori {
 		char			ac;
 		char			critical_deflect;
 		char			reduction;
@@ -256,13 +255,13 @@ struct item_info {
 	cflags<usability_s>	usability;
 	cflags<item_feat_s>	feats;
 	weapon_info			weapon;
-	armor_info			armor;
+	armori				armor;
 	aref<enchant_s>		enchantments;
 };
-struct feat_info {
+struct feati {
 	const char*			name;
 };
-struct monster_info {
+struct monsteri {
 	const char*			name;
 	resource_s			rfile;
 	short				overlays[4];
@@ -286,7 +285,7 @@ struct spell_effect {
 	dice				perlevel;
 	int					maximum_per_level;
 };
-struct race_info {
+struct racei {
 	const char*			name;
 	char				minimum[Charisma + 1];
 	char				maximum[Charisma + 1];
@@ -295,11 +294,11 @@ struct race_info {
 	cflags<usability_s>	usability;
 	adatc<skill_s, char, DetectSecrets + 1> skills;
 };
-struct skill_info {
+struct skilli {
 	const char*			name;
 	adat<class_s, 4>	allow;
 };
-struct spell_info {
+struct spelli {
 	const char*			name;
 	int					levels[2]; // mage, cleric
 	target_s			range;
@@ -309,14 +308,8 @@ struct spell_info {
 	spell_effect		number;
 	item_s				throw_effect;
 };
-struct state_info {
+struct statei {
 	const char*			name;
-};
-struct weaponi {
-	char				thac0;
-	dice				damage;
-	char				critical_multiplier;
-	char				critical_range;
 };
 class item {
 	item_s				type;
@@ -347,10 +340,10 @@ public:
 	int					getspeed() const;
 	spell_s				getspell() const;
 	item_s				gettype() const { return type; }
-	wear_s				getwear() const { return bsmeta<item_info>::elements[type].equipment; }
-	unsigned			getuse() const { return bsmeta<item_info>::elements[type].usability.data; }
-	bool				is(usability_s v) const { return bsmeta<item_info>::elements[type].usability.is(v); }
-	bool				is(item_feat_s v) const { return bsmeta<item_info>::elements[type].feats.is(v); }
+	wear_s				getwear() const { return bsmeta<itemi>::elements[type].equipment; }
+	unsigned			getuse() const { return bsmeta<itemi>::elements[type].usability.data; }
+	bool				is(usability_s v) const { return bsmeta<itemi>::elements[type].usability.is(v); }
+	bool				is(item_feat_s v) const { return bsmeta<itemi>::elements[type].feats.is(v); }
 	bool				isbroken() const { return broken != 0; }
 	bool				iscursed() const { return cursed != 0; }
 	bool				isidentified() const { return identified != 0; }
@@ -496,28 +489,28 @@ public:
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 };
 struct dungeon {
-	struct overlaydata {
+	struct overlayi {
 		cell_s			type; // type of overlay
 		direction_s		dir; // puller direction
 		short unsigned	subtype; // depends on value type
 		short unsigned	index; // puller index
 		bool			active;
 	};
-	struct layingitem {
+	struct groundi {
 		item			value;
 		short unsigned	index;
 		unsigned char	side;
 		unsigned char	flags;
 	};
 	struct overlayitem : item {
-		overlaydata*	storage;
+		overlayi*		storage;
 	};
-	struct statinfo {
+	struct statei {
 		item_s			keys[2]; // two type of keys that fit locks
 		monster_s		habbits[2]; // who dwelve here
-		overlaydata		up; // where is stairs up
-		overlaydata		down; // where is stairs down
-		overlaydata		portal; // where is portal
+		overlayi		up; // where is stairs up
+		overlayi		down; // where is stairs down
+		overlayi		portal; // where is portal
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
 		unsigned char	artifacts; // count of powerful items (+4 or hight)
@@ -530,15 +523,15 @@ struct dungeon {
 	unsigned short		overland_index;
 	unsigned char		level;
 	bool				haspits;
-	statinfo			stat;
+	statei				stat;
 	unsigned char		data[mpx*mpy];
-	layingitem			items[1024];
-	overlaydata			overlays[512];
-	overlayitem			overlayi[512];
+	groundi				items[1024];
+	overlayi			overlays[512];
+	overlayitem			cellar_items[512];
 	creature			monsters[200];
 	//
 	operator bool() const { return overland_index != 0; }
-	void				add(overlaydata* p, item it);
+	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
@@ -553,7 +546,7 @@ struct dungeon {
 	void				getblocked(short unsigned* pathmap, bool treat_door_as_passable);
 	int					getfreeside(short unsigned index);
 	unsigned			getitems(item** result, item** result_maximum, short unsigned index, int side = -1);
-	unsigned			getitems(item** result, item** result_maximum, overlaydata* povr);
+	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
 	int					getitemside(item* pi);
 	short unsigned		getindex(int x, int y) const;
 	race_s				getlanguage() const;
@@ -563,11 +556,11 @@ struct dungeon {
 	short unsigned*		getnearestfree(short unsigned* indicies, short unsigned index);
 	direction_s			getpassable(short unsigned index, direction_s* dirs);
 	short unsigned		getsecret() const;
-	overlaydata*		getoverlay(short unsigned index, direction_s dir);
+	overlayi*			getoverlay(short unsigned index, direction_s dir);
 	cell_s				gettype(cell_s id);
-	cell_s				gettype(overlaydata* po);
+	cell_s				gettype(overlayi* po);
 	bool				is(short unsigned index, cell_flag_s value) const;
-	bool				isactive(overlaydata* po);
+	bool				isactive(overlayi* po);
 	bool				isblocked(short unsigned index);
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
@@ -576,16 +569,16 @@ struct dungeon {
 	short unsigned		random(short unsigned* indicies);
 	bool				read(unsigned short overland_index, unsigned char level);
 	void				remove(unsigned short index, cell_flag_s value);
-	void				remove(overlaydata* po, item it);
-	void				remove(overlaydata* po);
+	void				remove(overlayi* po, item it);
+	void				remove(overlayi* po);
 	void				set(short unsigned index, cell_s value);
 	void				set(short unsigned index, cell_flag_s value);
-	void				setactive(overlaydata* po, bool active);
+	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
 	void				setcontent(dungeon_s type, int level);
 	void				setelement(short unsigned index, direction_s dir, cell_s type);
-	overlaydata*		setoverlay(short unsigned index, cell_s type, direction_s dir);
+	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };

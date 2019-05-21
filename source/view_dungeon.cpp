@@ -522,7 +522,7 @@ bool draw::settiles(dungeon_s id) {
 	return true;
 }
 
-static dungeon::overlaydata* add_wall_decor(render_disp* p, int index, direction_s dir, int n, bool flip, bool use_flip) {
+static dungeon::overlayi* add_wall_decor(render_disp* p, int index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
 	auto bd = rotateto(game::getdirection(), dir);
@@ -584,7 +584,7 @@ static void fill_sprite(render_disp* p, item_s type, direction_s drs) {
 	}
 }
 
-static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlaydata* povr) {
+static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlayi* povr) {
 	if(!povr)
 		return p;
 	if(povr->type == CellCellar) {

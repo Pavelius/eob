@@ -2,7 +2,7 @@
 
 // ClimbWalls, HearNoise, MoveSilently, OpenLocks, RemoveTraps, ReadLanguages,
 
-race_info bsmeta<race_info>::elements[] = {{"No race"},
+racei bsmeta<racei>::elements[] = {{"No race"},
 {"Dwarf", {8, 3, 11, 3, 3, 3}, {18, 17, 18, 18, 18, 17}, {0, 0, 1, 0, 0, -1},
 {BonusSaveVsPoison, BonusSaveVsSpells, BonusToHitVsGoblinoid, BonusACVsLargeEnemy}, {UseLargeWeapon}},
 {"Elf", {3, 6, 7, 8, 3, 8}, {18, 18, 18, 18, 18, 18}, {0, 1, -1, 0, 0, 0},

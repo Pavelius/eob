@@ -107,30 +107,30 @@ void game::getability(int* result, class_s type, race_s race) {
 			max_value = result[i];
 		}
 	}
-	auto bst_position = bsmeta<class_info>::elements[type].ability;
+	auto bst_position = bsmeta<classi>::elements[type].ability;
 	if(max_position != -1)
 		iswap(result[max_position], result[bst_position]);
 	// Check maximum by class
 	for(int j = 0; j < 6; j++) {
-		int m = bsmeta<class_info>::elements[type].minimum[j];
+		int m = bsmeta<classi>::elements[type].minimum[j];
 		if(result[j] < m)
 			result[j] = m;
 	}
 	// Check minimum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsmeta<race_info>::elements[race].minimum[j];
+		auto m = bsmeta<racei>::elements[race].minimum[j];
 		if(result[j] < m)
 			result[j] = m;
 	}
 	// Check maximum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsmeta<race_info>::elements[race].maximum[j];
+		auto m = bsmeta<racei>::elements[race].maximum[j];
 		if(result[j] > m)
 			result[j] = m;
 	}
 	// Adjust ability
 	for(auto j = 0; j < 6; j++)
-		result[j] += bsmeta<race_info>::elements[race].adjustment[j];
+		result[j] += bsmeta<racei>::elements[race].adjustment[j];
 }
 
 int game::getfreeside(creature* sides[4]) {
@@ -670,7 +670,7 @@ unsigned game::getspells(spell_s* result, spell_s* result_maximum, class_s type,
 	return p - result;
 }
 
-static bool read_message(creature* pc, dungeon* pd, dungeon::overlaydata* po) {
+static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 	auto language = pd->getlanguage();
 	if(!pc->canspeak(language)) {
 		switch(language) {

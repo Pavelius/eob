@@ -1,7 +1,7 @@
 #include "main.h"
 
 static const char* rome_numbers[5] = {"I", "II", "III", "VI", "V"};
-enchant_info bsmeta<enchant_info>::elements[] = {{""},
+enchanti bsmeta<enchanti>::elements[] = {{""},
 {"accuracy", 1},
 {"advise", 1},
 {"charisma", 1},

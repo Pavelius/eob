@@ -2,7 +2,7 @@
 #include "point.h"
 #include "main.h"
 
-static_assert(sizeof(dungeon::layingitem) == 8, "laying items can be 8 bytes!");
+static_assert(sizeof(dungeon::groundi) == 8, "laying items can be 8 bytes!");
 static unsigned short	path_stack[256];
 static unsigned char	path_push;
 static unsigned char	path_pop;
@@ -21,10 +21,10 @@ static void snode(unsigned short index, short unsigned* pathmap, short unsigned 
 }
 
 int dungeon::getitemside(item* pi) {
-	if(((layingitem*)pi) < items
-		|| ((layingitem*)pi) > (items + sizeof(items) / sizeof(items[0])))
+	if(((groundi*)pi) < items
+		|| ((groundi*)pi) > (items + sizeof(items) / sizeof(items[0])))
 		return 0;
-	return ((layingitem*)pi)->side;
+	return ((groundi*)pi)->side;
 }
 
 unsigned dungeon::getitems(item** result, item** result_maximum, short unsigned index, int side) {
@@ -43,9 +43,9 @@ unsigned dungeon::getitems(item** result, item** result_maximum, short unsigned 
 	return p - result;
 }
 
-unsigned dungeon::getitems(item** result, item** result_maximum, overlaydata* povr) {
+unsigned dungeon::getitems(item** result, item** result_maximum, overlayi* povr) {
 	auto p = result;
-	for(auto& e : overlayi) {
+	for(auto& e : cellar_items) {
 		if(!e)
 			continue;
 		if(e.storage != povr)
@@ -56,7 +56,7 @@ unsigned dungeon::getitems(item** result, item** result_maximum, overlaydata* po
 	return p - result;
 }
 
-static dungeon::layingitem& new_item(dungeon* pe) {
+static dungeon::groundi& new_item(dungeon* pe) {
 	for(auto& e : pe->items) {
 		if(!e.value)
 			return e;
@@ -65,7 +65,7 @@ static dungeon::layingitem& new_item(dungeon* pe) {
 }
 
 void dungeon::dropitem(short unsigned index, item rec, int side) {
-	layingitem& e = new_item(this);
+	groundi& e = new_item(this);
 	e.value = rec;
 	e.index = index;
 	e.side = side;
@@ -127,7 +127,7 @@ void dungeon::remove(short unsigned index, cell_flag_s value) {
 	data[index] &= ~(0x80 >> value);
 }
 
-void dungeon::remove(overlaydata* po) {
+void dungeon::remove(overlayi* po) {
 	if(!po)
 		return;
 	po->index = 0;
@@ -135,7 +135,7 @@ void dungeon::remove(overlaydata* po) {
 	po->active = false;
 }
 
-dungeon::overlaydata* dungeon::setoverlay(short unsigned index, cell_s type, direction_s dir) {
+dungeon::overlayi* dungeon::setoverlay(short unsigned index, cell_s type, direction_s dir) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
@@ -149,8 +149,8 @@ dungeon::overlaydata* dungeon::setoverlay(short unsigned index, cell_s type, dir
 	return 0;
 }
 
-void dungeon::add(overlaydata* po, item it) {
-	for(auto& e : overlayi) {
+void dungeon::add(overlayi* po, item it) {
+	for(auto& e : cellar_items) {
 		if(!e) {
 			*((item*)&e) = it;
 			e.storage = po;
@@ -159,8 +159,8 @@ void dungeon::add(overlaydata* po, item it) {
 	}
 }
 
-void dungeon::remove(overlaydata* po, item it) {
-	for(auto& e : overlayi) {
+void dungeon::remove(overlayi* po, item it) {
+	for(auto& e : cellar_items) {
 		if(e==it && e.storage==po) {
 			e.clear();
 			e.storage = 0;
@@ -169,7 +169,7 @@ void dungeon::remove(overlaydata* po, item it) {
 	}
 }
 
-dungeon::overlaydata* dungeon::getoverlay(short unsigned index, direction_s dir) {
+dungeon::overlayi* dungeon::getoverlay(short unsigned index, direction_s dir) {
 	for(auto& e : overlays) {
 		if(!e.type)
 			break;
@@ -180,7 +180,7 @@ dungeon::overlaydata* dungeon::getoverlay(short unsigned index, direction_s dir)
 	return 0;
 }
 
-bool dungeon::isactive(overlaydata* po) {
+bool dungeon::isactive(overlayi* po) {
 	if(!po)
 		return false;
 	return po->active;
@@ -207,7 +207,7 @@ void dungeon::setactive(short unsigned index, bool value, int radius) {
 	}
 }
 
-void dungeon::setactive(overlaydata* po, bool value) {
+void dungeon::setactive(overlayi* po, bool value) {
 	if(!po)
 		return;
 	auto wall = moveto(po->index, po->dir);
@@ -235,7 +235,7 @@ void dungeon::setactive(overlaydata* po, bool value) {
 	}
 }
 
-cell_s dungeon::gettype(overlaydata* po) {
+cell_s dungeon::gettype(overlayi* po) {
 	if(!po)
 		return CellPassable;
 	return po->type;

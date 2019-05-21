@@ -193,23 +193,23 @@ bool creature::add(state_s type, unsigned duration, save_s save) {
 
 int creature::gethd() const {
 	if(kind)
-		return bsmeta<monster_info>::elements[kind].hd[0];
+		return bsmeta<monsteri>::elements[kind].hd[0];
 	return levels[0];
 }
 
 int	creature::getawards() const {
-	return bsmeta<monster_info>::elements[kind].getexperience();
+	return bsmeta<monsteri>::elements[kind].getexperience();
 }
 
 size_s creature::getsize() const {
 	if(kind)
-		return bsmeta<monster_info>::elements[kind].size;
+		return bsmeta<monsteri>::elements[kind].size;
 	return Medium;
 }
 
 resource_s creature::getres() const {
 	if(kind)
-		return bsmeta<monster_info>::elements[kind].rfile;
+		return bsmeta<monsteri>::elements[kind].rfile;
 	return NONE;
 }
 
@@ -227,15 +227,15 @@ void creature::get(weaponi& result, wear_s weapon, creature* enemy) const {
 		r += 2;
 	if(is(StateBlessed))
 		r += 1;
-	result.thac0 += r;
-	result.thac0 += maptbl(monsters_thac0, ((int)bsmeta<monster_info>::elements[type].hd[0]));
+	result.bonus += r;
+	result.bonus += maptbl(monsters_thac0, ((int)bsmeta<monsteri>::elements[type].hd[0]));
 	if(wears[weapon]) {
 		wears[weapon].get(result, enemy);
 		if(enemy) {
 			// RULE: holy weapon do more damage to undead
 			if(enemy->is(Undead)) {
 				auto b = wears[weapon].get(OfHolyness);
-				result.thac0 += b;
+				result.bonus += b;
 				result.damage.b += b;
 			}
 		}
@@ -245,13 +245,13 @@ void creature::get(weaponi& result, wear_s weapon, creature* enemy) const {
 	auto race = getrace();
 	auto t = getbestclass();
 	auto k = get(Strenght);
-	result.thac0 += getthac0(t, get(t));
-	result.thac0 += maptbl(hit_probability, k);
+	result.bonus += getthac0(t, get(t));
+	result.bonus += maptbl(hit_probability, k);
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
-		result.thac0++;
+		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
 	if(getspecialist(wears[weapon].gettype()))
-		result.thac0++;
+		result.bonus++;
 }
 
 void creature::add(item value) {
@@ -364,7 +364,7 @@ void creature::equip(item it) {
 
 int	creature::getbonus(enchant_s id, wear_s slot) const {
 	if(kind) {
-		if(slot == RightHand && bsmeta<monster_info>::elements[type].is(id))
+		if(slot == RightHand && bsmeta<monsteri>::elements[type].is(id))
 			return 2;
 		return 0;
 	}
@@ -373,7 +373,7 @@ int	creature::getbonus(enchant_s id, wear_s slot) const {
 
 bool creature::is(state_s id, wear_s slot) const {
 	return slot == RightHand
-		&& bsmeta<monster_info>::elements[type].is(id);
+		&& bsmeta<monsteri>::elements[type].is(id);
 }
 
 void creature::attack(creature* defender, wear_s slot, int bonus) {
@@ -383,14 +383,14 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	if(defender->isinvisible())
 		ac += 4;
 	if(isinvisible())
-		wi.thac0 += 4;
+		wi.bonus += 4;
 	// RULE: Dwarf can hit goblinoid by 5% better that others
 	if(is(BonusToHitVsGoblinoid) && defender->race == Goblinoid)
-		wi.thac0 += 1;
+		wi.bonus += 1;
 	// RULE: Ranger add her level to damage humanoid and goblonoids
 	if(is(BonusDamageVsEnemy) && (defender->race == Humanoid || defender->race == Goblinoid))
 		wi.damage.b += levels[0];
-	auto tohit = 20 - (wi.thac0 + bonus) - (10 - ac);
+	auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 	auto rolls = xrand(1, 20);
 	auto hits = -1;
 	auto crhit = 20 - wi.critical_range;
@@ -491,10 +491,10 @@ void creature::clear() {
 }
 
 void creature::finish() {
-	feats = bsmeta<race_info>::elements[race].feats;
+	feats = bsmeta<racei>::elements[race].feats;
 	//feats.data = bsmeta<class_info>::elements[type].feats;
-	usability = bsmeta<race_info>::elements[race].usability;
-	usability.data |= bsmeta<class_info>::elements[type].usability.data;
+	usability = bsmeta<racei>::elements[race].usability;
+	usability.data |= bsmeta<classi>::elements[type].usability.data;
 	states[0] = 1;
 	for(int i = 0; i < 3; i++) {
 		auto c = getclass(getclass(), i);
@@ -517,7 +517,7 @@ void creature::raise_level(class_s type) {
 		levels[1] = level + 1;
 	else if(getclass(this->type, 2) == type)
 		levels[2] = level + 1;
-	int hd = bsmeta<class_info>::elements[type].hd;
+	int hd = bsmeta<classi>::elements[type].hd;
 	if(!hd)
 		return;
 	auto hp = 1 + (rand() % hd);
@@ -710,7 +710,7 @@ int creature::getside() const {
 
 short creature::gethitsmaximum() const {
 	if(kind)
-		return hits_rolled + bsmeta<monster_info>::elements[type].hd[1];
+		return hits_rolled + bsmeta<monsteri>::elements[type].hd[1];
 	auto hd = gethd();
 	auto rl = (int)hits_rolled / getclasscount();
 	auto cs = get(Constitution);
@@ -745,7 +745,7 @@ int creature::getac() const {
 	r += wears[LeftHand].getac();
 	r += getbonus(OfProtection);
 	if(kind)
-		r += (10-bsmeta<monster_info>::elements[kind].ac);
+		r += (10-bsmeta<monsteri>::elements[kind].ac);
 	if(is(StateHasted))
 		r += 2;
 	if(is(StateArmored))
@@ -756,7 +756,7 @@ int creature::getac() const {
 }
 
 int creature::getclasscount() const {
-	auto r = bsmeta<class_info>::elements[type].classes.count;
+	auto r = bsmeta<classi>::elements[type].classes.count;
 	return r ? r : 1;
 }
 
@@ -901,14 +901,14 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 
 const char* creature::getname(char* result, const char* result_maximum) const {
 	if(kind)
-		return bsmeta<monster_info>::elements[kind].name;
+		return bsmeta<monsteri>::elements[kind].name;
 	szprint(result, result_maximum, "%1%2",
 		get_name_part(name[0]), get_name_part(name[1]));
 	return result;
 }
 
 int creature::getbonus(enchant_s id) const {
-	if(bsmeta<monster_info>::elements[type].is(id))
+	if(bsmeta<monsteri>::elements[type].is(id))
 		return 2; // All monsters have enchantment of 2
 	auto r = wears[Head].get(id);
 	r += wears[Neck].get(id);
@@ -940,7 +940,7 @@ int creature::getspecialist(item_s type) const {
 
 void creature::setframe(short* frames, short index) const {
 	if(kind) {
-		auto po = bsmeta<monster_info>::elements[type].overlays;
+		auto po = bsmeta<monsteri>::elements[type].overlays;
 		frames[0] = po[0] * 6 + index;
 		frames[1] = po[1] ? po[1] * 6 + index : 0;
 		frames[2] = po[2] ? po[2] * 6 + index : 0;
@@ -989,15 +989,15 @@ void creature::setside(int value) {
 }
 
 bool creature::isallow(class_s id, race_s r) {
-	return bsmeta<class_info>::elements[id].races.is(r);
+	return bsmeta<classi>::elements[id].races.is(r);
 }
 
 bool creature::isallow(alignment_s id, class_s c) {
-	return !bsmeta<alignment_info>::elements[id].restricted.is(c);
+	return !bsmeta<alignmenti>::elements[id].restricted.is(c);
 }
 
 class_s creature::getclass(class_s id, int pos) {
-	auto& e = bsmeta<class_info>::elements[id].classes;
+	auto& e = bsmeta<classi>::elements[id].classes;
 	if(e.count > (unsigned)pos)
 		return e.data[pos];
 	return NoClass;

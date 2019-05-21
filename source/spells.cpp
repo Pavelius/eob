@@ -1,6 +1,6 @@
 #include "main.h"
 
-spell_info bsmeta<spell_info>::elements[] = {{"No spell"},
+spelli bsmeta<spelli>::elements[] = {{"No spell"},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, DurationHour, StateBlessed},
 {"Burning Hands", {1}, TargetAllClose, Instant, NoState, SaveHalf, {{1, 3}, 1, {2}, 10}, FireThrown},
@@ -36,14 +36,14 @@ int game::get(duration_s duration, int level) {
 
 int game::getspelllevel(spell_s spell, class_s type) {
 	switch(type) {
-	case Cleric: return bsmeta<spell_info>::elements[spell].levels[1];
+	case Cleric: return bsmeta<spelli>::elements[spell].levels[1];
 	default:
-		return bsmeta<spell_info>::elements[spell].levels[0];
+		return bsmeta<spelli>::elements[spell].levels[0];
 	}
 }
 
 static int get_spell_value(spell_s spell, int level, creature* target, save_s save, int wand_magic) {
-	auto& e = bsmeta<spell_info>::elements[spell].number;
+	auto& e = bsmeta<spelli>::elements[spell].number;
 	auto value = e.base.roll();
 	if(e.level) {
 		auto mi = level / e.level;
@@ -67,7 +67,7 @@ static int get_spell_value(spell_s spell, int level, creature* target, save_s sa
 }
 
 static void apply_spell_effect(creature* caster, creature* target, spell_s spell, class_s cls, int level, int wand_magic) {
-	auto& si = bsmeta<spell_info>::elements[spell];
+	auto& si = bsmeta<spelli>::elements[spell];
 	auto duration = si.duration;
 	auto save = si.save;
 	auto effect = si.effect;
@@ -121,7 +121,7 @@ short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s 
 }
 
 bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* want_target, int wand_magic) {
-	auto range = bsmeta<spell_info>::elements[spell].range;
+	auto range = bsmeta<spelli>::elements[spell].range;
 	auto spell_level = getspelllevel(spell, cls);
 	if(!spell_level)
 		spell_level = getspelllevel(spell, Mage);
@@ -160,7 +160,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		apply_spell_effect(caster, target, spell, cls, level, wand_magic);
 		break;
 	case TargetAllThrow:
-		index = get_enemy_distance(index, dir, bsmeta<spell_info>::elements[spell].throw_effect);
+		index = get_enemy_distance(index, dir, bsmeta<spelli>::elements[spell].throw_effect);
 		if(index == Blocked)
 			return false;
 		index = moveto(index, rotateto(dir, Down));
@@ -177,7 +177,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		}
 		break;
 	case TargetThrow:
-		index = get_enemy_distance(index, dir, bsmeta<spell_info>::elements[spell].throw_effect);
+		index = get_enemy_distance(index, dir, bsmeta<spelli>::elements[spell].throw_effect);
 		if(index == Blocked)
 			return false;
 		index = moveto(index, rotateto(dir, Down));

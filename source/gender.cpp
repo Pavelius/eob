@@ -1,6 +1,6 @@
 #include "main.h"
 
-gender_info bsmeta<gender_info>::elements[] = {{"Transgender"},
+genderi bsmeta<genderi>::elements[] = {{"Transgender"},
 {"Male"},
 {"Female"},
 };

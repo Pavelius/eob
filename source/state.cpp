@@ -1,6 +1,6 @@
 #include "main.h"
 
-state_info bsmeta<state_info>::elements[] = {{"No state"},
+statei bsmeta<statei>::elements[] = {{"No state"},
 {"Anger"},
 {"Food"},
 {"Armored"},
