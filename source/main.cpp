@@ -92,7 +92,7 @@ static void test_dungeon2(dungeon_s type) {
 
 static void random_heroes() {
 	game::party[0] = creature::newhero();
-	game::party[0]->create(Male, Dwarf, FighterCleric, ChaoticGood);
+	game::party[0]->create(Male, Elf, Ranger, ChaoticGood);
 	game::party[1] = creature::newhero();
 	game::party[1]->create(Male, Human, Fighter, LawfulGood);
 	game::party[2] = creature::newhero();
@@ -100,20 +100,21 @@ static void random_heroes() {
 	game::party[3] = creature::newhero();
 	game::party[3]->create(Male, Dwarf, ClericTheif, ChaoticNeutral);
 	//
-	game::party[0]->add(PriestScroll);
+	game::party[0]->equip(item(SwordLong, OfFire));
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
 	game::party[0]->add(item(KeySilver, 20));
 	game::party[0]->add(item(PotionGreen, OfPoison));
 	game::party[1]->add(item(SwordLong, OfDamage, 2));
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
+	game::party[1]->add(item(Bow, 20));
 	game::party[2]->add(item(MagicWand, 20));
 	game::party[2]->add(SpellBless);
 	game::party[2]->add(SpellDetectMagic);
 	game::party[2]->add(SpellMagicMissile);
 	game::party[2]->equip(item(BlueRing, OfWizardy));
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
+	game::party[3]->add(PriestScroll);
 	game::party[3]->add(item(DungeonMap, 20));
-	game::party[1]->add(item(Bow, 20));
 	item artifact(SwordShort, 100);
 	artifact.setidentified(1);
 	game::party[3]->add(artifact);

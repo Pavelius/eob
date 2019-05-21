@@ -176,7 +176,7 @@ enum direction_s {
 };
 enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
-	HolyGrace,
+	HolyGrace, Ambidextrity,
 	Undead,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
 };
@@ -205,6 +205,10 @@ struct alignmenti {
 	const char*			name;
 	adat<class_s, 8>	restricted;
 };
+struct attacki {
+	const char*			name;
+	char				attacks_p2r;
+};
 struct classi {
 	const char*			name;
 	char				playable;
@@ -230,7 +234,7 @@ struct enchanti {
 struct genderi {
 	const char*			name;
 };
-struct attacki {
+struct combati {
 	attack_s			attack;
 	damage_s			type;
 	char				speed;
@@ -238,11 +242,11 @@ struct attacki {
 	char				bonus, critical_multiplier, critical_range;
 };
 struct itemi {
-	struct weaponi : attacki {
+	struct weaponi : combati {
 		dice			damage_large;
-		constexpr weaponi() : damage_large(), attacki() {}
+		constexpr weaponi() : damage_large(), combati() {}
 		constexpr weaponi(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0) :
-			attacki{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
+			combati{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
 	};
 	struct armori {
 		char			ac;
@@ -329,7 +333,7 @@ public:
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
 	int					get(enchant_s value) const;
-	void				get(attacki& result, const creature* enemy) const;
+	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
@@ -398,7 +402,7 @@ public:
 	bool				add(state_s type, unsigned duration = 0, save_s id = SaveNegate);
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
-	void				attack(creature* defender, int bonus);
+	void				attack(short unsigned index, direction_s d, int bonus);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
@@ -411,7 +415,7 @@ public:
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
 	int					get(skill_s id) const;
-	void				get(attacki& e, wear_s slot = RightHand, creature* enemy = 0) const;
+	void				get(combati& e, wear_s slot = RightHand, creature* enemy = 0) const;
 	item				get(wear_s id) const;
 	alignment_s			getalignment() const { return alignment; }
 	int					getac() const;
@@ -426,6 +430,7 @@ public:
 	int					getexperience() const { return experience; }
 	int					gethd() const;
 	dice				gethitdice() const;
+	int					gethitpenalty(int bonus) const;
 	short				gethits() const { return hits; }
 	short				gethitsmaximum() const;
 	gender_s			getgender() const { return gender; }

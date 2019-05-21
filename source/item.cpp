@@ -210,13 +210,15 @@ int	item::get(enchant_s value) const {
 	return 0;
 }
 
-void item::get(attacki& result, const creature* enemy) const {
+void item::get(combati& result, const creature* enemy) const {
+	auto& wi = bsmeta<itemi>::elements[type].weapon;
 	auto size = enemy ? enemy->getsize() : Medium;
 	if(size == Large)
-		result.damage = bsmeta<itemi>::elements[type].weapon.damage_large;
+		result.damage = wi.damage_large;
 	else
-		result.damage = bsmeta<itemi>::elements[type].weapon.damage;
-	result.bonus += get(OfAccuracy) + getmagic();
+		result.damage = wi.damage;
+	result.attack = wi.attack;
+	result.bonus += wi.bonus + get(OfAccuracy) + getmagic();
 	result.damage.b += get(OfDamage) + getmagic();
 	if(is(Deadly))
 		result.critical_multiplier++;

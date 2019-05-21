@@ -221,12 +221,13 @@ static int getweapon(wear_s weapon) {
 	}
 }
 
-void creature::get(attacki& result, wear_s weapon, creature* enemy) const {
+void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	int r = 0;
 	if(is(StateHasted))
 		r += 2;
 	if(is(StateBlessed))
 		r += 1;
+	result.attack = OneAttack;
 	result.bonus += r;
 	result.bonus += maptbl(monsters_thac0, ((int)bsmeta<monsteri>::elements[type].hd[0]));
 	if(wears[weapon]) {
@@ -239,8 +240,7 @@ void creature::get(attacki& result, wear_s weapon, creature* enemy) const {
 				result.damage.b += b;
 			}
 		}
-	}
-	else
+	} else
 		result.damage = {1, 2};
 	auto race = getrace();
 	auto t = getbestclass();
@@ -250,8 +250,10 @@ void creature::get(attacki& result, wear_s weapon, creature* enemy) const {
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
-	if(getspecialist(wears[weapon].gettype()))
+	if(getspecialist(wears[weapon].gettype())) {
+		result.attack = OneAndTwoAttacks;
 		result.bonus++;
+	}
 }
 
 void creature::add(item value) {
@@ -376,8 +378,19 @@ bool creature::is(state_s id, wear_s slot) const {
 		&& bsmeta<monsteri>::elements[type].is(id);
 }
 
+int creature::gethitpenalty(int bonus) const {
+	if(is(Ambidextrity))
+		return 0;
+	auto dex = get(Dexterity);
+	auto bon = maptbl(reaction_adjustment, dex);
+	bonus += bon;
+	if(bonus > 0)
+		bonus = 0;
+	return bonus;
+}
+
 void creature::attack(creature* defender, wear_s slot, int bonus) {
-	attacki wi = {}; get(wi, slot, defender);
+	combati wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
 	// RULE: invisible characters hard to hit and more likely to hit
 	if(defender->isinvisible())
@@ -387,72 +400,79 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	// RULE: Dwarf can hit goblinoid by 5% better that others
 	if(is(BonusToHitVsGoblinoid) && defender->race == Goblinoid)
 		wi.bonus += 1;
-	// RULE: Ranger add her level to damage humanoid and goblonoids
+	// RULE: Ranger add +4 THAC0 when fight humanoid and goblonoids
 	if(is(BonusDamageVsEnemy) && (defender->race == Humanoid || defender->race == Goblinoid))
-		wi.damage.b += levels[0];
-	auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
-	auto rolls = xrand(1, 20);
-	auto hits = -1;
-	auto crhit = 20 - wi.critical_range;
-	tohit = imax(2, imin(20, tohit));
-	if(rolls >= tohit || rolls >= crhit) {
-		auto damage = wi.damage;
-		hits = damage.roll();
-		hits += damaged(defender, slot);
-		// RULE: crtitical hit can deflected
-		if(rolls >= crhit) {
-			// RULE: critical damage depends on weapon and count in dices
-			if(!defender->roll(CriticalDeflect)) {
-				damage.b = 0; // Only initial dice rolled second time
-				damage.c += wi.critical_multiplier;
-				hits += damage.roll();
+		wi.bonus += 4;
+	for(auto atn = (bsmeta<attacki>::elements[wi.attack].attacks_p2r + (game::rounds % 2)) / 2; atn > 0; atn--) {
+		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
+		auto rolls = xrand(1, 20);
+		auto hits = -1;
+		auto crhit = 20 - wi.critical_range;
+		tohit = imax(2, imin(20, tohit));
+		if(rolls >= tohit || rolls >= crhit) {
+			auto damage = wi.damage;
+			hits = damage.roll();
+			hits += damaged(defender, slot);
+			// RULE: crtitical hit can deflected
+			if(rolls >= crhit) {
+				// RULE: critical damage depends on weapon and count in dices
+				if(!defender->roll(CriticalDeflect)) {
+					damage.b = 0; // Only initial dice rolled second time
+					damage.c += wi.critical_multiplier;
+					hits += damage.roll();
+				}
+			}
+			// RULE: vampiric ability allow user to drain blood and regain own HP
+			auto vampirism = getbonus(OfVampirism, slot);
+			if(vampirism) {
+				auto hits_healed = xrand(1, 4) + vampirism;
+				if(hits_healed > hits)
+					hits_healed = hits;
+				this->damage(-hits_healed);
 			}
 		}
-		// RULE: vampiric ability allow user to drain blood and regain own HP
-		auto vampirism = getbonus(OfVampirism, slot);
-		if(vampirism) {
-			auto hits_healed = xrand(1, 4) + vampirism;
-			if(hits_healed > hits)
-				hits_healed = hits;
-			this->damage(-hits_healed);
-		}
+		// Show result
+		draw::animation::attack(this, slot, hits);
+		if(hits != -1) {
+			// RULE: when attacking sleeping creature she wake up!
+			defender->set(StateSleeped, 0);
+			// Poison attack
+			for(auto& e : poison_effects) {
+				if(is(e.state, slot))
+					defender->add(e.state);
+			}
+			// Paralize attack
+			if(is(StateParalized, slot))
+				defender->add(StateParalized, xrand(1, 3));
+			defender->damage(hits);
+		} else
+			draw::animation::render();
+		draw::animation::update();
+		draw::animation::clear();
 	}
-	// Show result
-	draw::animation::attack(this, slot, hits);
-	if(hits != -1) {
-		defender->set(StateSleeped, 0); // RULE: when attacking sleeping creature she wake up!
-		// Poison attack
-		for(auto& e : poison_effects) {
-			if(is(e.state, slot))
-				defender->add(e.state);
-		}
-		// Paralize attack
-		if(is(StateParalized, slot))
-			defender->add(StateParalized, xrand(1, 3));
-		defender->damage(hits);
-	} else
-		draw::animation::render();
-	draw::animation::update();
-	draw::animation::clear();
 }
 
-void creature::attack(creature* defender, int bonus) {
+void creature::attack(short unsigned index, direction_s d, int bonus) {
+	auto defender = game::getdefender(index, d, this);
+	if(!defender)
+		return;
 	auto wp1 = get(RightHand);
 	auto wp2 = get(LeftHand);
+	auto wp3 = get(Head);
 	if(wp1.istwohanded() || !wp2.ismelee())
 		wp2 = NoItem;
+	if(!wp3.ismelee())
+		wp3 = NoItem;
 	if(wp1.isranged())
 		attack(defender, RightHand, bonus);
 	else {
 		if(wp2) {
-			attack(defender, RightHand, bonus - 4);
-			attack(defender, LeftHand, bonus - 6);
+			attack(defender, RightHand, bonus + gethitpenalty(-4));
+			attack(defender, LeftHand, bonus + gethitpenalty(-6));
 		} else
 			attack(defender, RightHand, bonus);
-		// RULE: weapon specialist make extra attack on same target
-		if(((game::rounds % 2) == 0)
-			&& getspecialist(wp1.gettype()))
-			attack(defender, RightHand, bonus);
+		if(wp3)
+			attack(defender, Head, bonus);
 	}
 }
 
@@ -745,7 +765,7 @@ int creature::getac() const {
 	r += wears[LeftHand].getac();
 	r += getbonus(OfProtection);
 	if(kind)
-		r += (10-bsmeta<monsteri>::elements[kind].ac);
+		r += (10 - bsmeta<monsteri>::elements[kind].ac);
 	if(is(StateHasted))
 		r += 2;
 	if(is(StateArmored))

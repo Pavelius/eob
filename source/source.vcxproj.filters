@@ -248,5 +248,8 @@
     <ClCompile Include="menu.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+    <ClCompile Include="attack.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

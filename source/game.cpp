@@ -634,6 +634,10 @@ creature* game::getdefender(short unsigned index, direction_s dr, creature* atta
 	}
 }
 
+static void attack_single(creature* attacker, short unsigned index, direction_s d) {
+
+}
+
 void game::action::attack(short unsigned index_of_monsters) {
 	creature* parcipants[13];
 	auto dr = getdirection();
@@ -645,18 +649,17 @@ void game::action::attack(short unsigned index_of_monsters) {
 		auto attacker = parcipants[i];
 		if(!attacker->isready())
 			continue;
-		auto attack_count = 1;
-		// RULE: Hasted units make second move
+		attacker->attack(index_of_monsters, dr, 0);
+	}
+	// RULE: Hasted units make second move at end of combat round
+	for(int i = 0; parcipants[i]; i++) {
+		auto attacker = parcipants[i];
+		if(!attacker->isready())
+			continue;
 		if(attacker->is(StateHasted)
 			|| attacker->getbonus(OfSpeed, Legs)
 			|| attacker->getbonus(OfSpeed, Elbow))
-			attack_count++;
-		for(; attack_count > 0; attack_count--) {
-			auto defender = game::getdefender(index_of_monsters, dr, attacker);
-			if(!defender)
-				continue;
-			attacker->attack(defender, 0);
-		}
+			attacker->attack(index_of_monsters, dr, 0);
 	}
 }
 

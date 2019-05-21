@@ -22,7 +22,7 @@ static int number(int x, int y, const char* name, int v1, int v2) {
 	return 7;
 }
 
-static int number(int x, int y, const char* name, const attacki& v) {
+static int number(int x, int y, const char* name, const combati& v) {
 	char temp[64];
 	text(x, y, name);
 	v.damage.range(temp, zendof(temp));
@@ -101,7 +101,7 @@ void draw::abilities(int x, int y, creature* pc) {
 		sznum(temp, pc->get(i));
 		text(x + 6 * 4, y, temp);
 	}
-	attacki e = {}; pc->get(e);
+	combati e = {}; pc->get(e);
 	x1 = x + 7 * 10 + 4;
 	y1 += number(x1, y1, "AC", 10 - pc->getac());
 	y1 += number(x1, y1, "ATT", 20 - e.bonus);

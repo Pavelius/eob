@@ -146,6 +146,7 @@
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="collection.cpp" />
     <ClCompile Include="color.cpp" />
