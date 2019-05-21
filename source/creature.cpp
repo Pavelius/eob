@@ -182,7 +182,7 @@ static void update_poison(creature* pc, bool interactive) {
 			mslog("%1 feel poison", pc->getname(temp, zendof(temp)));
 		}
 		draw::animation::update();
-		game::action::damage(pc, hits);
+		pc->damage(hits);
 	}
 }
 
@@ -335,7 +335,7 @@ void creature::update(bool interactive) {
 				auto magic = pi->getmagic();
 				switch(pi->getenchant()) {
 				case OfRegeneration:
-					game::action::damage(this, -magic);
+					damage(-magic);
 					break;
 				}
 			}
@@ -435,7 +435,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			auto hits_healed = xrand(1, 4) + vampirism;
 			if(hits_healed > hits)
 				hits_healed = hits;
-			game::action::damage(this, -hits_healed);
+			this->damage(-hits_healed);
 		}
 	}
 	// Show result
@@ -450,7 +450,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		// Paralize attack
 		if(is(StateParalized, slot))
 			defender->add(StateParalized, xrand(1, 3));
-		game::action::damage(defender, hits);
+		defender->damage(hits);
 	} else
 		draw::animation::render();
 	draw::animation::update();
@@ -1045,4 +1045,65 @@ bool creature::isallow(const item it, wear_s slot) const {
 	if(slot == LeftRing)
 		slot = RightRing;
 	return it.getwear() == slot;
+}
+
+void creature::damage(int hits) {
+	auto c = gethits() - hits;
+	if(hits < 0) {
+		auto m = gethitsmaximum();
+		if(c > m)
+			c = m;
+		sethits(c);
+	} else if(hits == 0) {
+		// Nothing to do
+	} else {
+		sethits(c);
+		draw::animation::damage(this, hits);
+		if(!ishero()) {
+			int hp = gethits();
+			// If we kill enemy monster
+			if(hp <= 0) {
+				// Add experience
+				auto hitd = gethd();
+				auto value = getawards();
+				addexp(value, hitd);
+				// Drop items
+				auto index = getindex();
+				auto side = getside();
+				for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
+					auto it = get(par);
+					if(it || !it.getportrait())
+						continue;
+					if(d100() < 25) {
+						// Random magic item
+						auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
+						location.dropitem(index,
+							item(it.gettype(), chance_magic),
+							side);
+					}
+				}
+				clear();
+			}
+		}
+	}
+}
+
+void creature::addexp(int value, int killing_hit_dice) {
+	int count = 0;
+	for(auto pc : game::party) {
+		if(pc && pc->isready())
+			count++;
+	}
+	if(count) {
+		int value_per_member = imax(1, value / count);
+		for(auto pc : game::party) {
+			if(pc && pc->isready()) {
+				pc->addexp(value_per_member);
+				if(killing_hit_dice) {
+					if(pc->get(Fighter) || pc->get(Paladin) || pc->get(Ranger))
+						pc->addexp(10 * killing_hit_dice);
+				}
+			}
+		}
+	}
 }

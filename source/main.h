@@ -193,11 +193,11 @@ enum attack_s : unsigned char {
 	OneAttack, OneAndTwoAttacks, TwoAttacks,
 	OnHit, OnAllHit, OnCriticalHit,
 };
+class creature;
 template<typename T> struct bsmeta {
 	typedef T			data_type;
 	static T			elements[];
 };
-class creature;
 struct ability_info {
 	const char*			name;
 };
@@ -396,11 +396,13 @@ public:
 	void				add(item i);
 	bool				add(state_s type, unsigned duration = 0, save_s id = SaveNegate);
 	void				addexp(int value);
+	static void			addexp(int value, int killing_hit_dice);
 	void				attack(creature* defender, int bonus);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
+	void				damage(int hits);
 	int					damaged(const creature* defender, wear_s slot) const;
 	void				equip(item it);
 	void				finish();
@@ -599,7 +601,6 @@ void				camp(item& food);
 spell_s				choosespell(creature* pc, class_s type);
 creature*			choosehero();
 void				dropitem(item* itm, int side = -1);
-void				damage(creature* pc, int hits);
 void				fly(item_s item, int side);
 void				getitem(item* itm, int side = -1);
 bool				manipulate(item* itm, direction_s direction);
@@ -613,7 +614,6 @@ void				rotate(direction_s direction);
 bool				use(item* itm);
 bool				swap(item* i1, item* i2);
 }
-void				addexp(int value, int killing_hit_dice = 0);
 void				enter(unsigned short index, unsigned char level);
 void				findsecrets();
 int					get(duration_s duration, int level);

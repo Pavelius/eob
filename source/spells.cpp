@@ -67,12 +67,13 @@ static int get_spell_value(spell_s spell, int level, creature* target, save_s sa
 }
 
 static void apply_spell_effect(creature* caster, creature* target, spell_s spell, class_s cls, int level, int wand_magic) {
-	auto duration = bsmeta<spell_info>::elements[spell].duration;
-	auto save = bsmeta<spell_info>::elements[spell].save;
-	auto effect = bsmeta<spell_info>::elements[spell].effect;
+	auto& si = bsmeta<spell_info>::elements[spell];
+	auto duration = si.duration;
+	auto save = si.save;
+	auto effect = si.effect;
 	auto spell_level = game::getspelllevel(spell, cls);
 	auto value = get_spell_value(spell, level, target, save, wand_magic);
-	if(value<0)
+	if(value < 0)
 		return;
 	// Apply effect if any
 	if(effect)
@@ -80,7 +81,7 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 	// Some spell has special cases
 	switch(spell) {
 	case SpellCureLightWounds:
-		game::action::damage(target, -value);
+		target->damage(-value);
 		break;
 	case SpellPurifyFood:
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -94,7 +95,7 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 		break;
 	default:
 		if(value)
-			game::action::damage(target, value);
+			target->damage(value);
 		break;
 	}
 }
@@ -160,7 +161,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		break;
 	case TargetAllThrow:
 		index = get_enemy_distance(index, dir, bsmeta<spell_info>::elements[spell].throw_effect);
-		if(index==Blocked)
+		if(index == Blocked)
 			return false;
 		index = moveto(index, rotateto(dir, Down));
 		// Continue this case

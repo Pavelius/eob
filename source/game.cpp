@@ -265,10 +265,10 @@ bool game::action::use(item* pi) {
 				pc->add(WeakPoison, 0, NoSave);
 				break;
 			case OfHealing:
-				damage(pc, -dice::roll(1 + pi->getmagic(), 4) + 2);
+				pc->damage(-dice::roll(1 + pi->getmagic(), 4) + 2);
 				break;
 			case OfRegeneration:
-				damage(pc, -dice::roll(1 + pi->getmagic(), 8) + 5);
+				pc->damage(-dice::roll(1 + pi->getmagic(), 8) + 5);
 				break;
 			case OfFireResistance:
 				pc->set(StateFireResistance, get_potion_duration());
@@ -360,7 +360,7 @@ bool game::action::use(item* pi) {
 				if(pi->iscursed()) {
 					// RULE: Cursed wands want drawback
 					if(d100() < 30)
-						game::action::damage(pc, dice::roll(1, 6));
+						pc->damage(dice::roll(1, 6));
 				}
 			} else {
 				char name[32];
@@ -409,7 +409,7 @@ bool game::action::use(item* pi) {
 		if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
 			if(location.getkeytype(po->type) == type) {
 				location.setactive(po, true);
-				game::addexp(100);
+				creature::addexp(100, 0);
 				mslog("You open lock");
 			} else {
 				pc->say("This does not fit");
@@ -500,7 +500,7 @@ void game::action::camp(item& it) {
 				break;
 			}
 		}
-		game::action::damage(pc, -healed);
+		pc->damage(-healed);
 		pc->preparespells();
 		// Recharge some items
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -722,67 +722,6 @@ void game::action::attack(short unsigned index_of_monsters) {
 	}
 }
 
-void game::action::damage(creature* pc, int hits) {
-	auto c = pc->gethits() - hits;
-	if(hits < 0) {
-		auto m = pc->gethitsmaximum();
-		if(c > m)
-			c = m;
-		pc->sethits(c);
-	} else if(hits == 0) {
-		// Nothing to do
-	} else {
-		pc->sethits(c);
-		draw::animation::damage(pc, hits);
-		if(!pc->ishero()) {
-			int hp = pc->gethits();
-			// If we kill enemy monster
-			if(hp <= 0) {
-				// Add experience
-				auto hitd = pc->gethd();
-				auto value = pc->getawards();
-				addexp(value, hitd);
-				// Drop items
-				auto index = pc->getindex();
-				auto side = pc->getside();
-				for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
-					auto it = pc->get(par);
-					if(it || !it.getportrait())
-						continue;
-					if(d100() < 25) {
-						// Random magic item
-						auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
-						location.dropitem(index,
-							item(it.gettype(), chance_magic),
-							side);
-					}
-				}
-				pc->clear();
-			}
-		}
-	}
-}
-
-void game::addexp(int value, int killing_hit_dice) {
-	int count = 0;
-	for(auto pc : party) {
-		if(pc && pc->isready())
-			count++;
-	}
-	if(count) {
-		int value_per_member = imax(1, value / count);
-		for(auto pc : party) {
-			if(pc && pc->isready()) {
-				pc->addexp(value_per_member);
-				if(killing_hit_dice) {
-					if(pc->get(Fighter) || pc->get(Paladin) || pc->get(Ranger))
-						pc->addexp(10 * killing_hit_dice);
-				}
-			}
-		}
-	}
-}
-
 unsigned game::getspells(spell_s* result, spell_s* result_maximum, class_s type, int level) {
 	auto p = result;
 	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
@@ -843,7 +782,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 	switch(location.gettype(po)) {
 	case CellSecrectButton:
 		// RULE: secret doors gain experience
-		game::addexp(500);
+		creature::addexp(500, 0);
 		location.set(moveto(index, dr), CellPassable);
 		location.remove(po);
 		pc->say("This is secret door");
@@ -1167,7 +1106,7 @@ static void falling_damage() {
 		// RULE: Climb walls helps when you drop down in pits
 		if(e->roll(ClimbWalls))
 			continue;
-		game::action::damage(e, dice::roll(3, 6));
+		e->damage(dice::roll(3, 6));
 	}
 }
 
