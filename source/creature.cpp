@@ -221,7 +221,7 @@ static int getweapon(wear_s weapon) {
 	}
 }
 
-void creature::get(weaponi& result, wear_s weapon, creature* enemy) const {
+void creature::get(attacki& result, wear_s weapon, creature* enemy) const {
 	int r = 0;
 	if(is(StateHasted))
 		r += 2;
@@ -377,7 +377,7 @@ bool creature::is(state_s id, wear_s slot) const {
 }
 
 void creature::attack(creature* defender, wear_s slot, int bonus) {
-	weaponi wi = {0}; get(wi, slot, defender);
+	attacki wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
 	// RULE: invisible characters hard to hit and more likely to hit
 	if(defender->isinvisible())
@@ -492,7 +492,7 @@ void creature::clear() {
 
 void creature::finish() {
 	feats = bsmeta<racei>::elements[race].feats;
-	//feats.data = bsmeta<class_info>::elements[type].feats;
+	feats.data |= bsmeta<classi>::elements[type].feats.data;
 	usability = bsmeta<racei>::elements[race].usability;
 	usability.data |= bsmeta<classi>::elements[type].usability.data;
 	states[0] = 1;

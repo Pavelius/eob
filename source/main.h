@@ -230,7 +230,7 @@ struct enchanti {
 struct genderi {
 	const char*			name;
 };
-struct weaponi {
+struct attacki {
 	attack_s			attack;
 	damage_s			type;
 	char				speed;
@@ -238,11 +238,11 @@ struct weaponi {
 	char				bonus, critical_multiplier, critical_range;
 };
 struct itemi {
-	struct weapon_info : weaponi {
+	struct weaponi : attacki {
 		dice			damage_large;
-		constexpr weapon_info() : damage_large(), weaponi() {}
-		constexpr weapon_info(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0) :
-			weaponi{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
+		constexpr weaponi() : damage_large(), attacki() {}
+		constexpr weaponi(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0) :
+			attacki{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
 	};
 	struct armori {
 		char			ac;
@@ -254,7 +254,7 @@ struct itemi {
 	wear_s				equipment;
 	cflags<usability_s>	usability;
 	cflags<item_feat_s>	feats;
-	weapon_info			weapon;
+	weaponi				weapon;
 	armori				armor;
 	aref<enchant_s>		enchantments;
 };
@@ -329,7 +329,7 @@ public:
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
 	int					get(enchant_s value) const;
-	void				get(weaponi& result, const creature* enemy) const;
+	void				get(attacki& result, const creature* enemy) const;
 	int					getac() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
@@ -411,7 +411,7 @@ public:
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
 	int					get(skill_s id) const;
-	void				get(weaponi& e, wear_s slot = RightHand, creature* enemy = 0) const;
+	void				get(attacki& e, wear_s slot = RightHand, creature* enemy = 0) const;
 	item				get(wear_s id) const;
 	alignment_s			getalignment() const { return alignment; }
 	int					getac() const;

@@ -210,7 +210,7 @@ int	item::get(enchant_s value) const {
 	return 0;
 }
 
-void item::get(weaponi& result, const creature* enemy) const {
+void item::get(attacki& result, const creature* enemy) const {
 	auto size = enemy ? enemy->getsize() : Medium;
 	if(size == Large)
 		result.damage = bsmeta<itemi>::elements[type].weapon.damage_large;
