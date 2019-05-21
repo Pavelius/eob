@@ -1,0 +1,32 @@
+#include "main.h"
+
+static const char* rome_numbers[5] = {"I", "II", "III", "VI", "V"};
+enchant_info bsmeta<enchant_info>::elements[] = {{""},
+{"accuracy", 1},
+{"advise", 1},
+{"charisma", 1},
+{"climbing", 1},
+{"cold", 1},
+{"damage", 1},
+{"dexterity", 1},
+{"fire", 1},
+{"fire resistance", 1},
+{"healing", 1},
+{"holyness", 2},
+{"intellegence", 1},
+{"invisibility", 1},
+{"luck", 1},
+{"magic resistance", 1},
+{"neutralize poison", 1},
+{"poison", 1},
+{"poison resistance", 1},
+{"protection", 1},
+{"regeneration", 1},
+{"sharpness", 1},
+{"smashing", 1},
+{"speed", 1},
+{"strenght", 1},
+{"vampirism", 1},
+{"wizardy", 1, rome_numbers},
+};
+assert_enum(enchant, OfWizardy);

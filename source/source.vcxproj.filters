@@ -1,17 +1,252 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Исходные файлы">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Коллекции">
+      <UniqueIdentifier>{b4f58ffa-777d-4d72-ac80-16fcc4ddaf81}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Логика">
+      <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы ресурсов">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Интерфейс">
+      <UniqueIdentifier>{3082bc5c-54fb-4f01-b825-2ff2e7841f2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Платформа">
+      <UniqueIdentifier>{57ab0906-556c-4fd0-893e-6ea2ceccb66c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Поддержка">
+      <UniqueIdentifier>{446cd21d-25ee-4c1c-9443-8fe6076ee2fd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="win.h">
+      <Filter>Платформа</Filter>
+    </ClInclude>
+    <ClInclude Include="archive.h">
+      <Filter>Коллекции</Filter>
+    </ClInclude>
+    <ClInclude Include="collection.h">
+      <Filter>Коллекции</Filter>
+    </ClInclude>
+    <ClInclude Include="initializer_list.h">
+      <Filter>Коллекции</Filter>
+    </ClInclude>
+    <ClInclude Include="view.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="dice.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="io.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="point.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="stringcreator.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="draw.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="drawbits.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="pma.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="screenshoot.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="surface.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="command.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite.h">
+      <Filter>Интерфейс</Filter>
+    </ClInclude>
+    <ClInclude Include="crt.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="rect.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="win_draw.cpp">
+      <Filter>Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="win_io_file.cpp">
+      <Filter>Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="win_time.cpp">
+      <Filter>Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Коллекции</Filter>
+    </ClCompile>
+    <ClCompile Include="collection.cpp">
+      <Filter>Коллекции</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="alignment.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="class.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="creature.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="direction.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeon.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeon_generate.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="enchant.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="gender.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="monster.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="names.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="portrait.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="race.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="skill.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="spells.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_automap.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_character.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_controls.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_dialog.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_dungeon.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_generate.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_main.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_options.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="view_spells.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="dice.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="io.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="point.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="stringcreator.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="szdup.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="draw.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="drawbits.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="pma.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="scale.c">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="screenshoot.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="surface.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="surface_serial.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="command.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>Интерфейс</Filter>
+    </ClCompile>
+    <ClCompile Include="crt.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="crt_memory.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="crt_parse.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="state.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="commands.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

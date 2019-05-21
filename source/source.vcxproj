@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -69,7 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath />
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -77,6 +79,9 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,6 +120,84 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="archive.h" />
+    <ClInclude Include="collection.h" />
+    <ClInclude Include="color.h" />
+    <ClInclude Include="command.h" />
+    <ClInclude Include="crt.h" />
+    <ClInclude Include="dice.h" />
+    <ClInclude Include="draw.h" />
+    <ClInclude Include="drawbits.h" />
+    <ClInclude Include="initializer_list.h" />
+    <ClInclude Include="io.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="pma.h" />
+    <ClInclude Include="point.h" />
+    <ClInclude Include="rect.h" />
+    <ClInclude Include="screenshoot.h" />
+    <ClInclude Include="sprite.h" />
+    <ClInclude Include="stringcreator.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="view.h" />
+    <ClInclude Include="win.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ability.cpp" />
+    <ClCompile Include="alignment.cpp" />
+    <ClCompile Include="archive.cpp" />
+    <ClCompile Include="class.cpp" />
+    <ClCompile Include="collection.cpp" />
+    <ClCompile Include="color.cpp" />
+    <ClCompile Include="command.cpp" />
+    <ClCompile Include="commands.cpp" />
+    <ClCompile Include="creature.cpp" />
+    <ClCompile Include="crt.cpp" />
+    <ClCompile Include="crt_memory.cpp" />
+    <ClCompile Include="crt_parse.cpp" />
+    <ClCompile Include="dice.cpp" />
+    <ClCompile Include="direction.cpp" />
+    <ClCompile Include="draw.cpp" />
+    <ClCompile Include="drawbits.cpp" />
+    <ClCompile Include="dungeon.cpp" />
+    <ClCompile Include="dungeon_generate.cpp" />
+    <ClCompile Include="enchant.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="gender.cpp" />
+    <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="io.cpp" />
+    <ClCompile Include="item.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="monster.cpp" />
+    <ClCompile Include="names.cpp" />
+    <ClCompile Include="pma.cpp" />
+    <ClCompile Include="point.cpp" />
+    <ClCompile Include="portrait.cpp" />
+    <ClCompile Include="race.cpp" />
+    <ClCompile Include="scale.c" />
+    <ClCompile Include="screenshoot.cpp" />
+    <ClCompile Include="skill.cpp" />
+    <ClCompile Include="spells.cpp" />
+    <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="state.cpp" />
+    <ClCompile Include="stringcreator.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="surface_serial.cpp" />
+    <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="view.cpp" />
+    <ClCompile Include="view_automap.cpp" />
+    <ClCompile Include="view_character.cpp" />
+    <ClCompile Include="view_controls.cpp" />
+    <ClCompile Include="view_dialog.cpp" />
+    <ClCompile Include="view_dungeon.cpp" />
+    <ClCompile Include="view_generate.cpp" />
+    <ClCompile Include="view_main.cpp" />
+    <ClCompile Include="view_options.cpp" />
+    <ClCompile Include="view_spells.cpp" />
+    <ClCompile Include="win_draw.cpp" />
+    <ClCompile Include="win_io_file.cpp" />
+    <ClCompile Include="win_time.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
