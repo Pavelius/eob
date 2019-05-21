@@ -686,23 +686,34 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlaydata* po) {
 			getstr(pd->stat.habbits[0]), getstr(pd->stat.habbits[1]));
 		break;
 	case MessageMagicWeapons:
-		pc->say("Find here %1i magic weapons", pd->stat.weapons);
+		if(!pd->stat.weapons)
+			pc->say("Dont't find any magic weapon here");
+		else
+			pc->say("Find here %1i magic weapons", pd->stat.weapons);
 		break;
 	case MessageMagicRings:
-		pc->say("Find here %1i magic rings", pd->stat.rings);
+		if(!pd->stat.rings)
+			pc->say("You don't find any magic rings here", pd->stat.rings);
+		else
+			pc->say("Find here %1i magic rings", pd->stat.rings);
 		break;
 	case MessageSecrets:
-		pc->say("Find %1i secret doors", pd->stat.secrets);
+		if(!pd->stat.secrets)
+			pc->say("This halls don't have any secrets", pd->stat.secrets);
+		else
+			pc->say("Find %1i secret doors", pd->stat.secrets);
 		break;
 	case MessageTraps:
-		pc->say("Avoid %1i deadly traps", pd->stat.traps);
+		if(!pd->stat.traps)
+			pc->say("This level is safe");
+		else
+			pc->say("Avoid %1i deadly traps", pd->stat.traps);
 		break;
 	case MessageAtifacts:
-		if(!pd->stat.artifacts) {
+		if(!pd->stat.artifacts)
 			pc->say("You don't find any mighty artifact here");
-		} else {
+		else
 			pc->say("There is %1i mighty artifacts nearby", pd->stat.artifacts);
-		}
 		break;
 	default:
 		pc->say("%1 eat his friend", getstr(pd->stat.habbits[0]));

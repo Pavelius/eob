@@ -1,29 +1,6 @@
 #include "archive.h"
 #include "view.h"
 
-alignment_s			alignment;
-race_s				race;
-gender_s			gender;
-class_s				type;
-monster_s			kind;
-short unsigned		index;
-unsigned char		side;
-direction_s			direction;
-unsigned			states[LastState + 1];
-cflags<feat_s>		feats;
-short				hits, hits_rolled;
-char				initiative;
-bool				moved;
-char				levels[3];
-char				ability[Charisma + 1];
-item				wears[LastInvertory + 1];
-char				spells[LastSpellAbility + 1];
-char				prepared[LastSpellAbility + 1];
-char				known[LastSpellAbility + 1];
-char				avatar;
-unsigned			experience;
-unsigned char		name[2];
-
 const char* get_name_part(short rec);
 
 static const int monsters_thac0[] = {
