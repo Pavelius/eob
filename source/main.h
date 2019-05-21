@@ -150,6 +150,7 @@ enum item_s : unsigned char {
 enum damage_s : unsigned char {
 	Bludgeon, Slashing, Pierce,
 	Cold, Electricity, Fire,
+	Paralize, Death, TurnToStone,
 };
 enum save_s : unsigned char {
 	NoSave,
@@ -185,12 +186,18 @@ enum usability_s : unsigned char {
 	UseScrolls, UseDivine, UseArcane, UseTheif
 };
 enum item_feat_s : unsigned char {
-	TwoHanded, Versatile, Ranged,
+	TwoHanded, Versatile, Ranged, Deadly, Quick,
+};
+enum attack_s : unsigned char {
+	AutoHit,
+	OneAttack, OneAndTwoAttacks, TwoAttacks,
+	OnHit, OnAllHit, OnCriticalHit,
 };
 template<typename T> struct bsmeta {
 	typedef T			data_type;
 	static T			elements[];
 };
+class creature;
 struct ability_info {
 	const char*			name;
 };
@@ -224,11 +231,11 @@ struct gender_info {
 };
 struct item_info {
 	struct weapon_info {
+		attack_s		attack;
 		damage_s		type;
 		char			speed;
 		dice			damage[2];
-		char			critical_multiplier, critical_range;
-		char			thac0;
+		char			bonus;
 	};
 	struct armor_info {
 		char			ac;
@@ -321,8 +328,7 @@ public:
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
 	int					get(enchant_s value) const;
-	void				get(weaponi& result) const;
-	static void			get(item_s type, weaponi& result, const class creature* enemy = 0);
+	void				get(weaponi& result, const creature* enemy) const;
 	int					getac() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;

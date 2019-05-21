@@ -252,9 +252,8 @@ void creature::get(weaponi& result, wear_s weapon, creature* enemy) const {
 		r += 1;
 	result.thac0 += r;
 	result.thac0 += maptbl(monsters_thac0, ((int)bsmeta<monster_info>::elements[type].hd[0]));
-	item::get(bsmeta<monster_info>::elements[type].attacks[getweapon(weapon)], result, enemy);
 	if(wears[weapon]) {
-		wears[weapon].get(result);
+		wears[weapon].get(result, enemy);
 		// RULE: holy weapon do more damage to undead
 		if(enemy->is(Undead)) {
 			auto b = wears[weapon].get(OfHolyness);

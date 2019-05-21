@@ -14,23 +14,23 @@ static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
 static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
 
 item_info bsmeta<item_info>::elements[] = {{"No item"},
-{"Battle axe", 7, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {Slashing, -7, {{1, 8}, {1, 8}}, 1}, {}, magic_weapon},
-{"Axe", 7, RightHand, {UseMartialWeapon}, {}, {Slashing, -4, {{1, 6}, {1, 4}}, 1}, {}, magic_weapon},
-{"Club", 76, RightHand, {}, {}, {Bludgeon, -4, {{1, 6}, {1, 4}}}, {}, magic_bludgeon},
-{"Dagger", 15, RightHand, {}, {}, {Pierce, -2, {{1, 4}, {1, 3}}, 0, 1}, {}, magic_weapon},
-{"Flail", 5, RightHand, {}, {}, {Bludgeon, -7, {{1, 6, 1}, {1, 6}}}, {}, magic_weapon},
-{"Halberd", 3, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {Bludgeon, -9, {{1, 10}, {2, 6}}, 1, 1}, {}, magic_weapon},
-{"Warhammer", 99, RightHand, {}, {}, {Bludgeon, -4, {{1, 4, 1}, {1, 4}}}, {}, magic_bludgeon},
-{"Mace", 4, RightHand, {}, {}, {Bludgeon, -6, {{1, 6, 1}, {1, 6}}}, {}, magic_bludgeon},
-{"Spear", 6, RightHand, {UseLargeWeapon}, {Versatile}, {Pierce, -6, {{1, 6}, {1, 8}}}, {}, magic_weapon},
-{"Staff", 8, RightHand, {}, {TwoHanded}, {Bludgeon, -8, {{1, 6}, {1, 4}}}, {}, magic_weapon},
-{"Bastard sword", 45, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {Slashing, -6, {{2, 4}, {2, 8}}}, {}, magic_weapon},
-{"Longsword", 1, RightHand, {UseLargeWeapon, UseTheifWeapon}, {}, {Slashing, -5, {{1, 8}, {1, 12}}, 0, 1}, {}, magic_weapon},
-{"Short sword", 2, RightHand, {UseTheifWeapon}, {}, {Slashing, -3, {{1, 6}, {1, 8}}, 0, 1}, {}, magic_weapon},
-{"Two-handed sword", 42, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {Slashing, -10, {{1, 10}, {3, 6}}, 0, 1}, {}, magic_weapon},
+{"Battle axe", 7, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -7, {{1, 8}, {1, 8}}}, {}, magic_weapon},
+{"Axe", 7, RightHand, {UseMartialWeapon}, {}, {OneAttack, Slashing, -4, {{1, 6}, {1, 4}}}, {}, magic_weapon},
+{"Club", 76, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {{1, 6}, {1, 4}}}, {}, magic_bludgeon},
+{"Dagger", 15, RightHand, {}, {}, {OneAttack, Pierce, -2, {{1, 4}, {1, 3}}}, {}, magic_weapon},
+{"Flail", 5, RightHand, {}, {}, {OneAttack, Bludgeon, -7, {{1, 6, 1}, {1, 6}}}, {}, magic_weapon},
+{"Halberd", 3, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -9, {{1, 10}, {2, 6}}}, {}, magic_weapon},
+{"Warhammer", 99, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {{1, 4, 1}, {1, 4}}}, {}, magic_bludgeon},
+{"Mace", 4, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {{1, 6, 1}, {1, 6}}}, {}, magic_bludgeon},
+{"Spear", 6, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {{1, 6}, {1, 8}}}, {}, magic_weapon},
+{"Staff", 8, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {{1, 6}, {1, 4}}}, {}, magic_weapon},
+{"Bastard sword", 45, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {{2, 4}, {2, 8}}}, {}, magic_weapon},
+{"Longsword", 1, RightHand, {UseLargeWeapon, UseTheifWeapon}, {}, {OneAttack, Slashing, -5, {{1, 8}, {1, 12}}}, {}, magic_weapon},
+{"Short sword", 2, RightHand, {UseTheifWeapon}, {}, {OneAttack, Slashing, -3, {{1, 6}, {1, 8}}}, {}, magic_weapon},
+{"Two-handed sword", 42, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -10, {{1, 10}, {3, 6}}}, {}, magic_weapon},
 //
-{"Bow", 10, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {Pierce, -8, {{1, 8}, {1, 8}}}},
-{"Sling", 18, RightHand, {}, {Ranged}, {Bludgeon, -6, {{1, 4}, {1, 4}}}},
+{"Bow", 10, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {OneAttack, Pierce, -8, {{1, 8}, {1, 8}}}},
+{"Sling", 18, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {{1, 4}, {1, 4}}}},
 //
 {"Robe", 32, Body},
 {"Leather armor", 31, Body, {UseLeatherArmor}, {}, {}, {2}},
@@ -86,10 +86,10 @@ item_info bsmeta<item_info>::elements[] = {{"No item"},
 {"Ration", 38},
 {"Iron ration", 37},
 //
-{"Slam", 0, RightHand, {}, {}, {Bludgeon, -2, {{1, 8}, {1, 8}}}},
-{"Claws", 0, RightHand, {}, {}, {Slashing, -3, {{1, 4}, {1, 4}}}},
-{"Bite", 0, RightHand, {}, {}, {Pierce, -4, {{1, 6}, {1, 6}}}},
-{"Bite", 0, RightHand, {}, {}, {Pierce, -4, {{2, 6}, {2, 6}}}},
+{"Slam", 0, RightHand, {}, {}, {OneAttack, Bludgeon, -2, {{1, 8}, {1, 8}}}},
+{"Claws", 0, RightHand, {}, {}, {TwoAttacks, Slashing, -3, {{1, 4}, {1, 4}}}},
+{"Bite", 0, RightHand, {}, {}, {OneAttack, Pierce, -4, {{1, 6}, {1, 6}}}},
+{"Bite", 0, RightHand, {}, {}, {OneAttack, Pierce, -4, {{2, 6}, {2, 6}}}},
 };
 assert_enum(item, LastItem);
 static_assert(sizeof(item) == 4, "Not valid items count");
@@ -210,17 +210,15 @@ int	item::get(enchant_s value) const {
 	return 0;
 }
 
-void item::get(item_s type, weaponi& result, const creature* enemy) {
+void item::get(weaponi& result, const creature* enemy) const {
 	auto size = enemy ? enemy->getsize() : Medium;
 	result.damage = bsmeta<item_info>::elements[type].weapon.damage[(size == Large) ? 1 : 0];
-	result.critical_multiplier += bsmeta<item_info>::elements[type].weapon.critical_multiplier;
-	result.critical_range += bsmeta<item_info>::elements[type].weapon.critical_range;
-}
-
-void item::get(weaponi& result) const {
-	get(type, result);
 	result.thac0 += get(OfAccuracy) + getmagic();
 	result.damage.b += get(OfDamage) + getmagic();
+	if(is(Deadly))
+		result.critical_multiplier++;
+	if(is(Quick))
+		result.critical_range++;
 	result.critical_range += get(OfSharpness);
 	result.critical_multiplier += get(OfSmashing);
 }
