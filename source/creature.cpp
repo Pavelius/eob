@@ -118,12 +118,11 @@ static int experience_rogue[21] = {
 static struct poison_effect {
 	state_s		state;
 	char		save;
-	short		duration;
 	dice		damage[2];
-} poison_effects[DeadlyPoison - WeakPoison + 1] = {{WeakPoison, 2, 20, {{0}, {1, 3}}},
-{Poison, 0, 20, {{0}, {1, 6}}},
-{StrongPoison, -1, 30, {{1, 3}, {1, 8}}},
-{DeadlyPoison, -4, 20, {{1, 3}, {3, 6}}},
+} poison_effects[DeadlyPoison - WeakPoison + 1] = {{WeakPoison, 2, {{0}, {1, 3}}},
+{Poison, 0, {{0}, {1, 6}}},
+{StrongPoison, -1, {{1, 3}, {1, 8}}},
+{DeadlyPoison, -4, {{1, 3}, {3, 6}}},
 };
 
 static const poison_effect* find_poison(state_s id) {
@@ -143,11 +142,13 @@ static int* get_experience_table(class_s cls) {
 	}
 }
 
-static void update_poison(creature* pc, bool interactive) {
+// Poison effect apply every 4 round.
+// Make save vs posoin or get damage
+void creature::update_poison(bool interactive) {
 	auto hits = 0;
 	for(auto& pe : poison_effects) {
-		if(pc->is(pe.state)) {
-			if(pc->roll(SaveVsPoison, pe.save))
+		if(is(pe.state)) {
+			if(roll(SaveVsPoison, pe.save))
 				hits += pe.damage[1].roll();
 			else if(pe.damage[0].c)
 				hits += pe.damage[0].roll();
@@ -156,15 +157,14 @@ static void update_poison(creature* pc, bool interactive) {
 	if(hits > 0) {
 		if(interactive) {
 			char temp[260];
-			mslog("%1 feel poison", pc->getname(temp, zendof(temp)));
+			mslog("%1 feel poison", getname(temp, zendof(temp)));
 		}
 		draw::animation::update();
-		pc->damage(hits);
+		damage(hits);
 	}
 }
 
-bool creature::add(state_s type, unsigned duration, save_s save) {
-	const poison_effect* pe;
+bool creature::add(state_s type, unsigned duration, save_s save, char save_bonus) {
 	if(!duration)
 		duration = xrand(2, 8);
 	switch(type) {
@@ -173,19 +173,24 @@ bool creature::add(state_s type, unsigned duration, save_s save) {
 		// Elf has 90% immunity to paralization, sleep and charm
 		if(roll(ResistCharm))
 			return false;
-		if(save == SaveNegate && roll(SaveVsParalization))
-			return false;
-		return set(type, duration);
-	default:
-		pe = find_poison(type);
-		if(pe) {
-			if(save == SaveNegate && roll(SaveVsPoison, pe->save))
-				return false;
-			return set(pe->state, pe->duration);
-		}
 		break;
 	}
-	return false;
+	if(save != NoSave) {
+		auto& ei = bsmeta<statei>::elements[type];
+		if(roll(ei.save)) {
+			switch(save) {
+			case SaveNegate:
+				return false;
+			case SaveHalf:
+				duration = duration / 2;
+				if(!duration)
+					return false;
+				break;
+			}
+		}
+	}
+	set(type, duration);
+	return true;
 }
 
 int creature::gethd() const {
@@ -303,9 +308,10 @@ bool creature::isready() const {
 
 void creature::update(bool interactive) {
 	moved = false;
+	// Обновим эффект ядов
 	if((game::rounds % 4) == 0)
-		update_poison(this, interactive);
-	// Slow ability
+		update_poison(interactive);
+	// Обновим эффекты других способностей, которые действуют не так часто
 	if((game::rounds % 10) == 0) {
 		for(auto slot = Head; slot <= Legs; slot = (wear_s)(slot + 1)) {
 			auto pi = getitem(slot);
@@ -435,11 +441,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// Poison attack
 			for(auto& e : poison_effects) {
 				if(is(e.state, slot))
-					defender->add(e.state);
+					defender->add(e.state, xrand(4, 12), SaveNegate, e.save);
 			}
 			// Paralize attack
 			if(is(StateParalized, slot))
-				defender->add(StateParalized, xrand(1, 3));
+				defender->add(StateParalized, xrand(1, 3), SaveNegate);
 			defender->damage(hits);
 		} else
 			draw::animation::render();

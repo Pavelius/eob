@@ -221,11 +221,11 @@ bool game::action::use(item* pi) {
 	case PotionRed:
 		if(pi->iscursed()) {
 			// RULE: Cursed potion always apply strong poison
-			pc->add(StrongPoison, 0, NoSave);
+			pc->add(StrongPoison, xrand(4, 16), NoSave);
 		} else {
 			switch(pi->getenchant()) {
 			case OfPoison:
-				pc->add(WeakPoison, 0, NoSave);
+				pc->add(WeakPoison, xrand(4, 16), NoSave);
 				break;
 			case OfHealing:
 				pc->damage(-dice::roll(1 + pi->getmagic(), 4) + 2);
@@ -911,7 +911,7 @@ static void move_monster(dungeon& location, short unsigned index, direction_s dr
 	}
 }
 
-void refresh_monsters() {
+void game::passround() {
 	// Походим за монстров
 	for(auto& e : location.monsters) {
 		if(!e || !e.isready() || e.ismoved())
@@ -948,10 +948,6 @@ void refresh_monsters() {
 		if(e)
 			e.update(false);
 	}
-}
-
-void game::passround() {
-	refresh_monsters();
 	// Обновим героев
 	for(auto pc : game::party) {
 		if(!pc)

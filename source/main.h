@@ -153,8 +153,7 @@ enum damage_s : unsigned char {
 	Paralize, Death, TurnToStone,
 };
 enum save_s : unsigned char {
-	NoSave,
-	SaveHalf, SaveNegate,
+	NoSave, SaveHalf, SaveNegate,
 };
 enum cell_s : unsigned char {
 	CellUnknown,
@@ -314,6 +313,7 @@ struct spelli {
 };
 struct statei {
 	const char*			name;
+	skill_s				save;
 };
 class item {
 	item_s				type;
@@ -396,10 +396,11 @@ class creature {
 	void				random_equipmant();
 	void				random_spells(class_s type, int level, int count);
 	void				update_levelup(bool interactive);
+	void				update_poison(bool interactive);
 public:
 	explicit operator bool() const { return states[0] != 0; }
 	void				add(item i);
-	bool				add(state_s type, unsigned duration = 0, save_s id = SaveNegate);
+	bool				add(state_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
 	void				attack(short unsigned index, direction_s d, int bonus);
