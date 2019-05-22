@@ -1,13 +1,12 @@
 #include "main.h"
 
 statei bsmeta<statei>::elements[] = {{"No state"},
-{"Anger", SaveVsMagic},
-{"Food", SaveVsMagic},
 {"Armored", SaveVsMagic},
 {"Blessed", SaveVsMagic},
+{"Climbed", SaveVsMagic},
 {"Detected Evil", SaveVsMagic},
 {"Detected Magic", SaveVsMagic},
-{"Fire resistant", SaveVsMagic},
+{"Fire resisted", SaveVsMagic},
 {"Invisible", SaveVsMagic},
 {"Hasted", SaveVsMagic},
 {"Protected from evil", SaveVsMagic},

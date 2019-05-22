@@ -234,13 +234,13 @@ bool game::action::use(item* pi) {
 				pc->damage(Magic, -dice::roll(1 + pi->getmagic(), 8) + 5);
 				break;
 			case OfFireResistance:
-				pc->set(StateFireResistance, get_potion_duration());
+				pc->set(FireResisted, get_potion_duration());
 				break;
 			case OfStrenght:
-				pc->set(StateStrenghted, get_potion_duration());
+				pc->set(Strenghted, get_potion_duration());
 				break;
 			case OfInvisibility:
-				pc->set(StateInvisible, get_potion_duration());
+				pc->set(Invisibled, get_potion_duration());
 				break;
 			case OfNeutralizePoison:
 				pc->set(WeakPoison, 0);
@@ -249,7 +249,7 @@ bool game::action::use(item* pi) {
 				pc->set(DeadlyPoison, 0);
 				break;
 			case OfSpeed:
-				pc->set(StateHasted, get_potion_duration());
+				pc->set(Hasted, get_potion_duration());
 				break;
 			}
 		}
@@ -656,7 +656,7 @@ void game::action::attack(short unsigned index_of_monsters) {
 		auto attacker = parcipants[i];
 		if(!attacker->isready())
 			continue;
-		if(attacker->is(StateHasted)
+		if(attacker->is(Hasted)
 			|| attacker->getbonus(OfSpeed, Legs)
 			|| attacker->getbonus(OfSpeed, Elbow))
 			attacker->attack(index_of_monsters, dr, 0);
@@ -920,7 +920,7 @@ void game::passround() {
 		auto party_direct = game::getdirection();
 		auto monster_index = e.getindex();
 		auto monster_direct = e.getdirection();
-		if(e.is(StateFear)) {
+		if(e.is(Scared)) {
 			direction_s free_directions[] = {rotateto(party_direct, Up), rotateto(party_direct, Left), rotateto(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
 			if(monster_direct != free_direct)

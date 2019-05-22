@@ -339,8 +339,8 @@ void draw::portrait(int x, int y, creature* pc) {
 	charstate(x, y, pc, Poison, colors::green, c1);
 	charstate(x, y, pc, StrongPoison, colors::green, c1);
 	charstate(x, y, pc, DeadlyPoison, colors::green, c1);
-	charstate(x, y, pc, StateParalized, colors::red, c1);
-	charstate(x, y, pc, StateSleeped, colors::blue, c1);
+	charstate(x, y, pc, Paralized, colors::red, c1);
+	charstate(x, y, pc, Sleeped, colors::blue, c1);
 	if(c1.a == 0)
 		rectf({x, y, x + 31, y + 31}, c1, ciclic(64, 2));
 	int pind = zfind(game::party, pc);
@@ -370,16 +370,16 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	portrait(x + 1, y + 9, pc);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
-	for(auto id = StateArmored; id < StateFear; id = (state_s)(id + 1)) {
+	for(auto id = Armored; id < Scared; id = (state_s)(id + 1)) {
 		if(pc->is(id)) {
 			switch(id) {
-			case StateDetectedEvil:
-			case StateDetectedMagic:
+			case DetectedEvil:
+			case DetectedMagic:
 				continue;
-			case StateHasted:
+			case Hasted:
 				draw::rectb(rc, colors::red);
 				break;
-			case StateBlessed:
+			case Blessed:
 				draw::rectb(rc, colors::yellow);
 				break;
 			default:

@@ -36,27 +36,28 @@ static void turn_undead(creature* caster, creature** targets, spell_s spell, cla
 		if(result >= value)
 			value = 0;
 		if(value = 0)
-			target->set(StateFear, xrand(2, 6)*10);
+			target->set(Scared, xrand(2, 6)*10);
 	}
 }
 
 spelli bsmeta<spelli>::elements[] = {{"No spell"},
 // 1 - level
-{"Bless", {0, 1}, TargetAllAlly, DurationHour, StateBlessed},
-{"Burning Hands", {1}, TargetAllClose, Instant, NoState, SaveHalf, {{1, 3}, 1, {2}, 10}, Fire, FireThrown},
+{"Bless", {0, 1}, TargetAllAlly, DurationHour, Blessed},
+{"Burning Hands", {1, 0}, TargetAllClose, Instant, NoState, SaveHalf, {{1, 3}, 1, {2}, 10}, Fire, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, Instant, NoState, NoSave, {{1, 8, 1}}},
-{"Detect Evil", {2, 1}, TargetAllAlly, DurationTurn, StateDetectedEvil},
-{"Detect Magic", {1, 1}, TargetAllAlly, DurationTurn, StateDetectedMagic},
-{"Mage Armor", {1}, TargetSelf, Duration4Hours, StateArmored},
-{"Magic Missile", {1}, TargetThrow, Instant, NoState, NoSave, {{1, 4, 1}, 2, {1, 4, 1}, 4}, Magic, MagicThrown},
-{"Prot. from Evil", {1, 1}, TargetAlly, DurationTurn, StateProtectedVsEvil},
+{"Detect Evil", {2, 1}, TargetAllAlly, DurationTurn, DetectedEvil},
+{"Detect Magic", {1, 1}, TargetAllAlly, DurationTurn, DetectedMagic},
+{"Feather Fall", {1, 0}, TargetAlly, DurationTurnPerLevel, Climbed},
+{"Mage Armor", {1, 0}, TargetSelf, Duration4Hours, Armored},
+{"Magic Missile", {1, 0}, TargetThrow, Instant, NoState, NoSave, {{1, 4, 1}, 2, {1, 4, 1}, 4}, Magic, MagicThrown},
+{"Prot. from Evil", {1, 1}, TargetAlly, DurationTurn, ProtectedFromEvil},
 {"Purify food", {0, 1}, TargetAllAlly, Instant},
-{"Read Languages", {1}, TargetSelf, DurationTurn, StateSpeakable},
-{"Shield", {1}, TargetSelf, Duration5PerLevel, StateShielded},
-{"Sleep", {1}, TargetAllClose, Duration5PerLevel, StateSleeped},
+{"Read Languages", {1, 0}, TargetSelf, DurationTurn, StateSpeakable},
+{"Shield", {1, 0}, TargetSelf, Duration5PerLevel, Shielded},
+{"Sleep", {1, 0}, TargetAllClose, Duration5PerLevel, Sleeped},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, Instant},
-{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, StateFear, NoSave, {}, Magic, MagicThrown, turn_undead},
+{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, Scared, NoSave, {}, Magic, MagicThrown, turn_undead},
 };
 assert_enum(spell, TurnUndead);
 

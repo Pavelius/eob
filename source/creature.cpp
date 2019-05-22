@@ -171,8 +171,8 @@ bool creature::add(state_s type, unsigned duration, save_s save, char save_bonus
 	if(!duration)
 		duration = xrand(2, 8);
 	switch(type) {
-	case StateParalized:
-	case StateSleeped:
+	case Paralized:
+	case Sleeped:
 		// Elf has 90% immunity to paralization, sleep and charm
 		if(roll(ResistCharm))
 			return false;
@@ -230,9 +230,9 @@ static int getweapon(wear_s weapon) {
 
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	int r = 0;
-	if(is(StateHasted))
+	if(is(Hasted))
 		r += 2;
-	if(is(StateBlessed))
+	if(is(Blessed))
 		r += 1;
 	result.attack = OneAttack;
 	result.bonus += r;
@@ -302,13 +302,13 @@ bool creature::roll(skill_s id, int bonus) {
 }
 
 bool creature::isinvisible() const {
-	return is(StateInvisible) || getbonus(OfInvisibility);
+	return is(Invisibled) || getbonus(OfInvisibility);
 }
 
 bool creature::isready() const {
 	return gethits() > 0
-		&& !is(StateParalized)
-		&& !is(StateSleeped);
+		&& !is(Paralized)
+		&& !is(Sleeped);
 }
 
 void creature::update(bool interactive) {
@@ -442,15 +442,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
 			// RULE: when attacking sleeping creature she wake up!
-			defender->set(StateSleeped, 0);
+			defender->set(Sleeped, 0);
 			// Poison attack
 			for(auto& e : poison_effects) {
 				if(is(e.state, slot))
 					defender->add(e.state, xrand(4, 12), SaveNegate, e.save);
 			}
 			// Paralize attack
-			if(is(StateParalized, slot))
-				defender->add(StateParalized, xrand(1, 3), SaveNegate);
+			if(is(Paralized, slot))
+				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			defender->damage(wi.type, hits);
 		} else
 			draw::animation::render();
@@ -712,7 +712,7 @@ int	creature::get(ability_s id) const {
 	switch(id) {
 	case Strenght:
 		r = ability[id];
-		if(is(StateStrenghted)) {
+		if(is(Strenghted)) {
 			if(r < 18)
 				r = 18;
 		}
@@ -757,7 +757,7 @@ int creature::getspeed() const {
 	r += wears[RightHand].getspeed();
 	r += wears[LeftHand].getspeed();
 	r += getbonus(OfSpeed);
-	if(is(StateHasted))
+	if(is(Hasted))
 		r += 2;
 	return r;
 }
@@ -773,11 +773,11 @@ int creature::getac() const {
 	r += getbonus(OfProtection);
 	if(kind)
 		r += (10 - bsmeta<monsteri>::elements[kind].ac);
-	if(is(StateHasted))
+	if(is(Hasted))
 		r += 2;
-	if(is(StateArmored))
+	if(is(Armored))
 		r += 4;
-	if(is(StateShielded))
+	if(is(Shielded))
 		r += 7;
 	return r;
 }
@@ -874,7 +874,7 @@ int creature::get_base_save_throw(skill_s st) const {
 			break;
 		}
 	}
-	if(is(StateProtectedVsEvil))
+	if(is(ProtectedFromEvil))
 		r--;
 	return (21 - r) * 5;
 }

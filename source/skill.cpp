@@ -178,11 +178,11 @@ int	creature::get(skill_s id) const {
 			result += maptbl(widow_spell_bonus, get(Wisdow)) * 5;
 			break;
 		}
-		if(result > 100)
-			result = 100;
 	} else if(id >= ClimbWalls && id <= ReadLanguages) {
 		auto dex = get(Dexterity);
 		result += get_theiv_skill(id, type, levels);
+		if(is(Climbed))
+			result += 100;
 		if(result <= 0)
 			return 0;
 		result += maptbl(theive_skills_by_dex[id - ClimbWalls], dex);
@@ -206,5 +206,7 @@ int	creature::get(skill_s id) const {
 			break;
 		}
 	}
+	if(result > 100)
+		result = 100;
 	return result;
 }

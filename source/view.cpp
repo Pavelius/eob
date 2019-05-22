@@ -219,10 +219,10 @@ void draw::itemicn(int x, int y, item i, unsigned char alpha, int spell) {
 		auto p = (color*)rs->offs(e.pallette);
 		memcpy(pallette, p, sizeof(pallette));
 		switch(spell) {
-		case StateDetectedMagic:
+		case DetectedMagic:
 			pallette[12] = colors::blue.mix(colors::white, draw::ciclic(128, 4));
 			break;
-		case StateDetectedEvil:
+		case DetectedEvil:
 			pallette[12] = colors::red.mix(colors::white, draw::ciclic(128, 4));
 			break;
 		}
@@ -306,10 +306,10 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 			image(x, y, gres(ITEMS), 83 + ((pid == RightHand) ? 0 : 1), 0, alpha);
 	} else {
 		auto state = NoState;
-		if(pc->is(StateDetectedEvil) && pitm->iscursed())
-			state = StateDetectedEvil;
-		else if(pc->is(StateDetectedMagic) && pitm->getmagic())
-			state = StateDetectedMagic;
+		if(pc->is(DetectedEvil) && pitm->iscursed())
+			state = DetectedEvil;
+		else if(pc->is(DetectedMagic) && pitm->getmagic())
+			state = DetectedMagic;
 		itemicn(x, y, *pitm, alpha, state);
 	}
 	if(flags&Disabled)

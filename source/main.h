@@ -56,7 +56,7 @@ enum message_s : unsigned char {
 enum spell_s : unsigned char {
 	NoSpell,
 	// Spells (level 1)
-	SpellBless, SpellBurningHands, SpellCureLightWounds, SpellDetectEvil, SpellDetectMagic,
+	SpellBless, SpellBurningHands, SpellCureLightWounds, SpellDetectEvil, SpellDetectMagic, FeatherFall,
 	SpellMageArmor, SpellMagicMissile,
 	SpellProtectionFromEvil, SpellPurifyFood,
 	SpellReadLanguages, SpellShield, SpellSleep,
@@ -89,11 +89,11 @@ enum dungeon_s : unsigned char {
 };
 enum state_s : unsigned char {
 	NoState,
-	StateAnger, StateFood,
-	StateArmored, StateBlessed, StateDetectedEvil, StateDetectedMagic,
-	StateFireResistance, StateInvisible, StateHasted,
-	StateProtectedVsEvil, StateShielded, StateSleeped, StateSpeakable, StateStrenghted, StateFear,
-	StateParalized, WeakPoison, Poison, StrongPoison, DeadlyPoison,
+	Armored, Blessed, Climbed, DetectedEvil, DetectedMagic,
+	FireResisted, Invisibled, Hasted,
+	ProtectedFromEvil, Shielded, Sleeped, StateSpeakable, Strenghted,
+	Scared, Paralized,
+	WeakPoison, Poison, StrongPoison, DeadlyPoison,
 	LastState = DeadlyPoison,
 };
 enum ability_s : unsigned char {
