@@ -92,7 +92,7 @@ enum state_s : unsigned char {
 	StateAnger, StateFood,
 	StateArmored, StateBlessed, StateDetectedEvil, StateDetectedMagic,
 	StateFireResistance, StateInvisible, StateHasted,
-	StateProtectedVsEvil, StateShielded, StateSleeped, StateSpeakable, StateStrenghted, StateTurned,
+	StateProtectedVsEvil, StateShielded, StateSleeped, StateSpeakable, StateStrenghted, StateFear,
 	StateParalized, WeakPoison, Poison, StrongPoison, DeadlyPoison,
 	LastState = DeadlyPoison,
 };

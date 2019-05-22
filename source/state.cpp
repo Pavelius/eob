@@ -15,7 +15,7 @@ statei bsmeta<statei>::elements[] = {{"No state"},
 {"Sleeped", SaveVsMagic},
 {"Speakable", SaveVsMagic},
 {"Strenghted", SaveVsMagic},
-{"Turned", SaveVsMagic},
+{"Scared", SaveVsMagic},
 //
 {"Paralized", SaveVsParalization},
 {"Weak Poison", SaveVsPoison},

@@ -78,19 +78,22 @@ static char clr_lev1[] = {
 static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
 static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
 static char racial_remove_traps[] = {0, 10, 0, 0, 5, 0};
-static char thac0_warrior[21] = {
+static char thac0_monster[] = {
+	0, 1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17
+};
+static char thac0_warrior[] = {
 	0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
 	9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
 };
-static char thac0_priest[21] = {
+static char thac0_priest[] = {
 	0, 0, 0, 0, 2, 2, 2, 4, 4, 4,
 	6, 6, 6, 8, 8, 8, 10, 10, 10, 12, 12
 };
-static char thac0_rogue[21] = {
+static char thac0_rogue[] = {
 	0, 0, 0, 1, 1, 2, 2, 3, 3, 4,
 	4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9
 };
-static char thac0_wizard[21] = {
+static char thac0_wizard[] = {
 	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
 	3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6
 };
@@ -200,7 +203,9 @@ int creature::gethd() const {
 }
 
 int	creature::getawards() const {
-	return bsmeta<monsteri>::elements[kind].getexperience();
+	if(kind)
+		return bsmeta<monsteri>::elements[kind].getexperience();
+	return gethd() * 100;
 }
 
 size_s creature::getsize() const {
@@ -799,16 +804,13 @@ void creature::update_levelup(bool interactive) {
 
 int	creature::getthac0(class_s cls, int level) const {
 	switch(cls) {
+	case NoClass: return maptbl(thac0_monster, level);
 	case Fighter:
 	case Paladin:
-	case Ranger:
-		return maptbl(thac0_warrior, level);
-	case Theif:
-		return maptbl(thac0_rogue, level);
-	case Cleric:
-		return maptbl(thac0_priest, level);
-	default:
-		return maptbl(thac0_wizard, level);
+	case Ranger: return maptbl(thac0_warrior, level);
+	case Theif: return maptbl(thac0_rogue, level);
+	case Cleric: return maptbl(thac0_priest, level);
+	default: return maptbl(thac0_wizard, level);
 	}
 }
 
@@ -893,7 +895,7 @@ void creature::preparespells() {
 	if(get(Cleric))
 		set(TurnUndead, 2);
 	if(get(Paladin))
-		set(LayOnHands, 3);
+		set(LayOnHands, 1);
 }
 
 int creature::getspellsperlevel(class_s cls, int spell_level) const {

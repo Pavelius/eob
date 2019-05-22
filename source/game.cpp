@@ -920,7 +920,7 @@ void game::passround() {
 		auto party_direct = game::getdirection();
 		auto monster_index = e.getindex();
 		auto monster_direct = e.getdirection();
-		if(e.is(StateTurned)) {
+		if(e.is(StateFear)) {
 			direction_s free_directions[] = {rotateto(party_direct, Up), rotateto(party_direct, Left), rotateto(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
 			if(monster_direct != free_direct)

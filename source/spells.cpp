@@ -16,7 +16,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell"},
 {"Sleep", {1}, TargetAllClose, Duration5PerLevel, StateSleeped},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, Instant},
-{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, StateTurned},
+{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, StateFear},
 };
 assert_enum(spell, TurnUndead);
 
@@ -76,12 +76,22 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 	if(value < 0)
 		return;
 	// Apply effect if any
-	if(effect)
+	if(effect) {
+		switch(spell) {
+		case TurnUndead:
+			if(!target->is(Undead))
+				return;
+			break;
+		}
 		target->set(effect, game::get(duration, level));
+	}
 	// Some spell has special cases
 	switch(spell) {
 	case SpellCureLightWounds:
 		target->damage(Magic, -value);
+		break;
+	case LayOnHands:
+		target->damage(Magic, -caster->gethd()*2);
 		break;
 	case SpellPurifyFood:
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {

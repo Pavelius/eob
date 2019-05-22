@@ -45,6 +45,8 @@ int monsteri::getexperience() const {
 		r += 2;
 	else if(is(DeadlyPoison))
 		r += 3;
+	if(feats.is(ResistBludgeon) || feats.is(ResistPierce) || feats.is(ResistSlashing))
+		r += 1;
 	auto exp = maptbl(hd_experience, r);
 	if(r > 13)
 		exp += (r - 13) * 1000;
@@ -84,6 +86,9 @@ void creature::set(monster_s value) {
 	race = mi.race;
 	gender = mi.gender;
 	feats = mi.feats;
+	levels[0] = mi.hd[0];
+	if(mi.hd[1] >= 3)
+		levels[0]++;
 	for(auto i : mi.attacks)
 		equip(i);
 }

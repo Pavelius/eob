@@ -370,7 +370,7 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	portrait(x + 1, y + 9, pc);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
-	for(auto id = StateArmored; id <= StateTurned; id = (state_s)(id + 1)) {
+	for(auto id = StateArmored; id < StateFear; id = (state_s)(id + 1)) {
 		if(pc->is(id)) {
 			switch(id) {
 			case StateDetectedEvil:
