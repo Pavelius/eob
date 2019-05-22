@@ -40,6 +40,11 @@ static void turn_undead(creature* caster, creature** targets, spell_s spell, cla
 	}
 }
 
+static effecti effects[] = {{Magic, {1, 4, 1}, {1, 4, 1}, 2, 5},
+{Fire, {1, 3, 2}, {2}, 1, 9},
+{Heal, {1, 8}, {}},
+};
+
 spelli bsmeta<spelli>::elements[] = {{"No spell"},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, DurationHour, Blessed},

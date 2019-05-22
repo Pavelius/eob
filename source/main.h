@@ -145,12 +145,13 @@ enum item_s : unsigned char {
 	// Monster attacks
 	Slam, Claws, Bite, Bite2d6,
 	LastItem = Bite2d6,
+	// Thrown effect
 	FireThrown, LightingThrown, IceThrown, MagicThrown
 };
 enum damage_s : unsigned char {
 	Bludgeon, Slashing, Pierce,
 	Cold, Electricity, Fire, Magic,
-	Paralize, Death, Petrification,
+	Heal, Paralize, Death, Petrification,
 };
 enum save_s : unsigned char {
 	NoSave, SaveHalf, SaveNegate,
@@ -283,12 +284,6 @@ struct monsteri {
 	bool				is(enchant_s id) const;
 	bool				is(state_s id) const;
 };
-struct spell_effect {
-	dice				base;
-	int					level;
-	dice				perlevel;
-	int					maximum_per_level;
-};
 struct racei {
 	const char*			name;
 	char				minimum[Charisma + 1];
@@ -301,6 +296,41 @@ struct racei {
 struct skilli {
 	const char*			name;
 	adat<class_s, 4>	allow;
+};
+struct spell_effect {
+	dice				base;
+	int					level;
+	dice				perlevel;
+	int					maximum_per_level;
+};
+struct effecti {
+	typedef void(*type_many)(creature* player, creature** targets, const effecti& e, int level);
+	typedef void(*type_one)(creature* player, creature* target, const effecti& e, int level);
+	type_many			proc_many;
+	type_one			proc_one;
+	union {
+		struct {
+			state_s		effect;
+			duration_s	duration;
+			save_s		save;
+		};
+		struct {
+			damage_s	damage_type;
+			dice		damage;
+			dice		damage_per_level;
+			char		damage_increment, damage_maximum;
+		};
+		struct {
+			int			value;
+		};
+	};
+	static void			apply_effect(creature* player, creature* target, const effecti& e, int level) {}
+	static void			apply_damage(creature* player, creature* target, const effecti& e, int level) {}
+	constexpr effecti(type_one proc_one, type_many proc_many, int value = 0) : proc_one(proc_one), proc_many(proc_many), value(value) {}
+	constexpr effecti(duration_s duration, state_s effect, save_s save = SaveNegate) : proc_one(apply_effect), proc_many(0),
+		duration(duration), effect(effect), save(save) {}
+	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0) : proc_one(apply_damage), proc_many(0),
+		damage_type(type), damage(damage), damage_per_level(damage_per_level), damage_increment(increment), damage_maximum(maximum) {}
 };
 struct spelli {
 	const char*			name;
