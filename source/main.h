@@ -319,6 +319,7 @@ struct effecti {
 			dice		damage;
 			dice		damage_per_level;
 			char		damage_increment, damage_maximum;
+			save_s		damage_save;
 		};
 		struct {
 			int			value;
@@ -326,23 +327,19 @@ struct effecti {
 	};
 	static void			apply_effect(creature* player, creature* target, const effecti& e, int level) {}
 	static void			apply_damage(creature* player, creature* target, const effecti& e, int level) {}
-	constexpr effecti(type_one proc_one, type_many proc_many, int value = 0) : proc_one(proc_one), proc_many(proc_many), value(value) {}
+	constexpr effecti(type_one proc_one, type_many proc_many = 0, int value = 0) : proc_one(proc_one), proc_many(proc_many), value(value) {}
 	constexpr effecti(duration_s duration, state_s effect, save_s save = SaveNegate) : proc_one(apply_effect), proc_many(0),
 		duration(duration), effect(effect), save(save) {}
-	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0) : proc_one(apply_damage), proc_many(0),
-		damage_type(type), damage(damage), damage_per_level(damage_per_level), damage_increment(increment), damage_maximum(maximum) {}
+	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc_one(apply_damage), proc_many(0),
+		damage_type(type), damage(damage), damage_per_level(damage_per_level), damage_increment(increment), damage_maximum(maximum),
+		damage_save(save) {}
 };
 struct spelli {
 	const char*			name;
 	int					levels[2]; // mage, cleric
 	target_s			range;
-	duration_s			duration;
-	state_s				effect;
-	save_s				save;
-	spell_effect		number;
-	damage_s			damage_type;
+	effecti				effect;
 	item_s				throw_effect;
-	void(*proc_mass)(creature* caster, creature** targets, spell_s spell, class_s cls, int level, int wand_magic);
 };
 struct statei {
 	const char*			name;
