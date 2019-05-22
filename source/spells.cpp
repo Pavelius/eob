@@ -1,5 +1,45 @@
 #include "main.h"
 
+static int turn_undead_index[15] = {0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11};
+static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, -2},
+{13, 10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2},
+{16, 13, 10, 7, 4, 0, 0, -1, -1, -2, -2, -2},
+{19, 16, 13, 10, 7, 4, 0, 0, -1, -1, -2, -2},
+{20, 19, 16, 13, 10, 7, 4, 0, 0, -1, -1, -2},
+{30, 20, 19, 16, 13, 10, 7, 4, 0, 0, -1, -1},
+{30, 30, 20, 19, 16, 13, 10, 7, 4, 0, 0, -1},
+{30, 30, 30, 20, 19, 16, 13, 10, 7, 4, 0, 0},
+{30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4, 0},
+{30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
+};
+
+static void turn_undead(creature* caster, creature** targets, spell_s spell, class_s cls, int level, int wand_magic) {	
+	auto ti = maptbl(turn_undead_index, level);
+	auto result = d20();
+	for(int i = 0; i < 4; i++) {
+		auto target = targets[i];
+		if(!target)
+			continue;
+		if(!target->is(Undead))
+			continue;
+		auto hd = target->gethd();
+		if(hd > 0)
+			hd -= 1;
+		auto tt = maptbl(turn_undead_chance, hd);
+		auto value = tt[ti];
+		if(value>20)
+			continue;
+		if(value < 0) {
+			target->damage(Magic, target->gethitsmaximum() + 10);
+			continue;
+		}
+		if(result >= value)
+			value = 0;
+		if(value = 0)
+			target->set(StateFear, xrand(2, 6)*10);
+	}
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell"},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, DurationHour, StateBlessed},
@@ -16,7 +56,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell"},
 {"Sleep", {1}, TargetAllClose, Duration5PerLevel, StateSleeped},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, Instant},
-{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, StateFear},
+{"Turn Undead", {0, 1}, TargetAllClose, DurationTurn, StateFear, NoSave, {}, Magic, MagicThrown, turn_undead},
 };
 assert_enum(spell, TurnUndead);
 
@@ -76,15 +116,8 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 	if(value < 0)
 		return;
 	// Apply effect if any
-	if(effect) {
-		switch(spell) {
-		case TurnUndead:
-			if(!target->is(Undead))
-				return;
-			break;
-		}
+	if(effect)
 		target->set(effect, game::get(duration, level));
-	}
 	// Some spell has special cases
 	switch(spell) {
 	case SpellCureLightWounds:
@@ -146,6 +179,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 	auto dir = caster->getdirection();
 	creature* target = 0;
 	creature* targets[4];
+	auto& si = bsmeta<spelli>::elements[spell];
 	switch(range) {
 	case TargetSelf:
 		mscast(caster, spell);
@@ -170,7 +204,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		apply_spell_effect(caster, target, spell, cls, level, wand_magic);
 		break;
 	case TargetAllThrow:
-		index = get_enemy_distance(index, dir, bsmeta<spelli>::elements[spell].throw_effect);
+		index = get_enemy_distance(index, dir, si.throw_effect);
 		if(index == Blocked)
 			return false;
 		index = moveto(index, rotateto(dir, Down));
@@ -180,14 +214,18 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		//	draw::animation::thrownstep(index, dir, spell_data[spell].throw_effect);
 		location.getmonsters(targets, moveto(index, dir), dir);
 		mscast(caster, spell);
-		for(auto e : targets) {
-			if(!e)
-				continue;
-			apply_spell_effect(caster, e, spell, cls, level, wand_magic);
+		if(si.proc_mass)
+			si.proc_mass(caster, targets, spell, cls, level, wand_magic);
+		else {
+			for(auto e : targets) {
+				if(!e)
+					continue;
+				apply_spell_effect(caster, e, spell, cls, level, wand_magic);
+			}
 		}
 		break;
 	case TargetThrow:
-		index = get_enemy_distance(index, dir, bsmeta<spelli>::elements[spell].throw_effect);
+		index = get_enemy_distance(index, dir, si.throw_effect);
 		if(index == Blocked)
 			return false;
 		index = moveto(index, rotateto(dir, Down));

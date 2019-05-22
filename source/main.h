@@ -312,6 +312,7 @@ struct spelli {
 	spell_effect		number;
 	damage_s			damage_type;
 	item_s				throw_effect;
+	void(*proc_mass)(creature* caster, creature** targets, spell_s spell, class_s cls, int level, int wand_magic);
 };
 struct statei {
 	const char*			name;
