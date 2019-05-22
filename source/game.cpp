@@ -221,17 +221,17 @@ bool game::action::use(item* pi) {
 	case PotionRed:
 		if(pi->iscursed()) {
 			// RULE: Cursed potion always apply strong poison
-			pc->add(StrongPoison, xrand(4, 16), NoSave);
+			pc->add(StrongPoison, xrand(2, 6) * 4, NoSave);
 		} else {
 			switch(pi->getenchant()) {
 			case OfPoison:
-				pc->add(WeakPoison, xrand(4, 16), NoSave);
+				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
 				break;
 			case OfHealing:
-				pc->damage(-dice::roll(1 + pi->getmagic(), 4) + 2);
+				pc->damage(Magic, -dice::roll(1 + pi->getmagic(), 4) + 2);
 				break;
 			case OfRegeneration:
-				pc->damage(-dice::roll(1 + pi->getmagic(), 8) + 5);
+				pc->damage(Magic, -dice::roll(1 + pi->getmagic(), 8) + 5);
 				break;
 			case OfFireResistance:
 				pc->set(StateFireResistance, get_potion_duration());
@@ -323,7 +323,7 @@ bool game::action::use(item* pi) {
 				if(pi->iscursed()) {
 					// RULE: Cursed wands want drawback
 					if(d100() < 30)
-						pc->damage(dice::roll(1, 6));
+						pc->damage(Pierce, dice::roll(1, 6));
 				}
 			} else {
 				char name[32];
@@ -463,7 +463,7 @@ void game::action::camp(item& it) {
 				break;
 			}
 		}
-		pc->damage(-healed);
+		pc->damage(Magic, -healed);
 		pc->preparespells();
 		// Recharge some items
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -1054,7 +1054,7 @@ static void falling_damage() {
 		// RULE: Climb walls helps when you drop down in pits
 		if(e->roll(ClimbWalls))
 			continue;
-		e->damage(dice::roll(3, 6));
+		e->damage(Bludgeon, dice::roll(3, 6));
 	}
 }
 

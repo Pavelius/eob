@@ -16,7 +16,7 @@ monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, {}, {3}, 7, {Slam}, {}},
 {"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, {}, {2}, 9, {Bite2d6}, {}, {OfVampirism}},
 {"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, {}, {1}, 7, {SwordLong}, {}, {}},
-{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, {Undead}, {1}, 7, {Axe}, {}, {}},
+{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
 {"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, {}, {4, 4}, 4, {Bite}, {Poison}},
 {"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, {Undead}, {2}, 8, {Slam}, {}, {}}
 };

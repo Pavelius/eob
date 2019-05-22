@@ -149,8 +149,8 @@ enum item_s : unsigned char {
 };
 enum damage_s : unsigned char {
 	Bludgeon, Slashing, Pierce,
-	Cold, Electricity, Fire,
-	Paralize, Death, TurnToStone,
+	Cold, Electricity, Fire, Magic,
+	Paralize, Death, Petrification,
 };
 enum save_s : unsigned char {
 	NoSave, SaveHalf, SaveNegate,
@@ -177,6 +177,7 @@ enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
 	HolyGrace, Ambidextrity,
 	Undead,
+	ResistBludgeon, ResistSlashing, ResistPierce,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
 };
 enum usability_s : unsigned char {
@@ -309,6 +310,7 @@ struct spelli {
 	state_s				effect;
 	save_s				save;
 	spell_effect		number;
+	damage_s			damage_type;
 	item_s				throw_effect;
 };
 struct statei {
@@ -408,7 +410,7 @@ public:
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
-	void				damage(int hits);
+	void				damage(damage_s type, int hits);
 	int					damaged(const creature* defender, wear_s slot) const;
 	void				equip(item it);
 	void				finish();

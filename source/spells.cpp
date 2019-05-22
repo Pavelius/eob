@@ -3,12 +3,12 @@
 spelli bsmeta<spelli>::elements[] = {{"No spell"},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, DurationHour, StateBlessed},
-{"Burning Hands", {1}, TargetAllClose, Instant, NoState, SaveHalf, {{1, 3}, 1, {2}, 10}, FireThrown},
+{"Burning Hands", {1}, TargetAllClose, Instant, NoState, SaveHalf, {{1, 3}, 1, {2}, 10}, Fire, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, Instant, NoState, NoSave, {{1, 8, 1}}},
 {"Detect Evil", {2, 1}, TargetAllAlly, DurationTurn, StateDetectedEvil},
 {"Detect Magic", {1, 1}, TargetAllAlly, DurationTurn, StateDetectedMagic},
 {"Mage Armor", {1}, TargetSelf, Duration4Hours, StateArmored},
-{"Magic Missile", {1}, TargetThrow, Instant, NoState, NoSave, {{1, 4, 1}, 2, {1, 4, 1}, 4}, MagicThrown},
+{"Magic Missile", {1}, TargetThrow, Instant, NoState, NoSave, {{1, 4, 1}, 2, {1, 4, 1}, 4}, Magic, MagicThrown},
 {"Prot. from Evil", {1, 1}, TargetAlly, DurationTurn, StateProtectedVsEvil},
 {"Purify food", {0, 1}, TargetAllAlly, Instant},
 {"Read Languages", {1}, TargetSelf, DurationTurn, StateSpeakable},
@@ -81,7 +81,7 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 	// Some spell has special cases
 	switch(spell) {
 	case SpellCureLightWounds:
-		target->damage(-value);
+		target->damage(Magic, -value);
 		break;
 	case SpellPurifyFood:
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -95,7 +95,7 @@ static void apply_spell_effect(creature* caster, creature* target, spell_s spell
 		break;
 	default:
 		if(value)
-			target->damage(value);
+			target->damage(si.damage_type, value);
 		break;
 	}
 }

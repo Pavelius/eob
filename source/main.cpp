@@ -17,8 +17,8 @@ static void test_dungeon(dungeon_s type) {
 	location.setcontent(type, 1);
 	draw::settiles(type);
 	test_room2(x, y);
-	location.addmonster(Spider, location.getindex(x, y - 1), 2, Down);
-	//location.addmonster(Ghoul, location.getindex(x, y - 1), 3, Down);
+	location.addmonster(Skeleton, location.getindex(x, y - 1), 2, Down);
+	location.addmonster(Skeleton, location.getindex(x, y - 1), 3, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);

@@ -160,7 +160,7 @@ void creature::update_poison(bool interactive) {
 			mslog("%1 feel poison", getname(temp, zendof(temp)));
 		}
 		draw::animation::update();
-		damage(hits);
+		damage(Death, hits);
 	}
 }
 
@@ -319,7 +319,7 @@ void creature::update(bool interactive) {
 				auto magic = pi->getmagic();
 				switch(pi->getenchant()) {
 				case OfRegeneration:
-					damage(-magic);
+					damage(Magic, -magic);
 					break;
 				}
 			}
@@ -430,7 +430,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				auto hits_healed = xrand(1, 4) + vampirism;
 				if(hits_healed > hits)
 					hits_healed = hits;
-				this->damage(-hits_healed);
+				this->damage(Magic, -hits_healed);
 			}
 		}
 		// Show result
@@ -446,7 +446,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// Paralize attack
 			if(is(StateParalized, slot))
 				defender->add(StateParalized, xrand(1, 3), SaveNegate);
-			defender->damage(hits);
+			defender->damage(wi.type, hits);
 		} else
 			draw::animation::render();
 		draw::animation::update();
@@ -513,9 +513,9 @@ void creature::clear() {
 }
 
 void creature::finish() {
-	feats = bsmeta<racei>::elements[race].feats;
+	feats.data |= bsmeta<racei>::elements[race].feats.data;
 	feats.data |= bsmeta<classi>::elements[type].feats.data;
-	usability = bsmeta<racei>::elements[race].usability;
+	usability.data |= bsmeta<racei>::elements[race].usability.data;
 	usability.data |= bsmeta<classi>::elements[type].usability.data;
 	states[0] = 1;
 	for(int i = 0; i < 3; i++) {
@@ -1048,43 +1048,51 @@ bool creature::isallow(const item it, wear_s slot) const {
 	return it.getwear() == slot;
 }
 
-void creature::damage(int hits) {
+void creature::damage(damage_s type, int hits) {
+	if(hits > 0) {
+		if(type == Bludgeon && is(ResistBludgeon))
+			hits /= 2;
+		if(type == Slashing && is(ResistSlashing))
+			hits = (hits + 1) / 2;
+		if(type == Pierce && is(ResistPierce))
+			hits /= 2;
+	}
 	auto c = gethits() - hits;
 	if(hits < 0) {
 		auto m = gethitsmaximum();
 		if(c > m)
 			c = m;
 		sethits(c);
-	} else if(hits == 0) {
-		// Nothing to do
-	} else {
-		sethits(c);
-		draw::animation::damage(this, hits);
-		if(!ishero()) {
-			int hp = gethits();
-			// If we kill enemy monster
-			if(hp <= 0) {
-				// Add experience
-				auto hitd = gethd();
-				auto value = getawards();
-				addexp(value, hitd);
-				// Drop items
-				auto index = getindex();
-				auto side = getside();
-				for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
-					auto it = get(par);
-					if(it || !it.getportrait())
-						continue;
-					if(d100() < 25) {
-						// Random magic item
-						auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
-						location.dropitem(index,
-							item(it.gettype(), chance_magic),
-							side);
-					}
+		return;
+	}
+	if(hits == 0)
+		return;
+	sethits(c);
+	draw::animation::damage(this, hits);
+	if(!ishero()) {
+		int hp = gethits();
+		// If we kill enemy monster
+		if(hp <= 0) {
+			// Add experience
+			auto hitd = gethd();
+			auto value = getawards();
+			addexp(value, hitd);
+			// Drop items
+			auto index = getindex();
+			auto side = getside();
+			for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
+				auto it = get(par);
+				if(it || !it.getportrait())
+					continue;
+				if(d100() < 25) {
+					// Random magic item
+					auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
+					location.dropitem(index,
+						item(it.gettype(), chance_magic),
+						side);
 				}
-				clear();
 			}
+			clear();
 		}
 	}
 }

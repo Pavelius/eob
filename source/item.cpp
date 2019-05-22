@@ -217,6 +217,7 @@ void item::get(combati& result, const creature* enemy) const {
 		result.damage = wi.damage_large;
 	else
 		result.damage = wi.damage;
+	result.type = wi.type;
 	result.attack = wi.attack;
 	result.bonus += wi.bonus + get(OfAccuracy) + getmagic();
 	result.damage.b += get(OfDamage) + getmagic();
