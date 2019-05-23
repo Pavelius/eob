@@ -135,12 +135,16 @@ static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 		if(n < 1)
 			continue;
 		auto e = bsmeta<classi>::elements[type].classes.data[i];
+		auto m = 0;
 		if(bsmeta<skilli>::elements[id].allow && !bsmeta<skilli>::elements[id].allow.is(e))
-			continue;
-		if(n > 17)
-			n = 17;
-		result = default_theive_skills[id - ClimbWalls][n];
-		break;
+			m = default_theive_skills[id - ClimbWalls][0];
+		else {
+			if(n > 17)
+				n = 17;
+			m = default_theive_skills[id - ClimbWalls][n];
+		}
+		if(m > result)
+			result = m;
 	}
 	return result;
 }
@@ -179,12 +183,17 @@ int	creature::get(skill_s id) const {
 			break;
 		}
 	} else if(id >= ClimbWalls && id <= ReadLanguages) {
-		auto dex = get(Dexterity);
-		result += get_theiv_skill(id, type, levels);
-		if(is(Climbed))
-			result += 100;
-		if(result <= 0)
+		auto value = get_theiv_skill(id, type, levels);
+		switch(id) {
+		case ClimbWalls:
+			if(is(Climbed))
+				result += 100;
+			break;
+		}
+		if(value <= 0)
 			return 0;
+		result += value;
+		auto dex = get(Dexterity);
 		result += maptbl(theive_skills_by_dex[id - ClimbWalls], dex);
 	} else {
 		if(!allow_skill(id, type))

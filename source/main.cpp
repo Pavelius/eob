@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
 				id = game::action::adventure();
 			else {
 #ifdef _DEBUG
-				if(false) {
+				if(true) {
 					random_heroes();
 					game::write();
 					game::enter(1, 1);
