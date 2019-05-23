@@ -305,13 +305,14 @@ struct spell_effect {
 	int					maximum_per_level;
 };
 struct effecti {
-	typedef void(*callback)(creature* player, creature* target, const effecti& e, int level);
+	typedef void(*callback)(creature* player, creature* target, const effecti& e, int level, int wand_magic);
 	callback			proc;
 	union {
 		struct {
 			state_s		state;
 			duration_s	duration;
 			save_s		save;
+			char		save_bonus;
 		};
 		struct {
 			damage_s	damage_type;
@@ -322,11 +323,11 @@ struct effecti {
 		};
 		int				value;
 	};
-	static void			apply_effect(creature* player, creature* target, const effecti& e, int level) {}
-	static void			apply_damage(creature* player, creature* target, const effecti& e, int level) {}
-	constexpr effecti(callback proc) : proc(proc), value() {}
-	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate) : proc(apply_effect),
-		duration(duration), state(state), save(save) {}
+	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_level);
+	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_level);
+	constexpr effecti(callback proc, int value = 0) : proc(proc), value(value) {}
+	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
+		duration(duration), state(state), save(save), save_bonus(save_bonus) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
 		damage_type(type), damage(damage), damage_per(damage_per), damage_increment(increment), damage_maximum(maximum),
 		damage_save(save) {}
@@ -432,6 +433,7 @@ public:
 	static void			addexp(int value, int killing_hit_dice);
 	void				attack(short unsigned index, direction_s d, int bonus);
 	void				attack(creature* defender, wear_s slot, int bonus);
+	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
@@ -467,6 +469,7 @@ public:
 	int					getinitiative() const { return initiative; }
 	item*				getitem(wear_s id) { return &wears[id - FirstInvertory]; }
 	int					getknown(spell_s id) const { return known[id]; }
+	static int			getlevel(spell_s id, class_s type);
 	const char*			getname(char* result, const char* result_maximum) const;
 	int					getprepare(spell_s v) const { return prepared[v]; }
 	race_s				getrace() const { return race; }
@@ -495,8 +498,10 @@ public:
 	static creature*	newhero();
 	void				preparespells();
 	bool				roll(skill_s id, int bonus = 0);
+	void				say(spell_s id) const;
 	void				say(const char* format, ...);
 	void				sayv(const char* format, const char* vl);
+	static unsigned		select(spell_s* result, spell_s* result_maximum, class_s type, int level);
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }
@@ -635,7 +640,6 @@ command_s			actions();
 command_s			adventure();
 void				attack(short unsigned index);
 void				automap(dungeon& area, bool fow);
-bool				cast(creature* caster, spell_s spell, class_s cls, creature* want_target = 0, int wand_magic = 0);
 void				camp(item& food);
 spell_s				choosespell(creature* pc, class_s type);
 creature*			choosehero();
@@ -669,8 +673,6 @@ int					getrandom(int type, race_s race, gender_s gender, int prev_name);
 int					getpartyskill(int rec, skill_s id);
 size_s				getsize(item_s rec);
 int					getside(int side, direction_s dr);
-int					getspelllevel(spell_s spell, class_s type);
-unsigned			getspells(spell_s* result, spell_s* result_maximum, class_s type, int level);
 void				hearnoises();
 extern creature*	party[7];
 void				passround();

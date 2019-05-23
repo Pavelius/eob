@@ -70,7 +70,7 @@ static creature* get_valid_hero(creature* pc, class_s type) {
 static unsigned select_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
 	auto p = result;
 	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
-		if(game::getspelllevel(i, type) != level)
+		if(creature::getlevel(i, type) != level)
 			continue;
 		int value = pc->get(i);
 		while(value--) {
@@ -84,7 +84,7 @@ static unsigned select_spells(spell_s* result, spell_s* result_maximum, creature
 static unsigned select_known_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
 	auto p = result;
 	for(auto i = NoSpell; i < LayOnHands; i = (spell_s)(i + 1)) {
-		if(game::getspelllevel(i, type) != level)
+		if(creature::getlevel(i, type) != level)
 			continue;
 		if(!pc->getknown(i))
 			continue;

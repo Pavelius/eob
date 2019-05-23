@@ -13,7 +13,7 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
-static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level) {
+static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {
 	auto ti = maptbl(turn_undead_index, level);
 	auto result = d20();
 	auto index = caster->getindex();
@@ -44,7 +44,7 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 	}
 }
 
-static void purify_food(creature* player, creature* target, const effecti& e, int level) {
+static void purify_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
 		auto pi = target->getitem(i);
 		if(!pi)
@@ -55,10 +55,11 @@ static void purify_food(creature* player, creature* target, const effecti& e, in
 	}
 }
 
-static void lay_on_hands(creature* player, creature* target, const effecti& e, int level) {
+static void lay_on_hands(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->damage(Heal, 2 * player->get(Paladin));
 }
 
-spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0}},
+spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, {1, 3}, {2}, 1, 10, SaveHalf}, FireThrown},
@@ -79,7 +80,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0}},
 };
 assert_enum(spell, TurnUndead);
 
-int creature::get(duration_s duration, int level) {
+static int getduration(duration_s duration, int level) {
 	const int hour = 60;
 	switch(duration) {
 	case Duration5PerLevel: return 5 * level;
@@ -93,70 +94,46 @@ int creature::get(duration_s duration, int level) {
 	}
 }
 
-int game::getspelllevel(spell_s spell, class_s type) {
+int	creature::getlevel(spell_s id, class_s type) {
 	switch(type) {
-	case Cleric: return bsmeta<spelli>::elements[spell].levels[1];
-	default:
-		return bsmeta<spelli>::elements[spell].levels[0];
+	case Cleric: return bsmeta<spelli>::elements[id].levels[1];
+	default: return bsmeta<spelli>::elements[id].levels[0];
 	}
 }
 
-static int get_spell_value(spell_s spell, int level, creature* target, save_s save, int wand_magic) {
-	//auto& e = bsmeta<spelli>::elements[spell].number;
-	//auto value = e.base.roll();
-	//if(e.level) {
-	//	auto mi = level / e.level;
-	//	for(int i = 1; i < mi; i++)
-	//		value += e.perlevel.roll();
-	//}
-	//auto save_skill = SaveVsMagic;
-	//if(wand_magic)
-	//	save_skill = SaveVsTraps;
-	//switch(save) {
-	//case SaveHalf:
-	//	if(target->roll(save_skill))
-	//		value = value / 2;
-	//	break;
-	//case SaveNegate:
-	//	if(target->roll(save_skill))
-	//		value = -1;
-	//	break;
-	//}
-	return 0;
+void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	auto duration = getduration(e.duration, level);
+	target->add(e.state, duration, e.save, e.save_bonus);
 }
 
-static void apply_spell_effect(creature* caster, creature* target, spell_s spell, class_s cls, int level, int wand_magic) {
-	auto& si = bsmeta<spelli>::elements[spell];
-	//auto duration = si.duration;
-	//auto save = si.save;
-	//auto effect = si.effect;
-	//auto spell_level = game::getspelllevel(spell, cls);
-	//auto value = get_spell_value(spell, level, target, save, wand_magic);
-	//if(value < 0)
-	//	return;
-	//// Apply effect if any
-	//if(effect)
-	//	target->set(effect, game::get(duration, level));
-	//// Some spell has special cases
-	//switch(spell) {
-	//case SpellCureLightWounds:
-	//	target->damage(Magic, -value);
-	//	break;
-	//case LayOnHands:
-	//	target->damage(Magic, -caster->gethd()*2);
-	//	break;
-	//case SpellPurifyFood:
-	//	break;
-	//default:
-	//	if(value)
-	//		target->damage(si.damage_type, value);
-	//	break;
-	//}
+static bool test_save(creature* target, int& value, skill_s skill, save_s type, int bonus) {
+	switch(type) {
+	case SaveHalf:
+		if(target->roll(skill, bonus))
+			value = value / 2;
+		break;
+	case SaveNegate:
+		if(target->roll(skill, bonus))
+			return true;
+		break;
+	}
+	return false;
 }
 
-static void mscast(creature* caster, spell_s spell) {
-	char temp[260];
-	mslog("%1 cast %2", caster->getname(temp, zendof(temp)), getstr(spell));
+void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	auto value = e.damage.roll();
+	if(e.damage_increment) {
+		auto mi = level / e.damage_increment;
+		if(mi > e.damage_maximum)
+			mi = e.damage_maximum;
+		for(int i = 0; i < mi; i++)
+			value += e.damage_per.roll();
+	}
+	auto save_skill = SaveVsMagic;
+	if(wand_magic)
+		save_skill = SaveVsTraps;
+	if(!test_save(target, value, save_skill, e.damage_save, 0))
+		target->damage(e.damage_type, value);
 }
 
 short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s throw_effect) {
@@ -174,45 +151,47 @@ short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s 
 	return 0;
 }
 
-bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* want_target, int wand_magic) {
-	auto range = bsmeta<spelli>::elements[spell].range;
-	auto spell_level = getspelllevel(spell, cls);
+void creature::say(spell_s id) const {
+	char temp[260];
+	mslog("%1 cast %2", getname(temp, zendof(temp)), getstr(id));
+}
+
+bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {
+	creature* targets[4];
+	auto& si = bsmeta<spelli>::elements[id];
+	auto index = getindex();
+	auto dir = getdirection();
+	auto range = si.range;
+	auto spell_level = getlevel(id, type);
 	if(!spell_level)
-		spell_level = getspelllevel(spell, Mage);
+		spell_level = getlevel(id, Mage);
 	if(!spell_level)
-		spell_level = getspelllevel(spell, Cleric);
-	auto level = caster->get(cls);
+		spell_level = getlevel(id, Cleric);
+	auto level = get(type);
 	if(wand_magic)
 		level = (spell_level + wand_magic - 1) * 2 - 1;
 	if(!level || !spell_level)
 		return false;
-	auto& si = bsmeta<spelli>::elements[spell];
-	auto index = caster->getindex();
-	auto dir = caster->getdirection();
-	creature* target = 0;
-	creature* targets[4];
 	switch(range) {
 	case TargetSelf:
-		mscast(caster, spell);
-		si.effect.proc(caster, caster, si.effect, level);
+		say(id);
+		si.effect.proc(this, this, si.effect, level, wand_magic);
 		break;
 	case TargetAllAlly:
-		mscast(caster, spell);
+		say(id);
 		for(auto e : game::party) {
 			if(!e)
 				continue;
-			si.effect.proc(caster, e, si.effect, level);
+			si.effect.proc(this, e, si.effect, level, wand_magic);
 		}
 		break;
 	case TargetAlly:
-		if(want_target)
-			target = want_target;
-		else
+		if(!target)
 			target = game::action::choosehero();
 		if(!target)
 			return false;
-		mscast(caster, spell);
-		si.effect.proc(caster, target, si.effect, level);
+		say(id);
+		si.effect.proc(this, target, si.effect, level, wand_magic);
 		break;
 	case TargetAllThrow:
 		index = get_enemy_distance(index, dir, si.throw_effect);
@@ -224,11 +203,11 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		//if(range == TargetAllClose && spell_data[spell].throw_effect)
 		//	draw::animation::thrownstep(index, dir, spell_data[spell].throw_effect);
 		location.getmonsters(targets, moveto(index, dir), dir);
-		mscast(caster, spell);
+		say(id);
 		for(auto e : targets) {
 			if(!e)
 				continue;
-			si.effect.proc(caster, e, si.effect, level);
+			si.effect.proc(this, e, si.effect, level, wand_magic);
 		}
 		break;
 	case TargetThrow:
@@ -238,28 +217,23 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		index = moveto(index, rotateto(dir, Down));
 		// Continue this case
 	case TargetClose:
-		target = game::getdefender(moveto(index, dir), dir, caster);
-		if(target) {
-			mscast(caster, spell);
-			si.effect.proc(caster, target, si.effect, level);
-		}
+		target = game::getdefender(moveto(index, dir), dir, this);
+		if(!target)
+			return false;
+		say(id);
+		si.effect.proc(this, target, si.effect, level, wand_magic);
 		break;
 	case TargetSpecial:
-		mscast(caster, spell);
-		si.effect.proc(caster, want_target, si.effect, level);
+		say(id);
+		si.effect.proc(this, target, si.effect, level, wand_magic);
 		break;
-	}
-	if(wand_magic == 0) {
-		int cv = caster->get(spell);
-		if(cv)
-			caster->set(spell, cv - 1);
 	}
 	// RULE: When casting you gain experience
 	int exp = 20 * spell_level;
 	if(wand_magic)
 		exp /= 2;
-	else if(cls == Mage)
+	else if(type == Mage)
 		exp *= 3;
-	caster->addexp(exp);
+	addexp(exp);
 	return true;
 }

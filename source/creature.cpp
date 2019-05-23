@@ -628,7 +628,7 @@ void creature::prepare_random_spells(class_s type, int level) {
 	for(auto i = NoSpell; i < FirstSpellAbility; i = (spell_s)(i + 1)) {
 		if(!getknown(i))
 			continue;
-		if(game::getspelllevel(i, type) == level) {
+		if(getlevel(i, type) == level) {
 			prepared_spells += get(i);
 			spells.add(i);
 		}
@@ -642,7 +642,7 @@ void creature::prepare_random_spells(class_s type, int level) {
 
 void creature::random_spells(class_s type, int level, int count) {
 	adat<spell_s, 64> spells;
-	spells.count = game::getspells(spells.data, zendof(spells.data), type, level);
+	spells.count = select(spells.data, zendof(spells.data), type, level);
 	zshuffle(spells.data, spells.count);
 	for(auto e : spells) {
 		if(count-- <= 0)
@@ -885,7 +885,7 @@ int creature::armor_penalty(skill_s skill) const {
 
 void creature::preparespells() {
 	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
-		auto level = game::getspelllevel(i, Mage);
+		auto level = getlevel(i, Mage);
 		auto count = getprepare(i);
 		if((wears[LeftRing].get(OfWizardy) && wears[LeftRing].get(OfWizardy) == level)
 			|| (wears[RightRing].get(OfWizardy) && wears[RightRing].get(OfWizardy) == level))

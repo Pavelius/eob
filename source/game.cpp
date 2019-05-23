@@ -270,7 +270,7 @@ bool game::action::use(item* pi) {
 		spell_element = game::action::choosespell(pc, (type == HolySymbol) ? Cleric : Mage);
 		if(!spell_element)
 			return false;
-		game::action::cast(pc, spell_element, (type == HolySymbol) ? Cleric : Mage);
+		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
 		break;
 	case TheifTools:
 		consume = false;
@@ -317,7 +317,7 @@ bool game::action::use(item* pi) {
 			int magic = pi->getmagic();
 			if(magic <= 0)
 				magic = 1;
-			if(game::action::cast(pc, spell_element, Mage, 0, magic)) {
+			if(pc->cast(spell_element, Mage, magic)) {
 				pi->setidentified(1);
 				pi->setcharges(pi->getcharges() - 1);
 				if(pi->iscursed()) {
@@ -359,7 +359,7 @@ bool game::action::use(item* pi) {
 			if(magic <= 0)
 				magic = 1;
 			auto cls = (type == MageScroll) ? Mage : Cleric;
-			if(game::action::cast(pc, spell_element, cls, 0, magic))
+			if(pc->cast(spell_element, cls, magic))
 				consume = true;
 			else {
 				char name[64];
@@ -428,7 +428,7 @@ static void try_autocast(creature* pc) {
 		auto target = get_most_damaged();
 		if(!target)
 			continue;
-		game::action::cast(pc, e, Cleric, target);
+		pc->cast(e, Cleric, 0, target);
 	}
 }
 
@@ -663,10 +663,10 @@ void game::action::attack(short unsigned index_of_monsters) {
 	}
 }
 
-unsigned game::getspells(spell_s* result, spell_s* result_maximum, class_s type, int level) {
+unsigned creature::select(spell_s* result, spell_s* result_maximum, class_s type, int level) {
 	auto p = result;
 	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
-		if(getspelllevel(rec, type) != level)
+		if(getlevel(rec, type) != level)
 			continue;
 		*p++ = rec;
 	}

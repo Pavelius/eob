@@ -125,7 +125,7 @@ static bool havespell(item_s t) {
 }
 
 static item_s getscroll(spell_s id) {
-	if(game::getspelllevel(id, Mage))
+	if(creature::getlevel(id, Mage))
 		return MageScroll;
 	return PriestScroll;
 }
@@ -152,12 +152,12 @@ item::item(item_s type, int chance_magic) : item(type) {
 		setcharges(dice::roll(3, 6));
 	} else if(type == MageScroll) {
 		adat<spell_s, 32> spells;
-		spells.count = game::getspells(spells.data, zendof(spells.data), Mage, 1);
+		spells.count = creature::select(spells.data, zendof(spells.data), Mage, 1);
 		if(spells.count)
 			setspell(spells.data[rand() % spells.count]);
 	} else if(type == PriestScroll) {
 		adat<spell_s, 32> spells;
-		spells.count = game::getspells(spells.data, zendof(spells.data), Cleric, 1);
+		spells.count = creature::select(spells.data, zendof(spells.data), Cleric, 1);
 		if(spells.count)
 			setspell(spells.data[rand() % spells.count]);
 	}
