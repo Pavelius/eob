@@ -79,7 +79,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0}},
 };
 assert_enum(spell, TurnUndead);
 
-int game::get(duration_s duration, int level) {
+int creature::get(duration_s duration, int level) {
 	const int hour = 60;
 	switch(duration) {
 	case Duration5PerLevel: return 5 * level;
