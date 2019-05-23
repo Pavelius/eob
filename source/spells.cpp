@@ -13,9 +13,13 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
-static void turn_undead(creature* caster, creature** targets, const effecti& e, int level) {
+static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level) {
 	auto ti = maptbl(turn_undead_index, level);
 	auto result = d20();
+	auto index = caster->getindex();
+	auto dir = caster->getdirection();
+	creature* targets[4];
+	location.getmonsters(targets, moveto(index, dir), dir);
 	for(int i = 0; i < 4; i++) {
 		auto target = targets[i];
 		if(!target)
@@ -54,7 +58,7 @@ static void purify_food(creature* player, creature* target, const effecti& e, in
 static void lay_on_hands(creature* player, creature* target, const effecti& e, int level) {
 }
 
-spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0, 0}},
+spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, {1, 3}, {2}, 1, 10, SaveHalf}, FireThrown},
@@ -71,7 +75,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 1}, TargetSelf, {0, 0}},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
-{"Turn Undead", {0, 1}, TargetAllClose, {0, turn_undead}, MagicThrown},
+{"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
 };
 assert_enum(spell, TurnUndead);
 
@@ -182,22 +186,22 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		level = (spell_level + wand_magic - 1) * 2 - 1;
 	if(!level || !spell_level)
 		return false;
+	auto& si = bsmeta<spelli>::elements[spell];
 	auto index = caster->getindex();
 	auto dir = caster->getdirection();
 	creature* target = 0;
 	creature* targets[4];
-	auto& si = bsmeta<spelli>::elements[spell];
 	switch(range) {
 	case TargetSelf:
 		mscast(caster, spell);
-		apply_spell_effect(caster, caster, spell, cls, level, wand_magic);
+		si.effect.proc(caster, caster, si.effect, level);
 		break;
 	case TargetAllAlly:
 		mscast(caster, spell);
 		for(auto e : game::party) {
 			if(!e)
 				continue;
-			apply_spell_effect(caster, e, spell, cls, level, wand_magic);
+			si.effect.proc(caster, e, si.effect, level);
 		}
 		break;
 	case TargetAlly:
@@ -208,7 +212,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		if(!target)
 			return false;
 		mscast(caster, spell);
-		apply_spell_effect(caster, target, spell, cls, level, wand_magic);
+		si.effect.proc(caster, target, si.effect, level);
 		break;
 	case TargetAllThrow:
 		index = get_enemy_distance(index, dir, si.throw_effect);
@@ -224,7 +228,7 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		for(auto e : targets) {
 			if(!e)
 				continue;
-			apply_spell_effect(caster, e, spell, cls, level, wand_magic);
+			si.effect.proc(caster, e, si.effect, level);
 		}
 		break;
 	case TargetThrow:
@@ -237,8 +241,12 @@ bool game::action::cast(creature* caster, spell_s spell, class_s cls, creature* 
 		target = game::getdefender(moveto(index, dir), dir, caster);
 		if(target) {
 			mscast(caster, spell);
-			apply_spell_effect(caster, target, spell, cls, level, wand_magic);
+			si.effect.proc(caster, target, si.effect, level);
 		}
+		break;
+	case TargetSpecial:
+		mscast(caster, spell);
+		si.effect.proc(caster, want_target, si.effect, level);
 		break;
 	}
 	if(wand_magic == 0) {

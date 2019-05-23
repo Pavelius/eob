@@ -48,6 +48,7 @@ enum target_s : unsigned char {
 	TargetThrow, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
+	TargetSpecial,
 };
 enum message_s : unsigned char {
 	MessageHabbits, MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
@@ -304,34 +305,30 @@ struct spell_effect {
 	int					maximum_per_level;
 };
 struct effecti {
-	typedef void(*type_many)(creature* player, creature** targets, const effecti& e, int level);
-	typedef void(*type_one)(creature* player, creature* target, const effecti& e, int level);
-	type_many			proc_many;
-	type_one			proc_one;
+	typedef void(*callback)(creature* player, creature* target, const effecti& e, int level);
+	callback			proc;
 	union {
 		struct {
-			state_s		effect;
+			state_s		state;
 			duration_s	duration;
 			save_s		save;
 		};
 		struct {
 			damage_s	damage_type;
 			dice		damage;
-			dice		damage_per_level;
+			dice		damage_per;
 			char		damage_increment, damage_maximum;
 			save_s		damage_save;
 		};
-		struct {
-			int			value;
-		};
+		int				value;
 	};
 	static void			apply_effect(creature* player, creature* target, const effecti& e, int level) {}
 	static void			apply_damage(creature* player, creature* target, const effecti& e, int level) {}
-	constexpr effecti(type_one proc_one, type_many proc_many = 0, int value = 0) : proc_one(proc_one), proc_many(proc_many), value(value) {}
-	constexpr effecti(duration_s duration, state_s effect, save_s save = SaveNegate) : proc_one(apply_effect), proc_many(0),
-		duration(duration), effect(effect), save(save) {}
-	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc_one(apply_damage), proc_many(0),
-		damage_type(type), damage(damage), damage_per_level(damage_per_level), damage_increment(increment), damage_maximum(maximum),
+	constexpr effecti(callback proc) : proc(proc), value() {}
+	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate) : proc(apply_effect),
+		duration(duration), state(state), save(save) {}
+	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
+		damage_type(type), damage(damage), damage_per(damage_per), damage_increment(increment), damage_maximum(maximum),
 		damage_save(save) {}
 };
 struct spelli {
