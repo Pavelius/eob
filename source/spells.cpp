@@ -61,19 +61,19 @@ static void lay_on_hands(creature* player, creature* target, const effecti& e, i
 
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
-{"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed}},
+{"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, {1, 3}, {2}, 1, 10, SaveHalf}, FireThrown},
-{"Cure light Wounds", {0, 1}, TargetAlly, {Heal, {1, 8}, {0}}},
-{"Detect Evil", {2, 1}, TargetAllAlly, {DurationTurn, DetectedEvil}},
-{"Detect Magic", {1, 1}, TargetAllAlly, {DurationTurn, DetectedMagic}},
-{"Feather Fall", {1, 0}, TargetAlly, {DurationTurnPerLevel, Climbed}},
-{"Mage Armor", {1, 0}, TargetSelf, {Duration4Hours, Armored}},
+{"Cure light Wounds", {0, 1}, TargetAlly, {Heal, {1, 8}, {0}, 0, 0, NoSave}},
+{"Detect Evil", {2, 1}, TargetAllAlly, {DurationTurn, DetectedEvil, NoSave}},
+{"Detect Magic", {1, 1}, TargetAllAlly, {DurationTurn, DetectedMagic, NoSave}},
+{"Feather Fall", {1, 0}, TargetAlly, {DurationTurnPerLevel, Climbed, NoSave}},
+{"Mage Armor", {1, 0}, TargetSelf, {Duration4Hours, Armored, NoSave}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
-{"Prot. from Evil", {1, 1}, TargetAlly, {DurationTurn, ProtectedFromEvil}},
+{"Prot. from Evil", {1, 1}, TargetAlly, {DurationTurn, ProtectedFromEvil, NoSave}},
 {"Purify food", {0, 1}, TargetAllAlly, {purify_food}},
-{"Read Languages", {1, 0}, TargetSelf, {DurationTurn, StateSpeakable}},
-{"Shield", {1, 0}, TargetSelf, {Duration5PerLevel, Shielded}},
-{"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped}},
+{"Read Languages", {1, 0}, TargetSelf, {DurationTurn, StateSpeakable, NoSave}},
+{"Shield", {1, 0}, TargetSelf, {Duration5PerLevel, Shielded, NoSave}},
+{"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
@@ -227,6 +227,10 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		say(id);
 		si.effect.proc(this, target, si.effect, level, wand_magic);
 		break;
+	}
+	if(wand_magic == 0) {
+		if(get(id)>0)
+			set(id, get(id) - 1);
 	}
 	// RULE: When casting you gain experience
 	int exp = 20 * spell_level;

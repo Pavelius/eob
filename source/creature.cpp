@@ -1051,6 +1051,8 @@ bool creature::isallow(const item it, wear_s slot) const {
 }
 
 void creature::damage(damage_s type, int hits) {
+	if(type == Heal)
+		hits = -hits;
 	if(hits > 0) {
 		if(type == Bludgeon && is(ResistBludgeon))
 			hits /= 2;
