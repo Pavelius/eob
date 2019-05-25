@@ -135,10 +135,8 @@
     <ClInclude Include="pma.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
-    <ClInclude Include="screenshoot.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="stringcreator.h" />
-    <ClInclude Include="surface.h" />
     <ClInclude Include="view.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
@@ -177,13 +175,11 @@
     <ClCompile Include="portrait.cpp" />
     <ClCompile Include="race.cpp" />
     <ClCompile Include="scale.c" />
-    <ClCompile Include="screenshoot.cpp" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="spells.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="state.cpp" />
     <ClCompile Include="stringcreator.cpp" />
-    <ClCompile Include="surface.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="view.cpp" />

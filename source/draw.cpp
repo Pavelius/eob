@@ -2,7 +2,8 @@
 #include "crt.h"
 #include "draw.h"
 #include "drawbits.h"
-#include "surface.h"
+
+using namespace draw;
 
 #ifndef __GNUC__
 #pragma optimize("t", on)
@@ -23,6 +24,9 @@ int						hot::param;
 static int				current_command;
 int						metrics::padding = 4;
 sprite*					metrics::font;
+static callback			next_proc;
+surface*				draw::canvas;
+surface::plugin*		surface::plugin::first;
 
 float sqrt(const float x) {
 	const float xhalf = 0.5f*x;
@@ -930,6 +934,82 @@ void draw::blit(surface& dest, int x, int y, int width, int height, unsigned fla
 	}
 }
 
+surface::surface() : width(0), height(0), scanline(0), bpp(32), bits(0) {}
+
+surface::surface(int width, int height, int bpp) : surface() {
+	resize(width, height, bpp, true);
+}
+
+surface::plugin::plugin(const char* name, const char* filter) : name(name), filter(filter), next(0) {
+	seqlink(this);
+}
+
+draw::surface::~surface() {
+	resize(0, 0, 0, true);
+}
+
+void draw::surface::resize(int width, int height, int bpp, bool alloc_memory) {
+	if(this->width == width && this->height == height && this->bpp == bpp)
+		return;
+	this->bpp = bpp;
+	this->width = width;
+	this->height = height;
+	this->scanline = color::scanline(width, bpp);
+	if(width) {
+		unsigned size = (height + 1)*scanline;
+		if(bits) {
+			delete bits;
+			bits = 0;
+		}
+		if(alloc_memory)
+			bits = new unsigned char[size];
+	} else {
+		delete bits;
+		bits = 0;
+	}
+}
+
+void draw::surface::convert(int new_bpp, color* pallette) {
+	if(bpp == new_bpp) {
+		bpp = iabs(new_bpp);
+		return;
+	}
+	auto old_scanline = scanline;
+	scanline = color::scanline(width, new_bpp);
+	if(iabs(new_bpp) <= bpp)
+		color::convert(bits, width, height, new_bpp, 0, bits, bpp, draw::palt, old_scanline);
+	else {
+		unsigned char* new_bits = new unsigned char[(height + 1)*scanline];
+		color::convert(
+			new_bits, width, height, new_bpp, draw::palt,
+			bits, bpp, draw::palt, old_scanline);
+		delete bits;
+		bits = new_bits;
+	}
+	bpp = iabs(new_bpp);
+}
+
+int draw::getbpp() {
+	return canvas ? canvas->bpp : 1;
+}
+
+int draw::getwidth() {
+	return canvas ? canvas->width : 0;
+}
+
+int draw::getheight() {
+	return canvas ? canvas->height : 0;
+}
+
+unsigned char* draw::ptr(int x, int y) {
+	return canvas ? (canvas->bits + y * canvas->scanline + x * canvas->bpp / 8) : 0;
+}
+
+void draw::execute(callback proc, int param) {
+	hot::key = 0;
+	hot::param = param;
+}
+
 void draw::execute(int id, int param) {
 	hot::key = 0;
 	hot::param = param;
@@ -949,4 +1029,57 @@ int draw::sysinput(bool redraw) {
 	else
 		id = rawinput();
 	return id;
+}
+
+void draw::setlayer(callback v) {
+	next_proc = v;
+}
+
+void draw::showlayer() {
+	while(next_proc) {
+		auto p = next_proc;
+		next_proc = 0;
+		p();
+	}
+}
+
+draw::screenshoot::screenshoot(rect rc, bool fade) : surface(rc.width(), rc.height(), getbpp()) {
+	x = rc.x1;
+	y = rc.y1;
+	if(draw::canvas) {
+		blit(*this, 0, 0, width, height, 0, *draw::canvas, x, y);
+		if(fade) {
+			draw::state push;
+			draw::canvas = this;
+			draw::setclip();
+			draw::rectf({0, 0, width, height}, colors::black, 128);
+		}
+	}
+}
+
+screenshoot::screenshoot(bool fade) : screenshoot({0, 0, getwidth(), getheight()}, fade) {}
+
+screenshoot::~screenshoot() {}
+
+void screenshoot::restore() {
+	setclip();
+	if(draw::canvas)
+		blit(*draw::canvas, x, y, width, height, 0, *this, 0, 0);
+}
+
+void screenshoot::blend(draw::surface& e, unsigned delay) {
+	if(e.width != width || e.height != height || !delay)
+		return;
+	unsigned t0 = clock();
+	unsigned t = t0;
+	while(t < t0 + delay) {
+		auto pd = (color*)draw::canvas->bits;
+		auto p1 = (color*)bits;
+		auto p2 = (color*)e.bits;
+		unsigned char alpha = ((t - t0) * 255) / delay;
+		for(int i = 0; i < width * height; i++)
+			pd[i] = p2[i].mix(p1[i], alpha);
+		draw::input(true);
+		t = clock();
+	}
 }

@@ -1,5 +1,4 @@
 #include "crt.h"
-#include "surface.h"
 #include "draw.h"
 #include "win.h"
 

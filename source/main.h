@@ -623,38 +623,38 @@ struct dungeon {
 };
 namespace draw {
 namespace animation {
-void				appear(dungeon& location, short unsigned index, int radius = 1);
-void				attack(creature* attacker, wear_s slot, int hits);
-void				clear();
-void				damage(creature* target, int hits);
-void				render(int pause = 300, bool show_screen = true, item* current_item = 0);
-int					thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100);
-int					thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
-void				update();
+void					appear(dungeon& location, short unsigned index, int radius = 1);
+void					attack(creature* attacker, wear_s slot, int hits);
+void					clear();
+void					damage(creature* target, int hits);
+void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
+int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100);
+int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
+void					update();
 }
-bool				settiles(dungeon_s id);
+bool					settiles(dungeon_s id);
 }
 namespace game {
 namespace action {
-command_s			actions();
-command_s			adventure();
-void				attack(short unsigned index);
-void				automap(dungeon& area, bool fow);
-void				camp(item& food);
-spell_s				choosespell(creature* pc, class_s type);
-creature*			choosehero();
-void				dropitem(item* itm, int side = -1);
-void				fly(item_s item, int side);
-void				getitem(item* itm, int side = -1);
-bool				manipulate(item* itm, direction_s direction);
-command_s			move(direction_s direction);
-command_s			options();
-void				pause();
-void				preparespells(class_s type);
-bool				question(item* current_item);
-void				thrown(item* itm);
-void				rotate(direction_s direction);
-bool				use(item* itm);
+command_s				actions();
+command_s				adventure();
+void					attack(short unsigned index);
+void					automap(dungeon& area, bool fow);
+void					camp(item& food);
+spell_s					choosespell(creature* pc, class_s type);
+creature*				choosehero();
+void					dropitem(item* itm, int side = -1);
+void					fly(item_s item, int side);
+void					getitem(item* itm, int side = -1);
+bool					manipulate(item* itm, direction_s direction);
+command_s				move(direction_s direction);
+command_s				options();
+void					pause();
+void					preparespells(class_s type);
+bool					question(item* current_item);
+void					thrown(item* itm);
+void					rotate(direction_s direction);
+bool					use(item* itm);
 }
 void				enter(unsigned short index, unsigned char level);
 void				findsecrets();
@@ -682,16 +682,16 @@ extern unsigned		rounds;
 void				setcamera(short unsigned index, direction_s direction = Center);
 void				write();
 }
-extern dungeon		location_above;
-extern dungeon		location;
-direction_s			devectorized(direction_s dr, direction_s d);
-bool				dlgask(const char* text);
+extern dungeon			location_above;
+extern dungeon			location;
+direction_s				devectorized(direction_s dr, direction_s d);
+bool					dlgask(const char* text);
 template<class T> const char* getstr(const T e);
-inline int			gx(short unsigned index) { return index % mpx; }
-inline int			gy(short unsigned index) { return index / mpx; }
-short unsigned		moveto(short unsigned index, direction_s d);
-void				mslog(const char* format, ...);
-void				mslogv(const char* format, const char* vl);
-direction_s			pointto(short unsigned from, short unsigned to);
-direction_s			rotateto(direction_s d, direction_s d1);
-direction_s			vectorized(direction_s d, direction_s d1);
+inline int				gx(short unsigned index) { return index % mpx; }
+inline int				gy(short unsigned index) { return index / mpx; }
+short unsigned			moveto(short unsigned index, direction_s d);
+void					mslog(const char* format, ...);
+void					mslogv(const char* format, const char* vl);
+direction_s				pointto(short unsigned from, short unsigned to);
+direction_s				rotateto(direction_s d, direction_s d1);
+direction_s				vectorized(direction_s d, direction_s d1);

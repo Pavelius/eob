@@ -81,6 +81,41 @@ extern bool				pressed; // flag if any of mouse keys is pressed
 extern int				param; // command or input event parameter
 }
 namespace draw {
+struct surface {
+	struct plugin {
+		const char*		name;
+		const char*		filter;
+		plugin*			next;
+		static plugin*	first;
+		//
+		plugin(const char* name, const char* filter);
+		//
+		virtual int		decode(unsigned char* output, const unsigned char* input, unsigned size, int& output_scanline) = 0;
+		virtual bool	inspect(int& w, int& h, int& bpp, const unsigned char* input, unsigned size) = 0;
+	};
+	int					width;
+	int					height;
+	int					scanline;
+	int					bpp;
+	unsigned char*		bits;
+	surface();
+	surface(int width, int height, int bpp);
+	surface(const char* url, const char* pal = 0);
+	~surface();
+	operator bool() const { return bits != 0; }
+	void				convert(int bpp, color* pallette);
+	unsigned char*		ptr(int x, int y) { return bits + y * scanline + x * (bpp / 8); }
+	int					read(const char* url, color* pallette, int need_bpp = 0);
+	void				resize(int width, int height, int bpp, bool alloc_memory);
+	void				write(const char* url);
+};
+struct screenshoot : public point, public surface {
+	screenshoot(bool fade = false);
+	screenshoot(rect rc, bool fade = false);
+	~screenshoot();
+	void				blend(draw::surface& e, unsigned delay);
+	void				restore();
+};
 struct state // Push state in stack
 {
 	state();
@@ -95,12 +130,20 @@ private:
 extern rect				clipping;
 extern color			fore;
 extern const sprite*	font; // glyph font
+typedef void(*callback)();
 //
 int						alignedh(const rect& rc, const char* string, unsigned state);
 int						aligned(int x, int width, unsigned flags, int dx);
+void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& dc, int xs, int ys);
+void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& source, int x_source, int y_source, int width_source, int height_source);
+extern surface*			canvas;
 bool					create(int width, int height);
 void					execute(int id, int param = 0);
+void					execute(callback proc, int param = 0);
+int						getbpp();
 int						getcommand();
+int						getheight();
+int						getwidth();
 void					glyph(int x, int y, int sym, unsigned flags);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha = 0xFF);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha, color* pal);
@@ -108,8 +151,10 @@ int						input(bool redraw = false);
 void					line(int x1, int y1, int x2, int y2); // Draw line
 void					line(int x1, int y1, int x2, int y2, color c1); // Draw line
 inline void				line(point p1, point p2, color c1) { line(p1.x, p1.y, p2.x, p2.y, c1); }
+extern color*			palt;
 void					pixel(int x, int y);
 void					pixel(int x, int y, unsigned char alpha);
+unsigned char*			ptr(int x, int y);
 int						rawinput();
 void					rawredraw();
 void					rectb(rect rc); // Draw rectangle border
@@ -122,9 +167,11 @@ void					rectf(rect rc, color c1, unsigned char alpha);
 void					setcaption(const char* string);
 void					setclip(rect rc);
 void					setclip();
+void					setlayer(callback v);
 void					settimer(unsigned milleseconds);
 int						sysinput(bool redraw = false);
 const char*				skiptr(const char* string);
+void					showlayer();
 void					text(int x, int y, const char* string, int count = -1, unsigned flags = 0);
 int						text(rect rc, const char* string, unsigned state = 0);
 int						textc(int x, int y, int width, const char* string, int count = -1, unsigned flags = 0);
@@ -136,5 +183,6 @@ int						texth(const char* string, int width);
 int						textw(int sym);
 int						textw(const char* string, int count = -1);
 int						textw(rect& rc, const char* string);
+void					write(const char* url, unsigned char* bits, int width, int height, int bpp, int scanline, color* pallette);
 }
 int						isqrt(int num);

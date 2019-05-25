@@ -57,12 +57,6 @@
     <ClInclude Include="pma.h">
       <Filter>Интерфейс</Filter>
     </ClInclude>
-    <ClInclude Include="screenshoot.h">
-      <Filter>Интерфейс</Filter>
-    </ClInclude>
-    <ClInclude Include="surface.h">
-      <Filter>Интерфейс</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
@@ -207,12 +201,6 @@
       <Filter>Интерфейс</Filter>
     </ClCompile>
     <ClCompile Include="scale.c">
-      <Filter>Интерфейс</Filter>
-    </ClCompile>
-    <ClCompile Include="screenshoot.cpp">
-      <Filter>Интерфейс</Filter>
-    </ClCompile>
-    <ClCompile Include="surface.cpp">
       <Filter>Интерфейс</Filter>
     </ClCompile>
     <ClCompile Include="surface_serial.cpp">
