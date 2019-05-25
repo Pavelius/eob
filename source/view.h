@@ -3,7 +3,6 @@
 #include "draw.h"
 #include "main.h"
 #include "menu.h"
-#include "sprite.h"
 
 namespace draw {
 typedef void(*infoproc)(item*);

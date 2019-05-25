@@ -147,7 +147,7 @@ item::item(item_s type, int chance_magic) : item(type) {
 			setcursed(1);
 	}
 	if(type == MagicWand) {
-		static spell_s random_spells[] = {SpellMagicMissile, SpellBurningHands, SpellDetectMagic};
+		static spell_s random_spells[] = {SpellMagicMissile, SpellBurningHands, SpellDetectMagic, SpellSleep};
 		setspell(maprnd(random_spells));
 		setcharges(dice::roll(3, 6));
 	} else if(type == MageScroll) {

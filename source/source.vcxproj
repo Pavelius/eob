@@ -132,10 +132,8 @@
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="menu.h" />
-    <ClInclude Include="pma.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
-    <ClInclude Include="sprite.h" />
     <ClInclude Include="stringcreator.h" />
     <ClInclude Include="view.h" />
     <ClInclude Include="win.h" />
@@ -170,14 +168,12 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="names.cpp" />
-    <ClCompile Include="pma.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portrait.cpp" />
     <ClCompile Include="race.cpp" />
     <ClCompile Include="scale.c" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="spells.cpp" />
-    <ClCompile Include="sprite.cpp" />
     <ClCompile Include="state.cpp" />
     <ClCompile Include="stringcreator.cpp" />
     <ClCompile Include="surface_serial.cpp" />

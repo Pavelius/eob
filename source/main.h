@@ -7,8 +7,8 @@
 template<> const char* getstr<e##_s>(const e##_s i) { return bsmeta<e##i>::elements[i].name; }
 
 const unsigned short	Blocked = 0xFFFF;
-const int				mpx = 32;
-const int				mpy = 25;
+const int				mpx = 30;
+const int				mpy = 22;
 enum resource_s : unsigned char {
 	NONE,
 	SCENES,
@@ -351,7 +351,6 @@ class item {
 	unsigned char		magic : 2; // 0, 1, 2, 3 this is plus item
 	enchant_s			subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
-	friend struct bsmeta<item>;
 public:
 	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(NoEnchant), charges(0) {}
 	constexpr item(item_s type, enchant_s enchant, int magic = 0) : type(type), identified(1), cursed(0), broken(0), magic(magic), subtype(enchant), charges(0) {}
@@ -414,7 +413,6 @@ class creature {
 	unsigned			experience;
 	unsigned char		name[2];
 	friend struct archive;
-	friend struct bsmeta<creature>;
 	int					armor_penalty(skill_s skill) const;
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
@@ -656,31 +654,31 @@ void					thrown(item* itm);
 void					rotate(direction_s direction);
 bool					use(item* itm);
 }
-void				enter(unsigned short index, unsigned char level);
-void				findsecrets();
-void				getability(int* result, class_s type, race_s race);
-int					getavatar(race_s race, gender_s gender, class_s cls);
-int					getavatar(int* result, int* result_maximum, race_s race, gender_s gender, class_s cls);
-int					getarmorpenalty(item_s armor, skill_s skill);
-short unsigned		getcamera();
-creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
-direction_s			getdirection();
-int					getfreeside(creature* sides[4]);
-wear_s				getitempart(item* itm);
-creature*			gethero(item* itm);
-void				getheroes(creature** result, direction_s dir);
-int					getrandom(int type, race_s race, gender_s gender, int prev_name);
-int					getpartyskill(int rec, skill_s id);
-size_s				getsize(item_s rec);
-int					getside(int side, direction_s dr);
-void				hearnoises();
-extern creature*	party[7];
-void				passround();
-void				passtime(int minutes);
-bool				read();
-extern unsigned		rounds;
-void				setcamera(short unsigned index, direction_s direction = Center);
-void				write();
+void					enter(unsigned short index, unsigned char level);
+void					findsecrets();
+void					getability(int* result, class_s type, race_s race);
+int						getavatar(race_s race, gender_s gender, class_s cls);
+int						getavatar(int* result, int* result_maximum, race_s race, gender_s gender, class_s cls);
+int						getarmorpenalty(item_s armor, skill_s skill);
+short unsigned			getcamera();
+creature*				getdefender(short unsigned index, direction_s dr, creature* attacker);
+direction_s				getdirection();
+int						getfreeside(creature* sides[4]);
+wear_s					getitempart(item* itm);
+creature*				gethero(item* itm);
+void					getheroes(creature** result, direction_s dir);
+int						getrandom(int type, race_s race, gender_s gender, int prev_name);
+int						getpartyskill(int rec, skill_s id);
+size_s					getsize(item_s rec);
+int						getside(int side, direction_s dr);
+void					hearnoises();
+extern creature*		party[7];
+void					passround();
+void					passtime(int minutes);
+bool					read();
+extern unsigned			rounds;
+void					setcamera(short unsigned index, direction_s direction = Center);
+void					write();
 }
 extern dungeon			location_above;
 extern dungeon			location;

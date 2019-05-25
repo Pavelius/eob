@@ -153,7 +153,7 @@ static item_s random_type(bool small_item = false) {
 	{1, PurpleGem},
 	{4, SwordLong},
 	{2, Helm},
-	{2, ArmorLeather},
+	{4, ArmorLeather},
 	{1, BlueRing},
 	{1, RedRing},
 	{1, GreenRing},

@@ -54,17 +54,11 @@
     <ClInclude Include="drawbits.h">
       <Filter>Интерфейс</Filter>
     </ClInclude>
-    <ClInclude Include="pma.h">
-      <Filter>Интерфейс</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="command.h">
       <Filter>Поддержка</Filter>
-    </ClInclude>
-    <ClInclude Include="sprite.h">
-      <Filter>Интерфейс</Filter>
     </ClInclude>
     <ClInclude Include="crt.h">
       <Filter>Поддержка</Filter>
@@ -197,9 +191,6 @@
     <ClCompile Include="drawbits.cpp">
       <Filter>Интерфейс</Filter>
     </ClCompile>
-    <ClCompile Include="pma.cpp">
-      <Filter>Интерфейс</Filter>
-    </ClCompile>
     <ClCompile Include="scale.c">
       <Filter>Интерфейс</Filter>
     </ClCompile>
@@ -211,9 +202,6 @@
     </ClCompile>
     <ClCompile Include="command.cpp">
       <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="sprite.cpp">
-      <Filter>Интерфейс</Filter>
     </ClCompile>
     <ClCompile Include="crt.cpp">
       <Filter>Поддержка</Filter>

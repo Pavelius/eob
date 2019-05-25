@@ -1,6 +1,5 @@
 #include "color.h"
 #include "point.h"
-#include "sprite.h"
 
 #pragma once
 
@@ -68,10 +67,6 @@ enum iflags {
 	AlignWidth = 0xE000,
 	AlignMask = 0xF000,
 };
-namespace metrics {
-extern sprite*			font;
-extern int				padding;
-}
 namespace hot {
 extern int				animate;
 void					clear();
@@ -81,6 +76,55 @@ extern bool				pressed; // flag if any of mouse keys is pressed
 extern int				param; // command or input event parameter
 }
 namespace draw {
+struct pma {
+	char				name[4]; // Identifier of current block
+	int					size; // Size of all block
+	int					count; // Count of records in this block
+	int					find(const char* name) const;
+	const pma*			getheader(const char* name) const;
+	const char*			getstring(int id) const;
+};
+struct sprite : pma {
+	enum flagse { NoIndex = 1 };
+	enum encodes { Auto, RAW, RLE, ALC, RAW8, RLE8 };
+	struct frame {
+		short int		sx, sy;
+		short int		ox, oy;
+		encodes			encode;
+		unsigned		pallette;
+		unsigned		offset;
+		rect			getrect(int x, int y, unsigned flags) const;
+	};
+	struct cicle {
+		short unsigned	start;
+		short unsigned	count;
+	};
+	short int			width; // common width of all frames (if applicable)
+	short int			height; // common height of all frames (if applicable)
+	short int			ascend;
+	short int			descend;
+	short unsigned		flags; // must be zero
+	unsigned			cicles; // count of anim structure
+	unsigned			cicles_offset;
+	frame				frames[1];
+	//
+	explicit operator bool() const;
+	//
+	frame&				add();
+	frame&				addlast();
+	void*				add(const void* data, int count);
+	int					esize() const;
+	const unsigned char* edata() const;
+	int					ganim(int index, int tick);
+	const frame&		get(int index) const;
+	inline cicle*		gcicle(int index) { return (cicle*)offs(cicles_offset) + index; }
+	inline int			gindex(int index) const { return *((short unsigned*)((cicle*)offs(cicles_offset) + cicles) + index); }
+	int					glyph(unsigned sym) const;
+	const unsigned char* offs(unsigned o) const { return (unsigned char*)this + o; }
+	void				setup(int count, int pallette_count = 0, int cicles = 0, int cicles_indexes = 0);
+	int					store(const unsigned char* p, int width, int w, int h, int ox, int oy, sprite::encodes mode, unsigned char shadow_index = 1, color* pallette = 0, int frame_index = -1, unsigned char transparent_index = 0);
+	void				write(const char* url);
+}; 
 struct surface {
 	struct plugin {
 		const char*		name;
@@ -109,7 +153,7 @@ struct surface {
 	void				resize(int width, int height, int bpp, bool alloc_memory);
 	void				write(const char* url);
 };
-struct screenshoot : public point, public surface {
+struct screenshoot : point, surface {
 	screenshoot(bool fade = false);
 	screenshoot(rect rc, bool fade = false);
 	~screenshoot();
@@ -184,5 +228,9 @@ int						textw(int sym);
 int						textw(const char* string, int count = -1);
 int						textw(rect& rc, const char* string);
 void					write(const char* url, unsigned char* bits, int width, int height, int bpp, int scanline, color* pallette);
+}
+namespace metrics {
+extern draw::sprite*	font;
+extern int				padding;
 }
 int						isqrt(int num);

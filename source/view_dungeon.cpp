@@ -1,6 +1,8 @@
 #include "drawbits.h"
 #include "view.h"
 
+using namespace draw;
+
 struct tileinfo {
 	char				frame;		// Main tile
 	char				flipped;	// Flipped tile
