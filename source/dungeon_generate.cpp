@@ -139,82 +139,80 @@ static bool iswalls(dungeon* pd, short unsigned index, direction_s dir) {
 	return true;
 }
 
-static item_s random_type(bool small_item = false) {
-	struct chance_info {
-		int		chance;
-		item_s	type;
+static item_s random_item_type(item_s* source, unsigned count) {
+	if(!count)
+		return NoItem;
+	return source[rand() % count];
+}
+
+static item_s random_subtype(item_s type) {
+	static item_s potions[] = {PotionRed, PotionBlue, PotionGreen, PotionBlue};
+	static item_s gems[] = {RedGem, BlueGem, GreenGem, PurpleGem, GreenGem, GreenGem};
+	static item_s weapons[] = {AxeBattle, Axe, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff};
+	static item_s swords[] = {Dagger, SwordBastard, SwordLong, SwordShort, SwordTwoHanded};
+	static item_s armors[] = {Robe,
+		ArmorLeather, ArmorLeather, ArmorLeather, ArmorLeather,
+		ArmorStuddedLeather, ArmorStuddedLeather,
+		ArmorScale, ArmorScale,
+		ArmorChain, ArmorBanded, ArmorPlate,
 	};
-	static chance_info elements[] = {{1, PotionRed},
-	{1, PotionBlue},
-	{1, PotionGreen},
-	{1, RedGem},
-	{1, BlueGem},
-	{1, GreenGem},
-	{1, PurpleGem},
-	{4, SwordLong},
-	{2, Helm},
-	{4, ArmorLeather},
-	{1, BlueRing},
-	{1, RedRing},
-	{1, GreenRing},
-	{2, Boots},
-	{2, Bracers},
-	{2, KeyCooper},
-	{2, TheifTools},
-	{1, MagicBook},
-	{1, HolySymbol},
-	{1, Bones},
-	{2, MagicWand},
-	{2, DungeonMap},
-	{4, PriestScroll},
-	{4, MageScroll},
-	};
-	static chance_info small_elements[] = {{1, PotionRed},
-	{1, PotionBlue},
-	{1, PotionGreen},
-	{1, RedGem},
-	{1, BlueGem},
-	{1, GreenGem},
-	{1, PurpleGem},
-	{1, BlueRing},
-	{1, RedRing},
-	{1, GreenRing},
-	{2, Bracers},
-	{2, KeyCooper},
-	{2, TheifTools},
-	{1, MagicBook},
-	{1, HolySymbol},
-	{1, Bones},
-	{2, MagicWand},
-	{2, DungeonMap},
-	{4, PriestScroll},
-	{4, MageScroll},
-	};
-	auto total = 0;
-	if(small_item) {
-		for(auto& e : small_elements)
-			total += e.chance;
-		if(total) {
-			int d = rand() % total;
-			for(auto& e : small_elements) {
-				if(d < e.chance)
-					return e.type;
-				d -= e.chance;
-			}
-		}
-	} else {
-		for(auto& e : elements)
-			total += e.chance;
-		if(total) {
-			int d = rand() % total;
-			for(auto& e : elements) {
-				if(d < e.chance)
-					return e.type;
-				d -= e.chance;
-			}
-		}
+	static item_s rings[] = {RedRing, BlueRing, GreenRing};
+	static item_s scrolls[] = {PriestScroll, MageScroll, MageScroll, MageScroll};
+	static item_s tools[] = {HolySymbol, MagicBook, TheifTools, TheifTools};
+	switch(type) {
+	case PotionRed:
+		return maprnd(potions);
+	case RedGem:
+		return maprnd(gems);
+	case SwordLong:
+		if(d100()<30)
+			return maprnd(swords);
+		return maprnd(weapons);
+	case ArmorLeather:
+		return maprnd(armors);
+	case RedRing:
+		return maprnd(rings);
+	case PriestScroll:
+		return maprnd(scrolls);
+	default:
+		return type;
 	}
-	return NoItem;
+}
+
+static item_s random_type(bool small_size = false) {
+	static item_s standart_item_types[] = {PotionRed,
+		RedGem,
+		SwordLong, SwordLong, SwordLong, SwordLong, SwordLong,
+		Helm, Helm,
+		Shield,
+		ArmorLeather, ArmorLeather, ArmorLeather, ArmorLeather,
+		RedRing,
+		Boots, Boots,
+		Bracers,
+		KeyCooper,
+		TheifTools,
+		Bones,
+		MagicWand,
+		DungeonMap,
+		PriestScroll
+	};
+	static item_s small_item_types[] = {PotionRed,
+		RedGem,
+		RedRing,
+		KeyCooper,
+		TheifTools,
+		MagicWand,
+		DungeonMap,
+		PriestScroll
+	};
+	item_s t = NoItem;
+	if(small_size)
+		t = random_item_type(small_item_types,
+			sizeof(small_item_types) / sizeof(small_item_types[0]));
+	else
+		t = random_item_type(standart_item_types,
+			sizeof(standart_item_types) / sizeof(standart_item_types[0]));
+	return random_subtype(t);
 }
 
 static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {

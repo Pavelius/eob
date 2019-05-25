@@ -631,6 +631,14 @@ struct dungeon {
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
+struct site {
+	struct overlayi {
+		item_s			keys[2]; // two type of keys that fit locks
+		monster_s		habbits[2]; // who dwelve here
+		char			magic; // base chance for magic items
+		char			curse; // base chance for cursed items
+	};
+};
 namespace game {
 namespace action {
 command_s				actions();

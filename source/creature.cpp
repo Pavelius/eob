@@ -1181,3 +1181,69 @@ bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
 	}
 	return true;
 }
+
+static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
+	auto language = pd->getlanguage();
+	if(!pc->canspeak(language))
+		return false;
+	switch(po->subtype) {
+	case MessageHabbits:
+		pc->say("%1 and %2 dwelve this halls",
+			getstr(pd->stat.habbits[0]), getstr(pd->stat.habbits[1]));
+		break;
+	case MessageMagicWeapons:
+		if(!pd->stat.weapons)
+			pc->say("Dont't find any magic weapon here");
+		else
+			pc->say("Find here %1i magic weapons", pd->stat.weapons);
+		break;
+	case MessageMagicRings:
+		if(!pd->stat.rings)
+			pc->say("You don't find any magic rings here", pd->stat.rings);
+		else
+			pc->say("Find here %1i magic rings", pd->stat.rings);
+		break;
+	case MessageSecrets:
+		if(!pd->stat.secrets)
+			pc->say("This halls don't have any secrets", pd->stat.secrets);
+		else
+			pc->say("Find %1i secret doors", pd->stat.secrets);
+		break;
+	case MessageTraps:
+		if(!pd->stat.traps)
+			pc->say("This level is safe");
+		else
+			pc->say("Avoid %1i deadly traps", pd->stat.traps);
+		break;
+	case MessageAtifacts:
+		if(!pd->stat.artifacts)
+			pc->say("You don't find any mighty artifact here");
+		else
+			pc->say("There is %1i mighty artifacts nearby", pd->stat.artifacts);
+		break;
+	default:
+		pc->say("%1 eat his friend", getstr(pd->stat.habbits[0]));
+		break;
+	}
+	return true;
+}
+
+void read_message(dungeon* pd, dungeon::overlayi* po) {
+	creature* pc = 0;
+	for(auto p : game::party) {
+		if(!p || !p->isready())
+			continue;
+		if(!pc)
+			pc = p;
+		if(read_message(p, pd, po))
+			return;
+	}
+	auto language = pd->getlanguage();
+	if(!pc->canspeak(language)) {
+		switch(language) {
+		case Dwarf: pc->say("Some kind of dwarven runes"); break;
+		case Elf: pc->say("Some kind of elvish scripts"); break;
+		default: pc->say("Some unrecognised language"); break;
+		}
+	}
+}
