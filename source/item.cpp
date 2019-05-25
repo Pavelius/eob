@@ -277,10 +277,7 @@ int	item::getmagic() const {
 	auto r = magic;
 	if(subtype && !havespell(type))
 		r += bsmeta<enchanti>::elements[subtype].magic;
-	if(iscursed()) {
-		if(r == 0)
-			return -1;
-		return -r;
-	}
+	if(iscursed())
+		return -r - 1;
 	return r;
 }

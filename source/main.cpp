@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
 					game::enter(1, 1);
 				} else {
 					random_heroes();
-					test_dungeon(AreaDungeon);
+					test_dungeon(AreaSewers);
 					draw::settiles(location.type);
 					game::setcamera(location.getindex(16, 16), Up);
 				}
