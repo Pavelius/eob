@@ -127,7 +127,6 @@
     <ClInclude Include="crt.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
-    <ClInclude Include="drawbits.h" />
     <ClInclude Include="initializer_list.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
@@ -155,7 +154,6 @@
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />
-    <ClCompile Include="drawbits.cpp" />
     <ClCompile Include="dungeon.cpp" />
     <ClCompile Include="dungeon_generate.cpp" />
     <ClCompile Include="enchant.cpp" />

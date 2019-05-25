@@ -51,9 +51,6 @@
     <ClInclude Include="draw.h">
       <Filter>Интерфейс</Filter>
     </ClInclude>
-    <ClInclude Include="drawbits.h">
-      <Filter>Интерфейс</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
@@ -186,9 +183,6 @@
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="draw.cpp">
-      <Filter>Интерфейс</Filter>
-    </ClCompile>
-    <ClCompile Include="drawbits.cpp">
       <Filter>Интерфейс</Filter>
     </ClCompile>
     <ClCompile Include="scale.c">

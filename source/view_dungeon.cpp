@@ -1,4 +1,3 @@
-#include "drawbits.h"
 #include "view.h"
 
 using namespace draw;
@@ -1119,8 +1118,7 @@ void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int p
 		else
 			draw::image(0, 0, res, id, ImageNoOffset);
 	}
-	draw::bop::scale32(scaler2.bits, scaler2.scanline, ssx, ssy,
-		scaler.bits, scaler.scanline, sx, sy);
+	blit(scaler2, 0, 0, ssx, ssy, 0, scaler, 0, 0, sx, sy);
 	fast_shadow(scaler2.bits, scaler2.scanline, ssx, ssy, shadow);
 	if(flags&ImageColor)
 		fast_fill_contour(scaler2.bits, scaler2.scanline, ssx, ssy, colors::white);
