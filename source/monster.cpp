@@ -8,6 +8,7 @@ static const int hd_experience[] = {
 
 monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, {}, {3}, 3, {Bite}, {WeakPoison}},
+{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, {}, {3, 1}, 5, {AxeBattle}, {}},
 {"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, {}, {5}, 7, {Mace}, {}},
 {"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, {}, {2, 3}, 5, {Mace}, {}},
 {"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, {Undead}, {2}, 6, {Claws, Bite}, {Paralized}},

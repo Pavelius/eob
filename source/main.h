@@ -16,7 +16,7 @@ enum resource_s : unsigned char {
 	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
 	// Monsters
-	ANKHEG, ANT, BLDRAGON, CLERIC1, CLERIC2, CLERIC3, DRAGON, FLIND,
+	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
 	SKELETON, SKELWAR, SPIDER1, ZOMBIE,
 	Count
@@ -82,7 +82,7 @@ enum class_s : unsigned char {
 };
 enum monster_s : unsigned char {
 	NoMonster,
-	AntGiant, ClericOldMan, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
+	AntGiant, Bugbear, ClericOldMan, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
 	Orc, Skeleton, Spider, Zombie
 };
 enum dungeon_s : unsigned char {

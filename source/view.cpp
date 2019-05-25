@@ -68,6 +68,7 @@ static struct resource_info {
 {"ANKHEG", "art/monsters"},
 {"ANT", "art/monsters"},
 {"BLDRAGON", "art/monsters"},
+{"BUGBEAR", "art/monsters"},
 {"CLERIC1", "art/monsters"},
 {"CLERIC2", "art/monsters"},
 {"CLERIC3", "art/monsters"},

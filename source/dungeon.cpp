@@ -460,8 +460,8 @@ item_s dungeon::getkeytype(cell_s keyhole) const {
 }
 
 void dungeon::setcontent(dungeon_s type, int level) {
-	static monster_s dwarven[3][2] = {{Goblin, Orc}, {Skeleton, Zombie}, {Gnoll, Kuotoa}};
-	static monster_s sewers[3][2] = {{Kobold, Leech}, {Skeleton, Zombie}, {Kuotoa, Ghoul}};
+	static monster_s dwarven[3][2] = {{Goblin, Orc}, {Goblin, Bugbear}, {Gnoll, Kuotoa}};
+	static monster_s sewers[3][2] = {{Kobold, Leech}, {Skeleton, Zombie}, {Zombie, Ghoul}};
 	auto n = level / 2;
 	if(n > 2)
 		n = 2;
