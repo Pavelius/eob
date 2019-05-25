@@ -10,8 +10,17 @@
 template<> const char* getstr<e##_s>(const e##_s i) { return bsmeta<e##i>::elements[i].name; }
 
 const unsigned short	Blocked = 0xFFFF;
+const int				walls_frames = 9;
+const int				walls_count = 6;
+const int				door_offset = 1 + walls_frames * walls_count;
+const int				decor_offset = door_offset + 9;
+const int				decor_count = 19;
+const int				decor_frames = 10;
+const int				scrx = 22 * 8;
+const int				scry = 15 * 8;
 const int				mpx = 30;
 const int				mpy = 22;
+
 enum resource_s : unsigned char {
 	NONE,
 	SCENES,
@@ -622,19 +631,6 @@ struct dungeon {
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
-namespace draw {
-namespace animation {
-void					appear(dungeon& location, short unsigned index, int radius = 1);
-void					attack(creature* attacker, wear_s slot, int hits);
-void					clear();
-void					damage(creature* target, int hits);
-void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
-int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100);
-int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
-void					update();
-}
-bool					settiles(dungeon_s id);
-}
 namespace game {
 namespace action {
 command_s				actions();
@@ -686,6 +682,16 @@ void					write();
 namespace draw {
 struct sprite;
 typedef void(*infoproc)(item*);
+namespace animation {
+void					appear(dungeon& location, short unsigned index, int radius = 1);
+void					attack(creature* attacker, wear_s slot, int hits);
+void					clear();
+void					damage(creature* target, int hits);
+void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
+int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100);
+int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
+void					update();
+}
 void					abilities(int x, int y, creature* pc);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
@@ -716,6 +722,7 @@ void					resetres();
 void					setbigfont();
 void					setmode(infoproc mode);
 void					setsmallfont();
+bool					settiles(dungeon_s id);
 void					skills(int x, int y, creature* pc);
 void					textb(int x, int y, const char* string, int count = -1);
 int						textb(rect rc, const char* string, unsigned flags = 0);
@@ -731,7 +738,6 @@ extern dungeon			location_above;
 extern dungeon			location;
 direction_s				devectorized(direction_s dr, direction_s d);
 bool					dlgask(const char* text);
-template<class T> const char* getstr(const T e);
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
 short unsigned			moveto(short unsigned index, direction_s d);
@@ -740,11 +746,3 @@ void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
 direction_s				rotateto(direction_s d, direction_s d1);
 direction_s				vectorized(direction_s d, direction_s d1);
-const int				walls_frames = 9;
-const int				walls_count = 6;
-const int				door_offset = 1 + walls_frames * walls_count;
-const int				decor_offset = door_offset + 9;
-const int				decor_count = 19;
-const int				decor_frames = 10;
-const int				scrx = 22 * 8;
-const int				scry = 15 * 8;
