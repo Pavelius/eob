@@ -628,6 +628,7 @@ struct dungeon {
 	void				setcontent(dungeon_s type, int level);
 	void				setelement(short unsigned index, direction_s dir, cell_s type);
 	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
+	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };

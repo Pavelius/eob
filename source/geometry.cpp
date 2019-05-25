@@ -81,7 +81,7 @@ direction_s vectorized(direction_s d, direction_s d1) {
 
 short unsigned moveto(short unsigned index, direction_s d) {
 	if(!index)
-		return 0;
+		return Blocked;
 	switch(d) {
 	case Left:
 		if(gx(index) == 0)
@@ -100,6 +100,6 @@ short unsigned moveto(short unsigned index, direction_s d) {
 			return 0;
 		return index + mpx;
 	default:
-		return 0;
+		return Blocked;
 	}
 }

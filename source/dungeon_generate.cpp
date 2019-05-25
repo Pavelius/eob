@@ -192,7 +192,6 @@ static item_s random_type(bool small_size = false) {
 		KeyCooper,
 		TheifTools,
 		Bones,
-		MagicWand,
 		DungeonMap,
 		PriestScroll
 	};
@@ -274,7 +273,9 @@ static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	pd->set(i1, CellWall);
 	pd->setoverlay(index, CellSecrectButton, dir);
 	pd->set(i2, CellPassable);
-	int count = xrand(1, 4);
+	int count = 1;
+	if(d100() < 25)
+		count = 2;
 	for(int i = 0; i < count; i++)
 		items(pd, i2, 20);
 	pd->set(moveto(i2, rotateto(dir, Left)), CellWall);
