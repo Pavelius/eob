@@ -227,7 +227,9 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 			type = RationIron;
 	}
 	int chance_magic = imax(0, imin(75, 12 + pd->level * 3) + bonus_chance_magic);
-	item it(type, chance_magic);
+	int chance_cursed = 5;
+	int chance_special = pd->level + bonus_chance_magic;
+	item it(type, chance_magic, chance_cursed, chance_special);
 	it.setidentified(0);
 	switch(type) {
 	case Ration:
@@ -255,7 +257,7 @@ static void items(dungeon* pd, short unsigned index, item_s type, int bonus_chan
 }
 
 static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
-	pd->dropitem(index, create_item(pd, random_type(), bonus_chance_magic), xrand(0, 3));
+	items(pd, index, random_type(), xrand(0, 3));
 }
 
 static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {

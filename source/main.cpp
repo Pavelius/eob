@@ -7,7 +7,7 @@ static void test_room2(int x, int y) {
 	location.set(location.getindex(x, y-2), CellWall);
 	auto po = location.setoverlay(location.getindex(x, y - 1), CellCellar, Up);
 	location.add(po, SpellBless);
-	location.add(po, item(Dagger, 50));
+	location.add(po, item(Dagger, 50, 0, 10));
 }
 
 static void test_dungeon(dungeon_s type) {
@@ -48,7 +48,7 @@ static void test_room(int x, int y) {
 	location.setoverlay(location.getindex(x + 3, y + 1), CellMessage, Right);
 	auto po = location.setoverlay(location.getindex(x + 3, y + 2), CellCellar, Right);
 	location.add(po, SpellBless);
-	location.add(po, item(Dagger, 50));
+	location.add(po, item(Dagger, 50, 0, 10));
 	location.setoverlay(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
 	location.set(location.getindex(x + 2, y - 2), CellButton);
@@ -107,20 +107,20 @@ static void random_heroes() {
 	//
 	game::party[0]->equip(item(SwordLong, OfFire));
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
-	game::party[0]->add(item(KeySilver, 20));
+	game::party[0]->add(item(KeySilver, 20, 0, 0));
 	game::party[0]->add(item(PotionGreen, OfPoison));
 	game::party[1]->add(item(SwordLong, OfDamage, 2));
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
-	game::party[1]->add(item(Bow, 20));
-	game::party[2]->add(item(MagicWand, 20));
+	game::party[1]->add(item(Bow, 20, 0, 0));
+	game::party[2]->add(item(MagicWand, 20, 0, 0));
 	game::party[2]->add(SpellBless);
 	game::party[2]->add(SpellDetectMagic);
 	game::party[2]->add(SpellMagicMissile);
 	game::party[2]->equip(item(BlueRing, OfWizardy));
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(PriestScroll);
-	game::party[3]->add(item(DungeonMap, 20));
-	item artifact(SwordShort, 100);
+	game::party[3]->add(item(DungeonMap, 20, 0, 0));
+	item artifact(SwordShort, 100, 5, 40);
 	artifact.setidentified(1);
 	game::party[3]->add(artifact);
 }

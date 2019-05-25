@@ -1085,14 +1085,19 @@ void creature::damage(damage_s type, int hits) {
 			auto index = getindex();
 			auto side = getside();
 			for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
-				auto it = get(par);
+				auto it = wears[par];
 				if(it || !it.getportrait())
 					continue;
-				if(d100() < 25) {
+				if(it.ismagical())
+					location.dropitem(index, it, side);
+				else if(d100() < 25) {
 					// Random magic item
 					auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
+					auto chance_cursed = 5;
+					if(is(Undead))
+						chance_cursed += 5;
 					location.dropitem(index,
-						item(it.gettype(), chance_magic),
+						item(it.gettype(), chance_magic, chance_cursed, 25),
 						side);
 				}
 			}

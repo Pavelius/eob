@@ -130,37 +130,61 @@ static item_s getscroll(spell_s id) {
 	return PriestScroll;
 }
 
-item::item(item_s type, int chance_magic) : item(type) {
-	if(d100() < chance_magic) {
-		auto d = rand() % 100;
-		if(d < 50)
-			magic = 0;
-		else if(d < 75)
-			magic = 1;
-		else if(d < 92)
-			magic = 2;
-		else
-			magic = 3;
-		if(bsmeta<itemi>::elements[type].enchantments.count)
-			subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
-		if(!ismagical())
-			setcursed(1);
-	}
-	if(type == MagicWand) {
-		static spell_s random_spells[] = {SpellMagicMissile, SpellBurningHands, SpellDetectMagic, SpellSleep};
+static int special_magic_bonus() {
+	auto d = rand() % 100;
+	if(d < 50)
+		return 0;
+	else if(d < 75)
+		return 1;
+	else if(d < 92)
+		return 2;
+	else
+		return 3;
+}
+
+static int standart_magic_bonus() {
+	auto d = rand() % 100;
+	if(d < 60)
+		return 1;
+	else if(d < 90)
+		return 2;
+	else
+		return 3;
+}
+
+item::item(item_s type, int chance_magic, int chance_cursed, int chance_special) : item(type) {
+	adat<spell_s, 32> spells;
+	static spell_s random_spells[] = {SpellMagicMissile, SpellBurningHands, SpellDetectMagic, SpellSleep};
+	switch(type) {
+	case MagicWand:
 		setspell(maprnd(random_spells));
 		setcharges(dice::roll(3, 6));
-	} else if(type == MageScroll) {
-		adat<spell_s, 32> spells;
+		magic = special_magic_bonus();
+		break;
+	case MageScroll:
 		spells.count = creature::select(spells.data, zendof(spells.data), Mage, 1);
 		if(spells.count)
 			setspell(spells.data[rand() % spells.count]);
-	} else if(type == PriestScroll) {
-		adat<spell_s, 32> spells;
+		magic = special_magic_bonus();
+		break;
+	case PriestScroll:
 		spells.count = creature::select(spells.data, zendof(spells.data), Cleric, 1);
 		if(spells.count)
 			setspell(spells.data[rand() % spells.count]);
+		magic = special_magic_bonus();
+		break;
+	default:
+		if(d100() < chance_magic) {
+			if(bsmeta<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
+				subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
+				magic = special_magic_bonus();
+			} else
+				magic = standart_magic_bonus();
+		}
+		break;
 	}
+	if(d100() < chance_cursed)
+		setcursed(1);
 }
 
 item::item(spell_s spell) : item(getscroll(spell)) {
