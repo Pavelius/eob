@@ -1,4 +1,5 @@
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 const int dx = 4;
 

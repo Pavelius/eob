@@ -1,4 +1,5 @@
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 static command_s choosemenu(aref<command_s> options, command_s focus) {
 	while(true) {

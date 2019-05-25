@@ -1,4 +1,5 @@
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse) {
 	unsigned flags = 0;

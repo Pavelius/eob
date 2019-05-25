@@ -1,4 +1,5 @@
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 static int button(int x, int y, int id, int key, const char* name) {
 	draw::state push;

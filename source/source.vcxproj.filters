@@ -30,9 +30,6 @@
     <ClInclude Include="initializer_list.h">
       <Filter>Коллекции</Filter>
     </ClInclude>
-    <ClInclude Include="view.h">
-      <Filter>Логика</Filter>
-    </ClInclude>
     <ClInclude Include="main.h">
       <Filter>Логика</Filter>
     </ClInclude>

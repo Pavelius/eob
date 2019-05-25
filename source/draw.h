@@ -160,8 +160,7 @@ struct screenshoot : point, surface {
 	void				blend(draw::surface& e, unsigned delay);
 	void				restore();
 };
-struct state // Push state in stack
-{
+struct state {
 	state();
 	~state();
 private:

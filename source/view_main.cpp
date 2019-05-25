@@ -1,4 +1,5 @@
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 static menu	menu_main[] = {{NewGame, "Create New Game"},
 {LoadGame, "Load Saved game"},

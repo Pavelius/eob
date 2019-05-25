@@ -1,5 +1,5 @@
+#include "main.h"
 #include "archive.h"
-#include "view.h"
 
 const char* get_name_part(short rec);
 

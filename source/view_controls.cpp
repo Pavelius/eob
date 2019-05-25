@@ -1,5 +1,6 @@
 #include "command.h"
-#include "view.h"
+#include "draw.h"
+#include "main.h"
 
 using namespace draw;
 
