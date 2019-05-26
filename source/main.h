@@ -706,13 +706,12 @@ void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
 int						button(int x, int y, int width, int id, unsigned flags, const char* name);
 int						ciclic(int range, int speed = 1);
+bool					dlgask(const char* text);
 int						flatb(int x, int y, int width, int id, unsigned flags, const char* string);
-void					focusing(const rect& rc, item* pid);
 rect					form(rect rc, int count = 1);
 void					generation();
 unsigned				getfstate(int id, int focus);
 infoproc				getmode();
-item*					getnext(item* pitm, int key);
 sprite*					gres(resource_s id);
 void					greenbar(rect rc, int vc, int vm);
 int						header(int x, int y, const char* text);
@@ -746,7 +745,6 @@ extern color			text;
 extern dungeon			location_above;
 extern dungeon			location;
 direction_s				devectorized(direction_s dr, direction_s d);
-bool					dlgask(const char* text);
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
 short unsigned			moveto(short unsigned index, direction_s d);

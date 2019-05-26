@@ -69,7 +69,6 @@ enum iflags {
 };
 namespace hot {
 extern int				animate;
-void					clear();
 extern int				key; // [in] if pressed key or mouse this field has key
 extern point			mouse; // current mouse coordinates
 extern bool				pressed; // flag if any of mouse keys is pressed
@@ -179,18 +178,25 @@ int						alignedh(const rect& rc, const char* string, unsigned state);
 int						aligned(int x, int width, unsigned flags, int dx);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& dc, int xs, int ys);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& source, int x_source, int y_source, int width_source, int height_source);
+void					breakmodal(int result);
+void					buttoncancel();
+void					buttonok();
+void					buttonparam();
 extern surface*			canvas;
 bool					create(int width, int height);
-void					execute(int id, int param = 0);
+extern callback			domodal;
 void					execute(callback proc, int param = 0);
+void					focusing(const rect& rc, void* pid);
 int						getbpp();
 int						getcommand();
+void*					getnext(void* pitm, int key);
 int						getheight();
+int						getresult();
 int						getwidth();
 void					glyph(int x, int y, int sym, unsigned flags);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha = 0xFF);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha, color* pal);
-int						input(bool redraw = false);
+bool					ismodal();
 void					line(int x1, int y1, int x2, int y2); // Draw line
 void					line(int x1, int y1, int x2, int y2, color c1); // Draw line
 inline void				line(point p1, point p2, color c1) { line(p1.x, p1.y, p2.x, p2.y, c1); }
@@ -198,7 +204,7 @@ extern color*			palt;
 void					pixel(int x, int y);
 void					pixel(int x, int y, unsigned char alpha);
 unsigned char*			ptr(int x, int y);
-int						rawinput();
+void					rawinput();
 void					rawredraw();
 void					rectb(rect rc); // Draw rectangle border
 void					rectb(rect rc, color c1);
@@ -212,7 +218,6 @@ void					setclip(rect rc);
 void					setclip();
 void					setlayer(callback v);
 void					settimer(unsigned milleseconds);
-int						sysinput(bool redraw = false);
 const char*				skiptr(const char* string);
 void					showlayer();
 void					text(int x, int y, const char* string, int count = -1, unsigned flags = 0);

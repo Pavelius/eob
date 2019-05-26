@@ -175,7 +175,6 @@
     <ClCompile Include="stringcreator.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
-    <ClCompile Include="view.cpp" />
     <ClCompile Include="view_automap.cpp" />
     <ClCompile Include="view_character.cpp" />
     <ClCompile Include="view_controls.cpp" />

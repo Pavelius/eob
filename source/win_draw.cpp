@@ -131,10 +131,10 @@ bool draw::create(int width, int height) {
 	return hwnd != 0;
 }
 
-int draw::rawinput() {
+void draw::rawinput() {
 	MSG	msg;
 	if(!hwnd)
-		return 0;
+		return;
 	InvalidateRect(hwnd, 0, 1);
 	while(GetMessageA(&msg, 0, 0, 0)) {
 		TranslateMessage(&msg);
@@ -151,10 +151,10 @@ int draw::rawinput() {
 				if(GetKeyState(VK_CONTROL) < 0)
 					hot::key |= Ctrl;
 			}
-			return hot::key;
+			return;
 		}
 	}
-	return 0;
+	hot::key = 0;
 }
 
 void draw::rawredraw() {

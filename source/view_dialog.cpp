@@ -126,13 +126,13 @@ void dlgerr(const char* title, const char* format, ...) {
 	mslogv(format, xva_start(format));
 }
 
-bool dlgask(const char* text) {
+bool draw::dlgask(const char* text) {
 	draw::state push;
 	draw::screenshoot screen(true);
 	draw::fore = colors::white;
 	rect rc = getformpos(text, draw::texth() + dx * 2);
 	int focus = OK;
-	while(true) {
+	while(draw::ismodal()) {
 		screen.restore();
 		draw::form(rc);
 		int x1 = rc.x1 + dx;
@@ -143,8 +143,8 @@ bool dlgask(const char* text) {
 		x1 = (320 - (36 + 36)) / 2;
 		draw::button(x1, y1, 32, OK, draw::getfstate(OK, focus), "Yes");
 		draw::button(x1 + 36, y1, 32, Cancel, draw::getfstate(Cancel, focus), "No");
-		int id = draw::input();
-		switch(id) {
+		draw::domodal();
+		switch(hot::key) {
 		case KeyEscape:
 		case Cancel:
 			return false;

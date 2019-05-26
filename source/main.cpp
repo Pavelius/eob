@@ -1,6 +1,8 @@
 #include "draw.h"
 #include "main.h"
 
+using namespace draw;
+
 #ifdef _DEBUG
 
 static void test_room2(int x, int y) {
@@ -147,11 +149,11 @@ static void test_monster(resource_s rs, int overlay[4]) {
 	unsigned flags = 0;
 	int x = 100;
 	int y = 100;
-	while(true) {
+	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
 		draw_monster(x, y, rs, 0, overlay, flags, percent);
-		auto id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyEscape:
 			return;
 		case Alpha + 'A':

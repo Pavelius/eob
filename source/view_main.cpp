@@ -6,35 +6,35 @@ static menu	menu_main[] = {{NewGame, "Create New Game"},
 {Cancel, "Exit game"},
 };
 
-static int buttons(int x, int y, int w, int focus, aref<menu> elements) {
-	int y0 = y;
-	draw::state push;
-	draw::fore = colors::white;
-	draw::setbigfont();
-	for(auto& e : elements) {
-		y += draw::linetext(x, y, w, e.id,
-			AlignCenter | draw::getfstate(e.id, focus),
-			e.text);
-	}
-	return y - y0;
-}
-
 command_s draw::mainmenu() {
 	auto focus = NewGame;
-	while(true) {
+	while(ismodal()) {
 		draw::background(MENU);
-		buttons(80, 110, 170, focus, menu_main);
-		int id = draw::input();
-		switch(id) {
+		auto x = 80;
+		auto y = 110;
+		auto w = 170;
+		draw::state push;
+		draw::fore = colors::white;
+		draw::setbigfont();
+		for(auto& e : menu_main) {
+			y += draw::linetext(x, y, w, e.id,
+				AlignCenter | draw::getfstate(e.id, focus),
+				e.text);
+		}
+		domodal();
+		switch(hot::key) {
 		case 0:
 		case KeyEscape:
-			return NoCommand;
+			breakmodal(0);
+			break;
 		case KeyDown:
 		case KeyUp:
-			focus = (command_s)menu_main->getnextid(focus, id);
+			focus = (command_s)menu_main->getnextid(focus, hot::key);
 			break;
 		case KeyEnter:
-			return focus;
+			breakmodal(focus);
+			break;
 		}
 	}
+	return (command_s)getresult();
 }

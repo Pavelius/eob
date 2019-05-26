@@ -178,9 +178,9 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 }
 
 void game::action::pause() {
-	while(true) {
-		int id = draw::input();
-		switch(id) {
+	while(draw::ismodal()) {
+		draw::domodal();
+		switch(hot::key) {
 		case 0:
 		case KeyEscape:
 			return;

@@ -1,6 +1,8 @@
 #include "draw.h"
 #include "main.h"
 
+using namespace draw;
+
 static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse) {
 	unsigned flags = 0;
 	if(!pe->get(type))
@@ -108,10 +110,10 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 
 creature* game::action::choosehero() {
 	char temp[260];
-	draw::state push;
-	draw::setsmallfont();
-	draw::fore = colors::white;
 	draw::screenshoot screen;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
 	creature* elements[7]; auto p = elements;
 	for(auto e : game::party) {
 		if(e)
@@ -119,18 +121,19 @@ creature* game::action::choosehero() {
 	}
 	*p = 0;
 	int current_element = 0;
-	while(true) {
+	int id;
+	while(ismodal()) {
 		if(current_element >= zlen(elements))
 			current_element = zlen(elements) - 1;
 		if(current_element < 0)
 			current_element = 0;
 		screen.restore();
 		rect rc = {70, 124, 178, 174};
-		draw::form(rc);
+		form(rc);
 		if(true) {
 			draw::state push;
-			draw::fore = colors::yellow;
-			draw::text(rc.x1 + 1, rc.y1 + 1, "On which hero?");
+			fore = colors::yellow;
+			text(rc.x1 + 1, rc.y1 + 1, "On which hero?");
 		}
 		int x = rc.x1;
 		int y = rc.y1 + 8;
@@ -139,14 +142,16 @@ creature* game::action::choosehero() {
 			y += labelb(x, y, rc.width(), flags,
 				elements[i]->getname(temp, zendof(temp)));
 		}
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyEscape:
 		case Cancel:
-			return 0;
+			breakmodal(0);
+			break;
 		case KeyEnter:
 		case Alpha + 'U':
-			return elements[current_element];
+			breakmodal((int)elements[current_element]);
+			break;
 		case KeyDown:
 		case Alpha + 'Z':
 			current_element++;
@@ -161,12 +166,13 @@ creature* game::action::choosehero() {
 		case Alpha + '4':
 		case Alpha + '5':
 		case Alpha + '6':
-			id = id - (Alpha + '1');
+			id = hot::key - (Alpha + '1');
 			if(id < zlen(elements))
-				return elements[id];
+				breakmodal((int)elements[id]);
 			break;
 		}
 	}
+	return (creature*)getresult();
 }
 
 spell_s game::action::choosespell(creature* pc, class_s type) {
@@ -177,7 +183,7 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 	draw::screenshoot screen;
 	int current_level = 1;
 	unsigned current_element = 0;
-	while(true) {
+	while(ismodal()) {
 		result.count = select_spells(result.data, zendof(result.data), pc, type, current_level);
 		if(current_element >= result.count)
 			current_element = result.count - 1;
@@ -185,7 +191,7 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 			current_element = 0;
 		screen.restore();
 		rect rc = {70, 124, 178, 174};
-		draw::form(rc);
+		form(rc);
 		int x = rc.x1;
 		int y = rc.y1;
 		for(int i = 0; i < 9; i++) {
@@ -194,7 +200,7 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 			auto level = i + 1;
 			sznum(temp, level);
 			unsigned flags = 0;
-			draw::flatb(x + i * dx, y, dx, ChooseLevels,
+			flatb(x + i * dx, y, dx, ChooseLevels,
 				(level == current_level) ? Focused : 0, temp);
 		}
 		x = rc.x1;
@@ -203,14 +209,15 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 			unsigned flags = (i == current_element) ? Focused : 0;
 			y += labelb(x, y, rc.width(), flags, getstr(result.data[i]));
 		}
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyEscape:
 		case Cancel:
 			return NoSpell;
 		case KeyEnter:
 		case Alpha + 'U':
-			return result.data[current_element];
+			breakmodal(result.data[current_element]);
+			break;
 		case KeyLeft:
 		case Alpha + 'A':
 			current_level--;
@@ -240,10 +247,11 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 		case Alpha + '7':
 		case Alpha + '8':
 		case Alpha + '9':
-			current_level = id - (Alpha + '1') + 1;
+			current_level = hot::key - (Alpha + '1') + 1;
 			break;
 		}
 	}
+	return (spell_s)getresult();
 }
 
 void game::action::preparespells(class_s type) {
@@ -252,6 +260,7 @@ void game::action::preparespells(class_s type) {
 	auto focus = ChooseSpells;
 	auto current_level = 1;
 	auto current_index = 0;
+	int id;
 	while(true) {
 		draw::background(PLAYFLD);
 		result.count = 0;
@@ -269,13 +278,13 @@ void game::action::preparespells(class_s type) {
 		render_spell_window(result, hero, type, focus, current_level, current_index,
 			maximum_spells, prepared_spells);
 		spells_portraits(184, 2, type, hero);
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case Alpha + '1':
 		case Alpha + '2':
 		case Alpha + '3':
 		case Alpha + '4':
-			id = id - (Alpha + '1');
+			id = hot::key - (Alpha + '1');
 			if(!game::party[id] || !game::party[id]->get(type))
 				break;
 			hero = game::party[id];
@@ -284,7 +293,7 @@ void game::action::preparespells(class_s type) {
 		case Cancel:
 			return;
 		case KeyEnter:
-			draw::execute(focus);
+			//draw::execute(focus);
 			break;
 		case Clear:
 		case Alpha + 'C':

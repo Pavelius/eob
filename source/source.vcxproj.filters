@@ -131,9 +131,6 @@
     <ClCompile Include="spells.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="view.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="view_automap.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

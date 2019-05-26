@@ -20,7 +20,6 @@ int						hot::key; // Событие, которое происходит в данный момент
 point					hot::mouse; // current mouse coordinates
 bool					hot::pressed; // flag if any of mouse keys is pressed
 int						hot::param;
-static int				current_command;
 int						metrics::padding = 4;
 sprite*					metrics::font;
 static callback			next_proc;
@@ -968,12 +967,6 @@ rect sprite::frame::getrect(int x, int y, unsigned flags) const {
 	return{x, y, x2, y2};
 }
 
-void hot::clear() {
-	command_hot_clear->execute();
-	current_command = 0;
-	hot::key = 0;
-}
-
 draw::state::state() :
 	fore(draw::fore),
 	font(draw::font),
@@ -987,10 +980,6 @@ draw::state::~state() {
 	draw::palt = this->palt;
 	draw::clipping = this->clip;
 	draw::canvas = this->canvas;
-}
-
-int draw::getcommand() {
-	return current_command;
 }
 
 void draw::pixel(int x, int y) {
@@ -1799,32 +1788,6 @@ unsigned char* draw::ptr(int x, int y) {
 	return canvas ? (canvas->bits + y * canvas->scanline + x * canvas->bpp / 8) : 0;
 }
 
-void draw::execute(callback proc, int param) {
-	hot::key = 0;
-	hot::param = param;
-}
-
-void draw::execute(int id, int param) {
-	hot::key = 0;
-	hot::param = param;
-	current_command = id;
-}
-
-int draw::sysinput(bool redraw) {
-	auto temp_command = current_command;
-	hot::clear();
-	if(temp_command)
-		hot::key = temp_command;
-	if(hot::key)
-		return hot::key;
-	int id = InputUpdate;
-	if(redraw)
-		rawredraw();
-	else
-		id = rawinput();
-	return id;
-}
-
 void draw::setlayer(callback v) {
 	next_proc = v;
 }
@@ -1873,7 +1836,7 @@ void screenshoot::blend(draw::surface& e, unsigned delay) {
 		unsigned char alpha = ((t - t0) * 255) / delay;
 		for(int i = 0; i < width * height; i++)
 			pd[i] = p2[i].mix(p1[i], alpha);
-		draw::input(true);
+		rawredraw();
 		t = clock();
 	}
 }

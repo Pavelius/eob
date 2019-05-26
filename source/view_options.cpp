@@ -1,27 +1,30 @@
 #include "draw.h"
 #include "main.h"
 
+using namespace draw;
+
 static command_s choosemenu(aref<command_s> options, command_s focus) {
-	while(true) {
+	while(ismodal()) {
 		draw::animation::render(0, false);
 		if(true) {
 			draw::state push;
-			draw::setbigfont();
-			draw::form({0, 0, 22 * 8 + 2, 174}, 2);
-			draw::fore = colors::title;
-			draw::textb(6, 6, "Game Options:");
-			draw::fore = colors::white;
+			setbigfont();
+			form({0, 0, 22 * 8 + 2, 174}, 2);
+			fore = colors::title;
+			textb(6, 6, "Game Options:");
+			fore = colors::white;
 			for(int i = 0; options[i]; i++)
 				draw::button(4, 17 + i * 15, 166,
 					options[i],
 					draw::getfstate(options[i], focus),
 					getstr(options[i]));
 		}
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyEscape:
 		case Cancel:
-			return Cancel;
+			breakmodal(Cancel);
+			break;
 		case KeyUp:
 			if(focus == options[0])
 				focus = options[options.count - 1];
@@ -41,9 +44,11 @@ static command_s choosemenu(aref<command_s> options, command_s focus) {
 			}
 			break;
 		case KeyEnter:
-			return focus;
+			breakmodal(focus);
+			break;
 		}
 	}
+	return (command_s)getresult();
 }
 
 command_s game::action::options() {

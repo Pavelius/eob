@@ -260,7 +260,7 @@ bool game::action::use(item* pi) {
 			mslog("%1 is not eadible!", name);
 			return false;
 		}
-		if(!dlgask("Do you want make camp?"))
+		if(!draw::dlgask("Do you want make camp?"))
 			return false;
 		game::action::camp(*pi);
 		break;

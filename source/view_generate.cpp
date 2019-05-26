@@ -1,16 +1,23 @@
 #include "draw.h"
 #include "main.h"
 
+using namespace draw;
+
+static void sethotkey() {
+	hot::key = hot::param;
+	hot::param = 0;
+}
+
 static int button(int x, int y, int id, int key, const char* name) {
+	static int pressed_key;
 	draw::state push;
 	draw::setsmallfont();
-	static int pressed_key;
 	if(hot::key == InputKeyUp)
 		pressed_key = 0;
 	else if(hot::key == key) {
 		pressed_key = key;
 		if(key && hot::key == key)
-			draw::execute(id);
+			draw::execute(sethotkey, id);
 	}
 	auto pi = draw::gres(CHARGENB);
 	auto si = 0;
@@ -115,11 +122,11 @@ static void view_ability(creature* pc, class_s type, race_s race, gender_s gende
 	draw::state push;
 	draw::setbigfont();
 	draw::fore = colors::white;
-	hot::clear();
+	hot::key = 0;
 	int cur_portrait = 0;
 	int org_portrait = 0;
 	int focus = 0;
-	while(true) {
+	while(ismodal()) {
 		genheader(NoFocusing, focus);
 		x = 143; y = 66;
 		portraits(x + 33, y, org_portrait, cur_portrait, 4, max_avatars, port);
@@ -134,8 +141,8 @@ static void view_ability(creature* pc, class_s type, race_s race, gender_s gende
 		y = 168; x = 223;
 		button(x, y, Roll, Alpha + 'R', "Roll");
 		button(x + 39, y, Keep, KeyEnter, "Keep");
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case Roll:
 			game::getability(values, type, race);
 			for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
@@ -166,13 +173,13 @@ struct chelement {
 
 static int choose(const char* title_string, aref<chelement> elements) {
 	draw::state push;
-	draw::setbigfont();
-	draw::fore = colors::white;
-	hot::clear();
+	setbigfont();
+	fore = colors::white;
+	hot::key = 0;
 	if(!elements)
 		return 0;
 	unsigned n = 0;
-	while(true) {
+	while(ismodal()) {
 		genheader(NoFocusing, 0);
 		int x = 148;
 		int y = 68;
@@ -186,8 +193,8 @@ static int choose(const char* title_string, aref<chelement> elements) {
 				e.text);
 			i++;
 		}
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyDown:
 			if(n < elements.count - 1)
 				n++;
@@ -201,9 +208,11 @@ static int choose(const char* title_string, aref<chelement> elements) {
 				n = elements.count - 1;
 			break;
 		case KeyEnter:
-			return elements.data[n].id;
+			breakmodal(elements.data[n].id);
+			break;
 		}
 	}
+	return getresult();
 }
 
 static gender_s choosegender(bool interactive) {
@@ -275,9 +284,9 @@ static bool is_party_created() {
 static void change(creature* pc) {
 	char temp[260];
 	draw::state push;
-	draw::setbigfont();
-	draw::fore = colors::white;
-	hot::clear();
+	setbigfont();
+	fore = colors::white;
+	hot::key = 0;
 	auto race = pc->getrace();
 	auto gender = pc->getgender();
 	auto type = pc->getclass();
@@ -285,7 +294,7 @@ static void change(creature* pc) {
 	int x, y;
 	const int width = 152;
 	creature** prec;
-	while(true) {
+	while(ismodal()) {
 		genheader(NoFocusing, focus);
 		draw::portrait(205, 66, pc);
 		x = 148; y = 98;
@@ -300,17 +309,19 @@ static void change(creature* pc) {
 		button(x, y, Delete, Alpha + 'D', 0);
 		button(x + 39, y, OK, KeyEnter, "OK");
 		button(x + 39, y - 16, Rename, Alpha + 'N', "Name");
-		int id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case Delete:
 			prec = (creature**)zchr(game::party, pc);
 			if(prec)
 				*prec = 0;
 			pc->clear();
-			return;
+			breakmodal(0);
+			break;
 		case KeyEscape:
 		case OK:
-			return;
+			breakmodal(0);
+			break;
 		case Rename:
 			pc->setname();
 			break;
@@ -323,7 +334,7 @@ void draw::generation() {
 	draw::fore = colors::white;
 	draw::setbigfont();
 	auto focus = 1;
-	while(true) {
+	while(ismodal()) {
 		genheader(0, focus);
 		auto nid = (focus >= 1 && focus <= 4) ? focus - 1 : -1;
 		rect rc = {150, 74, 296, 184};
@@ -335,19 +346,19 @@ void draw::generation() {
 			button(25, 181, NewGame, Alpha + 'P', 0);
 		}
 		draw::textb(rc, temp);
-		auto id = draw::input();
-		switch(id) {
+		domodal();
+		switch(hot::key) {
 		case KeyLeft:
 		case KeyRight:
 		case KeyUp:
 		case KeyDown:
 			if(focus >= 1 && focus <= 4) {
 				int inc = -1;
-				if(id == KeyRight)
+				if(hot::key == KeyRight)
 					inc = 1;
-				else if(id == KeyUp)
+				else if(hot::key == KeyUp)
 					inc = -2;
-				else if(id == KeyDown)
+				else if(hot::key == KeyDown)
 					inc = 2;
 				focus += inc;
 				if(focus <= 0)
@@ -365,7 +376,8 @@ void draw::generation() {
 			}
 			break;
 		case NewGame:
-			return;
+			breakmodal(1);
+			break;
 		}
 	}
 }
