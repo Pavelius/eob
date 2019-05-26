@@ -336,6 +336,7 @@ void game::action::preparespells(class_s type) {
 		case Alpha + 'Z':
 		case KeyUp:
 		case KeyDown:
+			id = hot::key;
 			if(id == Alpha + 'W')
 				id = KeyUp;
 			if(id == Alpha + 'Z')
