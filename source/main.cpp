@@ -197,7 +197,7 @@ static void main_new_game() {
 }
 
 static void option_new_game() {
-	if(!dlgask("Area you sure want to start new game?"))
+	if(!dlgask("Are you really want to start new game?"))
 		return;
 	setnext(newgame);
 }
@@ -216,7 +216,7 @@ static void option_save_game() {
 }
 
 static void quit_game() {
-	if(!dlgask("Area you sure want to quit game?"))
+	if(!dlgask("Are you really want to quit game?"))
 		return;
 	exit(0);
 }
@@ -248,6 +248,7 @@ static void settings() {
 void draw::options() {
 	static menu elements[] = {{pray_for_spells, "Pray for spells"},
 	{memorize_spells, "Memorize spells"},
+	{creature::scriblescrolls, "Scrible scrolls"},
 	{option_new_game, "New game"},
 	{load_game, "Load game"},
 	{option_save_game, "Save game"},

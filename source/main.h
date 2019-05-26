@@ -497,6 +497,7 @@ public:
 	bool				is(state_s id, wear_s slot) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
+	bool				is(spell_s v) const { return known[v] != 0; }
 	static bool			isallow(class_s id, race_s r);
 	static bool			isallow(alignment_s id, class_s c);
 	bool				isallow(const item it, wear_s slot) const;
@@ -517,6 +518,8 @@ public:
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
 	void				sayv(const char* format, const char* vl);
+	void				scribe(item& it);
+	static void			scriblescrolls();
 	static unsigned		select(spell_s* result, spell_s* result_maximum, class_s type, int level);
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
@@ -662,6 +665,7 @@ void					move(direction_s direction);
 void					pause();
 void					preparespells(class_s type);
 bool					question(item* current_item);
+void					scriblescrolls();
 void					thrown(item* itm);
 void					rotate(direction_s direction);
 bool					use(item* itm);

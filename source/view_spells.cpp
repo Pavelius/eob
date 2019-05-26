@@ -2,7 +2,8 @@
 
 using namespace draw;
 
-static int current_level = 1;
+static int			current_level = 1;
+static creature*	current_hero = 0;
 
 static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse) {
 	unsigned flags = 0;
@@ -272,7 +273,7 @@ void game::action::preparespells(class_s type) {
 			maximum_spells = hero->getspellsperlevel(type, current_level);
 			prepared_spells = get_spells_prepared(hero, {result.data, result.count});
 		}
-		draw::background(PLAYFLD);
+		draw::animation::render(0, false);
 		render_spell_window(result, hero, type, maximum_spells, prepared_spells);
 		spells_portraits(184, 2, type, hero);
 		domodal();
@@ -311,6 +312,84 @@ void game::action::preparespells(class_s type) {
 			break;
 		}
 		navigate(true);
+	}
+	closeform();
+}
+
+static void scribe_scroll() {
+	auto pi = (item*)hot::param;
+	current_hero->scribe(*pi);
+}
+
+void creature::scribe(item& it) {
+	char temp[260];
+	auto sp = it.getspell();
+	if(!sp) {
+		say("This is not magic scroll");
+		return;
+	}
+	if(roll(LearnSpell)) {
+		setknown(sp, 1);
+		mslog("%1 learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
+		addexp(100);
+	} else
+		mslog("%1 don't learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
+	it.clear();
+}
+
+void creature::scriblescrolls() {
+	adat<item*, 32> source;
+	const auto caster_type = Mage;
+	current_hero = get_valid_hero(0, caster_type);
+	openform();
+	while(ismodal()) {
+		source.count = 0;
+		if(current_hero) {
+			for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i+1)) {
+				auto& it = current_hero->wears[i];
+				if(!it || !it.isidentified())
+					continue;
+				auto sp = it.getspell();
+				if(!sp || !bsmeta<spelli>::elements[sp].levels[0])
+					continue;
+				if(current_hero->is(sp))
+					continue;
+				source.add(&it);
+			}
+		}
+		draw::animation::render(0, false);
+		if(true) {
+			draw::state push;
+			setbigfont();
+			form({0, 0, 22 * 8 + 2, 174}, 2);
+			fore = colors::title;
+			textb(6, 6, "Scrolls available:");
+			auto x = 6, y = 18;
+			fore = colors::white;
+			int count = imin(source.count, (unsigned)13);
+			for(int i = 0; i < count; i++) {
+				auto sp = source.data[i]->getspell();
+				y += buttont(x, y, 168, cmd(scribe_scroll, (int)source.data[i], (int)source.data[i]),
+					getstr(sp));
+			}
+			draw::button(x, 156, -1, buttoncancel, "Close");
+		}
+		spells_portraits(184, 2, caster_type, current_hero);
+		domodal();
+		navigate(true);
+		switch(hot::key) {
+		case Alpha + '1':
+		case Alpha + '2':
+		case Alpha + '3':
+		case Alpha + '4':
+			if(true) {
+				auto id = hot::key - (Alpha + '1');
+				if(!game::party[id] || !game::party[id]->get(caster_type))
+					break;
+				current_hero = game::party[id];
+			}
+			break;
+		}
 	}
 	closeform();
 }
