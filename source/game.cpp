@@ -634,10 +634,6 @@ creature* game::getdefender(short unsigned index, direction_s dr, creature* atta
 	}
 }
 
-static void attack_single(creature* attacker, short unsigned index, direction_s d) {
-
-}
-
 void game::action::attack(short unsigned index_of_monsters) {
 	creature* parcipants[13];
 	auto dr = getdirection();
