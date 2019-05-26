@@ -260,7 +260,6 @@ spell_s creature::choosespell(class_s type) const {
 void game::action::preparespells(class_s type) {
 	adat<spell_s, 32> result;
 	auto hero = get_valid_hero(0, type);
-	auto old_focus = getfocus();
 	openform();
 	while(ismodal()) {
 		result.count = 0;
@@ -314,5 +313,4 @@ void game::action::preparespells(class_s type) {
 		navigate(true);
 	}
 	closeform();
-	setfocus(old_focus, true);
 }

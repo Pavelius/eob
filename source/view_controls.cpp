@@ -3,9 +3,9 @@
 using namespace draw;
 
 static struct resource_info {
-	const char*		name;
-	const char*		path;
-	sprite*			data;
+	const char*			name;
+	const char*			path;
+	sprite*				data;
 } objects[] = {{"NONE"},
 {"SCENES", "art/interface"},
 {"CHARGEN", "art/interface"},
@@ -102,6 +102,8 @@ static item*			current_item;
 static item*			drag_item;
 static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
+static int				focus_stack[8];
+static int				focus_level;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 void					view_dungeon_reset();
@@ -765,7 +767,7 @@ void draw::focusing(const rect& rc, int id) {
 	render_current++;
 	render_current[0].id = 0;
 	if(!current_focus)
-		setfocus(id, true);
+		setfocus(id);
 }
 
 int draw::getnext(int id, int key) {
@@ -832,20 +834,24 @@ int draw::getfocus() {
 	return current_focus;
 }
 
-void draw::setfocus(int id, bool instant) {
-	if(instant)
-		current_focus = id;
-	else {
-
-	}
+void draw::setfocus(int id) {
+	current_focus = id;
 }
 
 void draw::openform() {
-	setfocus(0, true);
+	if((unsigned)focus_level < sizeof(focus_stack) / sizeof(focus_stack[0]))
+		focus_stack[focus_level] = getfocus();
+	focus_level++;
+	setfocus(0);
 	hot::key = 0;
 }
 
 void draw::closeform() {
+	if(focus_level > 0) {
+		focus_level--;
+		if((unsigned)focus_level < sizeof(focus_stack) / sizeof(focus_stack[0]))
+			setfocus(focus_stack[focus_level]);
+	}
 	hot::key = 0;
 }
 
@@ -872,7 +878,7 @@ bool draw::navigate(bool can_cancel) {
 	case KeyUp:
 	case KeyLeft:
 	case KeyRight:
-		setfocus(getnext(getfocus(), hot::key), true);
+		setfocus(getnext(getfocus(), hot::key));
 		break;
 	case KeyEscape:
 		if(!can_cancel)
@@ -923,7 +929,6 @@ bool draw::dlgask(const char* text) {
 	draw::screenshoot screen(true);
 	fore = colors::white;
 	rect rc = getformpos(text, draw::texth() + dx * 2);
-	auto old_focus = getfocus();
 	openform();
 	while(draw::ismodal()) {
 		screen.restore();
@@ -940,6 +945,5 @@ bool draw::dlgask(const char* text) {
 		navigate();
 	}
 	closeform();
-	setfocus(old_focus, true);
 	return getresult() != 0;
 }
