@@ -188,7 +188,7 @@ enum direction_s {
 };
 enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
-	HolyGrace, Ambidextrity,
+	HolyGrace, Ambidextrity, NoExeptionalStrenght,
 	Undead,
 	ResistBludgeon, ResistSlashing, ResistPierce,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
@@ -423,6 +423,7 @@ class creature {
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
+	char				str_exeptional;
 	friend struct archive;
 	int					armor_penalty(skill_s skill) const;
 	int					get_base_save_throw(skill_s st) const;
@@ -489,6 +490,7 @@ public:
 	int					getspecialist(item_s weapon) const;
 	int					getspeed() const;
 	int					getspellsperlevel(class_s type, int spell_level) const;
+	int					getstrex() const;
 	int					getthac0(class_s cls, int level) const;
 	bool				have_class(aref<class_s> source) const;
 	bool				is(state_s id) const;
@@ -508,6 +510,8 @@ public:
 	static creature*	newhero();
 	void				preparespells();
 	void				random_name();
+	int					render_ability(int x, int y, int width, bool use_bold) const;
+	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(skill_s id, int bonus = 0);
 	void				roll_ability();
 	void				say(spell_s id) const;

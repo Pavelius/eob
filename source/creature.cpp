@@ -8,14 +8,16 @@ static const int monsters_thac0[] = {
 	9, 11, 11, 13, 13, 15, 15, 17, 17, 19
 };
 static char hit_probability[] = {
-	-6, -5, -3, -3, -2, -2, -1, -1, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3,
-	4, 4, 5, 6, 7
+	-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 1, 1,
+	1, 2, 2, 2, 3,
+	3, 4, 4, 5, 6, 7
 };
-static char	damage_adjustment[] = {
-	-5, -4, -2, -1, -1, -1, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 2, 3, 4, 6,
-	8, 9, 10, 11, 12, 14
+static char damage_adjustment[] = {
+	-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,
+	0, 0, 0, 0, 0, 0, 1, 1, 2,
+	3, 3, 4, 5, 6,
+	7, 8, 9, 10, 11, 12, 14
 };
 char reaction_adjustment[] = {
 	-7, -6, -4, -3, -2, -1, 0, 0, 0, 0, 0,
@@ -252,7 +254,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.damage = {1, 2};
 	auto race = getrace();
 	auto t = getbestclass();
-	auto k = get(Strenght);
+	auto k = getstrex();
 	result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
 	result.damage.b += maptbl(damage_adjustment, k);
@@ -506,18 +508,7 @@ int	creature::damaged(const creature* defender, wear_s slot) const {
 }
 
 void creature::clear() {
-	memset(states, 0, sizeof(states));
-	memset(wears, 0, sizeof(wears));
-	memset(prepared, 0, sizeof(prepared));
-	memset(known, 0, sizeof(known));
-	memset(spells, 0, sizeof(spells));
-	moved = false;
-	index = 0;
-	side = 0;
-	direction = Center;
-	hits = hits_rolled = initiative = 0;
-	kind = NoMonster;
-	experience = 0;
+	memset(this, 0, sizeof(*this));
 }
 
 void creature::finish() {
@@ -542,6 +533,8 @@ void creature::finish() {
 		}
 	}
 	sethits(gethitsmaximum());
+	if(is(NoExeptionalStrenght))
+		str_exeptional = 0;
 }
 
 void creature::raise_level(class_s type) {
@@ -1271,7 +1264,7 @@ void creature::roll_ability() {
 	char result[8];
 	for(auto& e : result)
 		e = xrand(1, 6) + xrand(1, 6) + xrand(1, 6);
-	qsort(result, sizeof(result)/ sizeof(result[0]), sizeof(result[0]), compare_char);
+	qsort(result, sizeof(result) / sizeof(result[0]), sizeof(result[0]), compare_char);
 	zshuffle(result, 6);
 	int max_position = -1;
 	int max_value = 0;
@@ -1308,4 +1301,24 @@ void creature::roll_ability() {
 	// Расставим атрибуты по местам
 	for(auto j = 0; j < 6; j++)
 		ability[j] = result[j];
+	str_exeptional = xrand(1, 100);
+}
+
+int creature::getstrex() const {
+	auto result = get(Strenght);
+	if(result > 18)
+		result += 6;
+	else if(result == 18 && str_exeptional > 0) {
+		if(str_exeptional <= 50)
+			result += 1;
+		else if(str_exeptional <= 75)
+			result += 2;
+		else if(str_exeptional <= 90)
+			result += 3;
+		else if(str_exeptional <= 99)
+			result += 4;
+		else
+			result += 5;
+	}
+	return result;
 }

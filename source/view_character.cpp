@@ -93,14 +93,7 @@ void draw::abilities(int x, int y, creature* pc) {
 	text(x1, y1, getstr(pc->getclass())); y1 += draw::texth();
 	text(x1, y1, getstr(pc->getalignment())); y1 += draw::texth();
 	text(x1, y1, get_race(temp, zendof(temp), pc)); y1 += draw::texth() * 2;
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
-		char temp[16];
-		int x = x1;
-		int y = y1 + i * 7;
-		text(x, y, getstr(i));
-		sznum(temp, pc->get(i));
-		text(x + 6 * 4, y, temp);
-	}
+	pc->render_ability(x1, y1, 24, false);
 	combati e = {}; pc->get(e);
 	x1 = x + 7 * 10 + 4;
 	y1 += number(x1, y1, "AC", 10 - pc->getac());

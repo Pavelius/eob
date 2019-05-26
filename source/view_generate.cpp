@@ -116,40 +116,59 @@ static void portraits(int x, int y, int& n, int cur, int count, int max_avatars,
 	}
 }
 
-static int number(int x, int y, int w, const char* title, int v) {
+static int number(int x, int y, int w, const char* title, const char* v, bool use_bold = true) {
+	if(use_bold)
+		draw::textb(x, y, title);
+	else
+		draw::text(x, y, title);
+	if(use_bold)
+		draw::textb(x + w, y, v);
+	else
+		draw::text(x + w, y, v);
+	return draw::texth() + 1;
+}
+
+static int number(int x, int y, int w, const char* title, int v, bool use_bold) {
 	char temp[32];
-	draw::textb(x, y, title);
 	sznum(temp, v);
-	draw::textb(x + 32, y, temp);
-	return draw::texth() + 1;
+	return number(x, y, w, title, temp, use_bold);
 }
 
-static int number(int x, int y, int w, const char* title, const dice& v) {
+static int number(int x, int y, int w, const char* title, const dice& v, bool use_bold) {
 	char temp[32];
-	draw::textb(x, y, title);
 	v.range(temp, zendof(temp));
-	draw::textb(x + 32, y, temp);
-	return draw::texth() + 1;
+	return number(x, y, w, title, temp, use_bold);
 }
 
-static int number(int x, int y, int w, const char* title, int v1, int v2) {
+static int number(int x, int y, int w, const char* title, int v1, int v2, const char* format, bool use_bold) {
 	char temp[32];
-	draw::textb(x, y, title);
-	szprint(temp, zendof(temp), "%1i/%2i", v1, v2);
-	draw::textb(x + 32, y, temp);
-	return draw::texth() + 1;
+	szprint(temp, zendof(temp), format, v1, v2);
+	return number(x, y, w, title, temp, use_bold);
 }
 
-static void draw_ability(creature* pc) {
-	auto x = 148, y = 128;
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		y += number(x, y, 32, getstr(i), pc->get(i));
-	x = 224, y = 128;
-	combati ai = {}; pc->get(ai);
-	y += number(x, y, 32, "AC", 10 - pc->getac());
-	y += number(x, y, 32, "ATT", 20 - ai.bonus);
-	y += number(x, y, 32, "DAM", ai.damage);
-	y += number(x, y, 32, "HP", pc->gethits(), pc->gethitsmaximum());
+int creature::render_ability(int x, int y, int width, bool use_bold) const {
+	auto y0 = y;
+	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
+		auto v = get(i);
+		if(i == Strenght && v==18 && str_exeptional>0) {
+			if(str_exeptional == 100)
+				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", use_bold);
+			else
+				y += number(x, y, width, getstr(i), 18, str_exeptional, "%1i/%2i", use_bold);
+		} else
+			y += number(x, y, width, getstr(i), get(i), use_bold);
+	}
+	return y - y0;
+}
+
+int creature::render_combat(int x, int y, int width, bool use_bold) const {
+	auto y0 = y;
+	combati ai = {}; get(ai);
+	y += number(x, y, width, "AC", 10 - getac(), use_bold);
+	y += number(x, y, width, "ATT", 20 - ai.bonus, use_bold);
+	y += number(x, y, width, "DAM", ai.damage, use_bold);
+	y += number(x, y, width, "HP", gethits(), gethitsmaximum(), "%1i/%2i", use_bold);
+	return y - y0;
 }
 
 void creature::view_ability() {
@@ -182,7 +201,8 @@ void creature::view_ability() {
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
 		zprint(temp, getstr(type));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
-		draw_ability(this);
+		render_ability(148, 128, 32, true);
+		render_combat(224, 128, 32, true);
 		y = 168; x = 223;
 		button(x, y, roll_character, "Roll", Alpha + 'R');
 		button(x + 39, y, buttonok, "Keep", Alpha + 'K');
@@ -278,7 +298,8 @@ static void apply_change_character() {
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
 		zprint(temp, getstr(type));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
-		draw_ability(current_player);
+		current_player->render_ability(148, 128, 32, true);
+		current_player->render_combat(224, 128, 32, true);
 		y = 168; x = 223;
 		button(x, y, delete_character, 0, Alpha + 'D');
 		button(x + 39, y, buttonok, "OK", Alpha + 'K');
