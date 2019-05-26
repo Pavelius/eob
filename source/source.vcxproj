@@ -130,10 +130,10 @@
     <ClInclude Include="initializer_list.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="menu.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringcreator.h" />
+    <ClInclude Include="view.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
   <ItemGroup>
@@ -162,7 +162,6 @@
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="menu.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="point.cpp" />
@@ -178,11 +177,8 @@
     <ClCompile Include="view_automap.cpp" />
     <ClCompile Include="view_character.cpp" />
     <ClCompile Include="view_controls.cpp" />
-    <ClCompile Include="view_dialog.cpp" />
     <ClCompile Include="view_dungeon.cpp" />
     <ClCompile Include="view_generate.cpp" />
-    <ClCompile Include="view_main.cpp" />
-    <ClCompile Include="view_options.cpp" />
     <ClCompile Include="view_spells.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />

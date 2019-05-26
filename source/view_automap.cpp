@@ -1,5 +1,4 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 const int mpg = 8;
 

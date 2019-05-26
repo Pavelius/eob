@@ -55,9 +55,11 @@ int monsteri::getexperience() const {
 }
 
 dice creature::gethitdice() const {
-	dice hd = {1, (unsigned char)bsmeta<classi>::elements[getclass(type, 0)].hd};
+	dice hd = {};
 	hd.c = gethd();
-	//hd.b = get(HitPointsAdjustment);
+	hd.d = bsmeta<classi>::elements[getclass(type, 0)].hd;
+	if(kind)
+		hd.b = bsmeta<monsteri>::elements[kind].hd[1];
 	if(!hd.c) {
 		hd.c = 1;
 		hd.d = hd.b;
@@ -108,7 +110,6 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 	pc->set(dir);
 	pc->setindex(index);
 	pc->setside(side);
-	pc->sethitsroll(pc->gethitdice().roll());
 	pc->finish();
 	return pc;
 }

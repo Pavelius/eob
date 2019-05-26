@@ -1,6 +1,4 @@
-#include "command.h"
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
 
@@ -62,7 +60,7 @@ static_assert((sizeof(objects) / sizeof(objects[0])) == Count, "Need resource up
 
 namespace draw {
 struct render_control {
-	void*				pid;
+	int					id;
 	rect				rc;
 };
 struct fxt {
@@ -77,6 +75,12 @@ namespace colors {
 color					selected = color::create(250, 250, 250);
 color					drag = color::create(250, 100, 250);
 color					title = color::create(64, 255, 255);
+color					dark = color::create(52, 52, 80);
+color					down = color::create(81, 85, 166);
+color					focus = color::create(250, 100, 100);
+color					header = color::create(255, 255, 100);
+color					light = color::create(148, 148, 172);
+color					main = color::create(108, 108, 136);
 namespace info {
 color					text = color::create(64, 64, 64);
 }
@@ -93,10 +97,12 @@ static fxt*				font8 = (fxt*)loadb("art/misc/font8.fnt");
 unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
+static int				current_focus;
 static item*			current_item;
 static item*			drag_item;
 static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
+extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 void					view_dungeon_reset();
 callback				draw::domodal;
@@ -193,6 +199,144 @@ void draw::setmode(infoproc mode) {
 	show_mode = mode;
 }
 
+static void border_up(rect rc) {
+	draw::state push;
+	draw::fore = colors::dark;
+	draw::line(rc.x1, rc.y1, rc.x1, rc.y2);
+	draw::line(rc.x1 + 1, rc.y2, rc.x2, rc.y2);
+	draw::fore = colors::light;
+	draw::line(rc.x2, rc.y1, rc.x2, rc.y2 - 1);
+	draw::line(rc.x1 + 1, rc.y1, rc.x2 - 1, rc.y1);
+}
+
+static void border_down(rect rc) {
+	draw::state push;
+	draw::fore = colors::light;
+	draw::line(rc.x1, rc.y1, rc.x1, rc.y2);
+	draw::line(rc.x1 + 1, rc.y2, rc.x2, rc.y2);
+	draw::fore = colors::dark;
+	draw::line(rc.x2, rc.y1, rc.x2, rc.y2 - 1);
+	draw::line(rc.x1 + 1, rc.y1, rc.x2 - 1, rc.y1);
+}
+
+int draw::flatb(int x, int y, int width, int id, unsigned flags, const char* string) {
+	int height = draw::texth() + 1;
+	if(flags&Focused)
+		rectf({x, y, x + width, y + height + 1}, colors::dark);
+	else
+		border_up({x, y, x + width, y + height});
+	draw::text(x + 1 + (width - draw::textw(string)) / 2, y + 1, string);
+	return draw::texth();
+}
+
+int draw::buttonm(int x, int y, int width, const cmd& ev, const char* name) {
+	state push;
+	rect rc = {x, y, x + width, y + texth()};
+	focusing(rc, ev.focus);
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			ev.execute();
+	}
+	textb(aligned(x, width, AlignCenter, textw(name)), y, name);
+	return texth() + 1;
+}
+
+int draw::buttont(int x, int y, int width, const cmd& ev, const char* name) {
+	state push;
+	rect rc = {x, y, x + width, y + texth()};
+	focusing(rc, ev.focus);
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			ev.execute();
+	}
+	textb(draw::aligned(x, width, flags, textw(name)), y, name);
+	return texth() + 1;
+}
+
+void draw::buttont(int x, int y, int width, const cmd& ev, const char* name, const char* name2) {
+	state push;
+	rect rc = {x, y, x + width, y + texth()};
+	focusing(rc, ev.focus);
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			ev.execute();
+	}
+	textb(rc.x1, rc.y1, name);
+	int w2 = textw(name2);
+	textb(rc.x2 - w2, rc.y1, name2);
+}
+
+int draw::button(int x, int y, int width, const cmd& ev, const char* name, int key) {
+	draw::state push;
+	if(width == -1)
+		width = textw(name) + 3 * 2;
+	rect rc = {x, y, x + width, y + draw::texth() + 4};
+	form(rc);
+	focusing(rc, ev.focus);
+	auto run = false;
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	if(key && key == hot::key)
+		run = true;
+	rc.offset(3, 2);
+	textb(rc, name, flags);
+	if(run)
+		ev.execute();
+	return draw::texth();
+}
+
+void draw::greenbar(rect rc, int vc, int vm) {
+	if(!vc || !vm || vc <= 0)
+		return;
+	color c0 = colors::black;
+	color c1 = colors::green.darken().mix(colors::red, vc * 255 / vm);
+	border_down(rc);
+	rc.y1++;
+	rc.x1++;
+	rectf(rc, colors::down);
+	rc.x2 = rc.x1 + vc * rc.width() / vm;
+	rectf(rc, c1);
+}
+
+rect draw::form(rect rc, int count) {
+	for(int i = 0; i < count; i++) {
+		border_up(rc);
+		rc.offset(1);
+	}
+	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, colors::main);
+	rc.offset(4, 4);
+	return rc;
+}
+
+int draw::header(int x, int y, const char* text) {
+	state push;
+	fore = colors::header;
+	draw::textb(x, y, text);
+	return draw::texth() + 2;
+}
+
+void dlgmsg(const char* title, const char* text) {
+	draw::screenshoot push;
+}
+
+void dlgerr(const char* title, const char* format, ...) {
+	mslogv(format, xva_start(format));
+}
+
 infoproc draw::getmode() {
 	return show_mode;
 }
@@ -279,9 +423,8 @@ void mslog(const char* format, ...) {
 
 void draw::logs() {
 	draw::state push;
-	draw::setclip(log_rect);
-	//draw::textf(log_rect.x1, log_rect.y1, log_rect.width(), log_message);
-	draw::text(log_rect, log_message);
+	setclip(log_rect);
+	text(log_rect, log_message);
 }
 
 void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void* current_item) {
@@ -298,7 +441,8 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 			rc.set(x - 8, y - 9, x + 8, y + 7);
 	} else
 		rc.set(x - 16, y - 7, x + 14, y + 8);
-	focusing(rc, pitm);
+	if(current_item)
+		focusing(rc, (int)pitm);
 	if(pitm == current_item)
 		rectb(rc, colors::selected);
 	if(pitm == drag_item)
@@ -367,8 +511,27 @@ static void show_skills(item* current_item) {
 	draw::skills(178, 0, game::gethero(current_item));
 }
 
-command_s game::action::actions() {
+static bool is_anybody_live() {
+	for(auto e : game::party) {
+		if(!e)
+			continue;
+		if(e->isready())
+			return true;
+	}
+	return false;
+}
+
+void game::endround() {
+	game::rounds++;
+	game::passround();
+	game::findsecrets();
+	setnext(adventure);
+}
+
+void draw::adventure() {
 	creature* pc;
+	if(!is_anybody_live())
+		setnext(mainmenu);
 	while(ismodal()) {
 		if(!current_item)
 			current_item = game::party[0]->getitem(RightHand);
@@ -386,10 +549,7 @@ command_s game::action::actions() {
 				draw::animation::update();
 				draw::animation::render(0);
 			}
-			switch(game::action::options()) {
-			case NewGame:
-				return NewGame;
-			}
+			options();
 			break;
 		case Alpha + 'I':
 			if(getmode() == show_invertory) {
@@ -400,7 +560,7 @@ command_s game::action::actions() {
 					current_item = pc->getitem(RightHand);
 			} else {
 				setmode(show_invertory);
-				return PassSegment;
+				game::endround();
 			}
 			break;
 		case Alpha + 'C':
@@ -418,14 +578,15 @@ command_s game::action::actions() {
 		case Alpha + 'Q':
 			if(current_item) {
 				if(game::action::question(current_item))
-					return PassSegment;
+					game::endround();
 			}
 			break;
 		case KeyLeft:
 		case KeyRight:
 		case KeyDown:
 		case KeyUp:
-			return game::action::move(map_key_to_dir(hot::key));
+			game::action::move(map_key_to_dir(hot::key));
+			break;
 		case KeyHome:
 			game::action::rotate(Left);
 			break;
@@ -433,16 +594,16 @@ command_s game::action::actions() {
 			game::action::rotate(Right);
 			break;
 		case Alpha + 'W':
-			current_item = (item*)getnext(current_item, KeyUp);
+			current_item = (item*)getnext((int)current_item, KeyUp);
 			break;
 		case Alpha + 'Z':
-			current_item = (item*)getnext(current_item, KeyDown);
+			current_item = (item*)getnext((int)current_item, KeyDown);
 			break;
 		case Alpha + 'S':
-			current_item = (item*)getnext(current_item, KeyRight);
+			current_item = (item*)getnext((int)current_item, KeyRight);
 			break;
 		case Alpha + 'A':
-			current_item = (item*)getnext(current_item, KeyLeft);
+			current_item = (item*)getnext((int)current_item, KeyLeft);
 			break;
 		case Alpha + 'P':
 			place_item(current_item);
@@ -455,23 +616,23 @@ command_s game::action::actions() {
 			break;
 		case Alpha + 'U':
 			if(game::action::use(current_item))
-				return PassSegment;
+				game::endround();
 			break;
 		case Alpha + 'T':
 			game::action::thrown(current_item);
 			break;
 		case Alpha + 'M':
 			if(game::action::manipulate(current_item, vectorized(game::getdirection(), Up)))
-				return PassSegment;
+				game::endround();
 			break;
 		case Alpha + 'V':
 			game::action::automap(location, true);
 			break;
 		case Alpha + 'F':
-			draw::animation::thrown(getcamera(), getdirection(), Arrow, Left, 50);
+			draw::animation::thrown(game::getcamera(), game::getdirection(), Arrow, Left, 50);
 			break;
 		case Alpha + 'H':
-			draw::animation::thrown(getcamera(), getdirection(), Arrow, Right, 50);
+			draw::animation::thrown(game::getcamera(), game::getdirection(), Arrow, Right, 50);
 			break;
 		case Alpha + '1':
 		case Alpha + '2':
@@ -487,14 +648,13 @@ command_s game::action::actions() {
 			break;
 		}
 	}
-	return NoCommand;
 }
 
-static render_control* getby(void* pid) {
+static render_control* getby(int id) {
 	for(auto& e : render_objects) {
-		if(!e.pid)
+		if(!e.id)
 			return 0;
-		if(e.pid == pid)
+		if(e.id == id)
 			return &e;
 	}
 	return 0;
@@ -502,7 +662,7 @@ static render_control* getby(void* pid) {
 
 static render_control* getfirst() {
 	for(auto& e : render_objects) {
-		if(!e.pid)
+		if(!e.id)
 			return 0;
 		return &e;
 	}
@@ -512,7 +672,7 @@ static render_control* getfirst() {
 static render_control* getlast() {
 	auto p = render_objects;
 	for(auto& e : render_objects) {
-		if(!e.pid)
+		if(!e.id)
 			break;
 		p = &e;
 	}
@@ -520,7 +680,7 @@ static render_control* getlast() {
 }
 
 static point center(const rect& rc) {
-	return{(short)(rc.x1 + rc.width() / 2), (short)(rc.y1 + rc.height() / 2)};
+	return{(short)rc.x1, (short)rc.y1};
 }
 
 static int distance(point p1, point p2) {
@@ -529,10 +689,10 @@ static int distance(point p1, point p2) {
 	return isqrt(dx*dx + dy * dy);
 }
 
-static render_control* getnextfocus(void* pid, int key) {
+static render_control* getnextfocus(int id, int key) {
 	if(!key)
 		return 0;
-	auto pc = getby(pid);
+	auto pc = getby(id);
 	if(!pc)
 		pc = getfirst();
 	if(!pc)
@@ -543,7 +703,7 @@ static render_control* getnextfocus(void* pid, int key) {
 	if(key == KeyLeft || key == KeyUp)
 		inc = -1;
 	render_control* r1 = 0;
-	point p1 = center(pe->rc);
+	auto p1 = center(pe->rc);
 	while(true) {
 		pc += inc;
 		if(pc > pl)
@@ -555,7 +715,7 @@ static render_control* getnextfocus(void* pid, int key) {
 				return r1;
 			return pe;
 		}
-		point p2 = center(pc->rc);
+		auto p2 = center(pc->rc);
 		render_control* r2 = 0;
 		switch(key) {
 		case KeyRight:
@@ -594,21 +754,25 @@ static render_control* getnextfocus(void* pid, int key) {
 	}
 }
 
-void draw::focusing(const rect& rc, void* pid) {
+void draw::focusing(const rect& rc, int id) {
+	if(!id)
+		return;
 	if(!render_current
 		|| render_current >= render_objects + sizeof(render_objects) / sizeof(render_objects[0]))
 		render_current = render_objects;
 	render_current[0].rc = rc;
-	render_current[0].pid = pid;
+	render_current[0].id = id;
 	render_current++;
-	render_current[0].pid = 0;
+	render_current[0].id = 0;
+	if(!current_focus)
+		setfocus(id, true);
 }
 
-void* draw::getnext(void* pitem, int key) {
-	auto p = getnextfocus(pitem, key);
+int draw::getnext(int id, int key) {
+	auto p = getnextfocus(id, key);
 	if(p)
-		return p->pid;
-	return pitem;
+		return p->id;
+	return id;
 }
 
 void draw::execute(callback proc, int param) {
@@ -651,8 +815,131 @@ static void standart_domodal() {
 bool draw::ismodal() {
 	render_current = render_objects;
 	domodal = standart_domodal;
+	if(next_proc)
+		return false;
 	if(!break_modal)
 		return true;
 	break_modal = false;
 	return false;
+}
+
+void cmd::execute() const {
+	if(proc)
+		draw::execute(proc, param);
+}
+
+int draw::getfocus() {
+	return current_focus;
+}
+
+void draw::setfocus(int id, bool instant) {
+	if(instant)
+		current_focus = id;
+	else {
+
+	}
+}
+
+void draw::openform() {
+	setfocus(0, true);
+	hot::key = 0;
+}
+
+void draw::closeform() {
+	hot::key = 0;
+}
+
+void draw::choose(const menu* source) {
+	const auto w = 170;
+	openform();
+	while(ismodal()) {
+		auto x = 80, y = 110;
+		draw::background(MENU);
+		draw::state push;
+		fore = colors::white;
+		setbigfont();
+		for(auto p = source; *p; p++)
+			y += buttonm(x, y, w, cmd(p->proc, 0, (int)p), p->text);
+		domodal();
+		navigate(true);
+	}
+	closeform();
+}
+
+bool draw::navigate(bool can_cancel) {
+	switch(hot::key) {
+	case KeyDown:
+	case KeyUp:
+	case KeyLeft:
+	case KeyRight:
+		setfocus(getnext(getfocus(), hot::key), true);
+		break;
+	case KeyEscape:
+		if(!can_cancel)
+			return false;
+		breakmodal(0);
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
+void draw::chooseopt(const menu* source) {
+	openform();
+	while(ismodal()) {
+		draw::animation::render(0, false);
+		if(true) {
+			draw::state push;
+			setbigfont();
+			form({0, 0, 22 * 8 + 2, 174}, 2);
+			fore = colors::title;
+			textb(6, 6, "Game Options:");
+			fore = colors::white;
+			for(int i = 0; source[i]; i++)
+				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
+		}
+		domodal();
+		navigate(true);
+	}
+	closeform();
+}
+
+const int dx = 4;
+
+static rect getformpos(const char* text, int height = 0) {
+	rect rc{0, 0, 200, 0};
+	rc.y2 += draw::text(rc, text);
+	rc.y2 += height;
+	rc.offset(-dx, -dx);
+	int x1 = (320 - rc.width()) / 2;
+	int y1 = (200 - rc.height()) / 2;
+	rc.move(x1, y1);
+	return rc;
+}
+
+bool draw::dlgask(const char* text) {
+	draw::state push;
+	draw::screenshoot screen(true);
+	fore = colors::white;
+	rect rc = getformpos(text, draw::texth() + dx * 2);
+	auto old_focus = getfocus();
+	openform();
+	while(draw::ismodal()) {
+		screen.restore();
+		form(rc);
+		auto x1 = rc.x1 + dx;
+		auto y1 = rc.y1 + dx;
+		auto wd = rc.width() - dx * 2;
+		auto rct = rc; rct.offset(dx, dx);
+		y1 += draw::text(rct, text) + dx;
+		x1 = (320 - (36 + 36)) / 2;
+		button(x1, y1, 32, buttonok, "Yes");
+		button(x1 + 36, y1, 32, buttoncancel, "No");
+		domodal();
+		navigate();
+	}
+	closeform();
+	setfocus(old_focus, true);
+	return getresult() != 0;
 }

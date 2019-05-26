@@ -1,14 +1,36 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
 
-static void sethotkey() {
-	hot::key = hot::param;
-	hot::param = 0;
+static int			current_portrait;
+static creature*	current_player;
+
+static void prev_portrait() {
+	current_portrait--;
 }
 
-static int button(int x, int y, int id, int key, const char* name) {
+static void next_portrait() {
+	current_portrait++;
+}
+
+static void roll_character() {
+	current_player->roll_ability();
+	current_player->finish();
+}
+
+static void new_game() {
+	breakmodal(1);
+}
+
+static void delete_character() {
+	auto prec = (creature**)zchr(game::party, current_player);
+	if(prec)
+		*prec = 0;
+	current_player->clear();
+	breakmodal(0);
+}
+
+static int button(int x, int y, const cmd& ev, const char* name, int key) {
 	static int pressed_key;
 	draw::state push;
 	draw::setsmallfont();
@@ -17,66 +39,61 @@ static int button(int x, int y, int id, int key, const char* name) {
 	else if(hot::key == key) {
 		pressed_key = key;
 		if(key && hot::key == key)
-			draw::execute(sethotkey, id);
+			ev.execute();
 	}
 	auto pi = draw::gres(CHARGENB);
 	auto si = 0;
-	switch(id) {
-	case NextPortrait:
-	case PreviousPortrait:
+	if(ev.proc == next_portrait || ev.proc == prev_portrait)
 		si = 2;
-		break;
-	case NewGame:
+	else if(ev.proc == new_game)
 		si = 4;
-		break;
-	case Delete:
+	else if(ev.proc == delete_character)
 		si = 6;
-		break;
-	}
 	if(key && pressed_key == key)
 		si++;
 	auto width = pi->get(si).sx;
 	auto height = pi->get(si).sy;
 	draw::image(x, y, pi, si, 0);
-	switch(id) {
-	case PreviousPortrait:
+	if(ev.proc == prev_portrait)
 		draw::image(x + 7, y + 5, pi, 8, 0);
-		break;
-	case NextPortrait:
+	else if(ev.proc == next_portrait)
 		draw::image(x + 7, y + 5, pi, 9, 0);
-		break;
-	}
 	if(name)
 		draw::text(x + 1 + (width - draw::textw(name)) / 2, y + 1 + (height - draw::texth()) / 2, name);
 	return height;
 }
 
-static void genavatar(int x, int y, int id, unsigned state, creature* pc) {
+static void genavatar(int x, int y, const cmd& ev) {
+	auto pc = *((creature**)ev.param);
 	if(pc) {
-		if(*pc) {
+		if(current_player != pc) {
 			draw::state push;
-			draw::fore = colors::white;
-			draw::setsmallfont();
-			draw::portrait(x + 1, y, pc);
+			fore = colors::white;
+			setsmallfont();
+			pc->view_portrait(x + 1, y);
 			char temp[260];	pc->getname(temp, zendof(temp));
-			draw::text(x - 14 + (58 - draw::textw(temp)) / 2, y + 43, temp);
+			text(x - 14 + (58 - draw::textw(temp)) / 2, y + 43, temp);
 		} else
-			draw::image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
+			image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
 	}
-	rect rc = {x, y, x + 32, y + 32};
-	if(state&Focused)
-		draw::rectb(rc, colors::white.mix(colors::black, draw::ciclic(200, 7)));
+	if(ev.proc) {
+		rect rc = {x, y, x + 32, y + 32};
+		focusing(rc, ev.focus);
+		if(getfocus() == ev.focus) {
+			draw::rectb(rc, colors::white.mix(colors::black, draw::ciclic(200, 7)));
+			if(hot::key == KeyEnter)
+				ev.execute();
+		}
+	}
 }
 
-static void genheader(unsigned state, int focus) {
+static void genheader(callback proc = 0) {
 	draw::background(CHARGEN);
 	for(int i = 0; i < 4; i++) {
-		auto id = i + 1;
 		genavatar(
 			16 + (i % 2) * 64,
 			64 + (i / 2) * 64,
-			id, draw::getfstate(id, focus),
-			game::party[i]);
+			cmd(proc, (int)&game::party[i], (int)&game::party[i]));
 	}
 }
 
@@ -92,8 +109,6 @@ static void portraits(int x, int y, int& n, int cur, int count, int max_avatars,
 		n = max_avatars - count;
 	for(int i = 0; i < count; i++) {
 		int k = port[i + n];
-		if(!k)
-			break;
 		draw::image(x + i * 32, y, ps, k, 0);
 		if((i + n) == cur)
 			draw::rectb({x + i * 32 - 1, y, x + i * 32 + 31, y + 31},
@@ -101,127 +116,86 @@ static void portraits(int x, int y, int& n, int cur, int count, int max_avatars,
 	}
 }
 
-static void draw_ability(creature* pc) {
+static int number(int x, int y, int w, const char* title, int v) {
 	char temp[32];
-	int x = 148;
-	int y = 128;
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
-		draw::textb(x, y, getstr(i));
-		sznum(temp, pc->get(i));
-		draw::textb(x + 32, y, temp);
-		y += draw::texth() + 1;
-	}
+	draw::textb(x, y, title);
+	sznum(temp, v);
+	draw::textb(x + 32, y, temp);
+	return draw::texth() + 1;
 }
 
-static void view_ability(creature* pc, class_s type, race_s race, gender_s gender) {
-	int port[64];
-	auto max_avatars = game::getavatar(port, zendof(port), race, gender, type);
+static int number(int x, int y, int w, const char* title, const dice& v) {
+	char temp[32];
+	draw::textb(x, y, title);
+	v.range(temp, zendof(temp));
+	draw::textb(x + 32, y, temp);
+	return draw::texth() + 1;
+}
+
+static int number(int x, int y, int w, const char* title, int v1, int v2) {
+	char temp[32];
+	draw::textb(x, y, title);
+	szprint(temp, zendof(temp), "%1i/%2i", v1, v2);
+	draw::textb(x + 32, y, temp);
+	return draw::texth() + 1;
+}
+
+static void draw_ability(creature* pc) {
+	auto x = 148, y = 128;
+	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
+		y += number(x, y, 32, getstr(i), pc->get(i));
+	x = 224, y = 128;
+	combati ai = {}; pc->get(ai);
+	y += number(x, y, 32, "AC", 10 - pc->getac());
+	y += number(x, y, 32, "ATT", 20 - ai.bonus);
+	y += number(x, y, 32, "DAM", ai.damage);
+	y += number(x, y, 32, "HP", pc->gethits(), pc->gethitsmaximum());
+}
+
+void creature::view_ability() {
+	adat<int, 64> source;
+	source.count = game::getavatar(source.data, source.endof(), race, gender, type);
 	const int width = 152;
 	char temp[64];
-	int values[8], x, y;
+	int x, y;
 	draw::state push;
 	draw::setbigfont();
 	draw::fore = colors::white;
 	hot::key = 0;
-	int cur_portrait = 0;
 	int org_portrait = 0;
-	int focus = 0;
+	current_portrait = source.indexof(avatar);
+	finish();
 	while(ismodal()) {
-		genheader(NoFocusing, focus);
+		if(current_portrait >= (int)source.count)
+			current_portrait = source.count - 1;
+		if(current_portrait < 0)
+			current_portrait = 0;
+		if(current_portrait < (int)source.count)
+			avatar = source.data[current_portrait];
 		x = 143; y = 66;
-		portraits(x + 33, y, org_portrait, cur_portrait, 4, max_avatars, port);
-		y += button(x, y, PreviousPortrait, KeyLeft, 0);
-		y += button(x, y, NextPortrait, KeyRight, 0);
+		genheader();
+		portraits(x + 33, y, org_portrait, current_portrait, 4, source.count, source.data);
+		y += button(x, y, prev_portrait, 0, KeyLeft);
+		y += button(x, y, next_portrait, 0, KeyRight);
 		x = 148; y = 104;
 		zprint(temp, "%1 %2", getstr(race), getstr(gender));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
 		zprint(temp, getstr(type));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
-		draw_ability(pc);
+		draw_ability(this);
 		y = 168; x = 223;
-		button(x, y, Roll, Alpha + 'R', "Roll");
-		button(x + 39, y, Keep, KeyEnter, "Keep");
+		button(x, y, roll_character, "Roll", Alpha + 'R');
+		button(x + 39, y, buttonok, "Keep", Alpha + 'K');
 		domodal();
-		switch(hot::key) {
-		case Roll:
-			game::getability(values, type, race);
-			for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-				pc->set(i, values[i]);
-			break;
-		case Keep:
-			if(port[cur_portrait])
-				pc->setavatar(port[cur_portrait]);
-			return;
-		case PreviousPortrait:
-			cur_portrait--;
-			if(cur_portrait < 0)
-				cur_portrait = 0;
-			break;
-		case NextPortrait:
-			cur_portrait++;
-			if(cur_portrait > max_avatars)
-				cur_portrait = max_avatars - 1;
-			break;
-		}
 	}
-}
-
-struct chelement {
-	int			id;
-	const char*	text;
-};
-
-static int choose(const char* title_string, aref<chelement> elements) {
-	draw::state push;
-	setbigfont();
-	fore = colors::white;
-	hot::key = 0;
-	if(!elements)
-		return 0;
-	unsigned n = 0;
-	while(ismodal()) {
-		genheader(NoFocusing, 0);
-		int x = 148;
-		int y = 68;
-		if(title_string)
-			y += draw::header(148, 68, title_string);
-		auto i = 0;
-		for(auto& e : elements) {
-			y += draw::linetext(x, y, 128,
-				e.id,
-				(n == i) ? Focused : 0,
-				e.text);
-			i++;
-		}
-		domodal();
-		switch(hot::key) {
-		case KeyDown:
-			if(n < elements.count - 1)
-				n++;
-			else
-				n = 0;
-			break;
-		case KeyUp:
-			if(n)
-				n--;
-			else
-				n = elements.count - 1;
-			break;
-		case KeyEnter:
-			breakmodal(elements.data[n].id);
-			break;
-		}
-	}
-	return getresult();
 }
 
 static gender_s choosegender(bool interactive) {
 	if(interactive) {
-		adat<chelement, 32> source;
-		for(auto i = Male; i <= Female; i = (gender_s)(i + 1)) {
+		adat<enumelement, 32> source;
+		for(auto i = Male; i <= Female; i = (gender_s)(i + 1))
 			source.add({i, getstr(i)});
-		}
-		return (gender_s)choose("Select Gender:", source);
+		return (gender_s)choose(source, "Select Gender:");
 	} else {
 		// RULE: Male are most common as adventurers
 		if(d100() < 65)
@@ -232,25 +206,24 @@ static gender_s choosegender(bool interactive) {
 }
 
 static alignment_s choosealignment(bool interactive, class_s depend) {
-	adat<chelement, 32> source;
+	adat<enumelement, 32> source;
 	for(auto i = FirstAlignment; i <= LastAlignment; i = (alignment_s)(i + 1)) {
 		if(!creature::isallow(i, depend))
 			continue;
 		source.add({i, getstr(i)});
 	}
 	if(interactive)
-		return (alignment_s)choose("Select Alignment:", source);
+		return (alignment_s)choose(source, "Select Alignment:");
 	return (alignment_s)source.data[rand() % source.count].id;
 }
 
 static race_s chooserace(bool interactive) {
 	if(interactive) {
-		adat<chelement, 32> source;
+		adat<enumelement, 32> source;
 		for(auto i = Dwarf; i <= Human; i = (race_s)(i + 1))
 			source.add({i, getstr(i)});
-		return (race_s)choose("Select Race:", source);
-	}
-	else {
+		return (race_s)choose(source, "Select Race:");
+	} else {
 		// RULE: Humans most common in the worlds.
 		if(d100() < 50)
 			return Human;
@@ -260,14 +233,14 @@ static race_s chooserace(bool interactive) {
 }
 
 static class_s chooseclass(bool interactive, race_s race) {
-	adat<chelement, 32> source;
+	adat<enumelement, 32> source;
 	for(auto i = Cleric; i <= MageTheif; i = (class_s)(i + 1)) {
 		if(!creature::isallow(i, race))
 			continue;
 		source.add({i, getstr(i)});
 	}
 	if(interactive)
-		return (class_s)choose("Select Class:", source);
+		return (class_s)choose(source, "Select Class:");
 	return (class_s)source.data[rand() % source.count].id;
 }
 
@@ -281,109 +254,102 @@ static bool is_party_created() {
 	return true;
 }
 
-static void change(creature* pc) {
+static void apply_change_character() {
+	if(!current_player)
+		return;
 	char temp[260];
 	draw::state push;
 	setbigfont();
 	fore = colors::white;
 	hot::key = 0;
-	auto race = pc->getrace();
-	auto gender = pc->getgender();
-	auto type = pc->getclass();
+	auto race = current_player->getrace();
+	auto gender = current_player->getgender();
+	auto type = current_player->getclass();
 	auto focus = 0;
 	int x, y;
 	const int width = 152;
-	creature** prec;
 	while(ismodal()) {
-		genheader(NoFocusing, focus);
-		draw::portrait(205, 66, pc);
 		x = 148; y = 98;
-		pc->getname(temp, zendof(temp));
+		genheader();
+		current_player->view_portrait(205, 66);
+		current_player->getname(temp, zendof(temp));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
 		zprint(temp, "%1 %2", getstr(race), getstr(gender));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
 		zprint(temp, getstr(type));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
-		draw_ability(pc);
+		draw_ability(current_player);
 		y = 168; x = 223;
-		button(x, y, Delete, Alpha + 'D', 0);
-		button(x + 39, y, OK, KeyEnter, "OK");
-		button(x + 39, y - 16, Rename, Alpha + 'N', "Name");
+		button(x, y, delete_character, 0, Alpha + 'D');
+		button(x + 39, y, buttonok, "OK", Alpha + 'K');
 		domodal();
 		switch(hot::key) {
 		case Delete:
-			prec = (creature**)zchr(game::party, pc);
-			if(prec)
-				*prec = 0;
-			pc->clear();
-			breakmodal(0);
-			break;
-		case KeyEscape:
-		case OK:
-			breakmodal(0);
-			break;
-		case Rename:
-			pc->setname();
 			break;
 		}
 	}
 }
 
-void draw::generation() {
+static void change_character() {
+	auto ptr_player = (creature**)hot::param;
+	if(ptr_player >= game::party
+		&& ptr_player <= game::party + sizeof(game::party) / sizeof(game::party[0])) {
+		if(*ptr_player) {
+			current_player = *ptr_player;
+			apply_change_character();
+		} else {
+			(*ptr_player) = creature::newhero();
+			current_player = *ptr_player;
+			(*ptr_player)->create(NoGender, NoRace, NoClass, LawfulGood, true);
+		}
+		current_player = 0;
+	}
+}
+
+int draw::choose(aref<enumelement> elements, const char* title_string) {
 	draw::state push;
-	draw::fore = colors::white;
-	draw::setbigfont();
-	auto focus = 1;
+	setbigfont();
+	fore = colors::white;
+	if(!elements)
+		return 0;
+	openform();
 	while(ismodal()) {
-		genheader(0, focus);
-		auto nid = (focus >= 1 && focus <= 4) ? focus - 1 : -1;
+		genheader();
+		auto x = 148, y = 68;
+		if(title_string)
+			y += draw::header(148, 68, title_string);
+		for(auto& e : elements)
+			y += buttont(x, y, 128, cmd(buttonparam, e.id, (int)&e), e.text);
+		domodal();
+		navigate();
+	}
+	closeform();
+	return getresult();
+}
+
+void creature::view_party() {
+	draw::state push;
+	fore = colors::white;
+	setbigfont();
+	openform();
+	while(ismodal()) {
+		genheader(change_character);
 		rect rc = {150, 74, 296, 184};
 		char temp[1024];
 		zprint(temp, "Select the box of the character you wish to create or view.");
 		if(is_party_created()) {
 			zcat(temp, "\n\n");
 			zprint(temp, "Your party is complete. Select PLAY button or press 'P' to start the game.");
-			button(25, 181, NewGame, Alpha + 'P', 0);
+			::button(25, 181, new_game, 0, Alpha + 'P');
 		}
-		draw::textb(rc, temp);
+		textb(rc, temp);
 		domodal();
-		switch(hot::key) {
-		case KeyLeft:
-		case KeyRight:
-		case KeyUp:
-		case KeyDown:
-			if(focus >= 1 && focus <= 4) {
-				int inc = -1;
-				if(hot::key == KeyRight)
-					inc = 1;
-				else if(hot::key == KeyUp)
-					inc = -2;
-				else if(hot::key == KeyDown)
-					inc = 2;
-				focus += inc;
-				if(focus <= 0)
-					focus += 4;
-				else if(focus > 4)
-					focus -= 4;
-			}
-			break;
-		case KeyEnter:
-			if(game::party[nid])
-				change(game::party[nid]);
-			else {
-				game::party[nid] = creature::newhero();
-				game::party[nid]->create(NoGender, NoRace, NoClass, LawfulGood, true);
-			}
-			break;
-		case NewGame:
-			breakmodal(1);
-			break;
-		}
+		navigate();
 	}
+	closeform();
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
-	int temp[6];
 	if(!gender)
 		gender = choosegender(interactive);
 	if(!race)
@@ -397,14 +363,12 @@ void creature::create(gender_s gender, race_s race, class_s type, alignment_s al
 	set(race);
 	set(type);
 	set(alignment);
-	// Abilities
-	game::getability(temp, type, race);
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		set(i, temp[i]);
-	// Portrait
+	roll_ability();
 	setavatar(game::getavatar(race, gender, getclass(type, 0)));
 	if(interactive)
-		view_ability(this, type, race, gender);
-	finish();
-	sethits(gethitsmaximum());
+		view_ability();
+	else
+		finish();
+	random_equipment();
+	random_name();
 }

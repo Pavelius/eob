@@ -2,7 +2,6 @@
 #include "collection.h"
 #include "color.h"
 #include "crt.h"
-#include "menu.h"
 #include "rect.h"
 #include "stringcreator.h"
 
@@ -431,7 +430,7 @@ class creature {
 	void				prepare_random_spells(class_s type, int level);
 	char				racial_bonus(char* data) const;
 	void				raise_level(class_s type);
-	void				random_equipmant();
+	void				random_equipment();
 	void				random_spells(class_s type, int level, int count);
 	void				update_levelup(bool interactive);
 	void				update_poison(bool interactive);
@@ -447,6 +446,7 @@ public:
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
+	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits);
 	int					damaged(const creature* defender, wear_s slot) const;
 	void				equip(item it);
@@ -507,7 +507,9 @@ public:
 	bool				isuse(const item v) const;
 	static creature*	newhero();
 	void				preparespells();
+	void				random_name();
 	bool				roll(skill_s id, int bonus = 0);
+	void				roll_ability();
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
 	void				sayv(const char* format, const char* vl);
@@ -530,12 +532,14 @@ public:
 	void				setinitiative(char value) { initiative = value; }
 	void				setknown(spell_s id, char v) { known[id] = v; }
 	void				setmoved(bool value) { moved = value; }
-	void				setname();
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
+	void				view_ability();
+	static void			view_party();
+	void				view_portrait(int x, int y) const;
 };
 struct dungeon {
 	struct overlayi {
@@ -642,19 +646,15 @@ struct site {
 };
 namespace game {
 namespace action {
-command_s				actions();
-command_s				adventure();
 void					attack(short unsigned index);
 void					automap(dungeon& area, bool fow);
 void					camp(item& food);
-spell_s					choosespell(creature* pc, class_s type);
 creature*				choosehero();
 void					dropitem(item* itm, int side = -1);
 void					fly(item_s item, int side);
 void					getitem(item* itm, int side = -1);
 bool					manipulate(item* itm, direction_s direction);
-command_s				move(direction_s direction);
-command_s				options();
+void					move(direction_s direction);
 void					pause();
 void					preparespells(class_s type);
 bool					question(item* current_item);
@@ -662,11 +662,11 @@ void					thrown(item* itm);
 void					rotate(direction_s direction);
 bool					use(item* itm);
 }
+void					endround();
 void					enter(unsigned short index, unsigned char level);
 void					findsecrets();
-void					getability(int* result, class_s type, race_s race);
 int						getavatar(race_s race, gender_s gender, class_s cls);
-int						getavatar(int* result, int* result_maximum, race_s race, gender_s gender, class_s cls);
+int						getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
 int						getarmorpenalty(item_s armor, skill_s skill);
 short unsigned			getcamera();
 creature*				getdefender(short unsigned index, direction_s dr, creature* attacker);
@@ -689,8 +689,15 @@ void					setcamera(short unsigned index, direction_s direction = Center);
 void					write();
 }
 namespace draw {
-struct sprite;
-typedef void(*infoproc)(item*);
+struct menu {
+	void(*proc)();
+	const char*			text;
+	operator bool() const { return proc != 0; }
+};
+struct enumelement {
+	int					id;
+	const char*			text;
+};
 namespace animation {
 void					appear(dungeon& location, short unsigned index, int radius = 1);
 void					attack(creature* attacker, wear_s slot, int hits);
@@ -701,46 +708,14 @@ int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sd
 int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					update();
 }
-void					abilities(int x, int y, creature* pc);
-void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
-void					background(int rid);
-int						button(int x, int y, int width, int id, unsigned flags, const char* name);
-int						ciclic(int range, int speed = 1);
+void					adventure();
+int						choose(aref<enumelement> elements, const char* title_string);
+void					chooseopt(const menu* source);
 bool					dlgask(const char* text);
-int						flatb(int x, int y, int width, int id, unsigned flags, const char* string);
-rect					form(rect rc, int count = 1);
-void					generation();
-unsigned				getfstate(int id, int focus);
-infoproc				getmode();
-sprite*					gres(resource_s id);
-void					greenbar(rect rc, int vc, int vm);
-int						header(int x, int y, const char* text);
-void					imagex(int x, int y, const sprite* res, int id, unsigned flags, int percent, unsigned char shadow);
-void					initialize();
-void					invertory(int x, int y, creature* pc, item* current_item);
-void					itemicn(int x, int y, item itm, unsigned char alpha = 0xFF, int spell = 0);
-void					itemicn(int x, int y, item* pitm, bool invlist = false, unsigned flags = 0, void* current_item = 0);
-int						linetext(int x, int y, int width, int id, unsigned flags, const char* name);
-void					linetext(int x, int y, int width, int id, unsigned flags, const char* name, const char* name2);
-void					logs();
-command_s				mainmenu();
-void					portrait(int x, int y, creature* pc);
-void					redraw();
-void					resetres();
-void					setbigfont();
-void					setmode(infoproc mode);
-void					setsmallfont();
+void					mainmenu();
+void					options();
+void					setnext(void(*p)());
 bool					settiles(dungeon_s id);
-void					skills(int x, int y, creature* pc);
-void					textb(int x, int y, const char* string, int count = -1);
-int						textb(rect rc, const char* string, unsigned flags = 0);
-extern unsigned			frametick;
-}
-namespace colors {
-extern color			title;
-namespace info {
-extern color			text;
-}
 }
 extern dungeon			location_above;
 extern dungeon			location;

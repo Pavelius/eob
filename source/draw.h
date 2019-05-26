@@ -75,6 +75,9 @@ extern bool				pressed; // flag if any of mouse keys is pressed
 extern int				param; // command or input event parameter
 }
 namespace draw {
+typedef void(*callback)();
+extern rect				clipping;
+extern color			fore;
 struct pma {
 	char				name[4]; // Identifier of current block
 	int					size; // Size of all block
@@ -169,16 +172,20 @@ private:
 	struct surface*		canvas;
 	rect				clip;
 };
-extern rect				clipping;
-extern color			fore;
-extern const sprite*	font; // glyph font
-typedef void(*callback)();
-//
+struct cmd {
+	callback			proc;
+	int					param, focus;
+	constexpr cmd() : proc(0), param(0), focus(0) {}
+	constexpr cmd(callback proc, int param = 0) : proc(proc), param(param), focus((int)proc) {}
+	constexpr cmd(callback proc, int param, int focus) : proc(proc), param(param), focus(focus) {}
+	virtual void		execute() const;
+};
 int						alignedh(const rect& rc, const char* string, unsigned state);
 int						aligned(int x, int width, unsigned flags, int dx);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& dc, int xs, int ys);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& source, int x_source, int y_source, int width_source, int height_source);
 void					breakmodal(int result);
+int						button(int x, int y, int width, const cmd& ev, const char* name, int key = 0);
 void					buttoncancel();
 void					buttonok();
 void					buttonparam();
@@ -186,10 +193,11 @@ extern surface*			canvas;
 bool					create(int width, int height);
 extern callback			domodal;
 void					execute(callback proc, int param = 0);
-void					focusing(const rect& rc, void* pid);
+void					focusing(const rect& rc, int pid);
+extern const sprite*	font; // glyph font
 int						getbpp();
-int						getcommand();
-void*					getnext(void* pitm, int key);
+int						getfocus();
+int						getnext(int id, int key);
 int						getheight();
 int						getresult();
 int						getwidth();
@@ -216,10 +224,10 @@ void					rectf(rect rc, color c1, unsigned char alpha);
 void					setcaption(const char* string);
 void					setclip(rect rc);
 void					setclip();
-void					setlayer(callback v);
+void					setfocus(int id, bool instant = false);
 void					settimer(unsigned milleseconds);
 const char*				skiptr(const char* string);
-void					showlayer();
+void					shownext(callback proc);
 void					text(int x, int y, const char* string, int count = -1, unsigned flags = 0);
 int						text(rect rc, const char* string, unsigned state = 0);
 int						textc(int x, int y, int width, const char* string, int count = -1, unsigned flags = 0);

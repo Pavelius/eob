@@ -60,8 +60,8 @@
     <ClInclude Include="rect.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="menu.h">
-      <Filter>Поддержка</Filter>
+    <ClInclude Include="view.h">
+      <Filter>Логика</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,19 +140,10 @@
     <ClCompile Include="view_controls.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="view_dialog.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="view_dungeon.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="view_generate.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="view_main.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="view_options.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="view_spells.cpp">
@@ -208,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="commands.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="menu.cpp">
-      <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="attack.cpp">
       <Filter>Логика</Filter>

@@ -1,7 +1,8 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
+
+callback		next_proc;
 
 #ifdef _DEBUG
 
@@ -182,6 +183,92 @@ static void test_monster(resource_s rs, int overlay[4]) {
 }
 #endif // DEBUG
 
+static void newgame() {
+	game::setcamera(0);
+	creature::view_party();
+	draw::resetres();
+	game::write();
+	game::enter(1, 1);
+	setnext(adventure);
+}
+
+static void main_new_game() {
+	setnext(newgame);
+}
+
+static void option_new_game() {
+	if(!dlgask("Area you sure want to start new game?"))
+		return;
+	setnext(newgame);
+}
+
+static void memorize_spells() {
+	game::action::preparespells(Mage);
+}
+
+static void pray_for_spells() {
+	game::action::preparespells(Cleric);
+}
+
+static void option_save_game() {
+	game::write();
+	setnext(adventure);
+}
+
+static void quit_game() {
+	if(!dlgask("Area you sure want to quit game?"))
+		return;
+	exit(0);
+}
+
+static void load_game() {
+	draw::resetres();
+	if(game::read())
+		setnext(adventure);
+	else {
+#ifdef _DEBUG
+		if(true) {
+			random_heroes();
+			game::write();
+			game::enter(1, 1);
+		} else {
+			random_heroes();
+			test_dungeon(AreaSewers);
+			draw::settiles(location.type);
+			game::setcamera(location.getindex(16, 16), Up);
+		}
+		setnext(adventure);
+#endif
+	}
+}
+
+static void settings() {
+}
+
+void draw::options() {
+	static menu elements[] = {{pray_for_spells, "Pray for spells"},
+	{memorize_spells, "Memorize spells"},
+	{option_new_game, "New game"},
+	{load_game, "Load game"},
+	{option_save_game, "Save game"},
+	{settings, "Settings"},
+	{quit_game, "Quit game"},
+	{}};
+	chooseopt(elements);
+}
+
+void draw::mainmenu() {
+	static draw::menu source[] = {{main_new_game, "Create New Game"},
+	{load_game, "Load Saved game"},
+	{quit_game, "Exit game"},
+	{}};
+	choose(source);
+}
+
+void draw::setnext(void(*v)()) {
+	next_proc = v;
+}
+
 int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
@@ -189,7 +276,6 @@ int main(int argc, char* argv[]) {
 	//util_main();
 #endif // _DEBUG
 	draw::initialize();
-	auto id = NoCommand;
 #ifdef _DEBUG
 	int ovr12[4] = {0, 1, 2};
 	int ovr13[4] = {0, 1, 3};
@@ -197,47 +283,10 @@ int main(int argc, char* argv[]) {
 	//test_monster(GUARD1, ovr3);
 	//test_monster(CLERIC2, ovr3);
 #endif
-	while(true) {
-		if(!id)
-			id = draw::mainmenu();
-		switch(id) {
-		case NewGame:
-			game::setcamera(0);
-			draw::generation();
-			draw::resetres();
-			game::write();
-			game::enter(1, 1);
-			id = game::action::adventure();
-			break;
-		case LoadGame:
-			game::setcamera(0);
-			draw::resetres();
-			if(game::read())
-				id = game::action::adventure();
-			else {
-#ifdef _DEBUG
-				if(true) {
-					random_heroes();
-					game::write();
-					game::enter(1, 1);
-				} else {
-					random_heroes();
-					test_dungeon(AreaSewers);
-					draw::settiles(location.type);
-					game::setcamera(location.getindex(16, 16), Up);
-				}
-				id = game::action::adventure();
-#else
-				id = 0;
-#endif
-			}
-			break;
-		case Cancel:
-			return 0;
-		default:
-			id = NoCommand;
-			break;
-		}
+	next_proc = mainmenu;
+	while(next_proc) {
+		auto p = next_proc;
+		next_proc = 0; p();
 	}
 }
 

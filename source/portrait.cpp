@@ -77,7 +77,7 @@ static bool isportrait(int id, gender_s value) {
 		|| portrait_data[id].gender == value;
 }
 
-static int select(int* result, int* result_maximum, race_s race, gender_s gender, class_s cls) {
+static int select(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
 	int* p = result;
 	for(auto& e : portrait_data) {
 		if(gender && e.gender != NoGender && e.gender != gender)
@@ -92,7 +92,7 @@ static int select(int* result, int* result_maximum, race_s race, gender_s gender
 	return p - result;
 }
 
-int game::getavatar(int* result, int* result_maximum, race_s race, gender_s gender, class_s cls) {
+int game::getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
 	auto c = select(result, result_maximum, race, gender, cls);
 	if(!c)
 		c = select(result, result_maximum, race, gender, NoClass);

@@ -22,7 +22,6 @@ bool					hot::pressed; // flag if any of mouse keys is pressed
 int						hot::param;
 int						metrics::padding = 4;
 sprite*					metrics::font;
-static callback			next_proc;
 surface*				draw::canvas;
 surface::plugin*		surface::plugin::first;
 
@@ -1431,57 +1430,6 @@ int draw::textlb(const char* string, int index, int width, int* line_index, int*
 	return p - string;
 }
 
-//static unsigned char* skip_v3(unsigned char* s, int h) {
-//	const int		cbs = 1;
-//	const int		cbd = 1;
-//	if(!s || !h)
-//		return s;
-//	while(true) {
-//		unsigned char c = *s++;
-//		if(c == 0) {
-//			if(--h == 0)
-//				return s;
-//		} else if(c <= 0x9F) {
-//			if(c <= 0x7F)
-//				s += c * cbs;
-//			else {
-//				if(c == 0x80)
-//					c = *s++;
-//				else
-//					c -= 0x80;
-//				s++;
-//				s += c * cbs;
-//			}
-//		} else if(c == 0xA0)
-//			s++;
-//	}
-//}
-
-//static unsigned char* skip_rle32(unsigned char* s, int h) {
-//	const int cbs = 3;
-//	if(!s || !h)
-//		return s;
-//	while(true) {
-//		unsigned char c = *s++;
-//		if(c == 0) {
-//			if(--h == 0)
-//				return s;
-//		} else if(c <= 0x9F) {
-//			if(c <= 0x7F)
-//				s += c * cbs;
-//			else {
-//				if(c == 0x80)
-//					c = *s++;
-//				else
-//					c -= 0x80;
-//				s++;
-//				s += c * cbs;
-//			}
-//		} else if(c == 0xA0)
-//			s++;
-//	}
-//}
-
 void draw::image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha) {
 	const int cbd = 1;
 	int x2, y2;
@@ -1786,18 +1734,6 @@ int draw::getheight() {
 
 unsigned char* draw::ptr(int x, int y) {
 	return canvas ? (canvas->bits + y * canvas->scanline + x * canvas->bpp / 8) : 0;
-}
-
-void draw::setlayer(callback v) {
-	next_proc = v;
-}
-
-void draw::showlayer() {
-	while(next_proc) {
-		auto p = next_proc;
-		next_proc = 0;
-		p();
-	}
 }
 
 draw::screenshoot::screenshoot(rect rc, bool fade) : surface(rc.width(), rc.height(), getbpp()) {

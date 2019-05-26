@@ -236,7 +236,8 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		r += 1;
 	result.attack = OneAttack;
 	result.bonus += r;
-	result.bonus += maptbl(monsters_thac0, ((int)bsmeta<monsteri>::elements[type].hd[0]));
+	if(kind)
+		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
 	if(wears[weapon]) {
 		wears[weapon].get(result, enemy);
 		if(enemy) {
@@ -254,6 +255,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	auto k = get(Strenght);
 	result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
+	result.damage.b += maptbl(damage_adjustment, k);
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
@@ -330,7 +332,8 @@ void creature::update(bool interactive) {
 			}
 		}
 	}
-	update_levelup(interactive);
+	if(!kind)
+		update_levelup(interactive);
 }
 
 bool creature::isenemy(creature* target) const {
@@ -518,22 +521,27 @@ void creature::clear() {
 }
 
 void creature::finish() {
+	hits_rolled = 0;
+	memset(levels, 0, sizeof(levels));
+	memset(spells, 0, sizeof(spells));
+	memset(known, 0, sizeof(known));
+	memset(prepared, 0, sizeof(known));
 	feats.data |= bsmeta<racei>::elements[race].feats.data;
 	feats.data |= bsmeta<classi>::elements[type].feats.data;
 	usability.data |= bsmeta<racei>::elements[race].usability.data;
 	usability.data |= bsmeta<classi>::elements[type].usability.data;
 	states[0] = 1;
-	for(int i = 0; i < 3; i++) {
-		auto c = getclass(getclass(), i);
-		if(!c)
-			continue;
-		raise_level(c);
+	if(kind)
+		hits_rolled = gethitdice().roll();
+	else {
+		for(int i = 0; i < 3; i++) {
+			auto c = getclass(getclass(), i);
+			if(!c)
+				continue;
+			raise_level(c);
+		}
 	}
 	sethits(gethitsmaximum());
-	if(!kind) {
-		setname();
-		random_equipmant();
-	}
 }
 
 void creature::raise_level(class_s type) {
@@ -564,7 +572,9 @@ void creature::raise_level(class_s type) {
 	hits_rolled += hp;
 }
 
-void creature::random_equipmant() {
+void creature::random_equipment() {
+	if(kind)
+		return;
 	auto cls = getbestclass();
 	auto race = getrace();
 	switch(cls) {
@@ -814,7 +824,7 @@ int	creature::getthac0(class_s cls, int level) const {
 	}
 }
 
-void creature::setname() {
+void creature::random_name() {
 	if(kind)
 		return;
 	auto race = getrace();
@@ -1251,4 +1261,51 @@ void read_message(dungeon* pd, dungeon::overlayi* po) {
 		default: pc->say("Some unrecognised language"); break;
 		}
 	}
+}
+
+static int compare_char(const void* p1, const void* p2) {
+	return *((char*)p2) - *((char*)p1);
+}
+
+void creature::roll_ability() {
+	char result[8];
+	for(auto& e : result)
+		e = xrand(1, 6) + xrand(1, 6) + xrand(1, 6);
+	qsort(result, sizeof(result)/ sizeof(result[0]), sizeof(result[0]), compare_char);
+	zshuffle(result, 6);
+	int max_position = -1;
+	int max_value = 0;
+	for(int i = 0; i < 6; i++) {
+		if(result[i] > max_value) {
+			max_position = i;
+			max_value = result[i];
+		}
+	}
+	auto bst_position = bsmeta<classi>::elements[type].ability;
+	if(max_position != -1)
+		iswap(result[max_position], result[bst_position]);
+	// Check maximum by class
+	for(int j = 0; j < 6; j++) {
+		int m = bsmeta<classi>::elements[type].minimum[j];
+		if(result[j] < m)
+			result[j] = m;
+	}
+	// Check minimum by race
+	for(auto j = 0; j < 6; j++) {
+		auto m = bsmeta<racei>::elements[race].minimum[j];
+		if(result[j] < m)
+			result[j] = m;
+	}
+	// Check maximum by race
+	for(auto j = 0; j < 6; j++) {
+		auto m = bsmeta<racei>::elements[race].maximum[j];
+		if(result[j] > m)
+			result[j] = m;
+	}
+	// Adjust ability
+	for(auto j = 0; j < 6; j++)
+		result[j] += bsmeta<racei>::elements[race].adjustment[j];
+	// Расставим атрибуты по местам
+	for(auto j = 0; j < 6; j++)
+		ability[j] = result[j];
 }

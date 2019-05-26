@@ -1,7 +1,8 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
+
+static int current_level = 1;
 
 static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse) {
 	unsigned flags = 0;
@@ -26,33 +27,36 @@ static int get_spells_prepared(creature* pc, aref<spell_s> spells) {
 	return result;
 }
 
-static void render_spell_window(aref<spell_s> source, creature* pc, class_s type, command_s focus, int spell_level, int current_index, int maximum_spells, int prepared_spells) {
+static void choose_level() {
+}
+
+static void clear_spells() {
+}
+
+static void add_spell() {
+}
+
+static void render_spell_window(aref<spell_s> source, creature* pc, class_s type, int maximum_spells, int prepared_spells) {
 	draw::state push;
 	char temp[64];
 	int level = pc ? pc->get(type) : 0;
-	draw::setbigfont();
-	draw::form({0, 0, 22 * 8 + 2, 174}, 2);
-	draw::fore = colors::title;
-	draw::textb(6, 6, "Spells available:");
-	draw::fore = colors::white;
-	for(int i = 0; i < 9; i++) {
-		unsigned flags = 0;
-		if(spell_level == i + 1)
-			flags |= Focused;
-		draw::button(4 + i * 19, 16, 17, ChooseLevels, flags, sznum(temp, i + 1));
-	}
+	setbigfont();
+	form({0, 0, 22 * 8 + 2, 174}, 2);
+	fore = colors::title;
+	textb(6, 6, "Spells available:");
+	fore = colors::white;
+	for(int i = 0; i < 9; i++)
+		draw::button(4 + i * 19, 16, 17, cmd(choose_level, i+1, i+1), sznum(temp, i + 1));
 	szprint(temp, zendof(temp), "%1i of %2i remaining", prepared_spells, maximum_spells);
-	draw::fore = colors::title;
-	draw::textb(6, 36, temp);
-	draw::fore = colors::white;
+	fore = colors::title;
+	textb(6, 36, temp);
+	fore = colors::white;
 	int count = imin(source.count, (unsigned)13);
 	for(int i = 0; i < count; i++)
-		draw::linetext(6, 46 + 8 * i, 168,
-			source.data[i],
-			(focus == ChooseSpells && i == current_index) ? Focused : 0,
+		buttont(6, 46 + 8 * i, 168, cmd(add_spell, (int)(source.data + i), (int)(source.data + i)),
 			getstr(source.data[i]), sznum(temp, pc->getprepare(source.data[i])));
-	draw::button(6, 156, -1, Cancel, draw::getfstate(Cancel, focus), "Close");
-	draw::button(60, 156, -1, Clear, draw::getfstate(Clear, focus), "Clear");
+	draw::button(6, 156, -1, buttoncancel, "Close");
+	draw::button(60, 156, -1, clear_spells, "Clear");
 }
 
 static creature* get_valid_hero(creature* pc, class_s type) {
@@ -70,7 +74,7 @@ static creature* get_valid_hero(creature* pc, class_s type) {
 	}
 }
 
-static unsigned select_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
+static unsigned select_spells(spell_s* result, spell_s* result_maximum, const creature* pc, class_s type, int level) {
 	auto p = result;
 	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
 		if(creature::getlevel(i, type) != level)
@@ -114,17 +118,15 @@ creature* game::action::choosehero() {
 	draw::state push;
 	setsmallfont();
 	fore = colors::white;
-	creature* elements[7]; auto p = elements;
-	for(auto e : game::party) {
-		if(e)
-			*p++ = e;
+	adat<creature*, 7> elements;
+	for(auto p : game::party) {
+		if(p)
+			elements.add(p);
 	}
-	*p = 0;
 	int current_element = 0;
-	int id;
 	while(ismodal()) {
-		if(current_element >= zlen(elements))
-			current_element = zlen(elements) - 1;
+		if(current_element >= (int)elements.count)
+			current_element = elements.count - 1;
 		if(current_element < 0)
 			current_element = 0;
 		screen.restore();
@@ -137,10 +139,10 @@ creature* game::action::choosehero() {
 		}
 		int x = rc.x1;
 		int y = rc.y1 + 8;
-		for(int i = 0; elements[i]; i++) {
-			unsigned flags = (i == current_element) ? Focused : 0;
+		for(auto p : elements) {
+			unsigned flags = (elements.indexof(p) == current_element) ? Focused : 0;
 			y += labelb(x, y, rc.width(), flags,
-				elements[i]->getname(temp, zendof(temp)));
+				p->getname(temp, zendof(temp)));
 		}
 		domodal();
 		switch(hot::key) {
@@ -166,25 +168,26 @@ creature* game::action::choosehero() {
 		case Alpha + '4':
 		case Alpha + '5':
 		case Alpha + '6':
-			id = hot::key - (Alpha + '1');
-			if(id < zlen(elements))
-				breakmodal((int)elements[id]);
+			if(true) {
+				auto id = hot::key - (Alpha + '1');
+				if(id < (int)elements.count)
+					breakmodal((int)elements[id]);
+			}
 			break;
 		}
 	}
 	return (creature*)getresult();
 }
 
-spell_s game::action::choosespell(creature* pc, class_s type) {
+spell_s creature::choosespell(class_s type) const {
 	adat<spell_s, 32> result;
-	draw::state push;
-	draw::setsmallfont();
-	draw::fore = colors::white;
 	draw::screenshoot screen;
-	int current_level = 1;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
 	unsigned current_element = 0;
 	while(ismodal()) {
-		result.count = select_spells(result.data, zendof(result.data), pc, type, current_level);
+		result.count = select_spells(result.data, zendof(result.data), this, type, current_level);
 		if(current_element >= result.count)
 			current_element = result.count - 1;
 		if(current_element < 0)
@@ -257,124 +260,59 @@ spell_s game::action::choosespell(creature* pc, class_s type) {
 void game::action::preparespells(class_s type) {
 	adat<spell_s, 32> result;
 	auto hero = get_valid_hero(0, type);
-	auto focus = ChooseSpells;
-	auto current_level = 1;
-	auto current_index = 0;
-	int id;
-	while(true) {
-		draw::background(PLAYFLD);
+	auto old_focus = getfocus();
+	openform();
+	while(ismodal()) {
 		result.count = 0;
 		auto maximum_spells = 0;
 		auto prepared_spells = 0;
+		if(getfocus() >= 1 && getfocus() <= 9)
+			current_level = getfocus();
 		if(hero) {
 			result.count = select_known_spells(result.data, zendof(result.data), hero, type, current_level);
 			maximum_spells = hero->getspellsperlevel(type, current_level);
 			prepared_spells = get_spells_prepared(hero, {result.data, result.count});
 		}
-		if(current_index < 0)
-			current_index = 0;
-		if(current_index >= (int)result.count)
-			current_index = result.count - 1;
-		render_spell_window(result, hero, type, focus, current_level, current_index,
-			maximum_spells, prepared_spells);
+		draw::background(PLAYFLD);
+		render_spell_window(result, hero, type, maximum_spells, prepared_spells);
 		spells_portraits(184, 2, type, hero);
 		domodal();
+		auto current_index = result.indexof((spell_s*)getfocus());
 		switch(hot::key) {
 		case Alpha + '1':
 		case Alpha + '2':
 		case Alpha + '3':
 		case Alpha + '4':
-			id = hot::key - (Alpha + '1');
-			if(!game::party[id] || !game::party[id]->get(type))
-				break;
-			hero = game::party[id];
+			if(true) {
+				auto id = hot::key - (Alpha + '1');
+				if(!game::party[id] || !game::party[id]->get(type))
+					break;
+				hero = game::party[id];
+			}
 			break;
-		case KeyEscape:
-		case Cancel:
-			return;
-		case KeyEnter:
-			//draw::execute(focus);
-			break;
-		case Clear:
 		case Alpha + 'C':
 			for(auto e : result)
 				hero->set(e, 0);
 			break;
-		case Alpha + 'S':
 		case KeyRight:
-			if(focus == ChooseSpells) {
+			if(current_index != -1) {
 				if(prepared_spells < maximum_spells)
 					hero->setprepare(result.data[current_index],
-						hero->getprepare(result.data[current_index]) + 1);
-			} else if(focus == ChooseLevels) {
-				if(current_level == 9)
-					current_level = 1;
-				else
-					current_level = current_level + 1;
-			} else if(focus == Cancel)
-				focus = Clear;
-			else if(focus == Clear)
-				focus = Cancel;
+					hero->getprepare(result.data[current_index]) + 1);
+				continue;
+			}
 			break;
-		case Alpha + 'A':
 		case KeyLeft:
-			if(focus == ChooseSpells) {
+			if(current_index != -1) {
 				auto c = hero->getprepare(result.data[current_index]);
 				if(c)
 					hero->setprepare(result.data[current_index], c - 1);
-			} else if(focus == ChooseLevels) {
-				if(current_level == 1)
-					current_level = 9;
-				else
-					current_level = current_level - 1;
-			} else if(focus == Cancel)
-				focus = Clear;
-			else if(focus == Clear)
-				focus = Cancel;
-			break;
-		case Alpha + 'W':
-		case Alpha + 'Z':
-		case KeyUp:
-		case KeyDown:
-			id = hot::key;
-			if(id == Alpha + 'W')
-				id = KeyUp;
-			if(id == Alpha + 'Z')
-				id = KeyDown;
-			if(focus == ChooseLevels) {
-				switch(id) {
-				case KeyUp:
-					focus = Cancel;
-					break;
-				case KeyDown:
-					focus = ChooseSpells;
-				}
-			} else if(focus == Cancel || focus == Clear) {
-				switch(id) {
-				case KeyUp:
-					focus = ChooseSpells;
-					break;
-				case KeyDown:
-					focus = ChooseLevels;
-					break;
-				}
-			} else if(focus == ChooseSpells) {
-				switch(id) {
-				case KeyUp:
-					if(current_index > 0)
-						current_index--;
-					else
-						focus = ChooseLevels;
-					break;
-				case KeyDown:
-					if(current_index < (int)result.count - 1)
-						current_index++;
-					else
-						focus = Cancel;
-					break;
-				}
+				continue;
 			}
 			break;
 		}
+		navigate(true);
 	}
+	closeform();
+	setfocus(old_focus, true);
 }

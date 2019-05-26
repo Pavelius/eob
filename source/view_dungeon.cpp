@@ -1,5 +1,4 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
 
@@ -298,7 +297,7 @@ static void compass() {
 	draw::logs();
 }
 
-static void charstate(int x, int y, creature* pc, state_s id, color c0, color& result) {
+static void charstate(int x, int y, const creature* pc, state_s id, color c0, color& result) {
 	if(pc->is(id)) {
 		if(result.b == result.g == result.r == 0)
 			result = c0;
@@ -329,23 +328,21 @@ static void render_player_attack(int x, int y, int hits) {
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);
 }
 
-void draw::portrait(int x, int y, creature* pc) {
-	if(!pc)
-		return;
-	if(pc->isinvisible())
-		image(x, y, gres(PORTM), pc->getavatar(), 0, 64);
+void creature::view_portrait(int x, int y) const {
+	if(isinvisible())
+		image(x, y, gres(PORTM), getavatar(), 0, 64);
 	else
-		image(x, y, gres(PORTM), pc->getavatar(), 0);
+		image(x, y, gres(PORTM), getavatar(), 0);
 	color c1 = colors::black; c1.a = 0xFF;
-	charstate(x, y, pc, WeakPoison, colors::green, c1);
-	charstate(x, y, pc, Poison, colors::green, c1);
-	charstate(x, y, pc, StrongPoison, colors::green, c1);
-	charstate(x, y, pc, DeadlyPoison, colors::green, c1);
-	charstate(x, y, pc, Paralized, colors::red, c1);
-	charstate(x, y, pc, Sleeped, colors::blue, c1);
+	charstate(x, y, this, WeakPoison, colors::green, c1);
+	charstate(x, y, this, Poison, colors::green, c1);
+	charstate(x, y, this, StrongPoison, colors::green, c1);
+	charstate(x, y, this, DeadlyPoison, colors::green, c1);
+	charstate(x, y, this, Paralized, colors::red, c1);
+	charstate(x, y, this, Sleeped, colors::blue, c1);
 	if(c1.a == 0)
 		rectf({x, y, x + 31, y + 31}, c1, ciclic(64, 2));
-	int pind = zfind(game::party, pc);
+	int pind = zfind(game::party, const_cast<creature*>(this));
 	if(pind != -1) {
 		auto v = disp_damage[pind];
 		if(v)
@@ -369,7 +366,7 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	image(x, y, gres(INVENT), 1, 0);
 	image(x, y + 24, gres(INVENT), 2, 0);
 	text({x + 1, y + 2, x + 62, y + 2 + draw::texth()}, temp, AlignCenterCenter);
-	portrait(x + 1, y + 9, pc);
+	pc->view_portrait(x + 1, y + 9);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
 	for(auto id = Armored; id < Scared; id = (state_s)(id + 1)) {

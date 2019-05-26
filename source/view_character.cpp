@@ -1,5 +1,4 @@
-#include "draw.h"
-#include "main.h"
+#include "view.h"
 
 using namespace draw;
 
@@ -34,7 +33,7 @@ static int number(int x, int y, const char* name, const combati& v) {
 static void sheet_head(int x, int y, creature* pc) {
 	char temp[260]; pc->getname(temp, zendof(temp));
 	image(x, y, gres(INVENT), 0, 0);
-	portrait(x + 4, y + 3, pc);
+	pc->view_portrait(x + 4, y + 3);
 	text({x + 38, y + 6, x + 38 + 82, y + 6 + draw::texth()}, temp, AlignCenterCenter);
 	greenbar({x + 70, y + 16, x + 135, y + 16 + 5}, pc->gethits(), pc->gethitsmaximum());
 	greenbar({x + 70, y + 25, x + 135, y + 25 + 5}, 20, 25);

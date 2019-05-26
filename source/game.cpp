@@ -90,49 +90,6 @@ bool creature::ishero() const {
 		&& this <= (hero_data + sizeof(hero_data) / sizeof(hero_data[0]));
 }
 
-static int compare_int(const void* p1, const void* p2) {
-	return *((int*)p2) - *((int*)p1);
-}
-
-void game::getability(int* result, class_s type, race_s race) {
-	for(int i = 0; i < 6; i++)
-		result[i] = xrand(1, 6) + xrand(1, 6) + xrand(1, 6);
-	qsort(result, 6, sizeof(result[0]), compare_int);
-	zshuffle(result, 6);
-	int max_position = -1;
-	int max_value = 0;
-	for(int i = 0; i < 6; i++) {
-		if(result[i] > max_value) {
-			max_position = i;
-			max_value = result[i];
-		}
-	}
-	auto bst_position = bsmeta<classi>::elements[type].ability;
-	if(max_position != -1)
-		iswap(result[max_position], result[bst_position]);
-	// Check maximum by class
-	for(int j = 0; j < 6; j++) {
-		int m = bsmeta<classi>::elements[type].minimum[j];
-		if(result[j] < m)
-			result[j] = m;
-	}
-	// Check minimum by race
-	for(auto j = 0; j < 6; j++) {
-		auto m = bsmeta<racei>::elements[race].minimum[j];
-		if(result[j] < m)
-			result[j] = m;
-	}
-	// Check maximum by race
-	for(auto j = 0; j < 6; j++) {
-		auto m = bsmeta<racei>::elements[race].maximum[j];
-		if(result[j] > m)
-			result[j] = m;
-	}
-	// Adjust ability
-	for(auto j = 0; j < 6; j++)
-		result[j] += bsmeta<racei>::elements[race].adjustment[j];
-}
-
 int game::getfreeside(creature* sides[4]) {
 	if(sides[0] && sides[0]->getsize() >= Large)
 		return -1;
@@ -143,30 +100,72 @@ int game::getfreeside(creature* sides[4]) {
 	return -1;
 }
 
-command_s game::action::move(direction_s direction) {
+static void falling_damage() {
+	for(auto e : game::party) {
+		if(!e)
+			continue;
+		// RULE: Climb walls helps when you drop down in pits
+		if(e->roll(ClimbWalls))
+			continue;
+		e->damage(Bludgeon, dice::roll(3, 6));
+	}
+}
+
+static void falling_landing() {
+	creature* monsters[4];
+	auto index = game::getcamera();
+	location.getmonsters(monsters, index, game::getdirection());
+	for(auto e : monsters) {
+		if(!e)
+			continue;
+		e->clear();
+	}
+}
+
+void game::action::move(direction_s direction) {
 	int i = getcamera();
 	int i1 = moveto(i, vectorized(getdirection(), direction));
 	int t = location.get(i1);
 	if(location.isblocked(i1) || location.ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
 		mslog("You can\'t go that way");
-		return NoCommand;
+		return;
 	}
 	switch(t) {
 	case CellStairsUp:
 		mslog("Going up");
-		return GoingUp;
+		write();
+		if(location.level <= 1) {
+			draw::setnext(draw::mainmenu);
+			return;
+		}
+		enter(location.overland_index, location.level - 1);
+		game::setcamera(moveto(location.stat.down.index, location.stat.down.dir),
+			location.stat.down.dir);
+		break;
 	case CellStairsDown:
 		mslog("Going down");
-		return GoingDown;
+		write();
+		enter(location.overland_index, location.level + 1);
+		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir),
+			location.stat.up.dir);
+		break;
 	case CellPit:
 		mslog("You falling down!");
-		return DropDown;
+		write();
+		setcamera(moveto(getcamera(), getdirection()));
+		draw::animation::update();
+		falling_damage();
+		enter(location.overland_index, location.level + 1);
+		falling_landing();
+		break;
+	default:
+		mslog(0);
+		setcamera(i1);
+		hearnoises();
+		break;
 	}
-	mslog(0);
-	setcamera(i1);
-	hearnoises();
-	return PassSegment;
+	endround();
 }
 
 void game::action::rotate(direction_s direction) {
@@ -267,7 +266,7 @@ bool game::action::use(item* pi) {
 	case MagicBook:
 	case HolySymbol:
 		consume = false;
-		spell_element = game::action::choosespell(pc, (type == HolySymbol) ? Cleric : Mage);
+		spell_element = pc->choosespell(type == HolySymbol ? Cleric : Mage);
 		if(!spell_element)
 			return false;
 		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
@@ -980,77 +979,6 @@ void game::passtime(int minutes) {
 			count = minutes;
 		minutes -= count;
 		game::rounds += count;
-	}
-}
-
-static bool is_anybody_live() {
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		if(e->isready())
-			return true;
-	}
-	return false;
-}
-
-static void falling_damage() {
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		// RULE: Climb walls helps when you drop down in pits
-		if(e->roll(ClimbWalls))
-			continue;
-		e->damage(Bludgeon, dice::roll(3, 6));
-	}
-}
-
-static void falling_landing() {
-	creature* monsters[4];
-	auto index = game::getcamera();
-	location.getmonsters(monsters, index, game::getdirection());
-	for(auto e : monsters) {
-		if(!e)
-			continue;
-		e->clear();
-	}
-}
-
-command_s game::action::adventure() {
-	while(true) {
-		if(!is_anybody_live())
-			return GameOver;
-		auto id = game::action::actions();
-		switch(id) {
-		case NoCommand:
-			break;
-		case PassSegment:
-			rounds++;
-			passround();
-			findsecrets();
-			break;
-		case GoingUp:
-			write();
-			if(location.level <= 1)
-				return LeaveArea;
-			enter(location.overland_index, location.level - 1);
-			game::setcamera(moveto(location.stat.down.index, location.stat.down.dir), location.stat.down.dir);
-			break;
-		case GoingDown:
-			write();
-			enter(location.overland_index, location.level + 1);
-			game::setcamera(moveto(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
-			break;
-		case DropDown:
-			write();
-			setcamera(moveto(getcamera(), getdirection()));
-			draw::animation::update();
-			falling_damage();
-			enter(location.overland_index, location.level + 1);
-			falling_landing();
-			break;
-		default:
-			return id;
-		}
 	}
 }
 
