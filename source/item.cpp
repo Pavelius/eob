@@ -70,13 +70,13 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Diamond key", 102},
 {"Green key", 50},
 // Кольца
-{"Ring", 55, RightRing, {}, {}, {}, {}, ring_red},
-{"Ring", 78, RightRing, {}, {}, {}, {}, ring_blue},
-{"Ring", 79, RightRing, {}, {}, {}, {}, ring_green},
+{"Ring", 55, RightRing, {}, {Wonderful}, {}, {}, ring_red},
+{"Ring", 78, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
+{"Ring", 79, RightRing, {}, {Wonderful}, {}, {}, ring_green},
 //
-{"Potion", 39, {}, {}, {}, {}, {}, potion_red},
-{"Potion", 40, {}, {}, {}, {}, {}, potion_blue},
-{"Potion", 41, {}, {}, {}, {}, {}, potion_green},
+{"Potion", 39, {}, {}, {Wonderful}, {}, {}, potion_red},
+{"Potion", 40, {}, {}, {Wonderful}, {}, {}, potion_blue},
+{"Potion", 41, {}, {}, {Wonderful}, {}, {}, potion_green},
 //
 {"Red gem", 93},
 {"Blue gem", 94},
@@ -175,6 +175,8 @@ item::item(item_s type, int chance_magic, int chance_cursed, int chance_special)
 		break;
 	default:
 		if(d100() < chance_magic) {
+			if(bsmeta<itemi>::elements[type].feats.is(Wonderful))
+				chance_special = 100;
 			if(bsmeta<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
 				subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
 				magic = special_magic_bonus();

@@ -200,6 +200,7 @@ enum usability_s : unsigned char {
 };
 enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick,
+	Wonderful,
 };
 enum attack_s : unsigned char {
 	AutoHit,
