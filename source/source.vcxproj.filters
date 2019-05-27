@@ -16,6 +16,9 @@
     <Filter Include="Поддержка">
       <UniqueIdentifier>{446cd21d-25ee-4c1c-9443-8fe6076ee2fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Утилиты">
+      <UniqueIdentifier>{c6aca1e2-a50e-4704-8711-94b9d0ebb23f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win.h">
@@ -205,6 +208,15 @@
     </ClCompile>
     <ClCompile Include="site.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="eob_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="eob3_util.cpp">
+      <Filter>Утилиты</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

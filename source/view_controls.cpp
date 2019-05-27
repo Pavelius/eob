@@ -32,7 +32,7 @@ static struct resource_info {
 {"PLAYFLD", "art/interface"},
 {"PORTM", "art/misc"},
 {"THROWN", "art/misc"},
-{"XSPL", "art/misc"},
+{"XSPL", "art/interface"},
 //
 {"ANKHEG", "art/monsters"},
 {"ANT", "art/monsters"},
