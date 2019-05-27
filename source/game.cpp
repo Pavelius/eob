@@ -2,7 +2,7 @@
 #include "main.h"
 
 const int				chance_broke_instrument = 13;
-static unsigned short	camera_index;
+static unsigned short	camera_index = Blocked;
 static direction_s		camera_direction;
 static unsigned			overland_index = 1;
 static unsigned char	location_level = 1;
@@ -40,7 +40,7 @@ void game::setcamera(short unsigned index, direction_s direction) {
 	camera_index = index;
 	if(direction != Center)
 		camera_direction = direction;
-	if(!index)
+	if(index==Blocked)
 		return;
 	int x = gx(index);
 	int y = gy(index);
@@ -984,18 +984,16 @@ void game::passtime(int minutes) {
 }
 
 void game::enter(unsigned short index, unsigned char level) {
-	//bool random_ceiling = false;
 	overland_index = index;
 	location_level = level;
+	location.clear();
+	location_above.clear();
 	if(!location.read(overland_index, location_level))
-		location.generate(BRICK, overland_index, location_level);
-	location.link();
+		return;
 	if(location_level > 1)
 		location_above.read(overland_index, location_level - 1);
-	else
-		location_above.clear();
 	draw::settiles(location.type);
-	if(!camera_index)
+	if(camera_index==Blocked)
 		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 
@@ -1056,7 +1054,7 @@ template<> void archive::set<dungeon>(dungeon& e) {
 	set(e.overland_index);
 	set(e.level);
 	set(e.stat);
-	set(e.haspits);
+	set(e.chance);
 	set(e.data);
 	set(e.items);
 	set(e.overlays);

@@ -518,7 +518,7 @@ short unsigned dungeon::gettarget(short unsigned index, direction_s dir) {
 void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e) {
 	while(index!=Blocked) {
 		index = moveto(index, dir);
-		if(!index)
+		if(index==Blocked)
 			break;
 		if(location.isblocked(index))
 			return;

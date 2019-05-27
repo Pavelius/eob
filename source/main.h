@@ -590,11 +590,16 @@ struct dungeon {
 		unsigned char	elements; // count of corridors
 		unsigned char	traps; // count of traps
 	};
+	struct chancei {
+		char			magic;
+		char			curse;
+		char			special;
+	};
 	resource_s			type;
 	unsigned short		overland_index;
 	unsigned char		level;
-	bool				haspits;
 	statei				stat;
+	chancei				chance;
 	unsigned char		data[mpx*mpy];
 	groundi				items[1024];
 	overlayi			overlays[512];
@@ -607,7 +612,7 @@ struct dungeon {
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				clear();
-	static void			create(const sitei* site, short unsigned index);
+	static void			create(short unsigned index, const sitei* site);
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
@@ -636,7 +641,6 @@ struct dungeon {
 	bool				isblocked(short unsigned index);
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
-	void				link();
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	short unsigned		random(short unsigned* indicies);
 	bool				read(unsigned short overland_index, unsigned char level);

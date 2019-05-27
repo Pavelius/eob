@@ -226,16 +226,16 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 		if(d100() < 30)
 			type = RationIron;
 	}
-	int chance_magic = imax(0, imin(75, 12 + pd->level * 3) + bonus_chance_magic);
-	int chance_cursed = 5;
-	int chance_special = pd->level + bonus_chance_magic;
+	auto chance_magic = pd->chance.magic + bonus_chance_magic;
+	auto chance_cursed = pd->chance.curse;
+	auto chance_special = pd->chance.special + bonus_chance_magic;
 	item it(type, chance_magic, chance_cursed, chance_special);
 	it.setidentified(0);
 	switch(type) {
 	case Ration:
 	case RationIron:
 		// RULE: In dungeon 60% of all cases food will be rotten
-		if(d100() < 60)
+		if(d100() < 40)
 			it.setbroken(1);
 		break;
 	case RedRing:
@@ -640,7 +640,7 @@ void dungeon::generate(resource_s type, unsigned short index, unsigned char leve
 static void link_dungeon(dungeon& location, dungeon& below) {
 	unsigned short pm1[mpy*mpx];
 	unsigned short pm2[mpy*mpx];
-	unsigned short elements[32 * 32];
+	unsigned short pme[mpx*mpy];
 	// 1) Get idicies of two linked dungeons
 	location.getblocked(pm1, true);
 	location.makewave(moveto(location.stat.down.index, location.stat.down.dir), pm1);
@@ -662,52 +662,43 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 			pm1[i] = Blocked;
 	}
 	// 3) Get possible pits indicies
-	auto p = elements;
+	auto p = pme;
 	for(int i = 1; i < mpx*mpy; i++) {
 		if(pm1[i] && pm1[i] != Blocked)
 			*p++ = i;
 	}
-	*p = 0;
+	auto place_count = p - pme;
 	// 4) Place random count of pits
 	auto pits_count = xrand(1, 4);
-	auto count = zlen(elements);
-	zshuffle(elements, count);
-	if(pits_count > count)
-		pits_count = count;
+	zshuffle(pme, place_count);
+	if(pits_count > place_count)
+		pits_count = place_count;
 	for(int i = 0; i < pits_count; i++)
-		location.set(elements[i], CellPit);
-	location.haspits = true;
+		location.set(pme[i], CellPit);
 }
 
-void dungeon::link() {
-	if(haspits)
-		return;
-	dungeon below;
-	if(!below.read(overland_index, level + 1))
-		below.generate(type, overland_index, level + 1, stat.down.index);
-	link_dungeon(*this, below);
-	write();
-}
-
-void dungeon::create(const sitei* site, short unsigned index) {
+void dungeon::create(short unsigned overland_index, const sitei* site) {
 	auto count = site->getleveltotal();
 	if(!count)
 		return;
 	auto dungeons = new dungeon[count];
 	if(!dungeons)
 		return;
-	unsigned base = 0;
+	auto base = 0;
 	dungeon* previous = 0;
 	for(auto p = site; *p; p++) {
 		for(auto j = 0; j < p->levels; j++) {
-			auto base_index = base + j;
-			auto& e = dungeons[base_index];
+			auto& e = dungeons[base + j];
+			auto level = base + j + 1;
 			auto start = Blocked;
 			if(previous)
 				start = previous->stat.down.index;
-			auto last_level = base_index == count - 1;
-			e.generate(p->tile, Blocked, base_index + 1, start, false, last_level);
-			e.overland_index = index;
+			auto last_level = (level == count);
+			e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
+			e.chance.curse = 5 + p->curse;
+			e.chance.special = imax(0, imin(45, 4 + level));
+			e.generate(p->tile, Blocked, level, start, false, last_level);
+			e.overland_index = overland_index;
 			previous = &e;
 		}
 		base += p->levels;

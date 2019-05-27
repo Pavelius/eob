@@ -234,7 +234,7 @@ static void load_game() {
 	else {
 #ifdef _DEBUG
 		if(true) {
-			dungeon::create(test_sites, 1);
+			dungeon::create(1, test_sites);
 			random_heroes();
 			game::write();
 			game::enter(1, 1);
