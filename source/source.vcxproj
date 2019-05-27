@@ -168,6 +168,7 @@
     <ClCompile Include="portrait.cpp" />
     <ClCompile Include="race.cpp" />
     <ClCompile Include="scale.c" />
+    <ClCompile Include="site.cpp" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="spells.cpp" />
     <ClCompile Include="state.cpp" />

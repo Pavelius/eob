@@ -357,6 +357,14 @@ struct statei {
 	const char*			name;
 	skill_s				save;
 };
+struct sitei {
+	resource_s			tile;
+	char				levels;
+	monster_s			habbits[2]; // who dwelve here
+	char				magic; // base chance for magic items
+	char				curse; // base chance for cursed items
+	constexpr explicit operator bool() const { return tile != NONE; }
+};
 class item {
 	item_s				type;
 	unsigned char		identified : 1;
@@ -647,14 +655,6 @@ struct dungeon {
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
-struct site {
-	struct overlayi {
-		item_s			keys[2]; // two type of keys that fit locks
-		monster_s		habbits[2]; // who dwelve here
-		char			magic; // base chance for magic items
-		char			curse; // base chance for cursed items
-	};
-};
 namespace game {
 namespace action {
 void					attack(short unsigned index);
@@ -669,7 +669,6 @@ void					move(direction_s direction);
 void					pause();
 void					preparespells(class_s type);
 bool					question(item* current_item);
-void					scriblescrolls();
 void					thrown(item* itm);
 void					rotate(direction_s direction);
 bool					use(item* itm);
