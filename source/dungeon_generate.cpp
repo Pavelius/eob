@@ -166,7 +166,7 @@ static item_s random_subtype(item_s type) {
 	case RedGem:
 		return maprnd(gems);
 	case SwordLong:
-		if(d100() < 30)
+		if(d100() < 40)
 			return maprnd(swords);
 		return maprnd(weapons);
 	case ArmorLeather:
@@ -257,7 +257,7 @@ static void items(dungeon* pd, short unsigned index, item_s type, int bonus_chan
 }
 
 static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
-	items(pd, index, random_type(), xrand(0, 3));
+	items(pd, index, random_type(), bonus_chance_magic);
 }
 
 static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -341,7 +341,7 @@ static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigne
 	pd->set(moveto(i1, rotateto(dir, Left)), CellWall);
 	pd->set(moveto(i1, rotateto(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
-	for(int i = xrand(1, 3); i > 0; i--)
+	for(auto i = xrand(1, 3); i > 0; i--)
 		items(pd, i2, magic_bonus);
 	pd->set(moveto(i2, rotateto(dir, Left)), CellWall);
 	pd->set(moveto(i2, rotateto(dir, Right)), CellWall);
