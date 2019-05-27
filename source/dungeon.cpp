@@ -457,21 +457,8 @@ item_s dungeon::getkeytype(cell_s keyhole) const {
 }
 
 void dungeon::setcontent(resource_s type, int level) {
-	auto n = level / 2;
-	if(n > 2)
-		n = 2;
 	this->type = type;
 	this->level = level;
-	switch(type) {
-	case BRICK:
-		stat.habbits[0] = Kobold;
-		stat.habbits[1] = Leech;
-		break;
-	default:
-		stat.habbits[0] = Goblin;
-		stat.habbits[1] = Orc;
-		break;
-	}
 	switch(type) {
 	case BLUE:
 		stat.keys[0] = KeySilver;

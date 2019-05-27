@@ -221,8 +221,8 @@ static void quit_game() {
 	exit(0);
 }
 
-static sitei test_sites[] = {{BRICK, 2, {Kobold, Leech}, 5, 0},
-{BRICK, 2, {Skeleton, Zombie}, 0, 10},
+static sitei test_sites[] = {{DUNG, 2, {Kobold, Leech}, 5, 0},
+{DUNG, 2, {Skeleton, Zombie}, 0, 10},
 //{BRICK, 2, {Skeleton, Ghoul}, 0, 10},
 //{BRICK, 1, {Zombie, Ghoul}, 0, 10},
 {}};

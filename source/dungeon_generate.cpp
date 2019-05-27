@@ -615,7 +615,6 @@ static void remove_dead_door(dungeon* pd) {
 
 void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive, bool last_level) {
 	while(true) {
-		clear();
 		overland_index = index;
 		setcontent(type, level);
 		stairs(this, start, last_level);
@@ -694,6 +693,9 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 			if(previous)
 				start = previous->stat.down.index;
 			auto last_level = (level == count);
+			e.clear();
+			e.stat.habbits[0] = p->habbits[0];
+			e.stat.habbits[1] = p->habbits[1];
 			e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
 			e.chance.curse = 5 + p->curse;
 			e.chance.special = imax(0, imin(45, 4 + level));
