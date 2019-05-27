@@ -9,7 +9,7 @@ static unsigned char	path_pop;
 const unsigned char		CellMask = 0x1F;
 
 static void snode(unsigned short index, short unsigned* pathmap, short unsigned cost) {
-	if(!index)
+	if(index==Blocked)
 		return;
 	auto a = pathmap[index];
 	if(a == Blocked)
@@ -130,7 +130,7 @@ void dungeon::remove(short unsigned index, cell_flag_s value) {
 void dungeon::remove(overlayi* po) {
 	if(!po)
 		return;
-	po->index = 0;
+	po->index = Blocked;
 	po->dir = Center;
 	po->active = false;
 }
@@ -139,7 +139,7 @@ dungeon::overlayi* dungeon::setoverlay(short unsigned index, cell_s type, direct
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
-		if(!e.index) {
+		if(e.index==Blocked) {
 			e.index = index;
 			e.type = type;
 			e.dir = dir;
@@ -254,6 +254,12 @@ void dungeon::fill(short unsigned index, int sx, int sy, cell_s value) {
 
 void dungeon::clear() {
 	memset(this, 0, sizeof(*this));
+	overland_index = Blocked;
+	stat.down.index = Blocked;
+	stat.up.index = Blocked;
+	stat.portal.index = Blocked;
+	for(auto& e : overlays)
+		e.index = Blocked;
 }
 
 void dungeon::finish(cell_s t) {
@@ -413,7 +419,7 @@ void dungeon::getblocked(short unsigned* pathmap, bool treat_door_as_passable) {
 }
 
 void dungeon::makewave(short unsigned start, short unsigned* pathmap) {
-	if(!start || !pathmap)
+	if(start==Blocked || !pathmap)
 		return;
 	path_push = 0;
 	path_pop = 0;

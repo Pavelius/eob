@@ -31,7 +31,7 @@ static void setwall(dungeon* pd, short unsigned index, direction_s dir) {
 
 static bool isvalid(dungeon* pd, short unsigned index, direction_s dir, cell_s t1 = CellUnknown) {
 	index = moveto(index, dir);
-	if(!index)
+	if(index == Blocked)
 		return false;
 	auto t = pd->get(index);
 	if(t != CellUnknown && t != t1)
@@ -50,7 +50,7 @@ static bool isaround(dungeon* pd, short unsigned index, direction_s dir, cell_s 
 }
 
 static void putroom(dungeon* pd, unsigned short index, direction_s dir, unsigned flags, bool test_valid) {
-	if(!index)
+	if(index == Blocked)
 		return;
 	if(test_valid && !isvalid(pd, index, dir))
 		return;
@@ -113,12 +113,13 @@ static bool place(dungeon* pd, cell_s t, direction_s dir) {
 	return true;
 }
 
-static void stairs(dungeon* pd, unsigned short start) {
-	if(start)
+static void stairs(dungeon* pd, unsigned short start, bool last_level) {
+	if(start != Blocked)
 		pd->setelement(start, (direction_s)xrand(Left, Down), CellStairsUp);
 	else
 		while(!place(pd, CellStairsUp, (direction_s)xrand(Left, Down)));
-	while(!place(pd, CellStairsDown, (direction_s)xrand(Left, Down)));
+	if(!last_level)
+		while(!place(pd, CellStairsDown, (direction_s)xrand(Left, Down)));
 }
 
 static bool iswalls(dungeon* pd, short unsigned index, direction_s dir) {
@@ -127,12 +128,12 @@ static bool iswalls(dungeon* pd, short unsigned index, direction_s dir) {
 	auto i1 = moveto(index, dir);
 	// Слева и справа от случайного секрета должны быть стены
 	auto ni = moveto(i1, rotateto(dir, Left));
-	if(!ni)
+	if(ni == Blocked)
 		return false;
 	if(pd->get(ni) != CellWall)
 		return false;
 	ni = moveto(i1, rotateto(dir, Right));
-	if(!ni)
+	if(ni == Blocked)
 		return false;
 	if(pd->get(ni) != CellWall)
 		return false;
@@ -165,7 +166,7 @@ static item_s random_subtype(item_s type) {
 	case RedGem:
 		return maprnd(gems);
 	case SwordLong:
-		if(d100()<30)
+		if(d100() < 30)
 			return maprnd(swords);
 		return maprnd(weapons);
 	case ArmorLeather:
@@ -384,7 +385,7 @@ static void message(dungeon* pd, short unsigned index, direction_s dir, unsigned
 }
 
 static bool ispassable(dungeon* pd, short unsigned index) {
-	if(!index)
+	if(index == Blocked)
 		return false;
 	auto t = pd->get(index);
 	return t == CellPassable || t == CellUnknown;
@@ -397,24 +398,24 @@ static bool room(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 		return false;
 	auto iz = index;
 	auto ic = xrand(2, 4);
-	short unsigned n1 = 0;
-	short unsigned n2 = 0;
+	short unsigned n1 = Blocked;
+	short unsigned n2 = Blocked;
 	for(int i = 0; i < ic; i++) {
-		if(!n1) {
+		if(n1 == Blocked) {
 			n1 = moveto(iz, rotateto(dir, Left));
 			if(pd->get(n1) == CellUnknown && d100() < 30)
 				putroom(pd, n1, rotateto(dir, Left), 0, true);
 			else
-				n1 = 0;
+				n1 = Blocked;
 		}
 		set(pd, iz, rotateto(dir, Left), CellPassable);
 		set(pd, iz, CellPassable);
-		if(!n2) {
+		if(n2 == Blocked) {
 			n2 = moveto(iz, rotateto(dir, Right));
 			if(pd->get(n2) == CellUnknown && d100() < 30)
 				putroom(pd, n2, rotateto(dir, Right), 0, true);
 			else
-				n2 = 0;
+				n2 = Blocked;
 		}
 		set(pd, iz, rotateto(dir, Right), CellPassable);
 		iz = moveto(iz, dir);
@@ -441,19 +442,19 @@ static bool door(dungeon* pd, short unsigned index, direction_s dir, bool has_bu
 static short unsigned find_index(dungeon* pd, short unsigned index, direction_s dir) {
 	while(true) {
 		auto i1 = moveto(index, dir);
-		if(!i1)
-			return 0;
+		if(i1 == Blocked)
+			return Blocked;
 		switch(pd->get(i1)) {
 		case CellWall:
 			if(pd->getoverlay(index, dir))
-				return 0;
+				return Blocked;
 			return index;
 		case CellPassable:
 		case CellButton:
 		case CellPit:
 			break;
 		default:
-			return 0;
+			return Blocked;
 		}
 		index = i1;
 	}
@@ -462,7 +463,7 @@ static short unsigned find_index(dungeon* pd, short unsigned index, direction_s 
 static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	dir = rotateto(dir, Down);
 	auto i1 = find_index(pd, index, dir);
-	if(!i1)
+	if(i1 == Blocked)
 		return;
 	pd->set(index, CellButton);
 	auto po = pd->setoverlay(i1, CellTrapLauncher, dir);
@@ -478,7 +479,7 @@ static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	auto count = 0;
 	if(d100() < 50)
 		count = xrand(1, 3);
-	while(count-->0)
+	while(count-- > 0)
 		pd->add(po, create_item(pd, random_type(true), 10));
 }
 
@@ -490,25 +491,25 @@ static void rations(dungeon* pd, short unsigned index, direction_s dir, unsigned
 
 static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	auto chance = 0;
-	if(!index)
+	if(index == Blocked)
 		return;
 	direction_s rnd[] = {Right, Left};
 	if(d100() < 50)
 		iswap(rnd[0], rnd[1]);
-	short unsigned start = 0;
+	short unsigned start = Blocked;
 	while(true) {
 		int new_index = moveto(index, dir);
-		if(!new_index || pd->get(new_index) != CellUnknown)
+		if(new_index == Blocked || pd->get(new_index) != CellUnknown)
 			break;
 		bool random_content = true;
-		if(!start) {
+		if(start == Blocked) {
 			start = index;
 			if(flags&EmpthyStartIndex)
 				random_content = false;
 		}
 		index = new_index;
 		pd->set(index, CellPassable);
-		if(d100() < chance || !moveto(index, dir)) {
+		if(d100() < chance || moveto(index, dir) == Blocked) {
 			if(d100() < 20 && pd->stat.elements > 10) {
 				if(room(pd, index, dir, flags))
 					return;
@@ -559,34 +560,34 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		}
 		chance += 13;
 	}
-	if(start) {
-		int passes = 0;
-		if(ispassable(pd, moveto(index, rotateto(dir, rnd[0])))) {
-			passes++;
-			putroom(pd, index, rotateto(dir, rnd[0]), 0, false);
-		}
-		if(ispassable(pd, moveto(index, rotateto(dir, rnd[1])))) {
-			passes++;
-			putroom(pd, index, rotateto(dir, rnd[1]), 0, false);
-		}
-		if(ispassable(pd, moveto(index, dir))) {
-			if(passes < 1)
-				putroom(pd, index, dir, 0, false);
-		}
+	if(start == Blocked)
+		return;
+	auto passes = 0;
+	if(ispassable(pd, moveto(index, rotateto(dir, rnd[0])))) {
+		passes++;
+		putroom(pd, index, rotateto(dir, rnd[0]), 0, false);
+	}
+	if(ispassable(pd, moveto(index, rotateto(dir, rnd[1])))) {
+		passes++;
+		putroom(pd, index, rotateto(dir, rnd[1]), 0, false);
+	}
+	if(ispassable(pd, moveto(index, dir))) {
+		if(passes < 1)
+			putroom(pd, index, dir, 0, false);
 	}
 }
 
 static bool is_valid_dungeon(dungeon* pd) {
 	unsigned short pathmap[mpy*mpx];
-	if(!pd->stat.down.index || !pd->stat.up.index)
-		return false;
+	if(pd->stat.down.index == Blocked || pd->stat.up.index == Blocked)
+		return true;
 	pd->getblocked(pathmap, true);
 	pd->makewave(pd->stat.up.index, pathmap);
 	return pathmap[pd->stat.down.index] != 0;
 }
 
 static void remove_all_overlay(dungeon* pd, short unsigned index) {
-	if(!index)
+	if(index == Blocked)
 		return;
 	for(auto& e : pd->overlays) {
 		if(!e.type)
@@ -612,12 +613,12 @@ static void remove_dead_door(dungeon* pd) {
 	}
 }
 
-void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive) {
+void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive, bool last_level) {
 	while(true) {
 		clear();
 		overland_index = index;
 		setcontent(type, level);
-		stairs(this, start);
+		stairs(this, start, last_level);
 		putroom(this, stat.up.index, stat.up.dir, EmpthyStartIndex, false);
 		putroom(this, stat.down.index, stat.down.dir, EmpthyStartIndex, false);
 		while(hasrooms()) {
@@ -632,22 +633,17 @@ void dungeon::generate(resource_s type, unsigned short index, unsigned char leve
 			break;
 	}
 	remove_dead_door(this);
-	if(overland_index)
+	if(overland_index != Blocked)
 		write();
 }
 
-void dungeon::link() {
-	if(haspits)
-		return;
-	dungeon below;
-	if(!below.read(overland_index, level + 1))
-		below.generate(type, overland_index, level + 1, stat.down.index);
+static void link_dungeon(dungeon& location, dungeon& below) {
 	unsigned short pm1[mpy*mpx];
 	unsigned short pm2[mpy*mpx];
 	unsigned short elements[32 * 32];
 	// 1) Get idicies of two linked dungeons
-	getblocked(pm1, true);
-	makewave(moveto(stat.down.index, stat.down.dir), pm1);
+	location.getblocked(pm1, true);
+	location.makewave(moveto(location.stat.down.index, location.stat.down.dir), pm1);
 	below.getblocked(pm2, true);
 	below.makewave(moveto(below.stat.down.index, below.stat.down.dir), pm2);
 	// 2) Get valid indicies
@@ -656,13 +652,13 @@ void dungeon::link() {
 		if(!pm2[i] || pm2[i] == Blocked)
 			pm1[i] = Blocked;
 		// Second dungeon must not have door in this cell (door cell is passable)
-		if(below.get(i) == CellDoor || get(i) == CellDoor)
+		if(below.get(i) == CellDoor || location.get(i) == CellDoor)
 			pm1[i] = Blocked;
 		// There is no location right before stairs
 		if(i == moveto(below.stat.down.index, below.stat.down.dir)
 			|| i == moveto(below.stat.up.index, below.stat.up.dir)
-			|| i == moveto(stat.up.index, stat.up.dir)
-			|| i == moveto(stat.down.index, stat.down.dir))
+			|| i == moveto(location.stat.up.index, location.stat.up.dir)
+			|| i == moveto(location.stat.down.index, location.stat.down.dir))
 			pm1[i] = Blocked;
 	}
 	// 3) Get possible pits indicies
@@ -679,8 +675,17 @@ void dungeon::link() {
 	if(pits_count > count)
 		pits_count = count;
 	for(int i = 0; i < pits_count; i++)
-		set(elements[i], CellPit);
-	haspits = true;
+		location.set(elements[i], CellPit);
+	location.haspits = true;
+}
+
+void dungeon::link() {
+	if(haspits)
+		return;
+	dungeon below;
+	if(!below.read(overland_index, level + 1))
+		below.generate(type, overland_index, level + 1, stat.down.index);
+	link_dungeon(*this, below);
 	write();
 }
 
@@ -692,15 +697,24 @@ void dungeon::create(const sitei* site, short unsigned index) {
 	if(!dungeons)
 		return;
 	unsigned base = 0;
+	dungeon* previous = 0;
 	for(auto p = site; *p; p++) {
 		for(auto j = 0; j < p->levels; j++) {
-			auto i = index + j;
-			auto& e = dungeons[i];
-			e.clear();
+			auto base_index = base + j;
+			auto& e = dungeons[base_index];
+			auto start = Blocked;
+			if(previous)
+				start = previous->stat.down.index;
+			auto last_level = base_index == count - 1;
+			e.generate(p->tile, Blocked, base_index + 1, start, false, last_level);
+			e.overland_index = index;
+			previous = &e;
 		}
 		base += p->levels;
 	}
-	for(unsigned i = 0; i < count; i++) {
-	}
+	for(unsigned i = 0; i < count - 1; i++)
+		link_dungeon(dungeons[i], dungeons[i + 1]);
+	for(unsigned i = 0; i < count; i++)
+		dungeons[i].write();
 	delete[] dungeons;
 }

@@ -221,6 +221,12 @@ static void quit_game() {
 	exit(0);
 }
 
+static sitei test_sites[] = {{BRICK, 2, {Kobold, Leech}, 5, 0},
+{BRICK, 2, {Skeleton, Zombie}, 0, 10},
+//{BRICK, 2, {Skeleton, Ghoul}, 0, 10},
+//{BRICK, 1, {Zombie, Ghoul}, 0, 10},
+{}};
+
 static void load_game() {
 	draw::resetres();
 	if(game::read())
@@ -228,6 +234,7 @@ static void load_game() {
 	else {
 #ifdef _DEBUG
 		if(true) {
+			dungeon::create(test_sites, 1);
 			random_heroes();
 			game::write();
 			game::enter(1, 1);

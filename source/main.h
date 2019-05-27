@@ -565,6 +565,7 @@ struct dungeon {
 		short unsigned	subtype; // depends on value type
 		short unsigned	index; // puller index
 		bool			active;
+		constexpr explicit operator bool() const { return index != Blocked; }
 	};
 	struct groundi {
 		item			value;
@@ -599,8 +600,8 @@ struct dungeon {
 	overlayi			overlays[512];
 	overlayitem			cellar_items[512];
 	creature			monsters[200];
-	//
-	operator bool() const { return overland_index != 0; }
+	dungeon() { clear(); }
+	operator bool() const { return type!=NONE; }
 	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
@@ -610,7 +611,7 @@ struct dungeon {
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
-	void				generate(resource_s type, unsigned short index, unsigned char level, unsigned short start = 0, bool interactive = false);
+	void				generate(resource_s type, unsigned short index, unsigned char level, unsigned short start = 0, bool interactive = false, bool last_level = false);
 	cell_s				get(short unsigned index) const;
 	cell_s				get(int x, int y) const;
 	short unsigned		gettarget(short unsigned start, direction_s dir);
