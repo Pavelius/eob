@@ -937,15 +937,14 @@ const char* creature::getname(char* result, const char* result_maximum) const {
 int creature::getbonus(enchant_s id) const {
 	if(bsmeta<monsteri>::elements[type].is(id))
 		return 2; // All monsters have enchantment of 2
-	auto r = wears[Head].get(id);
-	r += wears[Neck].get(id);
-	r += wears[Body].get(id);
-	r += wears[RightRing].get(id);
-	r += wears[LeftRing].get(id);
-	r += wears[Elbow].get(id);
-	r += wears[Legs].get(id);
-	r += wears[LeftHand].get(id);
-	r += wears[RightHand].get(id);
+	// All bonuses no stack each other
+	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
+	auto r = 0;
+	for(auto s : slots) {
+		auto v = wears[s].get(id);
+		if(v > r)
+			r = v;
+	}
 	return r;
 }
 

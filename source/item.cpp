@@ -306,6 +306,6 @@ int	item::getmagic() const {
 	if(subtype && !havespell(type))
 		r++;
 	if(iscursed())
-		return -r - 1;
+		return - r - 1;
 	return r;
 }
