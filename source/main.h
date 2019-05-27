@@ -244,6 +244,7 @@ struct directioni {
 };
 struct enchanti {
 	const char*			name;
+	state_s				effect;
 	const char**		names;
 };
 struct genderi {
@@ -388,6 +389,7 @@ public:
 	unsigned			getuse() const { return bsmeta<itemi>::elements[type].usability.data; }
 	bool				is(usability_s v) const { return bsmeta<itemi>::elements[type].usability.is(v); }
 	bool				is(item_feat_s v) const { return bsmeta<itemi>::elements[type].feats.is(v); }
+	bool				isartifact() const { return magic == 3; }
 	bool				isbroken() const { return broken != 0; }
 	bool				iscursed() const { return cursed != 0; }
 	bool				isidentified() const { return identified != 0; }

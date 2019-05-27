@@ -182,7 +182,7 @@ static int find_index(int** items, int* itm) {
 	return -1;
 }
 
-int get_potion_duration() {
+int get_potion_duration(char magic) {
 	return 60 + dice::roll(1, 6) * 10;
 }
 
@@ -222,24 +222,22 @@ bool game::action::use(item* pi) {
 			// RULE: Cursed potion always apply strong poison
 			pc->add(StrongPoison, xrand(2, 6) * 4, NoSave);
 		} else {
-			switch(pi->getenchant()) {
+			auto enchant = pi->getenchant();
+			switch(enchant) {
+			case OfAdvise:
+				if(pi->isartifact())
+					pc->addexp(10000);
+				else
+					pc->addexp(1000 * pi->getmagic());
+				break;
 			case OfPoison:
 				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
 				break;
 			case OfHealing:
-				pc->damage(Magic, -dice::roll(1 + pi->getmagic(), 4) + 2);
+				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 4) + 3);
 				break;
 			case OfRegeneration:
-				pc->damage(Magic, -dice::roll(1 + pi->getmagic(), 8) + 5);
-				break;
-			case OfFireResistance:
-				pc->set(FireResisted, get_potion_duration());
-				break;
-			case OfStrenght:
-				pc->set(Strenghted, get_potion_duration());
-				break;
-			case OfInvisibility:
-				pc->set(Invisibled, get_potion_duration());
+				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 8) + 6);
 				break;
 			case OfNeutralizePoison:
 				pc->set(WeakPoison, 0);
@@ -247,8 +245,11 @@ bool game::action::use(item* pi) {
 				pc->set(StrongPoison, 0);
 				pc->set(DeadlyPoison, 0);
 				break;
-			case OfSpeed:
-				pc->set(Hasted, get_potion_duration());
+			default:
+				if(pi->isartifact()) {
+					// TODO: Атрибуты повышаются постоянно
+				} else if(bsmeta<enchanti>::elements[enchant].effect)
+					pc->set(bsmeta<enchanti>::elements[enchant].effect, get_potion_duration(pi->getmagic()));
 				break;
 			}
 		}
