@@ -96,9 +96,6 @@ enum monster_s : unsigned char {
 	AntGiant, Bugbear, ClericOldMan, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
 	Orc, Skeleton, Spider, Zombie
 };
-enum dungeon_s : unsigned char {
-	AreaDrow, AreaDungeon, AreaDwarven, AreaElf, AreaForest, AreaMagic, AreaSewers, AreaTemple
-};
 enum state_s : unsigned char {
 	NoState,
 	Armored, Blessed, Climbed, DetectedEvil, DetectedMagic,
@@ -364,6 +361,7 @@ struct sitei {
 	char				magic; // base chance for magic items
 	char				curse; // base chance for cursed items
 	constexpr explicit operator bool() const { return tile != NONE; }
+	unsigned			getleveltotal() const;
 };
 class item {
 	item_s				type;
@@ -591,7 +589,7 @@ struct dungeon {
 		unsigned char	elements; // count of corridors
 		unsigned char	traps; // count of traps
 	};
-	dungeon_s			type;
+	resource_s			type;
 	unsigned short		overland_index;
 	unsigned char		level;
 	bool				haspits;
@@ -608,10 +606,11 @@ struct dungeon {
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				clear();
+	static void			create(const sitei* site, short unsigned index);
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
-	void				generate(dungeon_s type, unsigned short index, unsigned char level, unsigned short start = 0, bool interactive = false);
+	void				generate(resource_s type, unsigned short index, unsigned char level, unsigned short start = 0, bool interactive = false);
 	cell_s				get(short unsigned index) const;
 	cell_s				get(int x, int y) const;
 	short unsigned		gettarget(short unsigned start, direction_s dir);
@@ -648,7 +647,7 @@ struct dungeon {
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
-	void				setcontent(dungeon_s type, int level);
+	void				setcontent(resource_s type, int level);
 	void				setelement(short unsigned index, direction_s dir, cell_s type);
 	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
@@ -726,7 +725,7 @@ bool					dlgask(const char* text);
 void					mainmenu();
 void					options();
 void					setnext(void(*p)());
-bool					settiles(dungeon_s id);
+bool					settiles(resource_s id);
 }
 extern dungeon			location_above;
 extern dungeon			location;

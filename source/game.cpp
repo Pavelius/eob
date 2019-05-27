@@ -984,11 +984,11 @@ void game::passtime(int minutes) {
 }
 
 void game::enter(unsigned short index, unsigned char level) {
-	bool random_ceiling = false;
+	//bool random_ceiling = false;
 	overland_index = index;
 	location_level = level;
 	if(!location.read(overland_index, location_level))
-		location.generate(AreaSewers, overland_index, location_level);
+		location.generate(BRICK, overland_index, location_level);
 	location.link();
 	if(location_level > 1)
 		location_above.read(overland_index, location_level - 1);

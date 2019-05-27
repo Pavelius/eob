@@ -469,18 +469,7 @@ void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 	}
 }
 
-bool draw::settiles(dungeon_s id) {
-	auto type = NONE;
-	switch(id) {
-	case AreaDungeon: type = DUNG; break;
-	case AreaDrow: type = DROW; break;
-	case AreaDwarven: type = BLUE; break;
-	case AreaElf: type = GREEN; break;
-	case AreaMagic: type = XANATHA; break;
-	case AreaSewers: type = BRICK; break;
-	case AreaTemple: type = SILVER; break;
-	default: return false;
-	}
+bool draw::settiles(resource_s type) {
 	map_tiles = gres(type);
 	memset(tiles, 0, sizeof(tiles));
 	set_tile(CellWall, 1, -1, 2);

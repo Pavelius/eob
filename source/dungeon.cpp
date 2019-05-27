@@ -253,16 +253,7 @@ void dungeon::fill(short unsigned index, int sx, int sy, cell_s value) {
 }
 
 void dungeon::clear() {
-	type = AreaDrow;
-	overland_index = level = 0;
-	haspits = false;
-	memset(&stat, 0, sizeof(stat));
-	memset(data, CellUnknown, sizeof(data));
-	memset(items, 0, sizeof(items));
-	memset(overlays, 0, sizeof(overlays));
-	for(auto& e : monsters)
-		e.clear();
-	data[0] = 1;
+	memset(this, 0, sizeof(*this));
 }
 
 void dungeon::finish(cell_s t) {
@@ -459,30 +450,28 @@ item_s dungeon::getkeytype(cell_s keyhole) const {
 	return stat.keys[0];
 }
 
-void dungeon::setcontent(dungeon_s type, int level) {
-	static monster_s dwarven[3][2] = {{Goblin, Orc}, {Goblin, Bugbear}, {Gnoll, Kuotoa}};
-	static monster_s sewers[3][2] = {{Kobold, Leech}, {Skeleton, Zombie}, {Zombie, Ghoul}};
+void dungeon::setcontent(resource_s type, int level) {
 	auto n = level / 2;
 	if(n > 2)
 		n = 2;
 	this->type = type;
 	this->level = level;
 	switch(type) {
-	case AreaSewers:
-		stat.habbits[0] = sewers[n][0];
-		stat.habbits[1] = sewers[n][1];
+	case BRICK:
+		stat.habbits[0] = Kobold;
+		stat.habbits[1] = Leech;
 		break;
 	default:
-		stat.habbits[0] = dwarven[n][0];
-		stat.habbits[1] = dwarven[n][1];
+		stat.habbits[0] = Goblin;
+		stat.habbits[1] = Orc;
 		break;
 	}
 	switch(type) {
-	case AreaDwarven:
+	case BLUE:
 		stat.keys[0] = KeySilver;
 		stat.keys[1] = KeyMoon;
 		break;
-	case AreaMagic:
+	case SILVER:
 		stat.keys[0] = KeyDiamond;
 		stat.keys[1] = KeySilver;
 		break;
@@ -495,8 +484,8 @@ void dungeon::setcontent(dungeon_s type, int level) {
 
 race_s dungeon::getlanguage() const {
 	switch(type) {
-	case AreaDwarven: return Dwarf;
-	case AreaElf: case AreaDrow: return Elf;
+	case BLUE: return Dwarf;
+	case GREEN: case DROW: return Elf;
 	default: return Human;
 	}
 }

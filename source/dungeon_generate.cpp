@@ -612,7 +612,7 @@ static void remove_dead_door(dungeon* pd) {
 	}
 }
 
-void dungeon::generate(dungeon_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive) {
+void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive) {
 	while(true) {
 		clear();
 		overland_index = index;
@@ -682,4 +682,25 @@ void dungeon::link() {
 		set(elements[i], CellPit);
 	haspits = true;
 	write();
+}
+
+void dungeon::create(const sitei* site, short unsigned index) {
+	auto count = site->getleveltotal();
+	if(!count)
+		return;
+	auto dungeons = new dungeon[count];
+	if(!dungeons)
+		return;
+	unsigned base = 0;
+	for(auto p = site; *p; p++) {
+		for(auto j = 0; j < p->levels; j++) {
+			auto i = index + j;
+			auto& e = dungeons[i];
+			e.clear();
+		}
+		base += p->levels;
+	}
+	for(unsigned i = 0; i < count; i++) {
+	}
+	delete[] dungeons;
 }

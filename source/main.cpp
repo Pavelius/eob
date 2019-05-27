@@ -13,7 +13,7 @@ static void test_room2(int x, int y) {
 	location.add(po, item(Dagger, 50, 0, 10));
 }
 
-static void test_dungeon(dungeon_s type) {
+static void test_dungeon(resource_s type) {
 	int x = 16;
 	int y = 16;
 	location_above.clear();
@@ -70,7 +70,7 @@ static void test_ladder(int x, int y) {
 	location.set(location.getindex(x + 1, y), CellStairsUp);
 }
 
-static void test_dungeon2(dungeon_s type) {
+static void test_dungeon2(resource_s type) {
 	int x = 16;
 	int y = 16;
 	location_above.clear();
@@ -233,7 +233,7 @@ static void load_game() {
 			game::enter(1, 1);
 		} else {
 			random_heroes();
-			test_dungeon(AreaSewers);
+			test_dungeon(BRICK);
 			draw::settiles(location.type);
 			game::setcamera(location.getindex(16, 16), Up);
 		}
