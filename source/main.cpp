@@ -9,7 +9,7 @@ callback		next_proc;
 static void test_room2(int x, int y) {
 	location.set(location.getindex(x, y-2), CellWall);
 	auto po = location.setoverlay(location.getindex(x, y - 1), CellCellar, Up);
-	location.add(po, SpellBless);
+	location.add(po, Bless);
 	location.add(po, item(Dagger, 50, 0, 10));
 }
 
@@ -50,7 +50,7 @@ static void test_room(int x, int y) {
 	location.setoverlay(location.getindex(x + 3, y + 1), CellKeyHole1, Up);
 	location.setoverlay(location.getindex(x + 3, y + 1), CellMessage, Right);
 	auto po = location.setoverlay(location.getindex(x + 3, y + 2), CellCellar, Right);
-	location.add(po, SpellBless);
+	location.add(po, Bless);
 	location.add(po, item(Dagger, 50, 0, 10));
 	location.setoverlay(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
@@ -116,9 +116,9 @@ static void random_heroes() {
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
 	game::party[1]->add(item(Bow, 20, 0, 0));
 	game::party[2]->add(item(MagicWand, 20, 0, 0));
-	game::party[2]->add(SpellBless);
-	game::party[2]->add(SpellDetectMagic);
-	game::party[2]->add(SpellMagicMissile);
+	game::party[2]->add(Bless);
+	game::party[2]->add(DetectMagic);
+	game::party[2]->add(MagicMissile);
 	game::party[2]->equip(item(BlueRing, OfWizardy));
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(PriestScroll);

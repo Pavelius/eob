@@ -68,10 +68,10 @@ enum message_s : unsigned char {
 enum spell_s : unsigned char {
 	NoSpell,
 	// Spells (level 1)
-	SpellBless, SpellBurningHands, SpellCureLightWounds, SpellDetectEvil, SpellDetectMagic, FeatherFall,
-	SpellMageArmor, SpellMagicMissile,
-	SpellProtectionFromEvil, SpellPurifyFood,
-	SpellReadLanguages, SpellShield, SpellSleep,
+	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, FeatherFall,
+	MageArmor, MagicMissile,
+	ProtectionFromEvil, PurifyFood,
+	SpellReadLanguages, SpellShield, Sleep,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -200,7 +200,7 @@ enum usability_s : unsigned char {
 };
 enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick,
-	Wonderful,
+	Wonderful, Magical,
 };
 enum attack_s : unsigned char {
 	AutoHit,
@@ -242,7 +242,6 @@ struct directioni {
 };
 struct enchanti {
 	const char*			name;
-	char				magic;
 	const char**		names;
 };
 struct genderi {

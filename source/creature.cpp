@@ -552,7 +552,7 @@ void creature::raise_level(class_s type) {
 	if(level == 0) {
 		hp = hd;
 		if(type == Mage) {
-			setknown(SpellDetectMagic, 1);
+			setknown(DetectMagic, 1);
 			random_spells(type, 1, 3);
 			prepare_random_spells(type, 1);
 			preparespells();

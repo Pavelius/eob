@@ -420,7 +420,7 @@ creature* get_most_damaged() {
 }
 
 static void try_autocast(creature* pc) {
-	spell_s healing_spells[] = {SpellCureLightWounds, LayOnHands};
+	spell_s healing_spells[] = {CureLightWounds, LayOnHands};
 	for(auto e : healing_spells) {
 		if(!pc->get(e))
 			continue;

@@ -74,9 +74,9 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Ring", 78, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
 {"Ring", 79, RightRing, {}, {Wonderful}, {}, {}, ring_green},
 //
-{"Potion", 39, {}, {}, {Wonderful}, {}, {}, potion_red},
-{"Potion", 40, {}, {}, {Wonderful}, {}, {}, potion_blue},
-{"Potion", 41, {}, {}, {Wonderful}, {}, {}, potion_green},
+{"Potion", 39, {}, {}, {Wonderful, Magical}, {}, {}, potion_red},
+{"Potion", 40, {}, {}, {Wonderful, Magical}, {}, {}, potion_blue},
+{"Potion", 41, {}, {}, {Wonderful, Magical}, {}, {}, potion_green},
 //
 {"Red gem", 93},
 {"Blue gem", 94},
@@ -154,7 +154,7 @@ static int standart_magic_bonus() {
 
 item::item(item_s type, int chance_magic, int chance_cursed, int chance_special) : item(type) {
 	adat<spell_s, 32> spells;
-	static spell_s random_spells[] = {SpellMagicMissile, SpellBurningHands, SpellDetectMagic, SpellSleep};
+	static spell_s random_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep};
 	switch(type) {
 	case MagicWand:
 		setspell(maprnd(random_spells));
@@ -174,6 +174,8 @@ item::item(item_s type, int chance_magic, int chance_cursed, int chance_special)
 		magic = special_magic_bonus();
 		break;
 	default:
+		if(bsmeta<itemi>::elements[type].feats.is(Magical))
+			chance_magic = 100;
 		if(d100() < chance_magic) {
 			if(bsmeta<itemi>::elements[type].feats.is(Wonderful))
 				chance_special = 100;
@@ -302,7 +304,7 @@ bool item::ismelee() const {
 int	item::getmagic() const {
 	auto r = magic;
 	if(subtype && !havespell(type))
-		r += bsmeta<enchanti>::elements[subtype].magic;
+		r++;
 	if(iscursed())
 		return -r - 1;
 	return r;
