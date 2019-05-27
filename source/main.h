@@ -214,6 +214,8 @@ template<typename T> struct bsmeta {
 };
 struct abilityi {
 	const char*			name;
+	enchant_s			enchant;
+	state_s				boost;
 };
 struct alignmenti {
 	const char*			name;

@@ -711,19 +711,30 @@ int	creature::get(class_s type) const {
 }
 
 int	creature::get(ability_s id) const {
-	auto r = 0;
-	switch(id) {
-	case Strenght:
-		r = ability[id];
-		if(is(Strenghted)) {
+	auto r = ability[id];
+	// Временное усиление атрибута, если используется
+	auto boost = bsmeta<abilityi>::elements[id].boost;
+	if(boost) {
+		if(is(boost)) {
 			if(r < 18)
 				r = 18;
 		}
-		r += getbonus(OfStrenght);
-		return r;
-	default:
-		return ability[id];
 	}
+	// Зачарованные атрибуты имеют фиксированные значения
+	auto enchant = bsmeta<abilityi>::elements[id].enchant;
+	if(enchant) {
+		auto b = getbonus(enchant);
+		if(b > 0) {
+			b += 16;
+			if(r < b)
+				r = b;
+		} else if(b < 0) {
+			b += 8;
+			if(r > b)
+				r = b;
+		}
+	}
+	return r;
 }
 
 int creature::getside() const {
