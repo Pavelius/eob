@@ -1604,6 +1604,8 @@ void draw::blit(surface& ds, int x1, int y1, int w, int h, unsigned flags, draw:
 	if(ss.bpp != ds.bpp)
 		return;
 	int ox;
+	if(ys + h > ss.height)
+		h = ss.height - ys;
 	if(!correctb(x1, y1, w, h, ox))
 		return;
 	if(ds.bpp == 8) {
