@@ -232,6 +232,7 @@ static alignment_s choosealignment(bool interactive, class_s depend) {
 			continue;
 		source.add(i, getstr(i));
 	}
+	//source.sort();
 	return (alignment_s)source.choose("Select Alignment:", interactive);
 }
 
