@@ -651,10 +651,10 @@ struct dungeon {
 	void				remove(overlayi* po);
 	void				set(short unsigned index, cell_s value);
 	void				set(short unsigned index, cell_flag_s value);
+	void				set(short unsigned index, direction_s dir, cell_s type);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
-	void				setelement(short unsigned index, direction_s dir, cell_s type);
 	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
 	void				turnto(short unsigned index, direction_s dr);

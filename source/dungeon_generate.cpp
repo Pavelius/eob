@@ -68,7 +68,7 @@ static bool hasrooms() {
 	return stack_get != stack_put;
 }
 
-void dungeon::setelement(short unsigned index, direction_s dir, cell_s type) {
+void dungeon::set(short unsigned index, direction_s dir, cell_s type) {
 	set(moveto(index, rotateto(dir, Left)), CellWall);
 	set(moveto(index, rotateto(dir, Right)), CellWall);
 	set(moveto(index, rotateto(dir, Down)), CellWall);
@@ -96,7 +96,7 @@ static bool place(dungeon* pd, cell_s t, direction_s dir, short unsigned index) 
 		return false;
 	if(!isvalid(pd, index, dir))
 		return false;
-	pd->setelement(index, dir, t);
+	pd->set(index, dir, t);
 	return true;
 }
 
@@ -122,7 +122,7 @@ static bool place(dungeon* pd, cell_s t) {
 
 static bool stairs(dungeon* pd, unsigned short start, bool last_level) {
 	if(start != Blocked)
-		pd->setelement(start, random_dir(), CellStairsUp);
+		pd->set(start, random_dir(), CellStairsUp);
 	else {
 		if(!place(pd, CellStairsUp))
 			return false;
@@ -381,7 +381,7 @@ static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 		return;
 	if(!pd->ismatch(moveto(i1, dir), CellWall, CellUnknown))
 		return;
-	pd->setelement(i1, rotateto(dir, Down), CellPortal);
+	pd->set(i1, rotateto(dir, Down), CellPortal);
 }
 
 static void message(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
