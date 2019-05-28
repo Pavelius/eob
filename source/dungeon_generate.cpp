@@ -22,7 +22,7 @@ static void set(dungeon* pd, short unsigned index, cell_s t1) {
 }
 
 static void set(dungeon* pd, short unsigned index, direction_s dir, cell_s t1) {
-	set(pd, moveto(index, dir), t1);
+	set(pd, to(index, dir), t1);
 }
 
 static void setwall(dungeon* pd, short unsigned index, direction_s dir) {
@@ -30,7 +30,7 @@ static void setwall(dungeon* pd, short unsigned index, direction_s dir) {
 }
 
 static bool isvalid(dungeon* pd, short unsigned index, direction_s dir, cell_s t1 = CellUnknown) {
-	index = moveto(index, dir);
+	index = to(index, dir);
 	if(index == Blocked)
 		return false;
 	auto t = pd->get(index);
@@ -40,11 +40,11 @@ static bool isvalid(dungeon* pd, short unsigned index, direction_s dir, cell_s t
 }
 
 static bool isaround(dungeon* pd, short unsigned index, direction_s dir, cell_s t1 = CellUnknown) {
-	if(!isvalid(pd, index, rotateto(dir, Left), t1))
+	if(!isvalid(pd, index, to(dir, Left), t1))
 		return false;
-	if(!isvalid(pd, index, rotateto(dir, Right), t1))
+	if(!isvalid(pd, index, to(dir, Right), t1))
 		return false;
-	if(!isvalid(pd, index, rotateto(dir, Up), t1))
+	if(!isvalid(pd, index, to(dir, Up), t1))
 		return false;
 	return true;
 }
@@ -69,9 +69,9 @@ static bool hasrooms() {
 }
 
 void dungeon::set(short unsigned index, direction_s dir, cell_s type) {
-	set(moveto(index, rotateto(dir, Left)), CellWall);
-	set(moveto(index, rotateto(dir, Right)), CellWall);
-	set(moveto(index, rotateto(dir, Down)), CellWall);
+	set(to(index, to(dir, Left)), CellWall);
+	set(to(index, to(dir, Right)), CellWall);
+	set(to(index, to(dir, Down)), CellWall);
 	set(index, type);
 	switch(type) {
 	case CellStairsUp:
@@ -137,14 +137,14 @@ static bool stairs(dungeon* pd, unsigned short start, bool last_level) {
 static bool iswalls(dungeon* pd, short unsigned index, direction_s dir) {
 	if(!isvalid(pd, index, dir, CellWall))
 		return false;
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	// Слева и справа от случайного секрета должны быть стены
-	auto ni = moveto(i1, rotateto(dir, Left));
+	auto ni = to(i1, to(dir, Left));
 	if(ni == Blocked)
 		return false;
 	if(pd->get(ni) != CellWall)
 		return false;
-	ni = moveto(i1, rotateto(dir, Right));
+	ni = to(i1, to(dir, Right));
 	if(ni == Blocked)
 		return false;
 	if(pd->get(ni) != CellWall)
@@ -273,14 +273,14 @@ static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
 }
 
 static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Left)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Left)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Right)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Right)), CellWall, CellUnknown))
 		return;
-	auto i2 = moveto(i1, dir);
+	auto i2 = to(i1, dir);
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellWall);
@@ -291,9 +291,9 @@ static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 		count = 2;
 	for(int i = 0; i < count; i++)
 		items(pd, i2, 20);
-	pd->set(moveto(i2, rotateto(dir, Left)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Right)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Up)), CellWall);
+	pd->set(to(i2, to(dir, Left)), CellWall);
+	pd->set(to(i2, to(dir, Right)), CellWall);
+	pd->set(to(i2, to(dir, Up)), CellWall);
 	pd->stat.secrets++;
 }
 
@@ -306,40 +306,40 @@ static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Left)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Left)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Right)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Right)), CellWall, CellUnknown))
 		return;
-	auto i2 = moveto(i1, dir);
+	auto i2 = to(i1, dir);
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellDoor);
 	pd->setoverlay(index, CellDoorButton, dir);
-	pd->set(moveto(i1, rotateto(dir, Left)), CellWall);
-	pd->set(moveto(i1, rotateto(dir, Right)), CellWall);
+	pd->set(to(i1, to(dir, Left)), CellWall);
+	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
 	for(int i = xrand(1, 3); i > 0; i--)
 		items(pd, i2, 0);
 	monster(pd, i2, Down, 0);
-	pd->set(moveto(i2, rotateto(dir, Left)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Right)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Up)), CellWall);
+	pd->set(to(i2, to(dir, Left)), CellWall);
+	pd->set(to(i2, to(dir, Right)), CellWall);
+	pd->set(to(i2, to(dir, Up)), CellWall);
 }
 
 static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Left)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Left)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Right)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Right)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(index, rotateto(dir, Right)), CellPassable, CellUnknown))
+	if(!pd->ismatch(to(index, to(dir, Right)), CellPassable, CellUnknown))
 		return;
-	auto i2 = moveto(i1, dir);
+	auto i2 = to(i1, dir);
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellDoor);
@@ -349,19 +349,19 @@ static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		magic_bonus += 5;
 		key_type = CellKeyHole2;
 	}
-	pd->setoverlay(moveto(index, rotateto(dir, Right)), key_type, dir);
-	pd->set(moveto(i1, rotateto(dir, Left)), CellWall);
-	pd->set(moveto(i1, rotateto(dir, Right)), CellWall);
+	pd->setoverlay(to(index, to(dir, Right)), key_type, dir);
+	pd->set(to(i1, to(dir, Left)), CellWall);
+	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
 	for(auto i = xrand(1, 3); i > 0; i--)
 		items(pd, i2, magic_bonus);
-	pd->set(moveto(i2, rotateto(dir, Left)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Right)), CellWall);
-	pd->set(moveto(i2, rotateto(dir, Up)), CellWall);
+	pd->set(to(i2, to(dir, Left)), CellWall);
+	pd->set(to(i2, to(dir, Right)), CellWall);
+	pd->set(to(i2, to(dir, Up)), CellWall);
 }
 
 static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	static cell_s random[] = {CellDecor1, CellDecor2, CellDecor3};
@@ -372,22 +372,22 @@ static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsig
 static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	if(pd->stat.portal.index)
 		return;
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Left)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Left)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, rotateto(dir, Right)), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, to(dir, Right)), CellWall, CellUnknown))
 		return;
-	if(!pd->ismatch(moveto(i1, dir), CellWall, CellUnknown))
+	if(!pd->ismatch(to(i1, dir), CellWall, CellUnknown))
 		return;
-	pd->set(i1, rotateto(dir, Down), CellPortal);
+	pd->set(i1, to(dir, Down), CellPortal);
 }
 
 static void message(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	if(pd->stat.messages > MessageAtifacts)
 		return;
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	pd->set(i1, CellWall);
@@ -404,7 +404,7 @@ static bool ispassable(dungeon* pd, short unsigned index) {
 }
 
 static bool room(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	int i1 = moveto(index, dir);
+	int i1 = to(index, dir);
 	if(!isvalid(pd, index, Up, CellPassable) || !isvalid(pd, index, Right, CellPassable) || !isvalid(pd, index, Right, CellPassable)
 		|| !isvalid(pd, i1, Left, CellPassable) || !isvalid(pd, i1, Right, CellPassable))
 		return false;
@@ -414,30 +414,30 @@ static bool room(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 	short unsigned n2 = Blocked;
 	for(int i = 0; i < ic; i++) {
 		if(n1 == Blocked) {
-			n1 = moveto(iz, rotateto(dir, Left));
+			n1 = to(iz, to(dir, Left));
 			if(pd->get(n1) == CellUnknown && d100() < 30)
-				putroom(pd, n1, rotateto(dir, Left), 0, true);
+				putroom(pd, n1, to(dir, Left), 0, true);
 			else
 				n1 = Blocked;
 		}
-		set(pd, iz, rotateto(dir, Left), CellPassable);
+		set(pd, iz, to(dir, Left), CellPassable);
 		set(pd, iz, CellPassable);
 		if(n2 == Blocked) {
-			n2 = moveto(iz, rotateto(dir, Right));
+			n2 = to(iz, to(dir, Right));
 			if(pd->get(n2) == CellUnknown && d100() < 30)
-				putroom(pd, n2, rotateto(dir, Right), 0, true);
+				putroom(pd, n2, to(dir, Right), 0, true);
 			else
 				n2 = Blocked;
 		}
-		set(pd, iz, rotateto(dir, Right), CellPassable);
-		iz = moveto(iz, dir);
+		set(pd, iz, to(dir, Right), CellPassable);
+		iz = to(iz, dir);
 	}
-	putroom(pd, moveto(iz, rotateto(dir, Down)), dir, 0, true);
+	putroom(pd, to(iz, to(dir, Down)), dir, 0, true);
 	return true;
 }
 
 static bool door(dungeon* pd, short unsigned index, direction_s dir, bool has_button, bool has_button_on_other_side) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	switch(pd->get(i1)) {
 	case CellWall:
 	case CellPortal:
@@ -445,15 +445,15 @@ static bool door(dungeon* pd, short unsigned index, direction_s dir, bool has_bu
 	}
 	pd->set(index, CellDoor);
 	if(has_button)
-		pd->setoverlay(moveto(index, rotateto(dir, Down)), CellDoorButton, dir);
+		pd->setoverlay(to(index, to(dir, Down)), CellDoorButton, dir);
 	if(has_button_on_other_side)
-		pd->setoverlay(moveto(index, dir), CellDoorButton, rotateto(dir, Down));
+		pd->setoverlay(to(index, dir), CellDoorButton, to(dir, Down));
 	return true;
 }
 
 static short unsigned find_index(dungeon* pd, short unsigned index, direction_s dir) {
 	while(true) {
-		auto i1 = moveto(index, dir);
+		auto i1 = to(index, dir);
 		if(i1 == Blocked)
 			return Blocked;
 		switch(pd->get(i1)) {
@@ -473,7 +473,7 @@ static short unsigned find_index(dungeon* pd, short unsigned index, direction_s 
 }
 
 static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	dir = rotateto(dir, Down);
+	dir = to(dir, Down);
 	auto i1 = find_index(pd, index, dir);
 	if(i1 == Blocked)
 		return;
@@ -483,7 +483,7 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 }
 
 static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	auto i1 = moveto(index, dir);
+	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	pd->set(i1, CellWall);
@@ -510,7 +510,7 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		iswap(rnd[0], rnd[1]);
 	short unsigned start = Blocked;
 	while(true) {
-		int new_index = moveto(index, dir);
+		int new_index = to(index, dir);
 		if(new_index == Blocked || pd->get(new_index) != CellUnknown)
 			break;
 		bool random_content = true;
@@ -521,15 +521,15 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		}
 		index = new_index;
 		pd->set(index, CellPassable);
-		if(d100() < chance || moveto(index, dir) == Blocked) {
+		if(d100() < chance || to(index, dir) == Blocked) {
 			if(d100() < 20 && pd->stat.elements > 10) {
 				if(room(pd, index, dir, flags))
 					return;
 			}
 			break;
 		}
-		setwall(pd, index, rotateto(dir, Left));
-		setwall(pd, index, rotateto(dir, Right));
+		setwall(pd, index, to(dir, Left));
+		setwall(pd, index, to(dir, Right));
 		if(random_content && (chance == 0) && d100() < 30) {
 			if(door(pd, index, dir, true, true))
 				random_content = false;
@@ -559,7 +559,7 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 				for(auto& e : corridor_random) {
 					if(d < e.chance) {
 						if(e.swap) {
-							e.proc(pd, index, rotateto(dir, rnd[0]), flags);
+							e.proc(pd, index, to(dir, rnd[0]), flags);
 							if(d100() < 60)
 								iswap(rnd[0], rnd[1]);
 						} else
@@ -575,15 +575,15 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 	if(start == Blocked)
 		return;
 	auto passes = 0;
-	if(ispassable(pd, moveto(index, rotateto(dir, rnd[0])))) {
+	if(ispassable(pd, to(index, to(dir, rnd[0])))) {
 		passes++;
-		putroom(pd, index, rotateto(dir, rnd[0]), 0, false);
+		putroom(pd, index, to(dir, rnd[0]), 0, false);
 	}
-	if(ispassable(pd, moveto(index, rotateto(dir, rnd[1])))) {
+	if(ispassable(pd, to(index, to(dir, rnd[1])))) {
 		passes++;
-		putroom(pd, index, rotateto(dir, rnd[1]), 0, false);
+		putroom(pd, index, to(dir, rnd[1]), 0, false);
 	}
-	if(ispassable(pd, moveto(index, dir))) {
+	if(ispassable(pd, to(index, dir))) {
 		if(passes < 1)
 			putroom(pd, index, dir, 0, false);
 	}
@@ -606,7 +606,7 @@ static void remove_all_overlay(dungeon* pd, short unsigned index) {
 			break;
 		if(e.dir == Center)
 			continue;
-		if(moveto(e.index, e.dir) == index)
+		if(to(e.index, e.dir) == index)
 			e.index = 0;
 	}
 }
@@ -616,9 +616,9 @@ static void remove_dead_door(dungeon* pd) {
 		auto t = pd->get(i);
 		if(t != CellDoor)
 			continue;
-		if(pd->get(moveto(i, Left)) == CellWall && pd->get(moveto(i, Right)) == CellWall)
+		if(pd->get(to(i, Left)) == CellWall && pd->get(to(i, Right)) == CellWall)
 			continue;
-		if(pd->get(moveto(i, Up)) == CellWall && pd->get(moveto(i, Down)) == CellWall)
+		if(pd->get(to(i, Up)) == CellWall && pd->get(to(i, Down)) == CellWall)
 			continue;
 		pd->set(i, CellPassable);
 		remove_all_overlay(pd, i);
@@ -631,9 +631,9 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 	unsigned short pme[mpx*mpy];
 	// 1) Get idicies of two linked dungeons
 	location.getblocked(pm1, true);
-	location.makewave(moveto(location.stat.down.index, location.stat.down.dir), pm1);
+	location.makewave(to(location.stat.down.index, location.stat.down.dir), pm1);
 	below.getblocked(pm2, true);
-	below.makewave(moveto(below.stat.down.index, below.stat.down.dir), pm2);
+	below.makewave(to(below.stat.down.index, below.stat.down.dir), pm2);
 	// 2) Get valid indicies
 	for(int i = 1; i < mpx*mpy; i++) {
 		// Second dungeon must be passable
@@ -643,10 +643,10 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 		if(below.get(i) == CellDoor || location.get(i) == CellDoor)
 			pm1[i] = Blocked;
 		// There is no location right before stairs
-		if(i == moveto(below.stat.down.index, below.stat.down.dir)
-			|| i == moveto(below.stat.up.index, below.stat.up.dir)
-			|| i == moveto(location.stat.up.index, location.stat.up.dir)
-			|| i == moveto(location.stat.down.index, location.stat.down.dir))
+		if(i == to(below.stat.down.index, below.stat.down.dir)
+			|| i == to(below.stat.up.index, below.stat.up.dir)
+			|| i == to(location.stat.up.index, location.stat.up.dir)
+			|| i == to(location.stat.down.index, location.stat.down.dir))
 			pm1[i] = Blocked;
 	}
 	// 3) Get possible pits indicies
@@ -665,7 +665,7 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 		location.set(pme[i], CellPit);
 }
 
-void dungeon::create(short unsigned overland_index, const sitei* site) {
+void dungeon::create(short unsigned overland_index, const sitei* site, bool interactive) {
 	auto count = site->getleveltotal();
 	if(!count)
 		return;
@@ -684,6 +684,7 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 			auto last_level = (level == count);
 			while(true) {
 				e.clear();
+				e.overland_index = overland_index;
 				e.head = p->head;
 				e.level = level;
 				e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
@@ -697,7 +698,7 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 					auto ev = getroom();
 					corridor(&e, ev.index, ev.dir, ev.flags);
 					e.stat.elements++;
-					if(false)
+					if(interactive)
 						game::action::automap(e, false);
 				}
 				e.finish(CellWall);

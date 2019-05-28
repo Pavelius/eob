@@ -1332,3 +1332,14 @@ int creature::getstrex() const {
 	}
 	return result;
 }
+
+bool creature::raise(enchant_s v) {
+	switch(v) {
+	case OfStrenght: ability[Strenght]++; break;
+	case OfDexterity: ability[Dexterity]++; break;
+	case OfIntellegence: ability[Intellegence]++; break;
+	case OfCharisma: ability[Charisma]++; break;
+	default: return false;
+	}
+	return true;
+}

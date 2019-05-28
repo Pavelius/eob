@@ -513,14 +513,14 @@ bool draw::settiles(resource_s type) {
 static dungeon::overlayi* add_wall_decor(render_disp* p, int index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
-	auto bd = rotateto(game::getdirection(), dir);
-	auto index_start = moveto(index, bd);
+	auto bd = to(game::getdirection(), dir);
+	auto index_start = to(index, bd);
 	if(!index_start)
 		return 0;
 	auto t1 = location.get(index_start);
 	if(t1 == CellWall || t1 == CellStairsUp || t1 == CellStairsDown || t1 == CellPortal || t1 == CellDoor)
 		return 0;
-	auto povr = location.getoverlay(index_start, rotateto(bd, Down));
+	auto povr = location.getoverlay(index_start, to(bd, Down));
 	auto tile = location.gettype(povr);
 	if(tile < CellPuller)
 		return 0;
@@ -718,7 +718,7 @@ static render_disp* create_wall(render_disp* p, int i, int index, int frame, cel
 			p->index = index;
 			auto e1 = map_tiles->get(door_offset + pos_levels[i] - 1);
 			auto e2 = map_tiles->get(door_offset + 6 + pos_levels[i] - 1);
-			auto po = location.getoverlay(moveto(indecies[i], rotateto(game::getdirection(), Down)), game::getdirection());
+			auto po = location.getoverlay(to(indecies[i], to(game::getdirection(), Down)), game::getdirection());
 			switch(tiles[CellDoor].type) {
 			case 1: // Dwarven doors type
 				if(location.is(index, CellActive)) {
@@ -783,7 +783,7 @@ static render_disp* create_wall(render_disp* p, int i, int index, int frame, cel
 			}
 		} else {
 			if(i == 13) {
-				auto t1 = moveto(index, rotateto(cd, Down));
+				auto t1 = to(index, to(cd, Down));
 				if(location.get(t1) == CellDoor) {
 					p->frame[1] = decor_offset + 1;
 					if(flip)
@@ -1204,7 +1204,7 @@ static int get_index_pos(int index) {
 }
 
 int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr, int wait) {
-	index = moveto(index, dr);
+	index = to(index, dr);
 	if(!index)
 		return index;
 	int i = get_index_pos(index);

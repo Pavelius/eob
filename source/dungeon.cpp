@@ -80,7 +80,7 @@ cell_s dungeon::get(short unsigned index) const {
 
 direction_s dungeon::getpassable(short unsigned index, direction_s* dirs) {
 	for(int i = 0; dirs[i]; i++) {
-		if(isblocked(moveto(index, dirs[i])))
+		if(isblocked(to(index, dirs[i])))
 			continue;
 		return dirs[i];
 	}
@@ -210,9 +210,9 @@ void dungeon::setactive(short unsigned index, bool value, int radius) {
 void dungeon::setactive(overlayi* po, bool value) {
 	if(!po)
 		return;
-	auto wall = moveto(po->index, po->dir);
-	auto left = moveto(wall, rotateto(po->dir, Left));
-	auto right = moveto(wall, rotateto(po->dir, Right));
+	auto wall = to(po->index, po->dir);
+	auto left = to(wall, to(po->dir, Left));
+	auto right = to(wall, to(po->dir, Right));
 	if(po->active != value) {
 		po->active = value;
 		switch(po->type) {
@@ -220,7 +220,7 @@ void dungeon::setactive(overlayi* po, bool value) {
 			setactive(po->index, value, 1);
 			break;
 		case CellDoorButton:
-			setactive(moveto(po->index, po->dir), value);
+			setactive(to(po->index, po->dir), value);
 			break;
 		case CellKeyHole1:
 		case CellKeyHole2:
@@ -323,7 +323,7 @@ short unsigned dungeon::getnearest(short unsigned index, int radius, cell_s t1) 
 short unsigned* dungeon::getnearestfree(short unsigned* indicies, short unsigned index) {
 	auto p = indicies;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
-		auto i = moveto(index, d);
+		auto i = to(index, d);
 		if(isblocked(i))
 			continue;
 		*p++ = i;
@@ -350,7 +350,7 @@ bool dungeon::allaround(short unsigned index, cell_s t1, cell_s t2) {
 	if(!index)
 		return false;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
-		if(ismatch(moveto(index, d), t1, t2))
+		if(ismatch(to(index, d), t1, t2))
 			continue;
 		return false;
 	}
@@ -430,10 +430,10 @@ void dungeon::makewave(short unsigned start, short unsigned* pathmap) {
 		auto cost = pathmap[pos] + 1;
 		if(cost >= 0xFF00)
 			break;
-		snode(moveto(pos, Left), pathmap, cost);
-		snode(moveto(pos, Right), pathmap, cost);
-		snode(moveto(pos, Up), pathmap, cost);
-		snode(moveto(pos, Down), pathmap, cost);
+		snode(to(pos, Left), pathmap, cost);
+		snode(to(pos, Right), pathmap, cost);
+		snode(to(pos, Up), pathmap, cost);
+		snode(to(pos, Down), pathmap, cost);
 	}
 }
 
@@ -445,7 +445,7 @@ short unsigned dungeon::getsecret() const {
 			continue;
 		if(e.type != CellSecrectButton)
 			continue;
-		return moveto(e.index, e.dir);
+		return to(e.index, e.dir);
 	}
 	return 0;
 }
@@ -468,7 +468,7 @@ short unsigned dungeon::getindex(int x, int y) const {
 
 short unsigned dungeon::gettarget(short unsigned index, direction_s dir) {
 	for(int i = 0; i < 3; i++) {
-		index = moveto(index, dir);
+		index = to(index, dir);
 		if(!index)
 			break;
 		if(location.isblocked(index))
@@ -481,7 +481,7 @@ short unsigned dungeon::gettarget(short unsigned index, direction_s dir) {
 
 void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e) {
 	while(index!=Blocked) {
-		index = moveto(index, dir);
+		index = to(index, dir);
 		if(index==Blocked)
 			break;
 		if(location.isblocked(index))

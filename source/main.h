@@ -525,6 +525,7 @@ public:
 	bool				isuse(const item v) const;
 	static creature*	newhero();
 	void				preparespells();
+	bool				raise(enchant_s v);
 	void				random_name();
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
@@ -615,7 +616,7 @@ struct dungeon {
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				clear();
-	static void			create(short unsigned index, const sitei* site);
+	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
@@ -738,9 +739,9 @@ extern dungeon			location;
 direction_s				devectorized(direction_s dr, direction_s d);
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
-short unsigned			moveto(short unsigned index, direction_s d);
+short unsigned			to(short unsigned index, direction_s d);
 void					mslog(const char* format, ...);
 void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
-direction_s				rotateto(direction_s d, direction_s d1);
+direction_s				to(direction_s d, direction_s d1);
 direction_s				vectorized(direction_s d, direction_s d1);
