@@ -452,35 +452,12 @@ short unsigned dungeon::getsecret() const {
 
 item_s dungeon::getkeytype(cell_s keyhole) const {
 	if(keyhole == CellKeyHole2)
-		return stat.keys[1];
-	return stat.keys[0];
-}
-
-void dungeon::setcontent(resource_s type, int level) {
-	this->type = type;
-	this->level = level;
-	switch(type) {
-	case BLUE:
-		stat.keys[0] = KeySilver;
-		stat.keys[1] = KeyMoon;
-		break;
-	case SILVER:
-		stat.keys[0] = KeyDiamond;
-		stat.keys[1] = KeySilver;
-		break;
-	default:
-		stat.keys[0] = KeySilver;
-		stat.keys[1] = KeyCooper;
-		break;
-	}
+		return keys[1];
+	return keys[0];
 }
 
 race_s dungeon::getlanguage() const {
-	switch(type) {
-	case BLUE: return Dwarf;
-	case GREEN: case DROW: return Elf;
-	default: return Human;
-	}
+	return language;
 }
 
 short unsigned dungeon::getindex(int x, int y) const {

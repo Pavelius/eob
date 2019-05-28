@@ -355,13 +355,22 @@ struct statei {
 	skill_s				save;
 };
 struct sitei {
-	resource_s			tile;
+	struct headi {
+		resource_s		type;
+		monster_s		habbits[2]; // who dwelve here
+		item_s			keys[2];
+		race_s			language; // all messages in this language
+		void			apply(headi& e) const;
+	};
+	headi				head;
 	char				levels;
-	monster_s			habbits[2]; // who dwelve here
 	char				magic; // base chance for magic items
 	char				curse; // base chance for cursed items
-	constexpr explicit operator bool() const { return tile != NONE; }
+	constexpr explicit operator bool() const { return head.type != NONE; }
+	static const headi&	get(resource_s id);
+	race_s				getlanguage() const;
 	unsigned			getleveltotal() const;
+	item_s				getkey(int index) const;
 };
 class item {
 	item_s				type;
@@ -558,7 +567,7 @@ public:
 	static void			view_party();
 	void				view_portrait(int x, int y) const;
 };
-struct dungeon {
+struct dungeon : sitei::headi {
 	struct overlayi {
 		cell_s			type; // type of overlay
 		direction_s		dir; // puller direction
@@ -577,8 +586,6 @@ struct dungeon {
 		overlayi*		storage;
 	};
 	struct statei {
-		item_s			keys[2]; // two type of keys that fit locks
-		monster_s		habbits[2]; // who dwelve here
 		overlayi		up; // where is stairs up
 		overlayi		down; // where is stairs down
 		overlayi		portal; // where is portal
@@ -595,7 +602,6 @@ struct dungeon {
 		char			curse;
 		char			special;
 	};
-	resource_s			type;
 	unsigned short		overland_index;
 	unsigned char		level;
 	statei				stat;
@@ -652,7 +658,6 @@ struct dungeon {
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
-	void				setcontent(resource_s type, int level);
 	void				setelement(short unsigned index, direction_s dir, cell_s type);
 	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);

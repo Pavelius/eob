@@ -16,9 +16,10 @@ static void test_room2(int x, int y) {
 static void test_dungeon(resource_s type) {
 	int x = 16;
 	int y = 16;
+	sitei::get(BRICK).apply(location);
+	location.level = 1;
 	location_above.clear();
 	location.clear();
-	location.setcontent(type, 1);
 	draw::settiles(type);
 	test_room2(x, y);
 	location.addmonster(Ghoul, location.getindex(x, y - 1), 0, Down);
@@ -75,7 +76,8 @@ static void test_dungeon2(resource_s type) {
 	int y = 16;
 	location_above.clear();
 	location.clear();
-	location.setcontent(type, 1);
+	sitei::get(BRICK).apply(location);
+	location.level = 1;
 	draw::settiles(type);
 	test_room(x - 2, y - 2);
 	test_room(x - 3 * 3, y - 3 * 3);
@@ -221,10 +223,9 @@ static void quit_game() {
 	exit(0);
 }
 
-static sitei test_sites[] = {{DUNG, 2, {Kobold, Leech}, 5, 0},
-{DUNG, 2, {Skeleton, Zombie}, 0, 10},
-//{BRICK, 2, {Skeleton, Ghoul}, 0, 10},
-//{BRICK, 1, {Zombie, Ghoul}, 0, 10},
+static sitei test_sites[] = {{{BRICK, {Kobold, Leech}}, 2, 5, 0},
+{{BRICK, {Skeleton, Zombie}}, 2, 0, 10},
+{{BRICK, {Zombie, Ghoul}}, 1, 0, 10},
 {}};
 
 static void load_game() {

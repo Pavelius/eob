@@ -218,9 +218,9 @@ static item_s random_type(bool small_size = false) {
 static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 	if(type == KeyCooper) {
 		if(d100() < 60)
-			type = pd->stat.keys[0];
+			type = pd->keys[0];
 		else
-			type = pd->stat.keys[1];
+			type = pd->keys[1];
 	}
 	if(type == Ration) {
 		if(d100() < 30)
@@ -290,7 +290,7 @@ static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned
 	int d = d100();
 	if(d < 30)
 		n = 1;
-	pd->addmonster(pd->stat.habbits[n], index);
+	pd->addmonster(pd->habbits[n], index);
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -616,7 +616,6 @@ static void remove_dead_door(dungeon* pd) {
 void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive, bool last_level) {
 	while(true) {
 		overland_index = index;
-		setcontent(type, level);
 		stairs(this, start, last_level);
 		putroom(this, stat.up.index, stat.up.dir, EmpthyStartIndex, false);
 		putroom(this, stat.down.index, stat.down.dir, EmpthyStartIndex, false);
@@ -694,12 +693,12 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 				start = previous->stat.down.index;
 			auto last_level = (level == count);
 			e.clear();
-			e.stat.habbits[0] = p->habbits[0];
-			e.stat.habbits[1] = p->habbits[1];
+			p->head.apply(e);
+			e.level = level;
 			e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
 			e.chance.curse = 5 + p->curse;
 			e.chance.special = imax(0, imin(45, 4 + level));
-			e.generate(p->tile, Blocked, level, start, false, last_level);
+			e.generate(e.type, Blocked, level, start, false, last_level);
 			e.overland_index = overland_index;
 			previous = &e;
 		}
