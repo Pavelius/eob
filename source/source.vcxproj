@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="alignment.cpp" />
+    <ClCompile Include="answers.cpp" />
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />

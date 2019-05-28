@@ -661,6 +661,18 @@ struct dungeon {
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
+struct answers {
+	struct element {
+		int				id;
+		const char*		text;
+	};
+	adat<element, 32>	elements;
+	void				add(int id, const char* name);
+	int					choose(const char* title) const;
+	int					choose(const char* title, bool interactive) const;
+	int					random() const;
+	void				sort();
+};
 namespace game {
 namespace action {
 void					attack(short unsigned index);
@@ -711,10 +723,6 @@ struct menu {
 	const char*			text;
 	operator bool() const { return proc != 0; }
 };
-struct enumelement {
-	int					id;
-	const char*			text;
-};
 namespace animation {
 void					appear(dungeon& location, short unsigned index, int radius = 1);
 void					attack(creature* attacker, wear_s slot, int hits);
@@ -726,7 +734,6 @@ int						thrownstep(short unsigned index, direction_s dr, item_s itype, directio
 void					update();
 }
 void					adventure();
-int						choose(aref<enumelement> elements, const char* title_string);
 void					chooseopt(const menu* source);
 bool					dlgask(const char* text);
 void					mainmenu();
