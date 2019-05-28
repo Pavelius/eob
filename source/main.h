@@ -619,7 +619,6 @@ struct dungeon {
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
-	void				generate(resource_s type, unsigned short index, unsigned char level, unsigned short start = 0, bool interactive = false, bool last_level = false);
 	cell_s				get(short unsigned index) const;
 	cell_s				get(int x, int y) const;
 	short unsigned		gettarget(short unsigned start, direction_s dir);

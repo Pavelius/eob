@@ -91,35 +91,47 @@ void dungeon::setelement(short unsigned index, direction_s dir, cell_s type) {
 	}
 }
 
-static bool place(dungeon* pd, cell_s t, direction_s dir) {
-	auto x = xrand(0, mpx - 1);
-	auto y = xrand(0, mpy - 1);
-	if(x == 0 && y == 0)
+static bool place(dungeon* pd, cell_s t, direction_s dir, short unsigned index) {
+	if(pd->get(index) != CellUnknown)
 		return false;
-	if(dir == Left && x <= 0)
-		dir = Right;
-	if(dir == Right && x >= mpx - 1)
-		dir = Left;
-	if(dir == Up && y <= 0)
-		dir = Down;
-	if(dir == Down && y >= mpy - 1)
-		dir = Up;
-	auto i = pd->getindex(x, y);
-	if(pd->get(i) != CellUnknown)
+	if(!isvalid(pd, index, dir))
 		return false;
-	if(!isvalid(pd, i, dir))
-		return false;
-	pd->setelement(i, dir, t);
+	pd->setelement(index, dir, t);
 	return true;
 }
 
-static void stairs(dungeon* pd, unsigned short start, bool last_level) {
+static bool place(dungeon* pd, cell_s t, direction_s dir, int x, int y, int radius) {
+	for(auto r = 0; r < radius; r++) {
+		for(auto x1 = x - r; x1 <= x + r; x1++) {
+			for(auto y1 = y - r; y1 <= y + r; y1++) {
+				if(place(pd, t, dir, pd->getindex(x1, y1)))
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
+static direction_s random_dir() {
+	return (direction_s)xrand(Left, Down);
+}
+
+static bool place(dungeon* pd, cell_s t) {
+	return place(pd, t, random_dir(), xrand(2, mpx - 3), xrand(2, mpy - 3), 6);
+}
+
+static bool stairs(dungeon* pd, unsigned short start, bool last_level) {
 	if(start != Blocked)
-		pd->setelement(start, (direction_s)xrand(Left, Down), CellStairsUp);
-	else
-		while(!place(pd, CellStairsUp, (direction_s)xrand(Left, Down)));
-	if(!last_level)
-		while(!place(pd, CellStairsDown, (direction_s)xrand(Left, Down)));
+		pd->setelement(start, random_dir(), CellStairsUp);
+	else {
+		if(!place(pd, CellStairsUp))
+			return false;
+	}
+	if(!last_level) {
+		if(!place(pd, CellStairsDown))
+			return false;
+	}
+	return true;
 }
 
 static bool iswalls(dungeon* pd, short unsigned index, direction_s dir) {
@@ -613,28 +625,6 @@ static void remove_dead_door(dungeon* pd) {
 	}
 }
 
-void dungeon::generate(resource_s type, unsigned short index, unsigned char level, unsigned short start, bool interactive, bool last_level) {
-	while(true) {
-		overland_index = index;
-		stairs(this, start, last_level);
-		putroom(this, stat.up.index, stat.up.dir, EmpthyStartIndex, false);
-		putroom(this, stat.down.index, stat.down.dir, EmpthyStartIndex, false);
-		while(hasrooms()) {
-			auto e = getroom();
-			corridor(this, e.index, e.dir, e.flags);
-			stat.elements++;
-			if(interactive)
-				game::action::automap(*this, false);
-		}
-		finish(CellWall);
-		if(is_valid_dungeon(this))
-			break;
-	}
-	remove_dead_door(this);
-	if(overland_index != Blocked)
-		write();
-}
-
 static void link_dungeon(dungeon& location, dungeon& below) {
 	unsigned short pm1[mpy*mpx];
 	unsigned short pm2[mpy*mpx];
@@ -692,13 +682,29 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 			if(previous)
 				start = previous->stat.down.index;
 			auto last_level = (level == count);
-			e.clear();
-			e.head = p->head;
-			e.level = level;
-			e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
-			e.chance.curse = 5 + p->curse;
-			e.chance.special = imax(0, imin(45, 4 + level));
-			e.generate(e.head.type, Blocked, level, start, false, last_level);
+			while(true) {
+				e.clear();
+				e.head = p->head;
+				e.level = level;
+				e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
+				e.chance.curse = 5 + p->curse;
+				e.chance.special = imax(0, imin(45, 4 + level));
+				if(!stairs(&e, start, last_level))
+					continue;
+				putroom(&e, e.stat.up.index, e.stat.up.dir, EmpthyStartIndex, false);
+				putroom(&e, e.stat.down.index, e.stat.down.dir, EmpthyStartIndex, false);
+				while(hasrooms()) {
+					auto ev = getroom();
+					corridor(&e, ev.index, ev.dir, ev.flags);
+					e.stat.elements++;
+					if(false)
+						game::action::automap(e, false);
+				}
+				e.finish(CellWall);
+				if(is_valid_dungeon(&e))
+					break;
+			}
+			remove_dead_door(&e);
 			e.overland_index = overland_index;
 			previous = &e;
 		}

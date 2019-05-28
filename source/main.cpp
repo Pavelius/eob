@@ -281,8 +281,10 @@ void draw::setnext(void(*v)()) {
 int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
+	dungeon::create(1, test_sites);
+	return 0;
 #ifdef _DEBUG
-	util_main();
+	//util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG
