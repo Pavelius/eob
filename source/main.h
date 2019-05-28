@@ -360,17 +360,13 @@ struct sitei {
 		monster_s		habbits[2]; // who dwelve here
 		item_s			keys[2];
 		race_s			language; // all messages in this language
-		void			apply(headi& e) const;
 	};
 	headi				head;
 	char				levels;
 	char				magic; // base chance for magic items
 	char				curse; // base chance for cursed items
 	constexpr explicit operator bool() const { return head.type != NONE; }
-	static const headi&	get(resource_s id);
-	race_s				getlanguage() const;
 	unsigned			getleveltotal() const;
-	item_s				getkey(int index) const;
 };
 class item {
 	item_s				type;
@@ -567,7 +563,7 @@ public:
 	static void			view_party();
 	void				view_portrait(int x, int y) const;
 };
-struct dungeon : sitei::headi {
+struct dungeon {
 	struct overlayi {
 		cell_s			type; // type of overlay
 		direction_s		dir; // puller direction
@@ -604,6 +600,7 @@ struct dungeon : sitei::headi {
 	};
 	unsigned short		overland_index;
 	unsigned char		level;
+	sitei::headi		head;
 	statei				stat;
 	chancei				chance;
 	unsigned char		data[mpx*mpy];
@@ -612,7 +609,7 @@ struct dungeon : sitei::headi {
 	overlayitem			cellar_items[512];
 	creature			monsters[200];
 	dungeon() { clear(); }
-	operator bool() const { return type!=NONE; }
+	operator bool() const { return head.type!=NONE; }
 	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);

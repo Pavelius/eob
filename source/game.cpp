@@ -992,7 +992,7 @@ void game::enter(unsigned short index, unsigned char level) {
 		return;
 	if(location_level > 1)
 		location_above.read(overland_index, location_level - 1);
-	draw::settiles(location.type);
+	draw::settiles(location.head.type);
 	if(camera_index==Blocked)
 		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
@@ -1050,7 +1050,7 @@ static char* fname(char* result, unsigned short index, int level) {
 }
 
 template<> void archive::set<dungeon>(dungeon& e) {
-	set(e.type);
+	set(e.head);
 	set(e.overland_index);
 	set(e.level);
 	set(e.stat);

@@ -218,9 +218,9 @@ static item_s random_type(bool small_size = false) {
 static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 	if(type == KeyCooper) {
 		if(d100() < 60)
-			type = pd->keys[0];
+			type = pd->head.keys[0];
 		else
-			type = pd->keys[1];
+			type = pd->head.keys[1];
 	}
 	if(type == Ration) {
 		if(d100() < 30)
@@ -290,7 +290,7 @@ static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned
 	int d = d100();
 	if(d < 30)
 		n = 1;
-	pd->addmonster(pd->habbits[n], index);
+	pd->addmonster(pd->head.habbits[n], index);
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -693,12 +693,12 @@ void dungeon::create(short unsigned overland_index, const sitei* site) {
 				start = previous->stat.down.index;
 			auto last_level = (level == count);
 			e.clear();
-			p->head.apply(e);
+			e.head = p->head;
 			e.level = level;
 			e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
 			e.chance.curse = 5 + p->curse;
 			e.chance.special = imax(0, imin(45, 4 + level));
-			e.generate(e.type, Blocked, level, start, false, last_level);
+			e.generate(e.head.type, Blocked, level, start, false, last_level);
 			e.overland_index = overland_index;
 			previous = &e;
 		}

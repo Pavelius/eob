@@ -16,7 +16,7 @@ static void test_room2(int x, int y) {
 static void test_dungeon(resource_s type) {
 	int x = 16;
 	int y = 16;
-	sitei::get(BRICK).apply(location);
+	location.head.type = BRICK;
 	location.level = 1;
 	location_above.clear();
 	location.clear();
@@ -76,7 +76,7 @@ static void test_dungeon2(resource_s type) {
 	int y = 16;
 	location_above.clear();
 	location.clear();
-	sitei::get(BRICK).apply(location);
+	location.head.type = BRICK;
 	location.level = 1;
 	draw::settiles(type);
 	test_room(x - 2, y - 2);
@@ -223,9 +223,9 @@ static void quit_game() {
 	exit(0);
 }
 
-static sitei test_sites[] = {{{BRICK, {Kobold, Leech}}, 2, 5, 0},
-{{BRICK, {Skeleton, Zombie}}, 2, 0, 10},
-{{BRICK, {Zombie, Ghoul}}, 1, 0, 10},
+static sitei test_sites[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
+{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
 {}};
 
 static void load_game() {
@@ -242,7 +242,7 @@ static void load_game() {
 		} else {
 			random_heroes();
 			test_dungeon(BRICK);
-			draw::settiles(location.type);
+			draw::settiles(location.head.type);
 			game::setcamera(location.getindex(16, 16), Up);
 		}
 		setnext(adventure);

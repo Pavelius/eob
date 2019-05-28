@@ -452,12 +452,12 @@ short unsigned dungeon::getsecret() const {
 
 item_s dungeon::getkeytype(cell_s keyhole) const {
 	if(keyhole == CellKeyHole2)
-		return keys[1];
-	return keys[0];
+		return head.keys[1];
+	return head.keys[0];
 }
 
 race_s dungeon::getlanguage() const {
-	return language;
+	return head.language;
 }
 
 short unsigned dungeon::getindex(int x, int y) const {

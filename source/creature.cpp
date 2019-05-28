@@ -1207,7 +1207,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 	switch(po->subtype) {
 	case MessageHabbits:
 		pc->say("%1 and %2 dwelve this halls",
-			getstr(pd->habbits[0]), getstr(pd->habbits[1]));
+			getstr(pd->head.habbits[0]), getstr(pd->head.habbits[1]));
 		break;
 	case MessageMagicWeapons:
 		if(!pd->stat.weapons)
@@ -1240,7 +1240,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 			pc->say("There is %1i mighty artifacts nearby", pd->stat.artifacts);
 		break;
 	default:
-		pc->say("%1 eat his friend", getstr(pd->habbits[0]));
+		pc->say("%1 eat his friend", getstr(pd->head.habbits[0]));
 		break;
 	}
 	return true;
