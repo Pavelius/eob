@@ -463,7 +463,7 @@ void game::action::camp(item& it) {
 				healed += xrand(1, 3);
 				break;
 			case RationIron:
-				healed += xrand(1, 6);
+				healed += xrand(2, 6);
 				break;
 			}
 		}

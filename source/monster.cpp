@@ -70,8 +70,13 @@ dice creature::gethitdice() const {
 
 void creature::set(monster_s value) {
 	kind = value;
+	auto& mi = bsmeta<monsteri>::elements[kind];
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		ability[i] = 10;
+	if(bsmeta<intellegencei>::elements[mi.ins].v2)
+		ability[Intellegence] = xrand(bsmeta<intellegencei>::elements[mi.ins].v1, bsmeta<intellegencei>::elements[mi.ins].v2);
+	else
+		ability[Intellegence] = 0;
 	switch(getsize()) {
 	case Large:
 		ability[Strenght] += 4;
@@ -84,7 +89,6 @@ void creature::set(monster_s value) {
 		ability[Dexterity] += 2;
 		break;
 	}
-	auto& mi = bsmeta<monsteri>::elements[kind];
 	alignment = mi.alignment;
 	race = mi.race;
 	gender = mi.gender;
