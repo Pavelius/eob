@@ -666,12 +666,17 @@ struct answers {
 		int				id;
 		const char*		text;
 	};
+	answers();
 	adat<element, 32>	elements;
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
+	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
+private:
+	char				buffer[512];
+	stringcreator		sc;
 };
 namespace game {
 namespace action {

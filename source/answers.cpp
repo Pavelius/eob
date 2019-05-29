@@ -4,10 +4,12 @@ int compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
 }
 
+answers::answers() : sc(buffer) {}
+
 void answers::add(int id, const char* text) {
 	auto p = elements.add();
 	p->id = id;
-	p->text = text;
+	p->text = sc.get(); sc.add(text); sc.addsz();
 }
 
 void answers::sort() {
