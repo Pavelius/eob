@@ -947,3 +947,74 @@ bool draw::dlgask(const char* text) {
 	closeform();
 	return getresult() != 0;
 }
+
+static int labelb(int x, int y, int width, unsigned flags, const char* string) {
+	draw::state push;
+	auto height = draw::texth();
+	rect rc = {x, y, x + width, y + height};
+	if(flags&Focused)
+		draw::rectf(rc, colors::blue.darken());
+	draw::setclip(rc);
+	draw::text(x + 1, y, string);
+	return height;
+}
+
+int answers::choosesm(const char* title, bool allow_cancel) const {
+	draw::screenshoot screen;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
+	auto current_element = 0;
+	while(ismodal()) {
+		if(current_element >= (int)elements.count)
+			current_element = elements.count - 1;
+		if(current_element < 0)
+			current_element = 0;
+		screen.restore();
+		rect rc = {70, 124, 178, 174};
+		form(rc);
+		if(true) {
+			draw::state push;
+			fore = colors::yellow;
+			text(rc.x1 + 1, rc.y1 + 1, title);
+		}
+		int x = rc.x1;
+		int y = rc.y1 + 8;
+		for(auto& e : elements) {
+			unsigned flags = (elements.indexof(&e) == current_element) ? Focused : 0;
+			y += labelb(x, y, rc.width(), flags, e.text);
+		}
+		domodal();
+		switch(hot::key) {
+		case KeyEscape:
+			if(allow_cancel)
+				breakmodal(0);
+			break;
+		case KeyEnter:
+		case Alpha + 'U':
+			breakmodal(elements.data[current_element].id);
+			break;
+		case KeyDown:
+		case Alpha + 'Z':
+			current_element++;
+			break;
+		case KeyUp:
+		case Alpha + 'W':
+			current_element--;
+			break;
+		case Alpha + '1':
+		case Alpha + '2':
+		case Alpha + '3':
+		case Alpha + '4':
+		case Alpha + '5':
+		case Alpha + '6':
+			if(true) {
+				auto id = hot::key - (Alpha + '1');
+				if(id < (int)elements.count)
+					breakmodal(elements.data[id].id);
+			}
+			break;
+		}
+	}
+	return getresult();
+}

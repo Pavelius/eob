@@ -114,70 +114,13 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 }
 
 creature* game::action::choosehero() {
+	answers elements;
 	char temp[260];
-	draw::screenshoot screen;
-	draw::state push;
-	setsmallfont();
-	fore = colors::white;
-	adat<creature*, 7> elements;
 	for(auto p : game::party) {
 		if(p)
-			elements.add(p);
+			elements.add((int)p, p->getname(temp, zendof(temp)));
 	}
-	int current_element = 0;
-	while(ismodal()) {
-		if(current_element >= (int)elements.count)
-			current_element = elements.count - 1;
-		if(current_element < 0)
-			current_element = 0;
-		screen.restore();
-		rect rc = {70, 124, 178, 174};
-		form(rc);
-		if(true) {
-			draw::state push;
-			fore = colors::yellow;
-			text(rc.x1 + 1, rc.y1 + 1, "On which hero?");
-		}
-		int x = rc.x1;
-		int y = rc.y1 + 8;
-		for(auto p : elements) {
-			unsigned flags = (elements.indexof(p) == current_element) ? Focused : 0;
-			y += labelb(x, y, rc.width(), flags,
-				p->getname(temp, zendof(temp)));
-		}
-		domodal();
-		switch(hot::key) {
-		case KeyEscape:
-		case Cancel:
-			breakmodal(0);
-			break;
-		case KeyEnter:
-		case Alpha + 'U':
-			breakmodal((int)elements[current_element]);
-			break;
-		case KeyDown:
-		case Alpha + 'Z':
-			current_element++;
-			break;
-		case KeyUp:
-		case Alpha + 'W':
-			current_element--;
-			break;
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-		case Alpha + '5':
-		case Alpha + '6':
-			if(true) {
-				auto id = hot::key - (Alpha + '1');
-				if(id < (int)elements.count)
-					breakmodal((int)elements[id]);
-			}
-			break;
-		}
-	}
-	return (creature*)getresult();
+	return (creature*)elements.choosesm("On which hero?", true);
 }
 
 spell_s creature::choosespell(class_s type) const {

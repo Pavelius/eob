@@ -19,7 +19,7 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 	auto index = caster->getindex();
 	auto dir = caster->getdirection();
 	creature* targets[4];
-	location.getmonsters(targets, moveto(index, dir), dir);
+	location.getmonsters(targets, to(index, dir), dir);
 	for(int i = 0; i < 4; i++) {
 		auto target = targets[i];
 		if(!target)
@@ -141,7 +141,7 @@ short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s 
 	while(distance < 3) {
 		if(throw_effect)
 			draw::animation::thrownstep(index, dir, throw_effect, Center, 70);
-		index = moveto(index, dir);
+		index = to(index, dir);
 		if(location.isblocked(index))
 			return Blocked;
 		if(location.ismonster(index))
@@ -197,12 +197,12 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		index = get_enemy_distance(index, dir, si.throw_effect);
 		if(index == Blocked)
 			return false;
-		index = moveto(index, rotateto(dir, Down));
+		index = to(index, to(dir, Down));
 		// Continue this case
 	case TargetAllClose:
 		//if(range == TargetAllClose && spell_data[spell].throw_effect)
 		//	draw::animation::thrownstep(index, dir, spell_data[spell].throw_effect);
-		location.getmonsters(targets, moveto(index, dir), dir);
+		location.getmonsters(targets, to(index, dir), dir);
 		say(id);
 		for(auto e : targets) {
 			if(!e)
@@ -214,10 +214,10 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		index = get_enemy_distance(index, dir, si.throw_effect);
 		if(index == Blocked)
 			return false;
-		index = moveto(index, rotateto(dir, Down));
+		index = to(index, to(dir, Down));
 		// Continue this case
 	case TargetClose:
-		target = game::getdefender(moveto(index, dir), dir, this);
+		target = game::getdefender(to(index, dir), dir, this);
 		if(!target)
 			return false;
 		say(id);

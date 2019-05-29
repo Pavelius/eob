@@ -124,7 +124,7 @@ static void falling_landing() {
 
 void game::action::move(direction_s direction) {
 	int i = getcamera();
-	int i1 = moveto(i, vectorized(getdirection(), direction));
+	int i1 = to(i, vectorized(getdirection(), direction));
 	int t = location.get(i1);
 	if(location.isblocked(i1) || location.ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
@@ -140,20 +140,20 @@ void game::action::move(direction_s direction) {
 			return;
 		}
 		enter(location.overland_index, location.level - 1);
-		game::setcamera(moveto(location.stat.down.index, location.stat.down.dir),
+		game::setcamera(to(location.stat.down.index, location.stat.down.dir),
 			location.stat.down.dir);
 		break;
 	case CellStairsDown:
 		mslog("Going down");
 		write();
 		enter(location.overland_index, location.level + 1);
-		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir),
+		game::setcamera(to(location.stat.up.index, location.stat.up.dir),
 			location.stat.up.dir);
 		break;
 	case CellPit:
 		mslog("You falling down!");
 		write();
-		setcamera(moveto(getcamera(), getdirection()));
+		setcamera(to(getcamera(), getdirection()));
 		draw::animation::update();
 		falling_damage();
 		enter(location.overland_index, location.level + 1);
@@ -171,7 +171,7 @@ void game::action::move(direction_s direction) {
 void game::action::rotate(direction_s direction) {
 	auto i = getcamera();
 	auto d = getdirection();
-	setcamera(i, rotateto(d, direction));
+	setcamera(i, to(d, direction));
 	hearnoises();
 }
 
@@ -187,7 +187,7 @@ int get_potion_duration(char magic) {
 }
 
 bool game::action::use(item* pi) {
-	unsigned short forward_index = moveto(getcamera(), getdirection());
+	unsigned short forward_index = to(getcamera(), getdirection());
 	auto pc = gethero(pi);
 	if(!pc || pc->gethits() <= 0)
 		return false;
@@ -247,7 +247,11 @@ bool game::action::use(item* pi) {
 				break;
 			default:
 				if(pi->isartifact()) {
-					// TODO: Атрибуты повышаются постоянно
+					if(!pc->raise(enchant)) {
+						pc->say("Not drinkable!");
+						consume = false;
+					} else
+						pc->say("I feel really better!");
 				} else if(bsmeta<enchanti>::elements[enchant].effect)
 					pc->set(bsmeta<enchanti>::elements[enchant].effect, get_potion_duration(pi->getmagic()));
 				break;
@@ -463,7 +467,7 @@ void game::action::camp(item& it) {
 				break;
 			}
 		}
-		pc->damage(Magic, -healed);
+		pc->damage(Heal, healed);
 		pc->preparespells();
 		// Recharge some items
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -484,15 +488,15 @@ void game::action::camp(item& it) {
 			case MageScroll:
 			case PriestScroll:
 				// Autodetect scrolls by itellegence check
-				if((type == MageScroll && pc->get(Mage))
+				if((type == MageScroll && (pc->get(Mage) || pc->get(Ranger)))
 					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
 					|| pc->get(Theif) >= 3) {
 					if(pi->isidentified())
 						break;
-					if(pc->roll(LearnSpell)) {
-						char name[128];
+					if(pc->roll(Intellegence)) {
+						char temp[128];
 						pi->setidentified(1);
-						pc->say("It's %1", pi->getname(name, zendof(name)));
+						pc->say("It's %1", pi->getname(temp, zendof(temp)));
 					}
 				}
 				break;
@@ -681,7 +685,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 	case CellSecrectButton:
 		// RULE: secret doors gain experience
 		creature::addexp(500, 0);
-		location.set(moveto(index, dr), CellPassable);
+		location.set(to(index, dr), CellPassable);
 		location.remove(po);
 		pc->say("This is secret door");
 		break;
@@ -820,21 +824,22 @@ static void stop_monster(short unsigned index) {
 }
 
 static void move_monster(dungeon& location, short unsigned index, direction_s dr) {
-	auto to = moveto(index, dr);
-	if(location.isblocked(to))
+	auto dest = to(index, dr);
+	if(location.isblocked(dest))
 		return;
-	if(location.get(to) == CellPit)
+	if(location.get(dest) == CellPit)
 		return;
-	if(to == game::getcamera())
+	if(dest == game::getcamera())
 		return;
 	creature* s_side[4]; location.getmonsters(s_side, index, Center);
-	creature* d_side[4]; location.getmonsters(d_side, to, Center);
-	if(index == to) {
+	creature* d_side[4]; location.getmonsters(d_side, dest, Center);
+	if(index == dest) {
 		stop_monster(index);
 		return;
 	}
 	// Large monsters move only to free index
-	if(!is_valid_move_by_size(s_side, d_side) || !is_valid_move_by_size(d_side, s_side))
+	if(!is_valid_move_by_size(s_side, d_side)
+		|| !is_valid_move_by_size(d_side, s_side))
 		return;
 	// Medium or smaller monsters
 	// can be mixed on different sides
@@ -852,7 +857,7 @@ static void move_monster(dungeon& location, short unsigned index, direction_s dr
 		d_side[s] = pc;
 		s_side[i] = 0;
 		pc->setside(s);
-		pc->setindex(to);
+		pc->setindex(dest);
 		pc->set(dr);
 	}
 }
@@ -867,18 +872,18 @@ void game::passround() {
 		auto monster_index = e.getindex();
 		auto monster_direct = e.getdirection();
 		if(e.is(Scared)) {
-			direction_s free_directions[] = {rotateto(party_direct, Up), rotateto(party_direct, Left), rotateto(party_direct, Left), Center};
+			direction_s free_directions[] = {to(party_direct, Up), to(party_direct, Left), to(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
 			if(monster_direct != free_direct)
 				location.turnto(monster_index, free_direct);
 			if(free_direct)
 				move_monster(location, monster_index, free_direct);
-		} else if(moveto(monster_index, monster_direct) == party_index) {
+		} else if(to(monster_index, monster_direct) == party_index) {
 			mslog("You are under attack!");
 			location.turnto(party_index, vectorized(monster_direct, Down));
 			game::action::attack(monster_index);
 		} else if(d100() < 45) {
-			auto next_index = moveto(monster_index, monster_direct);
+			auto next_index = to(monster_index, monster_direct);
 			if(location.isblocked(next_index) || d100() < 30) {
 				short unsigned indicies[5];
 				auto n = location.random(location.getnearestfree(indicies, monster_index));
@@ -903,7 +908,7 @@ void game::passround() {
 }
 
 bool get_secret(short unsigned index, direction_s sight_dir, direction_s rotate_dir, direction_s& secret_dir) {
-	auto po = location.getoverlay(index, rotateto(sight_dir, rotate_dir));
+	auto po = location.getoverlay(index, to(sight_dir, rotate_dir));
 	if(!po)
 		return false;
 	if(po->type != CellSecrectButton)
@@ -937,12 +942,12 @@ void game::hearnoises() {
 	direction_s secret_dir = Center;
 	auto index = getcamera();
 	auto dir = getdirection();
-	auto door_index = moveto(index, dir);
+	auto door_index = to(index, dir);
 	if(!door_index || location.get(door_index) != CellDoor)
 		return;
 	if(location.is(door_index, CellActive))
 		return;
-	door_index = moveto(door_index, dir);
+	door_index = to(door_index, dir);
 	if(!door_index)
 		return;
 	for(auto pc : game::party) {
@@ -994,7 +999,7 @@ void game::enter(unsigned short index, unsigned char level) {
 		location_above.read(overland_index, location_level - 1);
 	draw::settiles(location.head.type);
 	if(camera_index==Blocked)
-		game::setcamera(moveto(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+		game::setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 
 bool creature::set(skill_s skill, short unsigned index) {

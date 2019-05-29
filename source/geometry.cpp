@@ -6,14 +6,39 @@ static const direction_s rotate_direction[4][4] = {{Down, Left, Up, Right},
 {Right, Down, Left, Up},
 };
 
-direction_s rotateto(direction_s d, direction_s d1) {
+direction_s to(direction_s d, direction_s d1) {
 	return rotate_direction[d - Left][d1 - Left];
 }
 
-direction_s pointto(short unsigned from, short unsigned to) {
+short unsigned to(short unsigned index, direction_s d) {
+	if(index == Blocked)
+		return Blocked;
+	switch(d) {
+	case Left:
+		if(gx(index) == 0)
+			return Blocked;
+		return index - 1;
+	case Right:
+		if(gx(index) >= mpx - 1)
+			return Blocked;
+		return index + 1;
+	case Up:
+		if(gy(index) == 0)
+			return Blocked;
+		return index - mpx;
+	case Down:
+		if(gy(index) >= mpy - 1)
+			return Blocked;
+		return index + mpx;
+	default:
+		return Blocked;
+	}
+}
+
+direction_s pointto(short unsigned from, short unsigned dest) {
 	static direction_s dirs[] = {Left, Right, Up, Down};
 	for(auto e : dirs) {
-		if(moveto(from, e) == to)
+		if(to(from, e) == dest)
 			return e;
 	}
 	return Center;
@@ -77,29 +102,4 @@ direction_s vectorized(direction_s d, direction_s d1) {
 		break;
 	}
 	return Center;
-}
-
-short unsigned moveto(short unsigned index, direction_s d) {
-	if(index==Blocked)
-		return Blocked;
-	switch(d) {
-	case Left:
-		if(gx(index) == 0)
-			return Blocked;
-		return index - 1;
-	case Right:
-		if(gx(index) >= mpx - 1)
-			return Blocked;
-		return index + 1;
-	case Up:
-		if(gy(index) == 0)
-			return Blocked;
-		return index - mpx;
-	case Down:
-		if(gy(index) >= mpy - 1)
-			return Blocked;
-		return index + mpx;
-	default:
-		return Blocked;
-	}
 }

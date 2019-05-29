@@ -212,10 +212,10 @@ void creature::view_ability() {
 
 static gender_s choosegender(bool interactive) {
 	if(interactive) {
-		adat<enumelement, 32> source;
+		answers source;
 		for(auto i = Male; i <= Female; i = (gender_s)(i + 1))
-			source.add({i, getstr(i)});
-		return (gender_s)choose(source, "Select Gender:");
+			source.add(i, getstr(i));
+		return (gender_s)source.choose("Select Gender:");
 	} else {
 		// RULE: Male are most common as adventurers
 		if(d100() < 65)
@@ -226,23 +226,23 @@ static gender_s choosegender(bool interactive) {
 }
 
 static alignment_s choosealignment(bool interactive, class_s depend) {
-	adat<enumelement, 32> source;
+	answers source;
 	for(auto i = FirstAlignment; i <= LastAlignment; i = (alignment_s)(i + 1)) {
 		if(!creature::isallow(i, depend))
 			continue;
-		source.add({i, getstr(i)});
+		source.add(i, getstr(i));
 	}
-	if(interactive)
-		return (alignment_s)choose(source, "Select Alignment:");
-	return (alignment_s)source.data[rand() % source.count].id;
+	//source.sort();
+	return (alignment_s)source.choose("Select Alignment:", interactive);
 }
 
 static race_s chooserace(bool interactive) {
 	if(interactive) {
-		adat<enumelement, 32> source;
+		answers source;
 		for(auto i = Dwarf; i <= Human; i = (race_s)(i + 1))
-			source.add({i, getstr(i)});
-		return (race_s)choose(source, "Select Race:");
+			source.add(i, getstr(i));
+		source.sort();
+		return (race_s)source.choose("Select Race:");
 	} else {
 		// RULE: Humans most common in the worlds.
 		if(d100() < 50)
@@ -253,15 +253,14 @@ static race_s chooserace(bool interactive) {
 }
 
 static class_s chooseclass(bool interactive, race_s race) {
-	adat<enumelement, 32> source;
+	answers source;
 	for(auto i = Cleric; i <= MageTheif; i = (class_s)(i + 1)) {
 		if(!creature::isallow(i, race))
 			continue;
-		source.add({i, getstr(i)});
+		source.add(i, getstr(i));
 	}
-	if(interactive)
-		return (class_s)choose(source, "Select Class:");
-	return (class_s)source.data[rand() % source.count].id;
+	source.sort();
+	return (class_s)source.choose("Select Class:", interactive);
 }
 
 static bool is_party_created() {
@@ -327,12 +326,12 @@ static void change_character() {
 	}
 }
 
-int draw::choose(aref<enumelement> elements, const char* title_string) {
+int answers::choose(const char* title_string) const {
+	if(!elements)
+		return 0;
 	draw::state push;
 	setbigfont();
 	fore = colors::white;
-	if(!elements)
-		return 0;
 	openform();
 	while(ismodal()) {
 		genheader();

@@ -297,7 +297,15 @@ item creature::get(wear_s id) const {
 	return *pi;
 }
 
-bool creature::roll(skill_s id, int bonus) {
+bool creature::roll(ability_s id, int bonus) const {
+	auto n = (get(id) + bonus) * 5;
+	if(n <= 0)
+		return false;
+	auto d = d100();
+	return d <= n;
+}
+
+bool creature::roll(skill_s id, int bonus) const {
 	auto n = get(id) + bonus * 5;
 	if(n <= 0)
 		return false;
@@ -317,7 +325,7 @@ bool creature::isready() const {
 
 void creature::update(bool interactive) {
 	moved = false;
-	// Обновим эффект ядов
+	// Обноим эффект ядов
 	if((game::rounds % 4) == 0)
 		update_poison(interactive);
 	// Обновим эффекты других способностей, которые действуют не так часто
@@ -328,7 +336,7 @@ void creature::update(bool interactive) {
 				auto magic = pi->getmagic();
 				switch(pi->getenchant()) {
 				case OfRegeneration:
-					damage(Magic, -magic);
+					damage(Heal, magic);
 					break;
 				}
 			}
@@ -440,7 +448,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				auto hits_healed = xrand(1, 4) + vampirism;
 				if(hits_healed > hits)
 					hits_healed = hits;
-				this->damage(Magic, -hits_healed);
+				this->damage(Heal, hits_healed);
 			}
 		}
 		// Show result
@@ -1097,10 +1105,11 @@ void creature::damage(damage_s type, int hits) {
 			// Drop items
 			auto index = getindex();
 			auto side = getside();
-			for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
+			for(auto par = FirstInvertory; par <= LastInvertory; par = (wear_s)(par + 1)) {
 				auto it = wears[par];
-				if(it || !it.getportrait())
+				if(!it || !it.getportrait())
 					continue;
+				it.setidentified(0);
 				if(it.ismagical())
 					location.dropitem(index, it, side);
 				else if(d100() < 25) {
@@ -1331,4 +1340,15 @@ int creature::getstrex() const {
 			result += 5;
 	}
 	return result;
+}
+
+bool creature::raise(enchant_s v) {
+	switch(v) {
+	case OfStrenght: ability[Strenght]++; break;
+	case OfDexterity: ability[Dexterity]++; break;
+	case OfIntellegence: ability[Intellegence]++; break;
+	case OfCharisma: ability[Charisma]++; break;
+	default: return false;
+	}
+	return true;
 }

@@ -4,6 +4,11 @@ using namespace draw;
 
 callback		next_proc;
 
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
+{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
+{}};
+
 #ifdef _DEBUG
 
 static void test_room2(int x, int y) {
@@ -125,7 +130,7 @@ static void random_heroes() {
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(PriestScroll);
 	game::party[3]->add(item(DungeonMap, 20, 0, 0));
-	item artifact(SwordShort, 100, 5, 40);
+	item artifact(SwordShort, 100, 5, 100);
 	artifact.setidentified(1);
 	game::party[3]->add(artifact);
 }
@@ -133,20 +138,16 @@ static void random_heroes() {
 void util_main();
 
 static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0) {
-	if(!overlay)
-		draw::image(x, y, draw::gres(rs), 0 * 6 + frame, flags);
-	else {
-		auto pb = overlay;
-		auto pe = overlay + 4;
-		while(pb < pe) {
-			if(pb > overlay && *pb == 0)
-				break;
-			if(percent == 1000)
-				draw::image(x, y, draw::gres(rs), (*pb) * 6 + frame, flags);
-			else
-				draw::imagex(x, y, draw::gres(rs), (*pb) * 6 + frame, flags, percent, darkness);
-			pb++;
-		}
+	auto pb = overlay;
+	auto pe = overlay + 4;
+	while(pb < pe) {
+		if(pb > overlay && *pb == 0)
+			break;
+		if(percent == 1000)
+			draw::image(x, y, draw::gres(rs), (*pb) * 6 + frame, flags);
+		else
+			draw::imagex(x, y, draw::gres(rs), (*pb) * 6 + frame, flags, percent, darkness);
+		pb++;
 	}
 }
 
@@ -190,9 +191,10 @@ static void test_monster(resource_s rs, int overlay[4]) {
 #endif // DEBUG
 
 static void newgame() {
-	game::setcamera(0);
+	game::setcamera(Blocked);
 	creature::view_party();
 	draw::resetres();
+	dungeon::create(1, first_adventure);
 	game::write();
 	game::enter(1, 1);
 	setnext(adventure);
@@ -227,11 +229,6 @@ static void quit_game() {
 	exit(0);
 }
 
-static sitei test_sites[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
-{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
-{}};
-
 static void load_game() {
 	draw::resetres();
 	if(game::read())
@@ -239,7 +236,8 @@ static void load_game() {
 	else {
 #ifdef _DEBUG
 		if(true) {
-			dungeon::create(1, test_sites);
+			game::setcamera(Blocked);
+			dungeon::create(1, first_adventure);
 			random_heroes();
 			game::write();
 			game::enter(1, 1);
@@ -285,7 +283,6 @@ void draw::setnext(void(*v)()) {
 int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
-	return 0;
 #ifdef _DEBUG
 	//util_main();
 #endif // _DEBUG
@@ -294,8 +291,7 @@ int main(int argc, char* argv[]) {
 	int ovr12[4] = {0, 1, 2};
 	int ovr13[4] = {0, 1, 3};
 	int ovr3[4] = {0, 2, 3};
-	//test_monster(ANKHEG, 0);
-	//test_monster(DRAGON, ovr12);
+	//test_monster(GUARD1, ovr3);
 	//test_monster(CLERIC2, ovr3);
 #endif
 	next_proc = mainmenu;

@@ -537,10 +537,12 @@ public:
 	bool				isuse(const item v) const;
 	static creature*	newhero();
 	void				preparespells();
+	bool				raise(enchant_s v);
 	void				random_name();
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
-	bool				roll(skill_s id, int bonus = 0);
+	bool				roll(ability_s id, int bonus = 0) const;
+	bool				roll(skill_s id, int bonus = 0) const;
 	void				roll_ability();
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
@@ -627,7 +629,7 @@ struct dungeon {
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				clear();
-	static void			create(short unsigned index, const sitei* site);
+	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
@@ -671,6 +673,23 @@ struct dungeon {
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
+};
+struct answers {
+	struct element {
+		int				id;
+		const char*		text;
+	};
+	answers();
+	adat<element, 32>	elements;
+	void				add(int id, const char* name);
+	int					choose(const char* title) const;
+	int					choose(const char* title, bool interactive) const;
+	int					choosesm(const char* title, bool allow_cancel = true) const;
+	int					random() const;
+	void				sort();
+private:
+	char				buffer[512];
+	stringcreator		sc;
 };
 namespace game {
 namespace action {
@@ -722,10 +741,6 @@ struct menu {
 	const char*			text;
 	operator bool() const { return proc != 0; }
 };
-struct enumelement {
-	int					id;
-	const char*			text;
-};
 namespace animation {
 void					appear(dungeon& location, short unsigned index, int radius = 1);
 void					attack(creature* attacker, wear_s slot, int hits);
@@ -737,7 +752,6 @@ int						thrownstep(short unsigned index, direction_s dr, item_s itype, directio
 void					update();
 }
 void					adventure();
-int						choose(aref<enumelement> elements, const char* title_string);
 void					chooseopt(const menu* source);
 bool					dlgask(const char* text);
 void					mainmenu();
@@ -750,9 +764,9 @@ extern dungeon			location;
 direction_s				devectorized(direction_s dr, direction_s d);
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
-short unsigned			moveto(short unsigned index, direction_s d);
+short unsigned			to(short unsigned index, direction_s d);
 void					mslog(const char* format, ...);
 void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
-direction_s				rotateto(direction_s d, direction_s d1);
+direction_s				to(direction_s d, direction_s d1);
 direction_s				vectorized(direction_s d, direction_s d1);
