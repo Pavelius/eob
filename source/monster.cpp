@@ -7,19 +7,19 @@ static const int hd_experience[] = {
 };
 
 monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
-{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, {}, {3}, 3, {Bite}, {WeakPoison}},
-{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, {}, {3, 1}, 5, {AxeBattle}, {}},
-{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, {}, {5}, 7, {Mace}, {}},
-{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, {}, {2, 3}, 5, {Mace}, {}},
-{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, {Undead}, {2}, 6, {Claws, Bite}, {Paralized}},
-{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, {}, {0, 7}, 6, {Axe}, {}, {}},
-{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, {}, {0, 4}, 7, {Dagger}, {}},
-{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, {}, {3}, 7, {Slam}, {}},
-{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, {}, {2}, 9, {Bite2d6}, {}, {OfVampirism}},
-{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, {}, {1}, 7, {SwordLong}, {}, {}},
-{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
-{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, {}, {4, 4}, 4, {Bite}, {Poison}},
-{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, {Undead}, {2}, 8, {Slam}, {}, {}}
+{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {WeakPoison}},
+{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}, {}},
+{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}, {}},
+{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}, {}},
+{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {Paralized}},
+{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}, {}, {}},
+{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}, {}},
+{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}, {}},
+{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {}, {OfVampirism}},
+{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}, {}, {}},
+{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
+{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {Poison}},
+{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}, {}, {}}
 };
 assert_enum(monster, Zombie);
 

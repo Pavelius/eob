@@ -204,6 +204,12 @@ enum attack_s : unsigned char {
 	OneAttack, OneAndTwoAttacks, TwoAttacks,
 	OnHit, OnAllHit, OnCriticalHit,
 };
+enum reaction_s : unsigned char {
+	Indifferent, Friendly, Flight, Cautious, Threatening, Hostile,
+};
+enum intellegence_s : unsigned char {
+	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
+};
 class creature;
 template<typename T> struct bsmeta {
 	typedef T			data_type;
@@ -247,6 +253,10 @@ struct enchanti {
 struct genderi {
 	const char*			name;
 };
+struct intellegencei {
+	const char*			name;
+	char				v1, v2;
+};
 struct combati {
 	attack_s			attack;
 	damage_s			type;
@@ -286,6 +296,7 @@ struct monsteri {
 	gender_s			gender;
 	size_s				size;
 	alignment_s			alignment;
+	intellegence_s		ins;
 	cflags<feat_s>		feats;
 	char				hd[2];
 	char				ac;
@@ -439,7 +450,8 @@ class creature {
 	unsigned			experience;
 	unsigned char		name[2];
 	char				str_exeptional;
-	friend struct archive;
+	reaction_s			reaction;
+	//
 	int					armor_penalty(skill_s skill) const;
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }

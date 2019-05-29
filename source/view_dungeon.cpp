@@ -21,9 +21,7 @@ struct render_disp {
 	unsigned char		zorder;
 	rect				clip;
 	void				paint() const;
-	void clear() {
-		memset(this, 0, sizeof(render_disp));
-	}
+	void clear() { memset(this, 0, sizeof(render_disp)); }
 };
 static tileinfo			tiles[CellDoorButton + 1];
 static sprite*			map_tiles;

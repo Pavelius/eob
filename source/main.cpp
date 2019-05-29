@@ -133,16 +133,20 @@ static void random_heroes() {
 void util_main();
 
 static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0) {
-	auto pb = overlay;
-	auto pe = overlay + 4;
-	while(pb < pe) {
-		if(pb > overlay && *pb == 0)
-			break;
-		if(percent == 1000)
-			draw::image(x, y, draw::gres(rs), (*pb) * 6 + frame, flags);
-		else
-			draw::imagex(x, y, draw::gres(rs), (*pb) * 6 + frame, flags, percent, darkness);
-		pb++;
+	if(!overlay)
+		draw::image(x, y, draw::gres(rs), 0 * 6 + frame, flags);
+	else {
+		auto pb = overlay;
+		auto pe = overlay + 4;
+		while(pb < pe) {
+			if(pb > overlay && *pb == 0)
+				break;
+			if(percent == 1000)
+				draw::image(x, y, draw::gres(rs), (*pb) * 6 + frame, flags);
+			else
+				draw::imagex(x, y, draw::gres(rs), (*pb) * 6 + frame, flags, percent, darkness);
+			pb++;
+		}
 	}
 }
 
@@ -281,7 +285,6 @@ void draw::setnext(void(*v)()) {
 int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
-	dungeon::create(1, test_sites);
 	return 0;
 #ifdef _DEBUG
 	//util_main();
@@ -291,7 +294,8 @@ int main(int argc, char* argv[]) {
 	int ovr12[4] = {0, 1, 2};
 	int ovr13[4] = {0, 1, 3};
 	int ovr3[4] = {0, 2, 3};
-	//test_monster(GUARD1, ovr3);
+	//test_monster(ANKHEG, 0);
+	//test_monster(DRAGON, ovr12);
 	//test_monster(CLERIC2, ovr3);
 #endif
 	next_proc = mainmenu;

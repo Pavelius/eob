@@ -180,7 +180,6 @@ void game::action::pause() {
 	while(draw::ismodal()) {
 		draw::domodal();
 		switch(hot::key) {
-		case 0:
 		case KeyEscape:
 			return;
 		}
