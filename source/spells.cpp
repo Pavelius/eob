@@ -39,7 +39,7 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 		}
 		if(result >= value)
 			value = 0;
-		if(value = 0)
+		if(value == 0)
 			target->set(Scared, xrand(2, 6) * 10);
 	}
 }

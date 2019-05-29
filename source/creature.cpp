@@ -48,34 +48,49 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 {4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 {4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
-static char mgu_lev1[] = {0,
-1, 2, 3, 3, 4, 4, 4, 4, 4, 4,
-4, 4, 5, 5, 5, 5, 6, 6, 7, 7,
-8,
+static char wizard_spells[21][9] = {{},
+{1, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 1, 0, 0, 0, 0, 0, 0, 0},
+{3, 2, 0, 0, 0, 0, 0, 0, 0},
+{4, 2, 1, 0, 0, 0, 0, 0, 0}, // 5
+{4, 2, 2, 0, 0, 0, 0, 0, 0},
+{4, 3, 2, 1, 0, 0, 0, 0, 0},
+{4, 3, 3, 2, 0, 0, 0, 0, 0},
+{4, 3, 3, 2, 1, 0, 0, 0, 0},
+{4, 4, 3, 2, 2, 0, 0, 0, 0},// 10
+{4, 4, 4, 3, 3, 0, 0, 0, 0},
+{4, 4, 4, 4, 4, 1, 0, 0, 0},
+{5, 5, 5, 4, 4, 2, 0, 0, 0},
+{5, 5, 5, 4, 4, 2, 1, 0, 0},
+{5, 5, 5, 5, 5, 2, 1, 0, 0},// 15
+{5, 5, 5, 5, 5, 3, 2, 1, 0},
+{5, 5, 5, 5, 5, 3, 3, 2, 0},
+{5, 5, 5, 5, 5, 3, 3, 2, 1},
+{5, 5, 5, 5, 5, 3, 3, 3, 1},
+{5, 5, 5, 5, 5, 4, 3, 3, 2},
 };
-static char mgu_lev2[] = {
-	0,
-	0, 0, 1, 2, 2, 2, 3, 3, 3, 4,
-	4, 4, 5, 5, 5, 5, 6, 6, 7, 7,
-	8,
-};
-static char mgu_lev3[] = {
-	0,
-	0, 0, 0, 0, 1, 2, 2, 3, 3, 3,
-	4, 4, 5, 5, 5, 5, 6, 6, 7, 7,
-	8,
-};
-static char mgu_lev4[] = {
-	0,
-	0, 0, 0, 0, 0, 0, 1, 2, 2, 2,
-	3, 4, 4, 4, 5, 5, 5, 6, 7, 7,
-	7,
-};
-static char clr_lev1[] = {
-	0,
-	1, 1, 2, 2, 2, 2, 2, 2, 3, 3,
-	4, 4, 5, 5, 6, 6, 7, 7, 8, 8,
-	9,
+static char cleric_spells[21][9] = {{},
+{1, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 1, 0, 0, 0, 0, 0, 0, 0},
+{3, 2, 0, 0, 0, 0, 0, 0, 0},
+{3, 3, 1, 0, 0, 0, 0, 0, 0}, // 5
+{3, 3, 2, 0, 0, 0, 0, 0, 0},
+{3, 3, 2, 1, 0, 0, 0, 0, 0},
+{3, 3, 3, 2, 0, 0, 0, 0, 0},
+{4, 4, 3, 2, 1, 0, 0, 0, 0},
+{4, 4, 3, 3, 2, 0, 0, 0, 0},// 10
+{5, 4, 4, 3, 2, 1, 0, 0, 0},
+{6, 5, 5, 3, 2, 2, 0, 0, 0},
+{6, 6, 6, 4, 2, 2, 0, 0, 0},
+{6, 6, 6, 5, 3, 2, 1, 0, 0},
+{6, 6, 6, 6, 4, 2, 1, 0, 0},// 15
+{7, 7, 7, 6, 4, 3, 1, 0, 0},
+{7, 7, 7, 7, 5, 3, 2, 0, 0},
+{8, 8, 8, 8, 6, 4, 2, 0, 0},
+{9, 9, 8, 8, 6, 4, 2, 0, 0},
+{9, 9, 9, 8, 7, 5, 2, 0, 0},
 };
 static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
 static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
@@ -921,28 +936,22 @@ void creature::preparespells() {
 }
 
 int creature::getspellsperlevel(class_s cls, int spell_level) const {
-	int m = 0;
 	int caster_level = get(cls);
-	if(cls == Cleric) {
+	int b = 0;
+	if(spell_level > 9)
+		spell_level = 9;
+	switch(cls) {
+	case Mage: b = maptbl(wizard_spells, caster_level)[spell_level - 1]; break;
+	case Cleric: b = maptbl(cleric_spells, caster_level)[spell_level - 1];
+	}
+	if(cls == Cleric && b) {
+		if(spell_level > 7)
+			spell_level = 7;
 		int wisdow = get(Wisdow);
 		if(wisdow >= 13)
-			m = maptbl(wisdow_bonus_spells, wisdow - 13)[spell_level];
+			b += maptbl(wisdow_bonus_spells, wisdow - 13)[spell_level - 1];
 	}
-	switch(cls) {
-	case Mage:
-		switch(spell_level) {
-		case 1: return maptbl(mgu_lev1, caster_level);
-		case 2: return maptbl(mgu_lev2, caster_level);
-		case 3: return maptbl(mgu_lev3, caster_level);
-		default: return maptbl(mgu_lev4, caster_level);
-		}
-	case Cleric:
-		switch(spell_level) {
-		case 1: return maptbl(clr_lev1, caster_level) + m;
-		default: return maptbl(mgu_lev4, caster_level) + m;
-		}
-	}
-	return 0;
+	return b;
 }
 
 const char* creature::getname(char* result, const char* result_maximum) const {
