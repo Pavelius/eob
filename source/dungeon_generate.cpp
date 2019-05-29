@@ -612,7 +612,7 @@ static void remove_all_overlay(dungeon* pd, short unsigned index) {
 }
 
 static void remove_dead_door(dungeon* pd) {
-	for(short unsigned i = 1; i < mpx*mpy; i++) {
+	for(short unsigned i = 0; i < mpx*mpy; i++) {
 		auto t = pd->get(i);
 		if(t != CellDoor)
 			continue;

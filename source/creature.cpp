@@ -325,7 +325,7 @@ bool creature::isready() const {
 
 void creature::update(bool interactive) {
 	moved = false;
-	// Обновим эффект ядов
+	// Обноим эффект ядов
 	if((game::rounds % 4) == 0)
 		update_poison(interactive);
 	// Обновим эффекты других способностей, которые действуют не так часто
@@ -336,7 +336,7 @@ void creature::update(bool interactive) {
 				auto magic = pi->getmagic();
 				switch(pi->getenchant()) {
 				case OfRegeneration:
-					damage(Magic, -magic);
+					damage(Heal, magic);
 					break;
 				}
 			}
@@ -448,7 +448,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				auto hits_healed = xrand(1, 4) + vampirism;
 				if(hits_healed > hits)
 					hits_healed = hits;
-				this->damage(Magic, -hits_healed);
+				this->damage(Heal, hits_healed);
 			}
 		}
 		// Show result
@@ -1105,10 +1105,11 @@ void creature::damage(damage_s type, int hits) {
 			// Drop items
 			auto index = getindex();
 			auto side = getside();
-			for(auto par = Head; par <= LastBelt; par = (wear_s)(par + 1)) {
+			for(auto par = FirstInvertory; par <= LastInvertory; par = (wear_s)(par + 1)) {
 				auto it = wears[par];
-				if(it || !it.getportrait())
+				if(!it || !it.getportrait())
 					continue;
+				it.setidentified(0);
 				if(it.ismagical())
 					location.dropitem(index, it, side);
 				else if(d100() < 25) {
