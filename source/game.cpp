@@ -467,7 +467,7 @@ void game::action::camp(item& it) {
 				break;
 			}
 		}
-		pc->damage(Magic, -healed);
+		pc->damage(Heal, healed);
 		pc->preparespells();
 		// Recharge some items
 		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
@@ -488,15 +488,15 @@ void game::action::camp(item& it) {
 			case MageScroll:
 			case PriestScroll:
 				// Autodetect scrolls by itellegence check
-				if((type == MageScroll && pc->get(Mage))
+				if((type == MageScroll && (pc->get(Mage) || pc->get(Ranger)))
 					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
 					|| pc->get(Theif) >= 3) {
 					if(pi->isidentified())
 						break;
-					if(pc->roll(LearnSpell)) {
-						char name[128];
+					if(pc->roll(Intellegence)) {
+						char temp[128];
 						pi->setidentified(1);
-						pc->say("It's %1", pi->getname(name, zendof(name)));
+						pc->say("It's %1", pi->getname(temp, zendof(temp)));
 					}
 				}
 				break;

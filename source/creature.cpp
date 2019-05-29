@@ -297,7 +297,15 @@ item creature::get(wear_s id) const {
 	return *pi;
 }
 
-bool creature::roll(skill_s id, int bonus) {
+bool creature::roll(ability_s id, int bonus) const {
+	auto n = (get(id) + bonus) * 5;
+	if(n <= 0)
+		return false;
+	auto d = d100();
+	return d <= n;
+}
+
+bool creature::roll(skill_s id, int bonus) const {
 	auto n = get(id) + bonus * 5;
 	if(n <= 0)
 		return false;

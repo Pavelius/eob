@@ -529,7 +529,8 @@ public:
 	void				random_name();
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
-	bool				roll(skill_s id, int bonus = 0);
+	bool				roll(ability_s id, int bonus = 0) const;
+	bool				roll(skill_s id, int bonus = 0) const;
 	void				roll_ability();
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
