@@ -1351,3 +1351,12 @@ bool creature::raise(enchant_s v) {
 	}
 	return true;
 }
+
+void creature::slowpoison() {
+	state_s elements[] = {WeakPoison, Poison, StrongPoison, DeadlyPoison};
+	auto current = game::rounds;
+	for(auto e : elements) {
+		if(states[e] > current)
+			states[e] = current + (states[e] - current) / 2;
+	}
+}

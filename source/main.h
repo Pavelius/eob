@@ -50,6 +50,7 @@ enum size_s : unsigned char {
 };
 enum duration_s : unsigned char {
 	Instant,
+	Duration1PerLevel,
 	Duration5PerLevel,
 	DurationTurn, DurationTurnPerLevel,
 	DurationHour, Duration2Hours, Duration4Hours, Duration8Hours,
@@ -73,7 +74,7 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	SpellReadLanguages, SpellShield, Sleep,
 	// Spells (level 2)
-	Aid,
+	Aid, HoldPerson, SlowPoison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -573,6 +574,7 @@ public:
 	void				setmoved(bool value) { moved = value; }
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
+	void				slowpoison();
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);

@@ -13,6 +13,20 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
+static int getduration(duration_s duration, int level) {
+	const int hour = 60;
+	switch(duration) {
+	case Duration5PerLevel: return 5 * level;
+	case DurationTurn: return 10;
+	case DurationTurnPerLevel: return 10 * level;
+	case DurationHour: return 1 * hour;
+	case Duration2Hours: return 2 * hour;
+	case Duration4Hours: return 4 * hour;
+	case Duration8Hours: return 8 * hour;
+	default: return 0;
+	}
+}
+
 static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {
 	auto ti = maptbl(turn_undead_index, level);
 	auto result = d20();
@@ -66,6 +80,7 @@ static void aid_spell(creature* player, creature* target, const effecti& e, int 
 }
 
 static void slow_poison(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	player->slowpoison();
 }
 
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
@@ -85,26 +100,13 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // 2 - level
 {"Aid", {0, 2}, TargetAlly, aid_spell},
+{"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
 };
 assert_enum(spell, TurnUndead);
-
-static int getduration(duration_s duration, int level) {
-	const int hour = 60;
-	switch(duration) {
-	case Duration5PerLevel: return 5 * level;
-	case DurationTurn: return 10;
-	case DurationTurnPerLevel: return 10 * level;
-	case DurationHour: return 1 * hour;
-	case Duration2Hours: return 2 * hour;
-	case Duration4Hours: return 4 * hour;
-	case Duration8Hours: return 8 * hour;
-	default: return 0;
-	}
-}
 
 int	creature::getlevel(spell_s id, class_s type) {
 	switch(type) {
