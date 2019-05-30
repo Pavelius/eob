@@ -14,17 +14,7 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 };
 
 static int getduration(duration_s duration, int level) {
-	const int hour = 60;
-	switch(duration) {
-	case Duration5PerLevel: return 5 * level;
-	case DurationTurn: return 10;
-	case DurationTurnPerLevel: return 10 * level;
-	case DurationHour: return 1 * hour;
-	case Duration2Hours: return 2 * hour;
-	case Duration4Hours: return 4 * hour;
-	case Duration8Hours: return 8 * hour;
-	default: return 0;
-	}
+	return bsmeta<durationi>::elements[duration].get(level);
 }
 
 static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {

@@ -248,6 +248,11 @@ struct commandi {
 struct directioni {
 	const char*			name;
 };
+struct durationi {
+	const char*			name;
+	unsigned			multiplier, divider, addiction;
+	int					get(int v) const;
+};
 struct enchanti {
 	const char*			name;
 	state_s				effect;

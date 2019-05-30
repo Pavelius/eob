@@ -288,9 +288,9 @@ int main(int argc, char* argv[]) {
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG
-	int ovr12[4] = {0, 1, 2};
-	int ovr13[4] = {0, 1, 3};
-	int ovr3[4] = {0, 2, 3};
+	static int ovr12[4] = {0, 1, 2};
+	static int ovr13[4] = {0, 1, 3};
+	static int ovr3[4] = {0, 2, 3};
 	//test_monster(GUARD1, ovr3);
 	//test_monster(CLERIC2, ovr3);
 #endif

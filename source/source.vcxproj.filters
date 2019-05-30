@@ -224,5 +224,8 @@
     <ClCompile Include="intellegence.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="duration.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

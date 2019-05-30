@@ -1083,24 +1083,23 @@ bool creature::isallow(const item it, wear_s slot) const {
 void creature::damage(damage_s type, int hits) {
 	if(type == Heal)
 		hits = -hits;
-	if(hits > 0) {
-		if(type == Bludgeon && is(ResistBludgeon))
-			hits /= 2;
-		if(type == Slashing && is(ResistSlashing))
-			hits = (hits + 1) / 2;
-		if(type == Pierce && is(ResistPierce))
-			hits /= 2;
-	}
-	auto c = this->hits - hits;
 	if(hits < 0) {
+		auto c = this->hits - hits;
 		auto m = gethitsmaximum();
 		if(c > m)
 			c = m;
 		sethits(c);
 		return;
 	}
+	if(type == Bludgeon && is(ResistBludgeon))
+		hits /= 2;
+	if(type == Slashing && is(ResistSlashing))
+		hits = (hits + 1) / 2;
+	if(type == Pierce && is(ResistPierce))
+		hits /= 2;
 	if(hits == 0)
 		return;
+	auto c = this->hits - hits;
 	sethits(c);
 	draw::animation::damage(this, hits);
 	if(!ishero()) {
