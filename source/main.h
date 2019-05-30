@@ -74,7 +74,7 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	Aid, FlameBlade, HoldPerson, SlowPoison,
+	Aid, FlameBlade, HoldPerson, ProduceFlame, SlowPoison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -147,8 +147,8 @@ enum item_s : unsigned char {
 	Ration, RationIron,
 	// Monster attacks
 	Slam, Claws, Bite, Bite2d6,
-	ShokingHand, FlameBladeHand,
-	LastItem = FlameBladeHand,
+	ShokingHand, FlameBladeHand, FlameHand,
+	LastItem = FlameHand,
 	// Thrown effect
 	FireThrown, LightingThrown, IceThrown, MagicThrown
 };

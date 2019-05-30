@@ -93,6 +93,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Aid", {0, 2}, TargetAlly, aid_spell},
 {"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
+{"Produce Flame", {0, 2}, TargetSelf, FlameHand},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
