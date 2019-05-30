@@ -72,6 +72,8 @@ enum spell_s : unsigned char {
 	MageArmor, MagicMissile,
 	ProtectionFromEvil, PurifyFood,
 	SpellReadLanguages, SpellShield, Sleep,
+	// Spells (level 2)
+	Aid,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -437,7 +439,7 @@ class creature {
 	unsigned			states[LastState + 1];
 	cflags<feat_s>		feats;
 	cflags<usability_s>	usability;
-	short				hits, hits_rolled;
+	short				hits, hits_aid, hits_rolled;
 	char				initiative;
 	bool				moved;
 	char				levels[3];
@@ -500,7 +502,7 @@ public:
 	int					gethd() const;
 	dice				gethitdice() const;
 	int					gethitpenalty(int bonus) const;
-	short				gethits() const { return hits; }
+	short				gethits() const { return hits + hits_aid; }
 	short				gethitsmaximum() const;
 	gender_s			getgender() const { return gender; }
 	short unsigned		getindex() const;

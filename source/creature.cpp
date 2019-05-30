@@ -1091,7 +1091,7 @@ void creature::damage(damage_s type, int hits) {
 		if(type == Pierce && is(ResistPierce))
 			hits /= 2;
 	}
-	auto c = gethits() - hits;
+	auto c = this->hits - hits;
 	if(hits < 0) {
 		auto m = gethitsmaximum();
 		if(c > m)
@@ -1119,18 +1119,8 @@ void creature::damage(damage_s type, int hits) {
 				if(!it || !it.getportrait())
 					continue;
 				it.setidentified(0);
-				if(it.ismagical())
+				if(it.ismagical() || d100() < 25)
 					location.dropitem(index, it, side);
-				else if(d100() < 25) {
-					// Random magic item
-					auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
-					auto chance_cursed = 5;
-					if(is(Undead))
-						chance_cursed += 5;
-					location.dropitem(index,
-						item(it.gettype(), chance_magic, chance_cursed, 25),
-						side);
-				}
 			}
 			clear();
 		}

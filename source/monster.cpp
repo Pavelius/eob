@@ -96,8 +96,15 @@ void creature::set(monster_s value) {
 	levels[0] = mi.hd[0];
 	if(mi.hd[1] >= 3)
 		levels[0]++;
-	for(auto i : mi.attacks)
-		equip(i);
+	auto hitd = gethd();
+	for(auto i : mi.attacks) {
+		auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
+		auto chance_cursed = 5;
+		if(is(Undead))
+			chance_cursed += 5;
+		item it(i, chance_magic, chance_cursed, 25);
+		equip(it);
+	}
 }
 
 creature* dungeon::addmonster(monster_s type, short unsigned index, char side, direction_s dir) {
