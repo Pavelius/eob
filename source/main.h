@@ -279,9 +279,10 @@ struct combati {
 struct itemi {
 	struct weaponi : combati {
 		dice			damage_large;
-		constexpr weaponi() : damage_large(), combati() {}
-		constexpr weaponi(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0) :
-			combati{attack, type, speed, damage, bonus}, damage_large(damage_large) {}
+		const weaponi*	next;
+		constexpr weaponi() : damage_large(), combati(), next(0) {}
+		constexpr weaponi(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0, const weaponi* next = 0) :
+			combati{attack, type, speed, damage, bonus}, damage_large(damage_large), next(next) {}
 	};
 	struct armori {
 		char			ac;
