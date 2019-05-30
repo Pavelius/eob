@@ -1181,7 +1181,6 @@ static void render_screen() {
 			p->paint();
 		} else
 			p->paint();
-		//game::action::pause();
 	}
 }
 
