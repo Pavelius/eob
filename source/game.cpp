@@ -334,8 +334,6 @@ bool game::action::use(item* pi) {
 				mslog("Nothing happened, when %1 try use wand", pc->getname(name, zendof(name)));
 			}
 		}
-		if(!pi->getcharges())
-			consume = true;
 		break;
 	case DungeonMap:
 		forward_index = location.getsecret();

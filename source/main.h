@@ -72,9 +72,9 @@ enum spell_s : unsigned char {
 	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, FeatherFall,
 	MageArmor, MagicMissile,
 	ProtectionFromEvil, PurifyFood,
-	SpellReadLanguages, SpellShield, Sleep,
+	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	Aid, HoldPerson, SlowPoison,
+	Aid, FlameBlade, HoldPerson, SlowPoison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -156,7 +156,8 @@ enum item_s : unsigned char {
 	Ration, RationIron,
 	// Monster attacks
 	Slam, Claws, Bite, Bite2d6,
-	LastItem = Bite2d6,
+	ShokingHand, FlameBladeHand,
+	LastItem = FlameBladeHand,
 	// Thrown effect
 	FireThrown, LightingThrown, IceThrown, MagicThrown
 };
@@ -200,6 +201,7 @@ enum usability_s : unsigned char {
 };
 enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick,
+	Natural, Charged,
 	Wonderful, Magical,
 };
 enum attack_s : unsigned char {
@@ -214,6 +216,7 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 class creature;
+class item;
 template<typename T> struct bsmeta {
 	typedef T			data_type;
 	static T			elements[];
@@ -271,6 +274,7 @@ struct combati {
 	char				speed;
 	dice				damage;
 	char				bonus, critical_multiplier, critical_range;
+	item*				weapon;
 };
 struct itemi {
 	struct weaponi : combati {
@@ -351,13 +355,19 @@ struct effecti {
 			char		damage_increment, damage_maximum;
 			save_s		damage_save;
 		};
+		struct {
+			item_s		item_weapon;
+		};
 		int				value;
 	};
 	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_level);
+	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	constexpr effecti(callback proc, int value = 0) : proc(proc), value(value) {}
 	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
 		duration(duration), state(state), save(save), save_bonus(save_bonus) {}
+	constexpr effecti(item_s item_weapon) : proc(apply_weapon),
+		item_weapon(item_weapon) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
 		damage_type(type), damage(damage), damage_per(damage_per), damage_increment(increment), damage_maximum(maximum),
 		damage_save(save) {}
@@ -421,13 +431,15 @@ public:
 	bool				is(item_feat_s v) const { return bsmeta<itemi>::elements[type].feats.is(v); }
 	bool				isartifact() const { return magic == 3; }
 	bool				isbroken() const { return broken != 0; }
+	bool				ischarged() const { return is(Charged); }
 	bool				iscursed() const { return cursed != 0; }
 	bool				isidentified() const { return identified != 0; }
 	bool				ismagical() const;
 	bool				ismelee() const;
+	bool				isnatural() const { return is(Natural); }
 	bool				isranged() const { return is(Ranged); }
 	bool				istwohanded() const { return is(TwoHanded); }
-	void				setcharges(int value) { charges = value; }
+	void				setcharges(int value);
 	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
 	void				setidentified(int value) { identified = value; }
@@ -579,6 +591,7 @@ public:
 	void				setmoved(bool value) { moved = value; }
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
+	bool				setweapon(item_s v, int charges);
 	void				slowpoison();
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);

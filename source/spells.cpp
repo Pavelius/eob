@@ -87,9 +87,11 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Purify food", {0, 1}, TargetAllAlly, {purify_food}},
 {"Read Languages", {1, 0}, TargetSelf, {DurationTurn, StateSpeakable, NoSave}},
 {"Shield", {1, 0}, TargetSelf, {Duration5PerLevel, Shielded, NoSave}},
+{"Shoking grasp", {1, 0}, TargetSelf, ShokingHand},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // 2 - level
 {"Aid", {0, 2}, TargetAlly, aid_spell},
+{"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // Special ability
@@ -122,6 +124,11 @@ static bool test_save(creature* target, int& value, skill_s skill, save_s type, 
 		break;
 	}
 	return false;
+}
+
+void effecti::apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	//target->setweapon(e.item_weapon, level + xrand(4, 8));
+	target->setweapon(e.item_weapon, 2);
 }
 
 void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_magic) {

@@ -251,11 +251,13 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		r += 2;
 	if(is(Blessed))
 		r += 1;
+	auto hd = gethd();
 	result.attack = OneAttack;
 	result.bonus += r;
 	if(kind)
 		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
 	if(wears[weapon]) {
+		auto& wi = bsmeta<itemi>::elements[wears[weapon].gettype()].weapon;
 		wears[weapon].get(result, enemy);
 		if(enemy) {
 			// RULE: holy weapon do more damage to undead
@@ -265,6 +267,9 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 				result.damage.b += b;
 			}
 		}
+		result.weapon = const_cast<item*>(&wears[weapon]);
+		if(result.weapon->is(Natural))
+			result.damage.b += wi.damage_large.b * hd;
 	} else
 		result.damage = {1, 2};
 	auto race = getrace();
@@ -480,6 +485,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			if(is(Paralized, slot))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			defender->damage(wi.type, hits);
+			// If weapon have charges waste it
+			if(wi.weapon) {
+				if(wi.weapon->is(Charged))
+					wi.weapon->setcharges(wi.weapon->getcharges() - 1);
+			}
 		} else
 			draw::animation::render();
 		draw::animation::update();
@@ -1080,6 +1090,18 @@ bool creature::isallow(const item it, wear_s slot) const {
 	return it.getwear() == slot;
 }
 
+static void remove_hits(short& bonus, int v) {
+	if(bonus) {
+		if(bonus >= v) {
+			bonus -= v;
+			v = 0;
+		} else {
+			v -= bonus;
+			bonus = 0;
+		}
+	}
+}
+
 void creature::damage(damage_s type, int hits) {
 	if(type == Heal)
 		hits = -hits;
@@ -1099,7 +1121,9 @@ void creature::damage(damage_s type, int hits) {
 		hits /= 2;
 	if(hits == 0)
 		return;
-	auto c = this->hits - hits;
+	auto h = hits;
+	remove_hits(hits_aid, h);
+	auto c = this->hits - h;
 	sethits(c);
 	draw::animation::damage(this, hits);
 	if(!ishero()) {
@@ -1115,11 +1139,12 @@ void creature::damage(damage_s type, int hits) {
 			auto side = getside();
 			for(auto par = FirstInvertory; par <= LastInvertory; par = (wear_s)(par + 1)) {
 				auto it = wears[par];
-				if(!it || !it.getportrait())
+				if(!it || it.is(Natural))
 					continue;
-				it.setidentified(0);
-				if(it.ismagical() || d100() < 25)
+				if(it.ismagical() || d100() < 25) {
+					it.setidentified(0);
 					location.dropitem(index, it, side);
+				}
 			}
 			clear();
 		}
@@ -1358,4 +1383,15 @@ void creature::slowpoison() {
 		if(states[e] > current)
 			states[e] = current + (states[e] - current) / 2;
 	}
+}
+
+bool creature::setweapon(item_s v, int charges) {
+	if(wears[RightHand]) {
+		say("No, my hand is busy!");
+		return false;
+	}
+	item it(v);
+	it.setcharges(charges);
+	wears[RightHand] = it;
+	return true;
 }

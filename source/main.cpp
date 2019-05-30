@@ -123,13 +123,12 @@ static void random_heroes() {
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
 	game::party[1]->add(item(Bow, 20, 0, 0));
 	game::party[2]->add(item(MagicWand, 20, 0, 0));
-	game::party[2]->add(Bless);
-	game::party[2]->add(DetectMagic);
-	game::party[2]->add(MagicMissile);
+	game::party[2]->add(ShokingGrasp);
 	game::party[2]->equip(item(BlueRing, OfWizardy));
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(PriestScroll);
 	game::party[3]->add(item(DungeonMap, 20, 0, 0));
+	//
 	item artifact(SwordShort, 100, 5, 100);
 	artifact.setidentified(1);
 	game::party[3]->add(artifact);

@@ -86,10 +86,12 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Ration", 38},
 {"Iron ration", 37},
 //
-{"Slam", 0, RightHand, {}, {}, {OneAttack, Bludgeon, -2, {1, 8}, {1, 8}}},
-{"Claws", 0, RightHand, {}, {}, {TwoAttacks, Slashing, -3, {1, 4}, {1, 4}}},
-{"Bite", 0, RightHand, {}, {}, {OneAttack, Pierce, -4, {1, 6}, {1, 6}}},
-{"Bite", 0, RightHand, {}, {}, {OneAttack, Pierce, -4, {2, 6}, {2, 6}}},
+{"Slam", 0, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
+{"Claws", 0, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
+{"Bite", 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
+{"Bite", 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
+{"Shoking grasp", 80, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
+{"Flame blade", 82, RightHand, {}, {Natural, Charged}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
 };
 assert_enum(item, LastItem);
 static_assert(sizeof(item) == 4, "Not valid items count");
@@ -241,7 +243,7 @@ int	item::get(enchant_s value) const {
 void item::get(combati& result, const creature* enemy) const {
 	auto& wi = bsmeta<itemi>::elements[type].weapon;
 	auto size = enemy ? enemy->getsize() : Medium;
-	if(size == Large)
+	if(size == Large && !is(Natural))
 		result.damage = wi.damage_large;
 	else
 		result.damage = wi.damage;
@@ -308,4 +310,11 @@ int	item::getmagic() const {
 	if(iscursed())
 		return - r - 1;
 	return r;
+}
+
+void item::setcharges(int value) {
+	if(value<=0)
+		clear();
+	else
+		charges = value;
 }
