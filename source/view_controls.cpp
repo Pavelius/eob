@@ -221,7 +221,7 @@ static void border_down(rect rc) {
 	draw::line(rc.x1 + 1, rc.y1, rc.x2 - 1, rc.y1);
 }
 
-int draw::flatb(int x, int y, int width, int id, unsigned flags, const char* string) {
+int draw::flatb(int x, int y, int width, unsigned flags, const char* string) {
 	int height = draw::texth() + 1;
 	if(flags&Focused)
 		rectf({x, y, x + width, y + height + 1}, colors::dark);

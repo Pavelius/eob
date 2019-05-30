@@ -146,7 +146,6 @@
     <ClCompile Include="collection.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="command.cpp" />
-    <ClCompile Include="commands.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_memory.cpp" />

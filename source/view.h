@@ -14,7 +14,7 @@ void					buttont(int x, int y, int width, const cmd& ev, const char* name, const
 void					choose(const menu* source);
 int						ciclic(int range, int speed = 1);
 void					closeform();
-int						flatb(int x, int y, int width, int id, unsigned flags, const char* string);
+int						flatb(int x, int y, int width, unsigned flags, const char* string);
 rect					form(rect rc, int count = 1);
 infoproc				getmode();
 sprite*					gres(resource_s id);

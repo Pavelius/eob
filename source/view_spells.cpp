@@ -147,8 +147,7 @@ spell_s creature::choosespell(class_s type) const {
 			auto level = i + 1;
 			sznum(temp, level);
 			unsigned flags = 0;
-			flatb(x + i * dx, y, dx, ChooseLevels,
-				(level == current_level) ? Focused : 0, temp);
+			flatb(x + i * dx, y, dx, (level == current_level) ? Focused : 0, temp);
 		}
 		x = rc.x1;
 		y = rc.y1 + draw::texth() + 2;
@@ -159,7 +158,6 @@ spell_s creature::choosespell(class_s type) const {
 		domodal();
 		switch(hot::key) {
 		case KeyEscape:
-		case Cancel:
 			return NoSpell;
 		case KeyEnter:
 		case Alpha + 'U':

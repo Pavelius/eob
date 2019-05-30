@@ -79,15 +79,6 @@ enum spell_s : unsigned char {
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
 };
-enum command_s : unsigned char {
-	NoCommand,
-	PrayForSpells, MemorizeSpells, ChooseLevels, ChooseSpells,
-	NewGame, LoadGame, SaveGame, QuitGame, Settings,
-	Clear, OK, Cancel, Delete, Rename,
-	LeaveArea, GoingUp, GoingDown, DropDown,
-	Roll, Keep, NextPortrait, PreviousPortrait,
-	GameOver, PassSegment
-};
 enum class_s : unsigned char {
 	NoClass,
 	Cleric, Fighter, Mage, Paladin, Ranger, Theif,

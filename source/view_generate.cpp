@@ -303,10 +303,6 @@ static void apply_change_character() {
 		button(x, y, delete_character, 0, Alpha + 'D');
 		button(x + 39, y, buttonok, "OK", Alpha + 'K');
 		domodal();
-		switch(hot::key) {
-		case Delete:
-			break;
-		}
 	}
 }
 
