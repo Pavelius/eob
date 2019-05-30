@@ -4,6 +4,9 @@
 #pragma once
 
 namespace draw {
+struct palspr : pma {
+	unsigned char		data[18][16];
+};
 typedef void(*infoproc)(item*);
 void					abilities(int x, int y, creature* pc);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);

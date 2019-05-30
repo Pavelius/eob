@@ -12,7 +12,7 @@ static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCoope
 #ifdef _DEBUG
 
 static void test_room2(int x, int y) {
-	location.set(location.getindex(x, y-2), CellWall);
+	location.set(location.getindex(x, y - 2), CellWall);
 	auto po = location.setoverlay(location.getindex(x, y - 1), CellCellar, Up);
 	location.add(po, Bless);
 	location.add(po, item(Dagger, 50, 0, 10));
@@ -136,18 +136,45 @@ static void random_heroes() {
 
 void util_main();
 
-static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0) {
-	auto pb = overlay;
-	auto pe = overlay + 4;
-	while(pb < pe) {
-		if(pb > overlay && *pb == 0)
-			break;
-		if(percent == 1000)
-			draw::image(x, y, draw::gres(rs), (*pb) * 6 + frame, flags);
-		else
-			draw::imagex(x, y, draw::gres(rs), (*pb) * 6 + frame, flags, percent, darkness);
-		pb++;
+static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0, int pallette = 0) {
+	color pal[256];
+	auto push_pal = draw::palt;
+	auto sp = draw::gres(rs);
+	if(pallette) {
+		auto s1 = (palspr*)sp->getheader("COL");
+		if(s1) {
+			auto& fr = sp->get(frame);
+			auto pa = (color*)sp->offs(fr.pallette);
+			memcpy(pal, pa, sizeof(pal));
+			draw::palt = pal;
+			for(auto i = 0; i < 16; i++) {
+				auto i1 = s1->data[0][i];
+				if(!i1)
+					break;
+				pal[i1] = pa[s1->data[pallette][i]];
+			}
+			flags |= ImagePallette;
+		}
 	}
+	if(overlay) {
+		auto pb = overlay;
+		auto pe = overlay + 4;
+		while(pb < pe) {
+			if(pb > overlay && *pb == 0)
+				break;
+			if(percent == 1000)
+				draw::image(x, y, sp, (*pb) * 6 + frame, flags);
+			else
+				draw::imagex(x, y, sp, (*pb) * 6 + frame, flags, percent, darkness);
+			pb++;
+		}
+	} else {
+		if(percent == 1000)
+			draw::image(x, y, sp, frame, flags);
+		else
+			draw::imagex(x, y, sp, frame, flags, percent, darkness);
+	}
+	draw::palt = push_pal;
 }
 
 static void test_monster(resource_s rs, int overlay[4]) {
@@ -156,19 +183,20 @@ static void test_monster(resource_s rs, int overlay[4]) {
 	unsigned flags = 0;
 	int x = 100;
 	int y = 100;
+	int pal = 2;
 	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-		draw_monster(x, y, rs, 0, overlay, flags, percent);
+		draw_monster(x, y, rs, 0, overlay, flags, percent, 0, pal);
 		domodal();
 		switch(hot::key) {
 		case KeyEscape:
 			return;
 		case Alpha + 'A':
 			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-			draw_monster(x, y, rs, 4, overlay, flags, percent);
+			draw_monster(x, y, rs, 4, overlay, flags, percent, 0, pal);
 			draw::redraw(); sleep(500);
 			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-			draw_monster(x, y, rs, 5, overlay, flags, percent);
+			draw_monster(x, y, rs, 5, overlay, flags, percent, 0, pal);
 			draw::redraw(); sleep(500);
 			break;
 		case Alpha + 'M':
@@ -251,8 +279,7 @@ static void load_game() {
 	}
 }
 
-static void settings() {
-}
+static void settings() {}
 
 void draw::options() {
 	static menu elements[] = {{pray_for_spells, "Pray for spells"},
@@ -283,13 +310,14 @@ int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG
 	static int ovr12[4] = {0, 1, 2};
 	static int ovr13[4] = {0, 1, 3};
 	static int ovr3[4] = {0, 2, 3};
+	test_monster(ANT, 0);
 	//test_monster(GUARD1, ovr3);
 	//test_monster(CLERIC2, ovr3);
 #endif
