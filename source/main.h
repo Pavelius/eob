@@ -468,6 +468,7 @@ public:
 	explicit operator bool() const { return states[0] != 0; }
 	void				add(item i);
 	bool				add(state_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
+	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
 	void				attack(short unsigned index, direction_s d, int bonus);

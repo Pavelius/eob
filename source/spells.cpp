@@ -60,7 +60,12 @@ static void lay_on_hands(creature* player, creature* target, const effecti& e, i
 }
 
 static void aid_spell(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->damage(Heal, 2 * player->get(Paladin));
+	target->addaid(xrand(1, 8));
+	auto duration = getduration(DurationHour, level);
+	target->add(Blessed, duration, NoSave);
+}
+
+static void slow_poison(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 }
 
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
@@ -79,7 +84,8 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Shield", {1, 0}, TargetSelf, {Duration5PerLevel, Shielded, NoSave}},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // 2 - level
-{"Aid", {0, 2}, TargetAlly, {DurationHour, Blessed, NoSave}},
+{"Aid", {0, 2}, TargetAlly, aid_spell},
+{"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
