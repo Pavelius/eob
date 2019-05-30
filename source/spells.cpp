@@ -127,8 +127,7 @@ static bool test_save(creature* target, int& value, skill_s skill, save_s type, 
 }
 
 void effecti::apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	//target->setweapon(e.item_weapon, level + xrand(4, 8));
-	target->setweapon(e.item_weapon, 2);
+	target->setweapon(e.item_weapon, xrand(1, 4) + level);
 }
 
 void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
