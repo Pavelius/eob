@@ -790,12 +790,12 @@ void game::passround() {
 		} else
 			stop_monster(monster_index);
 	}
-	// Обновим монстров
+	// Let monster update
 	for(auto& e : location.monsters) {
 		if(e)
 			e.update(false);
 	}
-	// Обновим героев
+	// Let hero update
 	for(auto pc : game::party) {
 		if(!pc)
 			continue;

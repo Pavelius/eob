@@ -634,7 +634,10 @@ void draw::adventure() {
 			draw::animation::thrown(game::getcamera(), game::getdirection(), Arrow, Left, 50);
 			break;
 		case Alpha + 'H':
-			draw::animation::thrown(game::getcamera(), game::getdirection(), Arrow, Right, 50);
+			if(true) {
+				auto i1 = draw::animation::thrown(game::getcamera(), game::getdirection(), FireThrown, Center, 50);
+				auto i2 = draw::animation::thrown(i1, to(game::getdirection(), Down), LightingThrown, Center, 50);
+			}
 			break;
 		case Alpha + '1':
 		case Alpha + '2':

@@ -32,6 +32,8 @@ static void choose_level() {
 }
 
 static void clear_spells() {
+	if(!current_hero)
+		return;
 }
 
 static void add_spell() {
