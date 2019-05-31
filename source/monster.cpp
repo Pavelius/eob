@@ -98,7 +98,7 @@ void creature::set(monster_s value) {
 		levels[0]++;
 	auto hitd = gethd();
 	for(auto i : mi.attacks) {
-		auto chance_magic = imax(0, imin(65, 10 + hitd * 3));
+		auto chance_magic = imax(0, imin(65, 5 + hitd * 3));
 		auto chance_cursed = 5;
 		if(is(Undead))
 			chance_cursed += 5;
