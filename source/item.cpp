@@ -91,7 +91,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Bite", 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
 {"Bite", 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
 {"Shoking grasp", 80, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
-{"Flame blade", 82, RightHand, {}, {Natural, Charged}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
+{"Flame blade", 82, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
 {"Flame hand", 81, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
 };
 assert_enum(item, LastItem);
@@ -256,6 +256,10 @@ void item::get(combati& result, const creature* enemy) const {
 		result.critical_multiplier++;
 	if(is(Quick))
 		result.critical_range++;
+	if(enemy) {
+		if(is(SevereDamageUndead))
+			result.damage.b += 2;
+	}
 	result.critical_range += get(OfSharpness);
 	result.critical_multiplier += get(OfSmashing);
 }
