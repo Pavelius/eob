@@ -237,49 +237,6 @@ static int get_dungeon_floor(dungeon* pd, int x, int y, direction_s dir) {
 	return -1;
 }
 
-static int get_item_portrait(int rec) {
-	switch(rec) {
-	case SwordShort: case SwordLong: case SwordBastard: case SwordTwoHanded: return 0;
-	case Mace: return 1;
-	case Flail: return 2;
-	case Staff: return 3;
-	case AxeBattle: case Axe: return 4;
-	case Halberd: return 5;
-	case Bow: return 6;
-	case Shield: return 7;
-	case ArmorLeather: case ArmorStuddedLeather: case Robe: return 8;
-	case ArmorScale: case ArmorChain: case ArmorBanded: case ArmorPlate: return 9;
-	case HammerWar: return 10;
-		//
-	case Dart: return 0;
-	case TheifTools: return 1;
-	case Stone: return 2;
-	case Dagger: return 3;
-	case Sling:return 4;
-	case Arrow: return 5;
-	case Helm: return 6;
-	case Bones: return 7;
-	case Boots: return 9;
-	case MagicWand: return 10;
-	case MagicBook: return 11;
-	case DungeonMap: case MageScroll: case PriestScroll: return 12;
-		//
-	case Ration: case RationIron: return 14;
-	case BlueRing: case RedRing: case GreenRing: return 15;
-	case Bracers: return 16;
-		//
-		//
-	case PotionBlue: case PotionRed: case PotionGreen: return 19;
-	case HolySymbol: return 20;
-		//
-	case RedGem: case BlueGem: case GreenGem: case PurpleGem: return 22;
-	default:
-		if(rec >= KeyShelf && rec <= KeyGreen)
-			return 8;
-		return 0;
-	}
-}
-
 static int get_compass_index(direction_s d) {
 	switch(d) {
 	case Right: return 1; // East
@@ -554,7 +511,7 @@ static void fill_item_sprite(render_disp* p, item_s type, int frame = 0) {
 		p->rdata = draw::gres(ITEMGL);
 	else
 		p->rdata = draw::gres(ITEMGS);
-	p->frame[frame] = get_item_portrait(type);
+	p->frame[frame] = bsmeta<itemi>::elements[type].image.ground;
 }
 
 static void fill_sprite(render_disp* p, item_s type, direction_s drs) {

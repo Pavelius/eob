@@ -98,11 +98,11 @@ void creature::set(monster_s value) {
 		levels[0]++;
 	auto hitd = gethd();
 	for(auto i : mi.attacks) {
-		auto chance_magic = imax(0, imin(65, 15 + hitd * 3));
+		auto chance_magic = imax(0, imin(65, 10 + hitd * 3));
 		auto chance_cursed = 5;
 		if(is(Undead))
 			chance_cursed += 5;
-		item it(i, chance_magic, chance_cursed, 25);
+		item it(i, chance_magic, chance_cursed, 20);
 		equip(it);
 	}
 	pallette = mi.getpallette();

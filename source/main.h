@@ -281,8 +281,12 @@ struct itemi {
 		char			critical_deflect;
 		char			reduction;
 	};
+	struct portraiti {
+		unsigned char	avatar;
+		unsigned char	ground;
+	};
 	const char*			name;
-	unsigned char		portrait;
+	portraiti			image;
 	wear_s				equipment;
 	cflags<usability_s>	usability;
 	cflags<item_feat_s>	feats;

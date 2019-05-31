@@ -128,7 +128,6 @@ static void random_heroes() {
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
 	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
-	game::party[3]->add(PriestScroll);
 	game::party[3]->add(item(DungeonMap, 20, 0, 0));
 	//
 	item artifact(SwordShort, 100, 5, 100);
