@@ -307,7 +307,9 @@ struct monsteri {
 	item_s				attacks[4];
 	state_s				special[3];
 	enchant_s			enchantments[2];
+	//
 	int					getexperience() const;
+	char				getpallette() const;
 	bool				is(enchant_s id) const;
 	bool				is(state_s id) const;
 };
@@ -462,6 +464,7 @@ class creature {
 	unsigned			experience;
 	unsigned char		name[2];
 	char				str_exeptional;
+	char				pallette;
 	reaction_s			reaction;
 	//
 	int					armor_penalty(skill_s skill) const;
@@ -523,6 +526,7 @@ public:
 	int					getknown(spell_s id) const { return known[id]; }
 	static int			getlevel(spell_s id, class_s type);
 	const char*			getname(char* result, const char* result_maximum) const;
+	int					getpallette() const { return pallette; }
 	int					getprepare(spell_s v) const { return prepared[v]; }
 	race_s				getrace() const { return race; }
 	resource_s			getres() const;

@@ -141,3 +141,11 @@ void draw::skills(int x, int y, creature* pc) {
 		y1 += 7;
 	}
 }
+
+char monsteri::getpallette() const {
+	auto pr = gres(rfile);
+	auto ph = pr->getheader("COL");
+	if(!ph)
+		return 0;
+	return xrand(0, 2);
+}

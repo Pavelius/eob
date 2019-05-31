@@ -16,6 +16,7 @@ struct render_disp {
 	short unsigned		flags[4];
 	creature*			pc;
 	cell_s				rec;
+	unsigned char		pallette;
 	short				percent;
 	unsigned char		alpha;
 	unsigned char		zorder;
@@ -957,6 +958,7 @@ static render_disp* create_monsters(render_disp* p, int i, int index, direction_
 		if(!p->rdata)
 			continue;
 		p->pc = pc;
+		p->pallette = pc->getpallette();
 		unsigned flags = 0;
 		// Анимируем активных монстров
 		if(active) {
@@ -1097,15 +1099,16 @@ void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int p
 	int ssy = f.sy*percent / 1000;
 	int sox = f.ox*percent / 1000;
 	int soy = f.oy*percent / 1000;
+	unsigned flags_addon = (flags & ImagePallette);
 	if(true) {
 		draw::state push;
 		draw::canvas = &scaler;
 		draw::fore.r = draw::fore.g = draw::fore.b = 0; draw::fore.a = 0xFF;
 		draw::rectf({0, 0, sx, sy});
 		if(flags&ImageMirrorH)
-			draw::image(sx, 0, res, id, ImageMirrorH | ImageNoOffset);
+			draw::image(sx, 0, res, id, ImageMirrorH | ImageNoOffset | flags_addon);
 		else
-			draw::image(0, 0, res, id, ImageNoOffset);
+			draw::image(0, 0, res, id, ImageNoOffset | flags_addon);
 	}
 	blit(scaler2, 0, 0, ssx, ssy, 0, scaler, 0, 0, sx, sy);
 	fast_shadow(scaler2.bits, scaler2.scanline, ssx, ssy, shadow);
@@ -1118,14 +1121,34 @@ void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int p
 }
 
 void render_disp::paint() const {
+	color pal[256];
+	auto push_pal = palt;
+	unsigned flags_addon = 0;
+	if(pallette) {
+		auto s1 = (palspr*)rdata->getheader("COL");
+		if(s1) {
+			auto& fr = rdata->get(0);
+			auto pa = (color*)rdata->offs(fr.pallette);
+			memcpy(pal, pa, sizeof(pal));
+			draw::palt = pal;
+			for(auto i = 0; i < 16; i++) {
+				auto i1 = s1->data[0][i];
+				if(!i1)
+					break;
+				pal[i1] = pa[s1->data[pallette][i]];
+			}
+			flags_addon |= ImagePallette;
+		}
+	}
 	for(int i = 0; i < 4; i++) {
 		if(i && !frame[i])
 			break;
 		if(!percent && (flags[i] & ImageColor) == 0)
-			draw::image(x, y, rdata, frame[i], flags[i]);
+			draw::image(x, y, rdata, frame[i], flags[i] | flags_addon);
 		else
-			draw::imagex(x, y, rdata, frame[i], flags[i], percent, alpha);
+			draw::imagex(x, y, rdata, frame[i], flags[i] | flags_addon, percent, alpha);
 	}
+	palt = push_pal;
 }
 
 static void render_screen() {

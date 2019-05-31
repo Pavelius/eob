@@ -105,6 +105,7 @@ void creature::set(monster_s value) {
 		item it(i, chance_magic, chance_cursed, 25);
 		equip(it);
 	}
+	pallette = mi.getpallette();
 }
 
 creature* dungeon::addmonster(monster_s type, short unsigned index, char side, direction_s dir) {
