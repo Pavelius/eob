@@ -570,6 +570,16 @@ void creature::finish() {
 		str_exeptional = 0;
 }
 
+int get_cleric_spell_level(int hd) {
+	auto result = 0;
+	auto p = cleric_spells[hd];
+	for(auto i = 0; i < 9; i++) {
+		if(p[i])
+			result = i + 1;
+	}
+	return result;
+}
+
 void creature::raise_level(class_s type) {
 	auto level = get(type);
 	if(getclass(this->type, 0) == type)
@@ -593,6 +603,11 @@ void creature::raise_level(class_s type) {
 			random_spells(type, 1, 32);
 			prepare_random_spells(type, 1);
 			preparespells();
+		}
+	} else {
+		if(type == Cleric) {
+			auto spell_level = get_cleric_spell_level(level+1);
+			random_spells(type, spell_level, 32);
 		}
 	}
 	hits_rolled += hp;
@@ -1218,12 +1233,19 @@ bool creature::swap(item* itm1, item* itm2) {
 }
 
 bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
-	static const char* speech[] = {"It's mine!",
-		"Get yours hands off!",
-		"I don't leave this",
-	};
 	if(slot >= Head && slot <= Legs) {
 		if(i.iscursed()) {
+			static const char* speech[] = {"It's mine!",
+				"Get yours hands off!",
+				"I don't leave this",
+			};
+			if(interactive)
+				say(maprnd(speech));
+			return false;
+		} else if(i.isnatural()) {
+			static const char* speech[] = {"It's part of me!",
+				"No, I can't remove this!"
+			};
 			if(interactive)
 				say(maprnd(speech));
 			return false;
@@ -1394,4 +1416,113 @@ bool creature::setweapon(item_s v, int charges) {
 	it.setcharges(charges);
 	wears[RightHand] = it;
 	return true;
+}
+
+creature* get_most_damaged() {
+	creature* result = 0;
+	int difference = 0;
+	for(auto e : game::party) {
+		if(!e)
+			continue;
+		int hp = e->gethits();
+		int mhp = e->gethitsmaximum();
+		if(hp == mhp)
+			continue;
+		auto n = mhp - hp;
+		if(n > difference) {
+			result = e;
+			difference = n;
+		}
+	}
+	return result;
+}
+
+static void try_autocast(creature* pc) {
+	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry};
+	for(auto e : healing_spells) {
+		if(!pc->get(e))
+			continue;
+		auto target = get_most_damaged();
+		if(!target)
+			continue;
+		pc->cast(e, Cleric, 0, target);
+	}
+}
+
+void creature::camp(item& it) {
+	for(auto e : game::party) {
+		if(!e)
+			continue;
+		if(!e->isready())
+			continue;
+		try_autocast(e);
+	}
+	game::passtime(60 * 8);
+	auto food = it.gettype();
+	auto poisoned = it.iscursed();
+	if(poisoned)
+		mslog("Food was poisoned!");
+	for(auto pc : game::party) {
+		if(!pc)
+			continue;
+		// RULE: Ring of healing get addition healing
+		auto healed = pc->getbonus(OfHealing) * 3;
+		if(poisoned) {
+			// RULE: Cursed food add weak poison
+			pc->add(WeakPoison);
+		} else {
+			switch(food) {
+			case Ration:
+				healed += xrand(1, 3);
+				break;
+			case RationIron:
+				healed += xrand(2, 6);
+				break;
+			}
+		}
+		// Remove additional hit points
+		pc->hits_aid = 0;
+		// Remove enchanted weapon
+		if(pc->wears[RightHand].is(Charged) && pc->wears[RightHand].is(Natural))
+			pc->wears[RightHand].clear();
+		// Heal damage
+		pc->damage(Heal, healed);
+		// Prepare spells
+		pc->preparespells();
+		// Recharge some items
+		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
+			auto pi = pc->getitem(i);
+			if(!pi || !(*pi))
+				continue;
+			auto type = pi->gettype();
+			switch(type) {
+			case MagicWand:
+				if(pi->iscursed())
+					break;
+				// RULE: Only mages can recharge spells
+				if(pc->get(Mage) < 5)
+					break;
+				if(pi->getcharges() < 50)
+					pi->setcharges(pi->getcharges() + 1);
+				break;
+			case MageScroll:
+			case PriestScroll:
+				// Autodetect scrolls by itellegence check
+				if((type == MageScroll && (pc->get(Mage) || pc->get(Ranger)))
+					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
+					|| pc->get(Theif) >= 3) {
+					if(pi->isidentified())
+						break;
+					if(pc->roll(Intellegence)) {
+						char temp[128];
+						pi->setidentified(1);
+						pc->say("It's %1", pi->getname(temp, zendof(temp)));
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }

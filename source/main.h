@@ -74,7 +74,7 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	Aid, FlameBlade, HoldPerson, ProduceFlame, SlowPoison,
+	Aid, FlameBlade, Goodberry, HoldPerson, ProduceFlame, SlowPoison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -483,6 +483,7 @@ public:
 	static void			addexp(int value, int killing_hit_dice);
 	void				attack(short unsigned index, direction_s d, int bonus);
 	void				attack(creature* defender, wear_s slot, int bonus);
+	static void			camp(item& it);
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
@@ -710,7 +711,6 @@ namespace game {
 namespace action {
 void					attack(short unsigned index);
 void					automap(dungeon& area, bool fow);
-void					camp(item& food);
 creature*				choosehero();
 void					dropitem(item* itm, int side = -1);
 void					fly(item_s item, int side);

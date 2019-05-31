@@ -92,6 +92,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 2 - level
 {"Aid", {0, 2}, TargetAlly, aid_spell},
 {"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
+{"Goodberry", {0, 2}, TargetAllAlly, {Heal, {1, 4}, {0}, 0, 0, NoSave}},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},

@@ -266,7 +266,7 @@ bool game::action::use(item* pi) {
 		}
 		if(!draw::dlgask("Do you want make camp?"))
 			return false;
-		game::action::camp(*pi);
+		creature::camp(*pi);
 		break;
 	case MagicBook:
 	case HolySymbol:
@@ -401,108 +401,6 @@ bool game::action::question(item* current_item) {
 	current_item->getname(name, zendof(name));
 	pc->say("This is %1", name);
 	return true;
-}
-
-creature* get_most_damaged() {
-	creature* result = 0;
-	int difference = 0;
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		int hp = e->gethits();
-		int mhp = e->gethitsmaximum();
-		if(hp == mhp)
-			continue;
-		auto n = mhp - hp;
-		if(n > difference) {
-			result = e;
-			difference = n;
-		}
-	}
-	return result;
-}
-
-static void try_autocast(creature* pc) {
-	spell_s healing_spells[] = {CureLightWounds, LayOnHands};
-	for(auto e : healing_spells) {
-		if(!pc->get(e))
-			continue;
-		auto target = get_most_damaged();
-		if(!target)
-			continue;
-		pc->cast(e, Cleric, 0, target);
-	}
-}
-
-void game::action::camp(item& it) {
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		if(!e->isready())
-			continue;
-		try_autocast(e);
-	}
-	passtime(60 * 8);
-	auto food = it.gettype();
-	auto poisoned = it.iscursed();
-	if(poisoned)
-		mslog("Food was poisoned!");
-	for(auto pc : game::party) {
-		if(!pc)
-			continue;
-		// RULE: Ring of healing get addition healing
-		auto healed = pc->getbonus(OfHealing) * 3;
-		if(poisoned) {
-			// RULE: Cursed food add weak poison
-			pc->add(WeakPoison);
-		} else {
-			switch(food) {
-			case Ration:
-				healed += xrand(1, 3);
-				break;
-			case RationIron:
-				healed += xrand(2, 6);
-				break;
-			}
-		}
-		pc->damage(Heal, healed);
-		pc->preparespells();
-		// Recharge some items
-		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
-			auto pi = pc->getitem(i);
-			if(!pi || !(*pi))
-				continue;
-			auto type = pi->gettype();
-			switch(type) {
-			case MagicWand:
-				if(pi->iscursed())
-					break;
-				// RULE: Only mages can recharge spells
-				if(pc->get(Mage) < 5)
-					break;
-				if(pi->getcharges() < 50)
-					pi->setcharges(pi->getcharges() + 1);
-				break;
-			case MageScroll:
-			case PriestScroll:
-				// Autodetect scrolls by itellegence check
-				if((type == MageScroll && (pc->get(Mage) || pc->get(Ranger)))
-					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
-					|| pc->get(Theif) >= 3) {
-					if(pi->isidentified())
-						break;
-					if(pc->roll(Intellegence)) {
-						char temp[128];
-						pi->setidentified(1);
-						pc->say("It's %1", pi->getname(temp, zendof(temp)));
-					}
-				}
-				break;
-			default:
-				break;
-			}
-		}
-	}
 }
 
 int game::getside(int side, direction_s dr) {
