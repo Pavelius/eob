@@ -4,7 +4,9 @@ using namespace draw;
 
 callback		next_proc;
 
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
+static sitei first_adventure[] = {
+	//{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
+{{BLUE, {DwarfWarrior, Spider}, {KeySilver, KeyCooper}, Human}, 1, 0, 0},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
 {{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
 {}};
@@ -21,16 +23,13 @@ static void test_room2(int x, int y) {
 static void test_dungeon(resource_s type) {
 	int x = 16;
 	int y = 16;
-	location.head.type = BRICK;
-	location.level = 1;
 	location_above.clear();
 	location.clear();
+	location.head.type = BRICK;
+	location.level = 1;
 	draw::settiles(type);
 	test_room2(x, y);
-	location.addmonster(Ghoul, location.getindex(x, y - 1), 0, Down);
-	location.addmonster(Zombie, location.getindex(x, y - 1), 1, Down);
-	location.addmonster(Skeleton, location.getindex(x, y - 1), 2, Down);
-	location.addmonster(Skeleton, location.getindex(x, y - 1), 3, Down);
+	location.addmonster(Wolf, location.getindex(x, y - 1), 0, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
@@ -257,26 +256,35 @@ static void quit_game() {
 	exit(0);
 }
 
+static void debug_dungeon1() {
+	game::setcamera(Blocked);
+	dungeon::create(1, first_adventure);
+	random_heroes();
+	game::write();
+	game::enter(1, 1);
+	setnext(adventure);
+}
+
+static void debug_dungeon2() {
+	location.clear();
+	location_above.clear();
+	random_heroes();
+	test_dungeon(BRICK);
+	draw::settiles(location.head.type);
+	game::setcamera(location.getindex(16, 16), Up);
+	setnext(adventure);
+}
+
 static void load_game() {
 	draw::resetres();
+	//debug_dungeon2();
+	//return;
 	if(game::read())
 		setnext(adventure);
 	else {
 #ifdef _DEBUG
-		if(true) {
-			game::setcamera(Blocked);
-			dungeon::create(1, first_adventure);
-			random_heroes();
-			game::write();
-			game::enter(1, 1);
-		} else {
-			random_heroes();
-			test_dungeon(BRICK);
-			draw::settiles(location.head.type);
-			game::setcamera(location.getindex(16, 16), Up);
-		}
-		setnext(adventure);
-#endif
+		debug_dungeon1();
+#endif // _DEBUG
 	}
 }
 
@@ -311,7 +319,7 @@ int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG

@@ -42,6 +42,7 @@ static struct resource_info {
 {"CLERIC2", "art/monsters"},
 {"CLERIC3", "art/monsters"},
 {"DRAGON", "art/monsters"},
+{"DWARF", "art/monsters"},
 {"FLIND", "art/monsters"},
 {"GHOUL", "art/monsters"},
 {"GOBLIN", "art/monsters"},
@@ -54,6 +55,7 @@ static struct resource_info {
 {"SKELETON", "art/monsters"},
 {"SKELWAR", "art/monsters"},
 {"SPIDER1", "art/monsters"},
+{"WOLF", "art/monsters"},
 {"ZOMBIE", "art/monsters"},
 };
 static_assert((sizeof(objects) / sizeof(objects[0])) == Count, "Need resource update");

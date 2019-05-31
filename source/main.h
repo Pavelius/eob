@@ -27,9 +27,9 @@ enum resource_s : unsigned char {
 	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
 	// Monsters
-	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, FLIND,
+	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
-	SKELETON, SKELWAR, SPIDER1, ZOMBIE,
+	SKELETON, SKELWAR, SPIDER1, WOLF, ZOMBIE,
 	Count
 };
 enum race_s : unsigned char {
@@ -87,8 +87,8 @@ enum class_s : unsigned char {
 };
 enum monster_s : unsigned char {
 	NoMonster,
-	AntGiant, Bugbear, ClericOldMan, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
-	Orc, Skeleton, Spider, Zombie
+	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
+	Orc, Skeleton, Spider, Wolf, Zombie
 };
 enum state_s : unsigned char {
 	NoState,
@@ -146,7 +146,7 @@ enum item_s : unsigned char {
 	RedGem, BlueGem, GreenGem, PurpleGem,
 	Ration, RationIron,
 	// Monster attacks
-	Slam, Claws, Bite, Bite2d6,
+	Slam, Claws, Bite, Bite1d41, Bite2d6,
 	ShokingHand, FlameBladeHand, FlameHand,
 	LastItem = FlameHand,
 	// Thrown effect

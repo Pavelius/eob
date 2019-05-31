@@ -902,8 +902,8 @@ static render_disp* create_monsters(render_disp* p, int i, int index, direction_
 		int d = pos_levels[i] * 2 - (n / 2);
 		p->clear();
 		if(size == Large) {
-			p->x = (item_position[i * 4 + 0].x + item_position[i * 4 + 1].x) / 2;
-			p->y = (item_position[i * 4 + 0].y + item_position[i * 4 + 3].y) / 2;
+			p->x = item_position[i * 4 + 0].x + (item_position[i * 4 + 1].x - item_position[i * 4 + 0].x) / 2;
+			p->y = item_position[i * 4 + 0].y + (item_position[i * 4 + 3].y - item_position[i * 4 + 0].y) / 2;
 		} else {
 			p->x = item_position[i * 4 + n].x;
 			p->y = item_position[i * 4 + n].y;

@@ -10,6 +10,7 @@ monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {WeakPoison}},
 {"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}, {}},
 {"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}, {}},
+{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 10, {AxeBattle, ArmorChain}, {}},
 {"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}, {}},
 {"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {Paralized}},
 {"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}, {}, {}},
@@ -19,6 +20,7 @@ monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}, {}, {}},
 {"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
 {"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {Poison}},
+{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}, {}, {}},
 {"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}, {}, {}}
 };
 assert_enum(monster, Zombie);
