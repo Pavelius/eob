@@ -922,6 +922,11 @@ template<> void archive::set<event_info>(event_info& e) {
 	set(e.skill);
 }
 
+template<> void archive::set<dungeon::overlayitem>(dungeon::overlayitem& e) {
+	set(*((item*)&e));
+	set(e.storage);
+}
+
 static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
@@ -960,6 +965,7 @@ template<> void archive::set<dungeon>(dungeon& e) {
 	set(e.items);
 	set(e.overlays);
 	set(e.monsters);
+	set(e.cellar_items);
 	set(events);
 }
 
@@ -968,7 +974,7 @@ static bool serialize(dungeon& e, short unsigned overland_index, int level, bool
 	io::file file(fname(temp, overland_index, level), write_mode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
-	archive::dataset pointers[] = {hero_data};
+	archive::dataset pointers[] = {hero_data, e.overlays};
 	archive a(file, write_mode, pointers);
 	a.set(e);
 	return true;

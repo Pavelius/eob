@@ -16,6 +16,8 @@ static roominfo		rooms[256]; // Кольцевой буфер генератора. Главное чтобы разниц
 static unsigned char stack_put; // Вершина стека.
 static unsigned char stack_get; // Низ стека.
 
+typedef void(*dungeon_proc)(dungeon* pd, short unsigned index, direction_s dir, unsigned flags);
+
 static void set(dungeon* pd, short unsigned index, cell_s t1) {
 	if(index && pd->get(index) == CellUnknown)
 		pd->set(index, t1);
@@ -484,13 +486,11 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 
 static int random_count() {
 	auto rolled = d100();
-	if(rolled < 50)
+	if(rolled < 60)
 		return 0;
-	else if(rolled < 80)
+	else if(rolled < 90)
 		return 1;
-	else if(rolled < 95)
-		return 2;
-	return 3;
+	return 2;
 }
 
 static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -500,7 +500,7 @@ static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	pd->set(i1, CellWall);
 	auto po = pd->setoverlay(index, CellCellar, dir);
 	auto count = random_count();
-	while(count-- > 0)
+	while((count--) > 0)
 		pd->add(po, create_item(pd, random_type(true), 10));
 }
 
@@ -548,41 +548,25 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 				random_content = false;
 		}
 		if(random_content) {
-			static struct chance_info {
-				int chance;
-				void(*proc)(dungeon* pd, short unsigned index, direction_s dir, unsigned flags);
-				bool swap;
-			} corridor_random[] = {{13, empthy, false},
-			{1, secret, true},
-			{4, monster, false},
-			{1, rations, false},
-			{1, stones, false},
-			{1, trap, false},
-			{1, cellar, true},
-			{1, portal, true},
-			{2, prison, true},
-			{1, treasure, true},
-			{2, decoration, true},
-			{1, message, true}
+			static dungeon_proc corridor_random[] = {empthy,
+				empthy, empthy, empthy, empthy, empthy, empthy,
+				empthy, empthy, empthy, empthy, empthy, empthy,
+				secret,
+				monster, monster, monster, monster,
+				rations,
+				stones,
+				trap,
+				cellar,
+				portal,
+				prison, prison,
+				treasure,
+				decoration, decoration,
+				message,
 			};
-			auto total = 0;
-			for(auto& e : corridor_random)
-				total += e.chance;
-			if(total) {
-				int d = rand() % total;
-				for(auto& e : corridor_random) {
-					if(d < e.chance) {
-						if(e.swap) {
-							e.proc(pd, index, to(dir, rnd[0]), flags);
-							if(d100() < 60)
-								iswap(rnd[0], rnd[1]);
-						} else
-							e.proc(pd, index, dir, flags);
-						break;
-					}
-					d -= e.chance;
-				}
-			}
+			auto proc = corridor_random[rand() % sizeof(corridor_random)/ sizeof(corridor_random[0])];
+			proc(pd, index, to(dir, rnd[0]), flags);
+			if(d100() < 60)
+				iswap(rnd[0], rnd[1]);
 		}
 		chance += 13;
 	}

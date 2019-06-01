@@ -387,9 +387,10 @@ struct statei {
 struct sitei {
 	struct headi {
 		resource_s		type;
-		monster_s		habbits[2]; // who dwelve here
-		item_s			keys[2];
-		race_s			language; // all messages in this language
+		monster_s		habbits[2]; // Who dwelve here
+		item_s			keys[2]; // Two keys open all doors
+		item_s			special[2]; // Two special items find on this level
+		race_s			language; // All messages in this language
 	};
 	headi				head;
 	char				levels;
@@ -633,6 +634,7 @@ struct dungeon {
 		unsigned char	weapons; // count of magical weapons
 		unsigned char	elements; // count of corridors
 		unsigned char	traps; // count of traps
+		unsigned char	special; // count of special items generated
 	};
 	struct chancei {
 		char			magic;

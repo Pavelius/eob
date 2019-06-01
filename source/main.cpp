@@ -4,9 +4,9 @@ using namespace draw;
 
 callback		next_proc;
 
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
-{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {}, Human}, 2, 5, 0},
+{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {}, Human}, 2, 0, 10},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, 0, 10},
 {}};
 
 #ifdef _DEBUG
