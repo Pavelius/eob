@@ -1156,7 +1156,7 @@ void creature::damage(damage_s type, int hits) {
 				auto it = wears[par];
 				if(!it || it.is(Natural))
 					continue;
-				if(it.ismagical() || (d100() < 20)) {
+				if(it.is(Unique) || (d100() < 15)) {
 					it.setidentified(0);
 					location.dropitem(index, it, side);
 				}
