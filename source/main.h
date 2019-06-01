@@ -146,7 +146,9 @@ enum item_s : unsigned char {
 	RedGem, BlueGem, GreenGem, PurpleGem,
 	Ration, RationIron,
 	// Special items
-	DustOfAges, MagicOrb, MantistHead,
+	DustOfAges, Horn, MantistHead,
+	Scepeter, SilverSword,
+	StoneAmulet, StoneDagger, StoneGem, StoneHolySymbol, StoneOrb,
 	// Monster attacks
 	Slam, Claws, Bite, Bite1d41, Bite2d6,
 	ShokingHand, FlameBladeHand, FlameHand,
