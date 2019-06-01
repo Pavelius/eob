@@ -635,6 +635,7 @@ struct dungeon {
 		unsigned char	elements; // count of corridors
 		unsigned char	traps; // count of traps
 		unsigned char	special; // count of special items generated
+		short unsigned	items; // total count of items
 	};
 	struct chancei {
 		char			magic;

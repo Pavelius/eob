@@ -268,9 +268,20 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 
 static void items(dungeon* pd, short unsigned index, item_s type, int bonus_chance_magic) {
 	pd->dropitem(index, create_item(pd, type, bonus_chance_magic), xrand(0, 3));
+	pd->stat.items++;
 }
 
 static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
+	if(bonus_chance_magic > 0) {
+		auto index = pd->stat.special;
+		if(index < sizeof(pd->head.special) / sizeof(pd->head.special[0])
+			&& pd->head.special[index]
+			&& pd->stat.items > index * 10) {
+			items(pd, index, pd->head.special[index], bonus_chance_magic);
+			pd->stat.special++;
+			return;
+		}
+	}
 	items(pd, index, random_type(), bonus_chance_magic);
 }
 
@@ -563,7 +574,7 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 				decoration, decoration,
 				message,
 			};
-			auto proc = corridor_random[rand() % sizeof(corridor_random)/ sizeof(corridor_random[0])];
+			auto proc = corridor_random[rand() % sizeof(corridor_random) / sizeof(corridor_random[0])];
 			proc(pd, index, to(dir, rnd[0]), flags);
 			if(d100() < 60)
 				iswap(rnd[0], rnd[1]);
@@ -606,6 +617,26 @@ static void remove_all_overlay(dungeon* pd, short unsigned index) {
 			continue;
 		if(to(e.index, e.dir) == index)
 			e.index = 0;
+	}
+}
+
+static void validate_special_items(dungeon* pd) {
+	while(pd->stat.special < sizeof(pd->head.special) / sizeof(pd->head.special[0])) {
+		auto index = pd->stat.special;
+		if(!pd->head.special[index])
+			break;
+		adat<creature*, 512> source;
+		for(auto& e : pd->monsters) {
+			if(!e || !e.isready())
+				continue;
+			source.add(&e);
+		}
+		if(source) {
+			auto p = source.data[rand() % source.count];
+			item it(pd->head.special[index], 40, 10, 20);
+			p->add(it);
+		}
+		pd->stat.special++;
 	}
 }
 
@@ -704,6 +735,7 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 					break;
 			}
 			remove_dead_door(&e);
+			validate_special_items(&e);
 			e.overland_index = overland_index;
 			previous = &e;
 		}
