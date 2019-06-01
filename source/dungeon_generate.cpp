@@ -486,12 +486,16 @@ static short unsigned find_index(dungeon* pd, short unsigned index, direction_s 
 }
 
 static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	dir = to(dir, Down);
-	auto i1 = find_index(pd, index, dir);
-	if(i1 == Blocked)
-		return;
+	auto dr = to(dir, Left);
+	auto i1 = find_index(pd, index, dr);
+	if(i1 == Blocked) {
+		dr = to(dir, Right);
+		i1 = find_index(pd, index, dr);
+		if(i1==Blocked)
+			return;
+	}
 	pd->set(index, CellButton);
-	auto po = pd->setoverlay(i1, CellTrapLauncher, dir);
+	auto po = pd->setoverlay(i1, CellTrapLauncher, dr);
 	pd->stat.traps++;
 }
 
