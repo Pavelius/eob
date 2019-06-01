@@ -496,7 +496,7 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 	}
 	pd->set(index, CellButton);
 	auto po = pd->setoverlay(i1, CellTrapLauncher, dr);
-	po->index = index;
+	po->index_link = index;
 	pd->stat.traps++;
 }
 

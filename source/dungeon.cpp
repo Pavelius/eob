@@ -167,12 +167,23 @@ void dungeon::remove(overlayi* po, item it) {
 	}
 }
 
+dungeon::overlayi* dungeon::getlinked(short unsigned index) {
+	if(index == Blocked)
+		return 0;
+	for(auto& e : overlays) {
+		if(!e)
+			break;
+		if(e.index_link == index)
+			return &e;
+	}
+	return 0;
+}
+
 dungeon::overlayi* dungeon::getoverlay(short unsigned index, direction_s dir) {
 	for(auto& e : overlays) {
 		if(!e.type)
 			break;
-		if(e.dir == dir
-			&& e.index == index)
+		if(e.dir == dir && e.index == index)
 			return &e;
 	}
 	return 0;
@@ -260,7 +271,7 @@ void dungeon::clear() {
 	stat.up.index = Blocked;
 	stat.portal.index = Blocked;
 	for(auto& e : overlays)
-		e.index = Blocked;
+		e.clear();
 }
 
 void dungeon::finish(cell_s t) {
@@ -494,7 +505,7 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, eff
 
 void dungeon::overlayi::clear() {
 	memset(this, 0, sizeof(*this));
-	index = Blocked;
+	index = index_link = Blocked;
 }
 
 void dungeon::passround() {
@@ -528,6 +539,16 @@ void dungeon::passround() {
 			auto new_active = map[i] > 0;
 			auto active = is(i, CellActive);
 			if(active != new_active && new_active) {
+				auto po = getlinked(i);
+				if(po) {
+					switch(po->type) {
+					case CellTrapLauncher:
+						if(!po->is(Active)) {
+
+						}
+						break;
+					}
+				}
 			}
 			setactive(i, new_active);
 		}

@@ -615,7 +615,8 @@ struct dungeon {
 		cell_s			type; // type of overlay
 		direction_s		dir; // puller direction
 		short unsigned	subtype; // depends on value type
-		short unsigned	index; // puller/trap index
+		short unsigned	index; // index
+		short unsigned	index_link; // linked to this location
 		unsigned		flags;
 		constexpr explicit operator bool() const { return type != CellUnknown; }
 		void			clear();
@@ -697,6 +698,7 @@ struct dungeon {
 	bool				isblocked(short unsigned index);
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
+	dungeon::overlayi*	getlinked(short unsigned index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	void				passround();
 	short unsigned		random(short unsigned* indicies);
