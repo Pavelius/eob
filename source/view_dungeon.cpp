@@ -802,7 +802,7 @@ static render_disp* create_wall(render_disp* p, int i, int index, int frame, cel
 	return p;
 }
 
-static render_disp* create_floor(render_disp* p, int i, int index, cell_s rec, bool flip, bool has_item_or_monsters = false) {
+static render_disp* create_floor(render_disp* p, int i, int index, cell_s rec, bool flip) {
 	static short floor_pos[18] = {
 		scrx / 2 - 42 * 3, scrx / 2 - 42 * 2, scrx / 2 - 42, scrx / 2, scrx / 2 + 42, scrx / 2 + 42 * 2, scrx / 2 + 42 * 3,
 		scrx / 2 - 64 * 2, scrx / 2 - 64, scrx / 2, scrx / 2 + 64, scrx / 2 + 64 * 2,
@@ -823,7 +823,7 @@ static render_disp* create_floor(render_disp* p, int i, int index, cell_s rec, b
 		p->z = pos_levels[i] * distance_per_level + 1;
 		if(flip)
 			p->flags[0] = ImageMirrorH;
-		if(rec == CellButton && has_item_or_monsters)
+		if(rec == CellButton && location.is(index, CellActive))
 			frame = get_tile_alternate(rec);
 		p->frame[0] = decor_offset + floor_frame[i] + frame * decor_frames;
 		p->rdata = map_tiles;
@@ -1004,17 +1004,14 @@ static void prepare_draw(short unsigned index, direction_s dr) {
 		auto tile = location.get(index);
 		auto tilt = location.gettype(tile);
 		indecies[i] = index;
-		render_disp* pim = p;
 		if(tilt != CellWall && tilt != CellStairsUp && tilt != CellStairsDown) {
 			if(tilt != CellDoor) {
 				if(location_above.get(index) == CellPit)
 					p = create_floor(p, i, index, CellPitUp, mr);
 			}
-			pim = p;
 			p = create_items(p, i, index, dr);
 			p = create_monsters(p, i, index, dr, mr);
 		}
-		bool has_item_monsters = (pim != p);
 		switch(tile) {
 		case CellWall:
 		case CellPortal:
@@ -1024,7 +1021,7 @@ static void prepare_draw(short unsigned index, direction_s dr) {
 			p = create_wall(p, i, index, get_tile(tile, mr), tile, mr);
 			break;
 		case CellButton:
-			p = create_floor(p, i, index, tile, mr, has_item_monsters);
+			p = create_floor(p, i, index, tile, mr);
 			break;
 		case CellPit:
 			p = create_floor(p, i, index, tile, mr);

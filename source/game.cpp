@@ -621,7 +621,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 		break;
 	case CellTrapLauncher:
 		if(pc->get(Theif)) {
-			if(po->active)
+			if(po->is(Active))
 				pc->say("This is a disabled trap");
 			else
 				pc->say("This is a trap");
@@ -801,6 +801,7 @@ void game::passround() {
 			continue;
 		pc->update(true);
 	}
+	location.passround();
 }
 
 bool get_secret(short unsigned index, direction_s sight_dir, direction_s rotate_dir, direction_s& secret_dir) {

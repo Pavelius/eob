@@ -164,6 +164,9 @@ enum damage_s : unsigned char {
 enum save_s : unsigned char {
 	NoSave, SaveHalf, SaveNegate,
 };
+enum overlay_flag_s : unsigned char {
+	Active
+};
 enum cell_s : unsigned char {
 	CellUnknown,
 	// Dungeon cells
@@ -612,15 +615,20 @@ struct dungeon {
 		cell_s			type; // type of overlay
 		direction_s		dir; // puller direction
 		short unsigned	subtype; // depends on value type
-		short unsigned	index; // puller index
-		bool			active;
-		constexpr explicit operator bool() const { return index != Blocked; }
+		short unsigned	index; // puller/trap index
+		unsigned		flags;
+		constexpr explicit operator bool() const { return type != CellUnknown; }
+		void			clear();
+		bool			is(overlay_flag_s v) const { return (flags&(1<<v)) != 0; }
+		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
+		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
 	struct groundi {
 		item			value;
 		short unsigned	index;
 		unsigned char	side;
 		unsigned char	flags;
+		constexpr explicit operator bool() const { return value.operator bool(); }
 	};
 	struct overlayitem : item {
 		overlayi*		storage;
@@ -685,11 +693,12 @@ struct dungeon {
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
 	bool				is(short unsigned index, cell_flag_s value) const;
-	bool				isactive(overlayi* po);
+	bool				isactive(const overlayi* po);
 	bool				isblocked(short unsigned index);
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
+	void				passround();
 	short unsigned		random(short unsigned* indicies);
 	bool				read(unsigned short overland_index, unsigned char level);
 	void				remove(unsigned short index, cell_flag_s value);

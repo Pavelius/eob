@@ -130,21 +130,19 @@ void dungeon::remove(short unsigned index, cell_flag_s value) {
 void dungeon::remove(overlayi* po) {
 	if(!po)
 		return;
-	po->index = Blocked;
-	po->dir = Center;
-	po->active = false;
+	po->clear();
 }
 
 dungeon::overlayi* dungeon::setoverlay(short unsigned index, cell_s type, direction_s dir) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
-		if(e.index==Blocked) {
-			e.index = index;
-			e.type = type;
-			e.dir = dir;
-			return &e;
-		}
+		if(e)
+			continue;
+		e.index = index;
+		e.type = type;
+		e.dir = dir;
+		return &e;
 	}
 	return 0;
 }
@@ -180,10 +178,10 @@ dungeon::overlayi* dungeon::getoverlay(short unsigned index, direction_s dir) {
 	return 0;
 }
 
-bool dungeon::isactive(overlayi* po) {
+bool dungeon::isactive(const overlayi* po) {
 	if(!po)
 		return false;
-	return po->active;
+	return po->is(Active);
 }
 
 void dungeon::setactive(short unsigned index, bool value) {
@@ -213,8 +211,11 @@ void dungeon::setactive(overlayi* po, bool value) {
 	auto wall = to(po->index, po->dir);
 	auto left = to(wall, to(po->dir, Left));
 	auto right = to(wall, to(po->dir, Right));
-	if(po->active != value) {
-		po->active = value;
+	if(po->is(Active) != value) {
+		if(value)
+			po->set(Active);
+		else
+			po->remove(Active);
 		switch(po->type) {
 		case CellPuller:
 			setactive(po->index, value, 1);
@@ -487,6 +488,48 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, eff
 		if(location.isblocked(index))
 			return;
 		if(location.ismonster(index)) {
+		}
+	}
+}
+
+void dungeon::overlayi::clear() {
+	memset(this, 0, sizeof(*this));
+	index = Blocked;
+}
+
+void dungeon::passround() {
+	unsigned char map[mpx*mpy] = {0};
+	for(auto& e : monsters) {
+		if(!e)
+			continue;
+		auto i = e.getindex();
+		if(i == Blocked || map[i]>0)
+			continue;
+		map[i]++;
+	}
+	for(auto p : game::party) {
+		if(!p || !(*p))
+			continue;
+		auto i = p->getindex();
+		if(i == Blocked || map[i]>0)
+			continue;
+		map[i]++;
+	}
+	for(auto& e : items) {
+		if(!e)
+			continue;
+		if(map[e.index] > 0)
+			continue;
+		map[e.index]++;
+	}
+	for(short unsigned i = 0; i < mpx*mpy; i++) {
+		auto t = get(i);
+		if(t == CellButton) {
+			auto new_active = map[i] > 0;
+			auto active = is(i, CellActive);
+			if(active != new_active && new_active) {
+			}
+			setactive(i, new_active);
 		}
 	}
 }
