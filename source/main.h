@@ -145,6 +145,8 @@ enum item_s : unsigned char {
 	PotionRed, PotionBlue, PotionGreen,
 	RedGem, BlueGem, GreenGem, PurpleGem,
 	Ration, RationIron,
+	// Special items
+	DustOfAges, MagicOrb, MantistHead,
 	// Monster attacks
 	Slam, Claws, Bite, Bite1d41, Bite2d6,
 	ShokingHand, FlameBladeHand, FlameHand,
@@ -194,7 +196,7 @@ enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick,
 	SevereDamageUndead,
 	Natural, Charged,
-	Wonderful, Magical,
+	Unique, Wonderful, Magical,
 };
 enum attack_s : unsigned char {
 	AutoHit,

@@ -482,15 +482,24 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 	pd->stat.traps++;
 }
 
+static int random_count() {
+	auto rolled = d100();
+	if(rolled < 50)
+		return 0;
+	else if(rolled < 80)
+		return 1;
+	else if(rolled < 95)
+		return 2;
+	return 3;
+}
+
 static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	pd->set(i1, CellWall);
 	auto po = pd->setoverlay(index, CellCellar, dir);
-	auto count = 0;
-	if(d100() < 50)
-		count = xrand(1, 3);
+	auto count = random_count();
 	while(count-- > 0)
 		pd->add(po, create_item(pd, random_type(true), 10));
 }
@@ -499,6 +508,10 @@ static void empthy(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 
 static void rations(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	items(pd, index, Ration, 0);
+}
+
+static void stones(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	items(pd, index, Stone, 0);
 }
 
 static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -543,8 +556,9 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 			{1, secret, true},
 			{4, monster, false},
 			{1, rations, false},
+			{1, stones, false},
 			{1, trap, false},
-			{2, cellar, true},
+			{1, cellar, true},
 			{1, portal, true},
 			{2, prison, true},
 			{1, treasure, true},

@@ -96,13 +96,17 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 // ≈да
 {"Ration", {38, 14}},
 {"Iron ration", {37, 14}},
+// ”никальные
+{"Dust of Ages", {97, 25}, {}, {}, {Unique}},
+{"Magic orb", {91, 18}, {}, {}, {Unique}},
+{"Mantist Head", {51, 18}, {}, {}, {Unique}},
 //
 {"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
 {"Claws", {}, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
 {"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
 {"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 4, 1}, {}}},
 {"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
-{"Shoking grasp", {80}, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
+{"Shoking hang", {80}, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
 {"Flame blade", {82}, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
 {"Flame hand", {81}, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
 };

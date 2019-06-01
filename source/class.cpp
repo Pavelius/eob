@@ -1,6 +1,6 @@
 #include "main.h"
 
-classi bsmeta<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {}, {Ambidextrity}},
+classi bsmeta<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {UseLeatherArmor, UseShield, UseMetalArmor, UseMartialWeapon, UseLargeWeapon}, {Ambidextrity}},
 {"Cleric", 1, 8, Wisdow, {Cleric}, {UseScrolls, UseDivine, UseLeatherArmor, UseShield, UseMetalArmor},
 {NoExeptionalStrenght}, {0, 0, 0, 0, 9, 0}, {Human, Dwarf, Elf, HalfElf, Halfling}},
 {"Fighter", 1, 10, Strenght, {Fighter}, {UseMartialWeapon, UseLeatherArmor, UseShield, UseMetalArmor, UseTheifWeapon},

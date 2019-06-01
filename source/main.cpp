@@ -4,9 +4,7 @@ using namespace draw;
 
 callback		next_proc;
 
-static sitei first_adventure[] = {
-	//{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
-{{BLUE, {DwarfWarrior, Spider}, {KeySilver, KeyCooper}, Human}, 1, 0, 0},
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, Human}, 2, 5, 0},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, Human}, 2, 0, 10},
 {{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, Human}, 1, 0, 10},
 {}};
@@ -29,7 +27,7 @@ static void test_dungeon(resource_s type) {
 	location.level = 1;
 	draw::settiles(type);
 	test_room2(x, y);
-	location.addmonster(Wolf, location.getindex(x, y - 1), 0, Down);
+	location.addmonster(DwarfWarrior, location.getindex(x, y - 1), 0, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
@@ -277,8 +275,8 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	//debug_dungeon2();
-	//return;
+	debug_dungeon2();
+	return;
 	if(game::read())
 		setnext(adventure);
 	else {
