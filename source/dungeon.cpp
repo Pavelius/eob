@@ -133,15 +133,16 @@ void dungeon::remove(overlayi* po) {
 	po->clear();
 }
 
-dungeon::overlayi* dungeon::setoverlay(short unsigned index, cell_s type, direction_s dir) {
+dungeon::overlayi* dungeon::add(short unsigned index, cell_s type, direction_s dir) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
 		if(e)
 			continue;
-		e.index = index;
 		e.type = type;
+		e.index = index;
 		e.dir = dir;
+		stat.overlays++;
 		return &e;
 	}
 	return 0;
@@ -544,7 +545,8 @@ void dungeon::passround() {
 					switch(po->type) {
 					case CellTrapLauncher:
 						if(!po->is(Active)) {
-
+							static effecti fire = {Fire, {1, 6}, {}};
+							location.traplaunch(po->index, to(po->dir, Down), FireThrown, fire);
 						}
 						break;
 					}

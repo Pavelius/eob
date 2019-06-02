@@ -12,7 +12,7 @@ struct roominfo {
 	direction_s		dir;
 	unsigned		flags;
 };
-static roominfo		rooms[256]; // Кольцевой буфер генератора. Главное чтобы разница не была 256 значений.
+static roominfo		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
 static unsigned char stack_put; // Вершина стека.
 static unsigned char stack_get; // Низ стека.
 
@@ -273,10 +273,10 @@ static void items(dungeon* pd, short unsigned index, item_s type, int bonus_chan
 
 static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
 	if(bonus_chance_magic > 0) {
-		auto index = pd->stat.special;
-		if(index < sizeof(pd->head.special) / sizeof(pd->head.special[0])
-			&& pd->head.special[index]
-			&& pd->stat.items > index * 10) {
+		auto i = pd->stat.special;
+		if(i < sizeof(pd->head.special) / sizeof(pd->head.special[0])
+			&& pd->head.special[i]
+			&& pd->stat.items > i * 10) {
 			items(pd, index, pd->head.special[index], bonus_chance_magic);
 			pd->stat.special++;
 			return;
@@ -297,7 +297,7 @@ static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellWall);
-	pd->setoverlay(index, CellSecrectButton, dir);
+	pd->add(index, CellSecrectButton, dir);
 	pd->set(i2, CellPassable);
 	int count = 1;
 	if(d100() < 25)
@@ -316,6 +316,7 @@ static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned
 	if(d < 30)
 		n = 1;
 	pd->addmonster(pd->head.habbits[n], index);
+	pd->stat.monsters++;
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -330,7 +331,7 @@ static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellDoor);
-	pd->setoverlay(index, CellDoorButton, dir);
+	pd->add(index, CellDoorButton, dir);
 	pd->set(to(i1, to(dir, Left)), CellWall);
 	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
@@ -362,7 +363,7 @@ static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		magic_bonus += 5;
 		key_type = CellKeyHole2;
 	}
-	pd->setoverlay(to(index, to(dir, Right)), key_type, dir);
+	pd->add(to(index, to(dir, Right)), key_type, dir);
 	pd->set(to(i1, to(dir, Left)), CellWall);
 	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
@@ -379,7 +380,7 @@ static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsig
 		return;
 	static cell_s random[] = {CellDecor1, CellDecor2, CellDecor3};
 	pd->set(i1, CellWall);
-	pd->setoverlay(index, maprnd(random), dir);
+	pd->add(index, maprnd(random), dir);
 }
 
 static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -404,7 +405,7 @@ static void message(dungeon* pd, short unsigned index, direction_s dir, unsigned
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	pd->set(i1, CellWall);
-	auto po = pd->setoverlay(index, CellMessage, dir);
+	auto po = pd->add(index, CellMessage, dir);
 	po->subtype = pd->stat.messages;
 	pd->stat.messages++;
 }
@@ -458,9 +459,9 @@ static bool door(dungeon* pd, short unsigned index, direction_s dir, bool has_bu
 	}
 	pd->set(index, CellDoor);
 	if(has_button)
-		pd->setoverlay(to(index, to(dir, Down)), CellDoorButton, dir);
+		pd->add(to(index, to(dir, Down)), CellDoorButton, dir);
 	if(has_button_on_other_side)
-		pd->setoverlay(to(index, dir), CellDoorButton, to(dir, Down));
+		pd->add(to(index, dir), CellDoorButton, to(dir, Down));
 	return true;
 }
 
@@ -495,7 +496,7 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 			return;
 	}
 	pd->set(index, CellButton);
-	auto po = pd->setoverlay(i1, CellTrapLauncher, dr);
+	auto po = pd->add(i1, CellTrapLauncher, dr);
 	po->index_link = index;
 	pd->stat.traps++;
 }
@@ -514,7 +515,7 @@ static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
 	pd->set(i1, CellWall);
-	auto po = pd->setoverlay(index, CellCellar, dir);
+	auto po = pd->add(index, CellCellar, dir);
 	auto count = random_count();
 	while((count--) > 0)
 		pd->add(po, create_item(pd, random_type(true), 10));

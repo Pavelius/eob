@@ -475,7 +475,7 @@ static dungeon::overlayi* add_wall_decor(render_disp* p, int index, direction_s 
 		return 0;
 	auto bd = to(game::getdirection(), dir);
 	auto index_start = to(index, bd);
-	if(!index_start)
+	if(index_start==Blocked)
 		return 0;
 	auto t1 = location.get(index_start);
 	if(t1 == CellWall || t1 == CellStairsUp || t1 == CellStairsDown || t1 == CellPortal || t1 == CellDoor)
@@ -997,7 +997,7 @@ static void prepare_draw(short unsigned index, direction_s dr) {
 		int y1 = y + offsets[i * 2 + 1];
 		bool mr = ((x1 + y1 + game::getdirection()) & 1) != 0;
 		if(x1 < 0 || y1 < 0 || x1 >= mpx || y1 >= mpy) {
-			p = create_wall(p, i, 0, get_tile(CellWall, mr), CellWall, !mr);
+			p = create_wall(p, i, Blocked, get_tile(CellWall, mr), CellWall, !mr);
 			continue;
 		}
 		auto index = location.getindex(x1, y1);
@@ -1183,7 +1183,7 @@ static int get_index_pos(int index) {
 
 int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr, int wait) {
 	index = to(index, dr);
-	if(!index)
+	if(index==Blocked)
 		return index;
 	int i = get_index_pos(index);
 	if(i == -1)
@@ -1218,7 +1218,7 @@ int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s ity
 int draw::animation::thrown(short unsigned index, direction_s dr, item_s type, direction_s sdr, int wait) {
 	for(int i = 0; i < 3; i++) {
 		int i2 = thrownstep(index, dr, type, sdr, wait);
-		if(!i2 || location.isblocked(i2))
+		if(i2==Blocked || location.isblocked(i2))
 			break;
 		index = i2;
 	}

@@ -13,7 +13,7 @@ static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCoope
 
 static void test_room2(int x, int y) {
 	location.set(location.getindex(x, y - 2), CellWall);
-	auto po = location.setoverlay(location.getindex(x, y - 1), CellCellar, Up);
+	auto po = location.add(location.getindex(x, y - 1), CellCellar, Up);
 	location.add(po, Bless);
 	location.add(po, item(Dagger, 50, 0, 10));
 }
@@ -45,17 +45,17 @@ static void test_room(int x, int y) {
 	location.set(location.getindex(x + 2, y + 4), CellPortal);
 	location.set(location.getindex(x + 2, y), CellButton);
 	location.set(location.getindex(x + 2, y), CellDoor);
-	location.setoverlay(location.getindex(x + 2, y + 1), CellDoorButton, Up);
-	location.setoverlay(location.getindex(x + 2, y - 1), CellDoorButton, Down);
-	location.setoverlay(location.getindex(x + 1, y + 3), CellPuller, Down);
-	location.setoverlay(location.getindex(x + 3, y + 3), CellTrapLauncher, Down);
-	location.setoverlay(location.getindex(x + 1, y + 1), CellSecrectButton, Left);
-	location.setoverlay(location.getindex(x + 3, y + 1), CellKeyHole1, Up);
-	location.setoverlay(location.getindex(x + 3, y + 1), CellMessage, Right);
-	auto po = location.setoverlay(location.getindex(x + 3, y + 2), CellCellar, Right);
+	location.add(location.getindex(x + 2, y + 1), CellDoorButton, Up);
+	location.add(location.getindex(x + 2, y - 1), CellDoorButton, Down);
+	location.add(location.getindex(x + 1, y + 3), CellPuller, Down);
+	location.add(location.getindex(x + 3, y + 3), CellTrapLauncher, Down);
+	location.add(location.getindex(x + 1, y + 1), CellSecrectButton, Left);
+	location.add(location.getindex(x + 3, y + 1), CellKeyHole1, Up);
+	location.add(location.getindex(x + 3, y + 1), CellMessage, Right);
+	auto po = location.add(location.getindex(x + 3, y + 2), CellCellar, Right);
 	location.add(po, Bless);
 	location.add(po, item(Dagger, 50, 0, 10));
-	location.setoverlay(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
+	location.add(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
 	location.set(location.getindex(x + 2, y - 2), CellButton);
 	location.set(location.getindex(x + 2, y - 3), CellPit);
@@ -256,7 +256,7 @@ static void quit_game() {
 
 static void debug_dungeon1() {
 	game::setcamera(Blocked);
-	dungeon::create(1, first_adventure);
+	dungeon::create(1, first_adventure, false);
 	random_heroes();
 	game::write();
 	game::enter(1, 1);

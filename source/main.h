@@ -647,6 +647,8 @@ struct dungeon {
 		unsigned char	traps; // count of traps
 		unsigned char	special; // count of special items generated
 		short unsigned	items; // total count of items
+		short unsigned	overlays; // total count of overlays
+		short unsigned	monsters; // total count of monsters
 	};
 	struct chancei {
 		char			magic;
@@ -659,12 +661,13 @@ struct dungeon {
 	statei				stat;
 	chancei				chance;
 	unsigned char		data[mpx*mpy];
-	groundi				items[1024];
-	overlayi			overlays[512];
-	overlayitem			cellar_items[512];
+	groundi				items[512];
+	overlayi			overlays[256];
+	overlayitem			cellar_items[256];
 	creature			monsters[200];
 	dungeon() { clear(); }
 	operator bool() const { return head.type!=NONE; }
+	overlayi*			add(short unsigned index, cell_s type, direction_s dir);
 	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
@@ -712,7 +715,6 @@ struct dungeon {
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
-	overlayi*			setoverlay(short unsigned index, cell_s type, direction_s dir);
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
