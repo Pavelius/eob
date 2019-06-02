@@ -904,11 +904,13 @@ static render_disp* create_monsters(render_disp* p, int i, short unsigned index,
 		if(size == Large) {
 			p->x = item_position[i * 4 + 0].x + (item_position[i * 4 + 1].x - item_position[i * 4 + 0].x) / 2;
 			p->y = item_position[i * 4 + 0].y + (item_position[i * 4 + 3].y - item_position[i * 4 + 0].y) / 2;
+			p->z = pos_levels[i] * distance_per_level + 1;
+			d = pos_levels[i] * 2;
 		} else {
 			p->x = item_position[i * 4 + n].x;
 			p->y = item_position[i * 4 + n].y;
+			p->z = pos_levels[i] * distance_per_level + 1 - (n / 2);
 		}
-		p->z = pos_levels[i] * distance_per_level + 1 - (n / 2);
 		p->percent = item_distances[d][0];
 		p->alpha = (unsigned char)item_distances[d][1];
 		p->rdata = draw::gres(pc->getres());
