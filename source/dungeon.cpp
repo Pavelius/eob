@@ -182,9 +182,7 @@ dungeon::overlayi* dungeon::getlinked(short unsigned index) {
 
 dungeon::overlayi* dungeon::getoverlay(short unsigned index, direction_s dir) {
 	for(auto& e : overlays) {
-		if(!e.type)
-			break;
-		if(e.dir == dir && e.index == index)
+		if(e && e.dir == dir && e.index == index)
 			return &e;
 	}
 	return 0;
@@ -492,15 +490,31 @@ short unsigned dungeon::gettarget(short unsigned index, direction_s dir) {
 	return Blocked;
 }
 
-void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e) {
+void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, const combati& ci) {
+	bool stop = false;
+	creature* result[4];
+	draw::animation::update();
 	while(index!=Blocked) {
-		index = to(index, dir);
 		if(index==Blocked)
 			break;
 		if(location.isblocked(index))
 			return;
-		if(location.ismonster(index)) {
+		getmonsters(result, index, to(dir, Down));
+		for(auto p : result) {
+			if(p) {
+				stop = true;
+			}
 		}
+		for(auto p : game::party) {
+			if(p && p->getindex()==index) {
+				stop = true;
+			}
+		}
+		if(stop)
+			return;
+		if(isvisible(index))
+			draw::animation::thrownstep(index, dir, show, Center, 80);
+		index = to(index, dir);
 	}
 }
 
@@ -545,7 +559,7 @@ void dungeon::passround() {
 					switch(po->type) {
 					case CellTrapLauncher:
 						if(!po->is(Active)) {
-							static effecti fire = {Fire, {1, 6}, {}};
+							static combati fire = {AutoHit, Fire, 0, {1, 6}};
 							location.traplaunch(po->index, to(po->dir, Down), FireThrown, fire);
 						}
 						break;

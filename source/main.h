@@ -613,11 +613,11 @@ public:
 struct dungeon {
 	struct overlayi {
 		cell_s			type; // type of overlay
-		direction_s		dir; // puller direction
-		short unsigned	subtype; // depends on value type
+		direction_s		dir; // overlay direction
 		short unsigned	index; // index
 		short unsigned	index_link; // linked to this location
-		unsigned		flags;
+		short unsigned	subtype; // depends on value type
+		short unsigned	flags;
 		constexpr explicit operator bool() const { return type != CellUnknown; }
 		void			clear();
 		bool			is(overlay_flag_s v) const { return (flags&(1<<v)) != 0; }
@@ -701,6 +701,7 @@ struct dungeon {
 	bool				isblocked(short unsigned index);
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
+	static bool			isvisible(short unsigned index);
 	dungeon::overlayi*	getlinked(short unsigned index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	void				passround();
@@ -715,7 +716,7 @@ struct dungeon {
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
-	void				traplaunch(short unsigned index, direction_s dir, item_s show, effecti& e);
+	void				traplaunch(short unsigned index, direction_s dir, item_s show, const combati& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
