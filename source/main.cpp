@@ -108,15 +108,15 @@ static void random_heroes() {
 	game::party[1] = creature::newhero();
 	game::party[1]->create(Male, Human, Fighter, LawfulGood);
 	game::party[2] = creature::newhero();
-	game::party[2]->create(Female, Elf, Mage, LawfulNeutral);
+	game::party[2]->create(Female, Elf, MageTheif, ChaoticNeutral);
 	game::party[3] = creature::newhero();
-	game::party[3]->create(Male, Dwarf, ClericTheif, ChaoticNeutral);
+	game::party[3]->create(Male, Dwarf, Cleric, LawfulGood);
 	//
-	game::party[0]->equip(item(SwordLong, OfFire));
+	game::party[0]->set(item(SwordLong, OfFire), RightHand);
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
 	game::party[0]->add(item(KeySilver, 20, 0, 0));
-	game::party[0]->add(item(PotionGreen, OfPoison));
-	game::party[1]->add(item(SwordLong, OfDamage, 2));
+	//game::party[0]->add(item(PotionGreen, OfPoison));
+	game::party[1]->set(item(SwordLong, OfDamage, 3), RightHand);
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
 	game::party[1]->add(item(Bow, 20, 0, 0));
 	game::party[2]->add(item(MagicWand, 20, 0, 0));
@@ -125,11 +125,10 @@ static void random_heroes() {
 	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
 	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
 	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
-	game::party[3]->add(item(DungeonMap, 20, 0, 0));
 	//
 	item artifact(SwordShort, 100, 5, 100);
 	artifact.setidentified(1);
-	game::party[3]->add(artifact);
+	game::party[0]->set(artifact, LeftHand);
 }
 
 void util_main();

@@ -591,6 +591,7 @@ public:
 	void				set(spell_s spell, char v) { spells[spell] = v; }
 	bool				set(state_s id, unsigned rounds);
 	void				set(direction_s value);
+	void				set(const item it, wear_s v) { wears[v] = it; }
 	void				setavatar(int value) { avatar = value; }
 	void				setframe(short* frames, short index) const;
 	void				sethits(short v) { hits = v; };

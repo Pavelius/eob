@@ -475,7 +475,7 @@ static dungeon::overlayi* add_wall_decor(render_disp* p, short unsigned index, d
 		return 0;
 	auto bd = to(game::getdirection(), dir);
 	auto index_start = to(index, bd);
-	if(index_start==Blocked)
+	if(index_start == Blocked)
 		return 0;
 	auto t1 = location.get(index_start);
 	if(t1 == CellWall || t1 == CellStairsUp || t1 == CellStairsDown || t1 == CellPortal || t1 == CellDoor)
@@ -898,14 +898,13 @@ static render_disp* create_monsters(render_disp* p, int i, short unsigned index,
 			continue;
 		auto size = pc->getsize();
 		auto dir = get_absolute_direction(dr, pc->getdirection());
-		auto active = true;
 		int d = pos_levels[i] * 2 - (n / 2);
 		p->clear();
 		if(size == Large) {
 			p->x = item_position[i * 4 + 0].x + (item_position[i * 4 + 1].x - item_position[i * 4 + 0].x) / 2;
 			p->y = item_position[i * 4 + 0].y + (item_position[i * 4 + 3].y - item_position[i * 4 + 0].y) / 2;
-			p->z = pos_levels[i] * distance_per_level;
-			d = pos_levels[i] * 2;
+			p->z = pos_levels[i] * distance_per_level - 1;
+			d = pos_levels[i] * 2 - 1;
 		} else {
 			p->x = item_position[i * 4 + n].x;
 			p->y = item_position[i * 4 + n].y;
@@ -920,11 +919,9 @@ static render_disp* create_monsters(render_disp* p, int i, short unsigned index,
 		p->pallette = pc->getpallette();
 		unsigned flags = 0;
 		// Анимируем активных монстров
-		if(active) {
-			if(((p->x + draw::frametick) / 16) % 2) {
-				p->x++;
-				p->y++;
-			}
+		if(((p->x + draw::frametick) / 16) % 2) {
+			p->x++;
+			p->y++;
 		}
 		switch(dir) {
 		case Left:
@@ -1193,7 +1190,7 @@ static int get_index_pos(short unsigned index) {
 
 int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr, int wait) {
 	index = to(index, dr);
-	if(index==Blocked)
+	if(index == Blocked)
 		return index;
 	int i = get_index_pos(index);
 	if(i == -1)
@@ -1228,7 +1225,7 @@ int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s ity
 int draw::animation::thrown(short unsigned index, direction_s dr, item_s type, direction_s sdr, int wait) {
 	for(int i = 0; i < 3; i++) {
 		int i2 = thrownstep(index, dr, type, sdr, wait);
-		if(i2==Blocked || location.isblocked(i2))
+		if(i2 == Blocked || location.isblocked(i2))
 			break;
 		index = i2;
 	}
