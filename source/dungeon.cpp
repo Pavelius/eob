@@ -346,7 +346,7 @@ short unsigned* dungeon::getnearestfree(short unsigned* indicies, short unsigned
 short unsigned dungeon::random(short unsigned* indicies) {
 	auto n = zlen(indicies);
 	if(!n)
-		return 0;
+		return Blocked;
 	return indicies[rand() % n];
 }
 
@@ -386,7 +386,7 @@ void dungeon::turnto(short unsigned index, direction_s dr) {
 
 void dungeon::getmonsters(creature** result, short unsigned index, direction_s dr) {
 	result[0] = result[1] = result[2] = result[3] = 0;
-	if(!index)
+	if(index==Blocked)
 		return;
 	for(auto& e : monsters) {
 		if(!e)
@@ -502,11 +502,13 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, con
 		getmonsters(result, index, to(dir, Down));
 		for(auto p : result) {
 			if(p) {
+				attack(ci, p);
 				stop = true;
 			}
 		}
 		for(auto p : game::party) {
 			if(p && p->getindex()==index) {
+				attack(ci, p);
 				stop = true;
 			}
 		}
@@ -568,5 +570,33 @@ void dungeon::passround() {
 			}
 			setactive(i, new_active);
 		}
+	}
+}
+
+void dungeon::attack(const combati& wi, creature* defender) const {
+	auto ac = defender->getac();
+	auto tohit = 20 - wi.bonus - (10 - ac);
+	auto rolls = xrand(1, 20);
+	auto hits = -1;
+	auto crhit = 20 - wi.critical_range;
+	tohit = imax(2, imin(20, tohit));
+	if(rolls >= tohit || rolls >= crhit) {
+		auto damage = wi.damage;
+		hits = damage.roll();
+		// RULE: crtitical hit can deflected
+		if(rolls >= crhit) {
+			// RULE: critical damage depends on weapon and count in dices
+			if(!defender->roll(CriticalDeflect)) {
+				damage.b = 0; // Only initial dice rolled second time
+				damage.c += wi.critical_multiplier;
+				hits += damage.roll();
+			}
+		}
+	}
+	// Show result
+	if(hits != -1) {
+		// RULE: when attacking sleeping creature she wake up!
+		defender->set(Sleeped, 0);
+		defender->damage(wi.type, hits);
 	}
 }

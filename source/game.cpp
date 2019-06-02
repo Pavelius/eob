@@ -125,7 +125,7 @@ static void falling_landing() {
 void game::action::move(direction_s direction) {
 	int i = getcamera();
 	int i1 = to(i, vectorized(getdirection(), direction));
-	int t = location.get(i1);
+	auto t = location.get(i1);
 	if(location.isblocked(i1) || location.ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
 		mslog("You can\'t go that way");
@@ -767,6 +767,8 @@ void game::passround() {
 		auto party_direct = game::getdirection();
 		auto monster_index = e.getindex();
 		auto monster_direct = e.getdirection();
+		if(monster_index == Blocked)
+			continue;
 		if(e.is(Scared)) {
 			direction_s free_directions[] = {to(party_direct, Up), to(party_direct, Left), to(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
@@ -783,7 +785,7 @@ void game::passround() {
 			if(location.isblocked(next_index) || d100() < 30) {
 				short unsigned indicies[5];
 				auto n = location.random(location.getnearestfree(indicies, monster_index));
-				if(n)
+				if(n!=Blocked)
 					location.turnto(monster_index, pointto(monster_index, n));
 			} else
 				move_monster(location, monster_index, monster_direct);
@@ -840,7 +842,7 @@ void game::hearnoises() {
 	auto index = getcamera();
 	auto dir = getdirection();
 	auto door_index = to(index, dir);
-	if(!door_index || location.get(door_index) != CellDoor)
+	if(door_index==Blocked || location.get(door_index) != CellDoor)
 		return;
 	if(location.is(door_index, CellActive))
 		return;

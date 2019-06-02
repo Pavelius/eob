@@ -672,6 +672,7 @@ struct dungeon {
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
 	void				addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
+	void				attack(const combati& ci, creature* enemy) const;
 	void				clear();
 	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
