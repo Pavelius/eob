@@ -2,7 +2,7 @@
 #include "point.h"
 #include "main.h"
 
-static_assert(sizeof(dungeon::groundi) == 8, "laying items can be 8 bytes!");
+static_assert(sizeof(dungeon::groundi) == 8, "laying items can be 8 bytes");
 static unsigned short	path_stack[256];
 static unsigned char	path_push;
 static unsigned char	path_pop;
@@ -351,14 +351,14 @@ short unsigned dungeon::random(short unsigned* indicies) {
 }
 
 bool dungeon::ismatch(short unsigned index, cell_s t1, cell_s t2) {
-	if(!index)
+	if(index==Blocked)
 		return true;
 	auto t = dungeon::get(index);
 	return t == t1 || t == t2;
 }
 
 bool dungeon::allaround(short unsigned index, cell_s t1, cell_s t2) {
-	if(!index)
+	if(index==Blocked)
 		return false;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
 		if(ismatch(to(index, d), t1, t2))
@@ -480,7 +480,7 @@ short unsigned dungeon::getindex(int x, int y) const {
 short unsigned dungeon::gettarget(short unsigned index, direction_s dir) {
 	for(int i = 0; i < 3; i++) {
 		index = to(index, dir);
-		if(!index)
+		if(index == Blocked)
 			break;
 		if(location.isblocked(index))
 			return Blocked;
