@@ -758,6 +758,10 @@ static void move_monster(dungeon& location, short unsigned index, direction_s dr
 	}
 }
 
+static void combat_formation(short unsigned index, direction_s dr) {
+	int sides[][3] = {{2, 0, 1}, {3, 1, 0}};
+}
+
 void game::passround() {
 	// Походим за монстров
 	for(auto& e : location.monsters) {
@@ -779,6 +783,7 @@ void game::passround() {
 		} else if(to(monster_index, monster_direct) == party_index) {
 			mslog("You are under attack!");
 			location.turnto(party_index, vectorized(monster_direct, Down));
+			combat_formation(monster_index, monster_direct);
 			game::action::attack(monster_index);
 		} else if(d100() < 45) {
 			auto next_index = to(monster_index, monster_direct);
@@ -847,7 +852,7 @@ void game::hearnoises() {
 	if(location.is(door_index, CellActive))
 		return;
 	door_index = to(door_index, dir);
-	if(!door_index)
+	if(door_index==Blocked)
 		return;
 	for(auto pc : game::party) {
 		if(!pc || !pc->isready())

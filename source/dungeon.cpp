@@ -279,7 +279,7 @@ void dungeon::finish(cell_s t) {
 			data[i] = t;
 }
 
-bool dungeon::isblocked(short unsigned index) {
+bool dungeon::isblocked(short unsigned index) const {
 	if(index == Blocked)
 		return true;
 	switch(get(index)) {
@@ -288,6 +288,16 @@ bool dungeon::isblocked(short unsigned index) {
 		return true;
 	case CellDoor:
 		return !is(index, CellActive);
+	}
+	return false;
+}
+
+bool dungeon::isblocked(short unsigned index, int side) const {
+	for(auto& e : monsters) {
+		if(!e)
+			continue;
+		if(e.getindex() == index && e.getside() == side)
+			return true;
 	}
 	return false;
 }
@@ -393,8 +403,12 @@ void dungeon::getmonsters(creature** result, short unsigned index, direction_s d
 			continue;
 		if(e.getindex() != index)
 			continue;
-		int side = game::getside(e.getside(), dr);
-		result[side] = &e;
+		if(e.getsize() == Large)
+			result[2] = &e;
+		else {
+			int side = game::getside(e.getside(), dr);
+			result[side] = &e;
+		}
 	}
 }
 
