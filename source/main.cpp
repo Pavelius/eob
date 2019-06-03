@@ -4,7 +4,7 @@ using namespace draw;
 
 callback		next_proc;
 
-static dialogi dialogs[] = {{"main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+static dialogi dialogs[] = {{{}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
 };
 static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, 5, 0},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, 0, 10},
@@ -316,6 +316,7 @@ void draw::setnext(void(*v)()) {
 
 int main(int argc, char* argv[]) {
 	srand(clock());
+	return 0;
 	//srand(2112);
 #ifdef _DEBUG
 	//util_main();

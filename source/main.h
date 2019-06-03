@@ -766,6 +766,11 @@ private:
 	stringcreator		sc;
 };
 struct dialogi {
+	struct imagei {
+		resource_s		res;
+		short			id;
+		constexpr explicit operator bool() const { return res != 0; }
+	};
 	struct elementi {
 		const char*		text;
 		const char*		success;
@@ -774,9 +779,13 @@ struct dialogi {
 		varianti		variant;
 		constexpr explicit operator bool() const { return text != 0; }
 	};
+	constexpr explicit operator bool() const { return id != 0; }
+	imagei				overlay[4];
 	const char*			id;
 	const char*			text;
 	elementi			variants[3];
+	void				choose() const;
+	const dialogi*		find(const char* id) const;
 };
 namespace game {
 namespace action {
