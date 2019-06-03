@@ -27,6 +27,7 @@ enchanti bsmeta<enchanti>::elements[] = {{""},
 {"smashing"},
 {"speed", Hasted},
 {"strenght", Strenghted},
+{"strenght drain", Strenghted},
 {"vampirism"},
 {"wizardy", NoState, rome_numbers},
 };

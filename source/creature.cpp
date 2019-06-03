@@ -251,7 +251,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.bonus += 2;
 	if(is(Blessed))
 		result.bonus += 1;
-	result.bonus -= energy_drain;
+	result.bonus -= drain_energy;
 	auto hd = gethd();
 	if(kind)
 		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
@@ -277,7 +277,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
 	result.damage.b += maptbl(damage_adjustment, k);
-	result.damage.b -= energy_drain;
+	result.damage.b -= drain_energy;
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
@@ -487,10 +487,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// Paralize attack
 			if(is(Paralized, slot))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
-			if(getbonus(OfEnergyDrain)) {
-				defender->energy_drain++;
-				if(defender->energy_drain >= defender->gethd())
-					hits = defender->gethits() + 10;
+			// Drain ability
+			if(!is(ProtectedFromEvil)) {
+				if(getbonus(OfEnergyDrain)>0) {
+					defender->drain_energy++;
+					if(defender->drain_energy >= defender->gethd())
+						hits = defender->gethits() + 10;
+				}
+				if(getbonus(OfStrenghtDrain))
+					defender->drain_ability[Strenght]--;
 			}
 			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
@@ -534,6 +539,10 @@ void creature::addexp(int value) {
 	auto b = getbonus(OfAdvise);
 	if(b)
 		value += value * b / 20;
+	// RULE: if class ability if hight enought you gain additional 10% experience
+	auto pa = bsmeta<classi>::elements[type].ability;
+	if(get(pa)>=16)
+		value += value / 10;
 	experience += value;
 }
 

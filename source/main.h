@@ -122,10 +122,11 @@ enum wear_s : unsigned char {
 enum enchant_s : unsigned char {
 	NoEnchant,
 	OfAccuracy, OfAdvise, OfCharisma, OfClimbing, OfCold, OfDamage, OfDexterity,
-	OfEnergyDrain, OfFire, OfFireResistance, OfHealing, OfHolyness,
+	OfEnergyDrain,
+	OfFire, OfFireResistance, OfHealing, OfHolyness,
 	OfIntellegence, OfInvisibility, OfLuck, OfMagicResistance, OfNeutralizePoison,
 	OfPoison, OfPoisonResistance, OfProtection, OfRegeneration,
-	OfSharpness, OfSmashing, OfSpeed, OfStrenght,
+	OfSharpness, OfSmashing, OfSpeed, OfStrenght, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
 };
 enum item_s : unsigned char {
@@ -501,7 +502,9 @@ class creature {
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
-	char				str_exeptional, energy_drain;
+	char				str_exeptional;
+	char				drain_energy;
+	char				drain_ability[Charisma + 1];
 	char				pallette;
 	reaction_s			reaction;
 	//

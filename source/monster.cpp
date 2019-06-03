@@ -61,6 +61,8 @@ int monsteri::getexperience() const {
 		r += 3;
 	if(is(Undead))
 		r++;
+	if(is(Paralized))
+		r += 2;
 	auto exp = maptbl(hd_experience, r);
 	if(r > 13)
 		exp += (r - 13) * 1000;
