@@ -733,6 +733,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
+	int					choosebg(const char* title) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();

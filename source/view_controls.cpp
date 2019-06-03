@@ -316,12 +316,12 @@ void draw::greenbar(rect rc, int vc, int vm) {
 	rectf(rc, c1);
 }
 
-rect draw::form(rect rc, int count) {
+rect draw::form(rect rc, int count, bool focused) {
 	for(int i = 0; i < count; i++) {
 		border_up(rc);
 		rc.offset(1);
 	}
-	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, colors::main);
+	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, focused ? colors::blue.darken() : colors::main);
 	rc.offset(4, 4);
 	return rc;
 }
@@ -637,8 +637,10 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				auto i1 = draw::animation::thrown(game::getcamera(), game::getdirection(), FireThrown, Center, 50);
-				auto i2 = draw::animation::thrown(i1, to(game::getdirection(), Down), LightingThrown, Center, 50);
+				answers an;
+				an.add(1, "Attack");
+				an.add(2, "Bribe");
+				an.choosebg("Sundelly you see some guard.\n\"You are not welcome here\" - say one of them - \"go away!\"");
 			}
 			break;
 		case Alpha + '1':
@@ -1021,5 +1023,41 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 			break;
 		}
 	}
+	return getresult();
+}
+
+int answers::choosebg(const char* title) const {
+	draw::screenshoot screen;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
+	openform();
+	while(ismodal()) {
+		screen.restore();
+		rect rc = {0, 121, 319, 199};
+		form(rc);
+		rc.offset(6, 4);
+		rc.y1 += text(rc, title, AlignLeft) + 2;
+		auto x = rc.x1, y = rc.y1;
+		for(auto& e : elements) {
+			auto w = textw(e.text);
+			rect r1 = {x, y, x + w + 6, y + texth() + 3};
+			auto id = (int)&e;
+			focusing(r1, id);
+			auto isfocused = (getfocus() == id);
+			form(r1, 1, isfocused);
+			//r1.offset(3, 2);
+			text(r1.x1, r1.y1, e.text);
+			x += r1.width() + 2;
+		}
+		domodal();
+		navigate();
+		switch(hot::key) {
+		case KeyEnter:
+			breakmodal(1);
+			break;
+		}
+	}
+	closeform();
 	return getresult();
 }
