@@ -1142,7 +1142,7 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 		hits = (hits + 1) / 2;
 	if(type == Pierce && is(ResistPierce))
 		hits /= 2;
-	if(is(ResistNormalWeapon) && magic_bonus == 0
+	if(is(ImmuneNormalWeapon) && magic_bonus == 0
 		&& (type == Bludgeon || type == Slashing || type == Pierce))
 		hits = 0;
 	if(hits == 0)

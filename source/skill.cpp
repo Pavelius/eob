@@ -213,6 +213,10 @@ int	creature::get(skill_s id) const {
 			result += wears[RightHand].getdeflect() * 5;
 			result += wears[LeftHand].getdeflect() * 5;
 			break;
+		case ResistCharm:
+			if(is(Undead))
+				result += 100;
+			break;
 		}
 	}
 	if(result > 100)

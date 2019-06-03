@@ -189,7 +189,7 @@ enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
 	HolyGrace, Ambidextrity, NoExeptionalStrenght,
 	Undead,
-	ResistBludgeon, ResistSlashing, ResistPierce, ResistNormalWeapon,
+	ResistBludgeon, ResistSlashing, ResistPierce, ImmuneNormalWeapon,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
 };
 enum usability_s : unsigned char {
