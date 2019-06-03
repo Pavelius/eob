@@ -74,15 +74,16 @@ struct fxt {
 };
 }
 namespace colors {
-color					selected = color::create(250, 250, 250);
-color					drag = color::create(250, 100, 250);
-color					title = color::create(64, 255, 255);
-color					dark = color::create(52, 52, 80);
-color					down = color::create(81, 85, 166);
+static color			dark = color::create(52, 52, 80);
+static color			drag = color::create(250, 100, 250);
+static color			down = color::create(81, 85, 166);
 color					focus = color::create(250, 100, 100);
 color					header = color::create(255, 255, 100);
 color					light = color::create(148, 148, 172);
 color					main = color::create(108, 108, 136);
+color					selected = color::create(250, 250, 250);
+color					title = color::create(64, 255, 255);
+static color			hilite = main.mix(dark, 192);
 namespace info {
 color					text = color::create(64, 64, 64);
 }
@@ -321,7 +322,7 @@ rect draw::form(rect rc, int count, bool focused) {
 		border_up(rc);
 		rc.offset(1);
 	}
-	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, focused ? colors::blue.darken() : colors::main);
+	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, focused ? colors::hilite : colors::main);
 	rc.offset(4, 4);
 	return rc;
 }
@@ -1046,8 +1047,7 @@ int answers::choosebg(const char* title) const {
 			focusing(r1, id);
 			auto isfocused = (getfocus() == id);
 			form(r1, 1, isfocused);
-			//r1.offset(3, 2);
-			text(r1.x1, r1.y1, e.text);
+			text(r1.x1+4, r1.y1+2, e.text);
 			x += r1.width() + 2;
 		}
 		domodal();
