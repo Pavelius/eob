@@ -214,6 +214,10 @@ enum reaction_s : unsigned char {
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
+enum condition_s : unsigned char {
+	NoCondition,
+	HaveAlignment, HaveItem, NeedHeal,
+};
 class creature;
 class item;
 template<typename T> struct bsmeta {
@@ -740,6 +744,16 @@ struct answers {
 private:
 	char				buffer[512];
 	stringcreator		sc;
+};
+struct dialogi {
+	struct elementi {
+		condition_s		condition;
+		const char*		text;
+		const char*		next;
+	};
+	const char*			id;
+	elementi			header;
+	elementi			variants[3];
 };
 namespace game {
 namespace action {

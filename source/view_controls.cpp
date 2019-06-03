@@ -83,7 +83,7 @@ color					light = color::create(148, 148, 172);
 color					main = color::create(108, 108, 136);
 color					selected = color::create(250, 250, 250);
 color					title = color::create(64, 255, 255);
-static color			hilite = main.mix(dark, 192);
+static color			hilite = main.mix(dark, 160);
 namespace info {
 color					text = color::create(64, 64, 64);
 }
@@ -107,6 +107,7 @@ static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
 static int				focus_stack[8];
 static int				focus_level;
+static int				focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 void					view_dungeon_reset();
@@ -317,9 +318,12 @@ void draw::greenbar(rect rc, int vc, int vm) {
 	rectf(rc, c1);
 }
 
-rect draw::form(rect rc, int count, bool focused) {
+rect draw::form(rect rc, int count, bool focused, bool pressed) {
 	for(int i = 0; i < count; i++) {
-		border_up(rc);
+		if(pressed)
+			border_down(rc);
+		else
+			border_up(rc);
 		rc.offset(1);
 	}
 	rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, focused ? colors::hilite : colors::main);
@@ -852,6 +856,7 @@ void draw::openform() {
 	focus_level++;
 	setfocus(0);
 	hot::key = 0;
+	focus_pressed = 0;
 }
 
 void draw::closeform() {
@@ -1027,6 +1032,22 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
+static int buttonw(int x, int y, const char* title, const void* id) {
+	auto w = textw(title);
+	rect r1 = {x, y, x + w + 6, y + texth() + 3};
+	focusing(r1, (int)id);
+	auto isfocused = (getfocus() == (int)id);
+	if(isfocused && hot::key == KeyEnter)
+		focus_pressed = (int)id;
+	else if(hot::key == InputKeyUp && focus_pressed == (int)id) {
+		focus_pressed = 0;
+		execute(buttonparam, (int)id);
+	}
+	form(r1, 1, isfocused, focus_pressed==(int)id);
+	text(r1.x1 + 4, r1.y1 + 2, title);
+	return w + 8;
+}
+
 int answers::choosebg(const char* title) const {
 	draw::screenshoot screen;
 	draw::state push;
@@ -1040,24 +1061,14 @@ int answers::choosebg(const char* title) const {
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
-		for(auto& e : elements) {
-			auto w = textw(e.text);
-			rect r1 = {x, y, x + w + 6, y + texth() + 3};
-			auto id = (int)&e;
-			focusing(r1, id);
-			auto isfocused = (getfocus() == id);
-			form(r1, 1, isfocused);
-			text(r1.x1+4, r1.y1+2, e.text);
-			x += r1.width() + 2;
-		}
+		for(auto& e : elements)
+			x += buttonw(x, y, e.text, &e);
 		domodal();
 		navigate();
-		switch(hot::key) {
-		case KeyEnter:
-			breakmodal(1);
-			break;
-		}
 	}
 	closeform();
-	return getresult();
+	auto p = (element*)getresult();
+	if(!p)
+		return 0;
+	return p->id;
 }

@@ -18,7 +18,7 @@ void					choose(const menu* source);
 int						ciclic(int range, int speed = 1);
 void					closeform();
 int						flatb(int x, int y, int width, unsigned flags, const char* string);
-rect					form(rect rc, int count = 1, bool focused = false);
+rect					form(rect rc, int count = 1, bool focused = false, bool pressed = false);
 infoproc				getmode();
 sprite*					gres(resource_s id);
 void					greenbar(rect rc, int vc, int vm);
