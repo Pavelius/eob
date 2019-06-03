@@ -22,14 +22,14 @@ const int				mpy = 22;
 
 enum resource_s : unsigned char {
 	NONE,
-	SCENES,
+	BORDER, SCENES,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
-	SKELETON, SKELWAR, SPIDER1, WOLF, ZOMBIE,
+	SKELETON, SKELWAR, SPIDER1, WIGHT, WOLF, ZOMBIE,
 	Count
 };
 enum race_s : unsigned char {
@@ -88,7 +88,7 @@ enum class_s : unsigned char {
 enum monster_s : unsigned char {
 	NoMonster,
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
-	Orc, Skeleton, Spider, Wolf, Zombie
+	Orc, Skeleton, Spider, Wight, Wolf, Zombie
 };
 enum state_s : unsigned char {
 	NoState,
@@ -122,7 +122,7 @@ enum wear_s : unsigned char {
 enum enchant_s : unsigned char {
 	NoEnchant,
 	OfAccuracy, OfAdvise, OfCharisma, OfClimbing, OfCold, OfDamage, OfDexterity,
-	OfFire, OfFireResistance, OfHealing, OfHolyness,
+	OfEnergyDrain, OfFire, OfFireResistance, OfHealing, OfHolyness,
 	OfIntellegence, OfInvisibility, OfLuck, OfMagicResistance, OfNeutralizePoison,
 	OfPoison, OfPoisonResistance, OfProtection, OfRegeneration,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenght,
@@ -150,7 +150,7 @@ enum item_s : unsigned char {
 	Scepeter, SilverSword,
 	StoneAmulet, StoneDagger, StoneGem, StoneHolySymbol, StoneOrb,
 	// Monster attacks
-	Slam, Claws, Bite, Bite1d41, Bite2d6,
+	Slam, Slam1d4, Claws, Bite, Bite1d41, Bite2d6,
 	ShokingHand, FlameBladeHand, FlameHand,
 	LastItem = FlameHand,
 	// Thrown effect
@@ -189,7 +189,7 @@ enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
 	HolyGrace, Ambidextrity, NoExeptionalStrenght,
 	Undead,
-	ResistBludgeon, ResistSlashing, ResistPierce,
+	ResistBludgeon, ResistSlashing, ResistPierce, ResistNormalWeapon,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
 };
 enum usability_s : unsigned char {
@@ -348,6 +348,7 @@ struct monsteri {
 	char				getpallette() const;
 	bool				is(enchant_s id) const;
 	bool				is(state_s id) const;
+	bool				is(feat_s id) const;
 };
 struct racei {
 	const char*			name;
@@ -500,7 +501,7 @@ class creature {
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
-	char				str_exeptional;
+	char				str_exeptional, energy_drain;
 	char				pallette;
 	reaction_s			reaction;
 	//
@@ -529,7 +530,7 @@ public:
 	void				clear();
 	bool				canspeak(race_s language) const;
 	spell_s				choosespell(class_s type) const;
-	void				damage(damage_s type, int hits);
+	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	int					damaged(const creature* defender, wear_s slot) const;
 	void				equip(item it);
 	void				finish();
@@ -757,7 +758,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title) const;
+	int					choosebg(const char* title, bool border = false) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
@@ -784,7 +785,7 @@ struct dialogi {
 	const char*			id;
 	const char*			text;
 	elementi			variants[3];
-	void				choose() const;
+	void				choose(bool border = false) const;
 	const dialogi*		find(const char* id) const;
 };
 namespace game {

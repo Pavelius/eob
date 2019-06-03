@@ -4,8 +4,6 @@ using namespace draw;
 
 callback		next_proc;
 
-static dialogi dialogs[] = {{{}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
-};
 static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, 5, 0},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, 0, 10},
 {{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, 0, 10},
@@ -29,7 +27,9 @@ static void test_dungeon(resource_s type) {
 	location.level = 1;
 	draw::settiles(type);
 	test_room2(x, y);
-	location.addmonster(DwarfWarrior, location.getindex(x, y - 1), 0, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 0, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 3, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 2, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
@@ -276,8 +276,8 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	//debug_dungeon2();
-	//return;
+	debug_dungeon2();
+	return;
 	if(game::read())
 		setnext(adventure);
 	else {
@@ -316,10 +316,9 @@ void draw::setnext(void(*v)()) {
 
 int main(int argc, char* argv[]) {
 	srand(clock());
-	return 0;
 	//srand(2112);
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG

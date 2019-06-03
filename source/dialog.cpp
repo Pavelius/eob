@@ -1,11 +1,15 @@
 #include "main.h"
 
-void dialogi::choose() const {
+void dialogi::choose(bool border) const {
 	auto p = find("main");
 	while(p) {
 		answers aw;
 		for(auto& e : p->variants)
 			aw.add((int)&e, e.text);
+		auto pe = (elementi*)aw.choosebg(p->text, border);
+		if(!pe || !pe->success)
+			break;
+		p = find(pe->success);
 	}
 }
 

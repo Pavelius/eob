@@ -246,14 +246,13 @@ static int getweapon(wear_s weapon) {
 }
 
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
-	int r = 0;
-	if(is(Hasted))
-		r += 2;
-	if(is(Blessed))
-		r += 1;
-	auto hd = gethd();
 	result.attack = OneAttack;
-	result.bonus += r;
+	if(is(Hasted))
+		result.bonus += 2;
+	if(is(Blessed))
+		result.bonus += 1;
+	result.bonus -= energy_drain;
+	auto hd = gethd();
 	if(kind)
 		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
 	if(wears[weapon]) {
@@ -278,6 +277,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
 	result.damage.b += maptbl(damage_adjustment, k);
+	result.damage.b -= energy_drain;
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
@@ -443,6 +443,9 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	// RULE: Ranger add +4 THAC0 when fight humanoid and goblonoids
 	if(is(BonusDamageVsEnemy) && (defender->race == Humanoid || defender->race == Goblinoid))
 		wi.bonus += 4;
+	auto magic_bonus = 0;
+	if(wi.weapon)
+		magic_bonus = wi.weapon->getmagic();
 	for(auto atn = (bsmeta<attacki>::elements[wi.attack].attacks_p2r + (game::rounds % 2)) / 2; atn > 0; atn--) {
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 		auto rolls = xrand(1, 20);
@@ -484,7 +487,12 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// Paralize attack
 			if(is(Paralized, slot))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
-			defender->damage(wi.type, hits);
+			if(getbonus(OfEnergyDrain)) {
+				defender->energy_drain++;
+				if(defender->energy_drain >= defender->gethd())
+					hits = defender->gethits() + 10;
+			}
+			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
 				if(wi.weapon->is(Charged))
@@ -988,7 +996,7 @@ const char* creature::getname(char* result, const char* result_maximum) const {
 }
 
 int creature::getbonus(enchant_s id) const {
-	if(bsmeta<monsteri>::elements[type].is(id))
+	if(bsmeta<monsteri>::elements[kind].is(id))
 		return 2; // All monsters have enchantment of 2
 	// All bonuses no stack each other
 	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
@@ -1117,7 +1125,7 @@ static void remove_hits(short& bonus, int v) {
 	}
 }
 
-void creature::damage(damage_s type, int hits) {
+void creature::damage(damage_s type, int hits, int magic_bonus) {
 	if(type == Heal)
 		hits = -hits;
 	if(hits < 0) {
@@ -1134,6 +1142,9 @@ void creature::damage(damage_s type, int hits) {
 		hits = (hits + 1) / 2;
 	if(type == Pierce && is(ResistPierce))
 		hits /= 2;
+	if(is(ResistNormalWeapon) && magic_bonus == 0
+		&& (type == Bludgeon || type == Slashing || type == Pierce))
+		hits = 0;
 	if(hits == 0)
 		return;
 	auto h = hits;

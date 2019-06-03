@@ -109,6 +109,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Stone orb", {61, 18}, {}, {}, {Unique}},
 //
 {"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
+{"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
 {"Claws", {}, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
 {"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
 {"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 4, 1}, {}}},

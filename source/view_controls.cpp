@@ -7,6 +7,7 @@ static struct resource_info {
 	const char*			path;
 	sprite*				data;
 } objects[] = {{"NONE"},
+{"BORDER", "art/interface"},
 {"SCENES", "art/interface"},
 {"CHARGEN", "art/interface"},
 {"CHARGENB", "art/interface"},
@@ -55,6 +56,7 @@ static struct resource_info {
 {"SKELETON", "art/monsters"},
 {"SKELWAR", "art/monsters"},
 {"SPIDER1", "art/monsters"},
+{"WIGHT", "art/monsters"},
 {"WOLF", "art/monsters"},
 {"ZOMBIE", "art/monsters"},
 };
@@ -642,10 +644,9 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				answers an;
-				an.add(1, "Attack");
-				an.add(2, "Bribe");
-				an.choosebg("Sundelly you see some guard.\n\"You are not welcome here\" - say one of them - \"go away!\"");
+				static dialogi first_dialog[] = {{{}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+				{}};
+				first_dialog->choose(true);
 			}
 			break;
 		case Alpha + '1':
@@ -1049,7 +1050,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 	return w + 8;
 }
 
-int answers::choosebg(const char* title) const {
+int answers::choosebg(const char* title, bool border) const {
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
@@ -1057,6 +1058,8 @@ int answers::choosebg(const char* title) const {
 	openform();
 	while(ismodal()) {
 		screen.restore();
+		if(border)
+			image(0, 0, gres(BORDER), 0, 0);
 		rect rc = {0, 121, 319, 199};
 		form(rc);
 		rc.offset(6, 4);

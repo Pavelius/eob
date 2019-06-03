@@ -20,6 +20,7 @@ monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
 {"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}, {}, {}},
 {"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
 {"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {Poison}},
+{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ResistNormalWeapon}, {4, 3}, 7, {Slam1d4}, {}, {OfEnergyDrain}},
 {"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}, {}, {}},
 {"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}, {}, {}}
 };
@@ -36,6 +37,10 @@ bool monsteri::is(enchant_s id) const {
 		|| enchantments[1] == id;
 }
 
+bool monsteri::is(feat_s id) const {
+	return feats.is(id);
+}
+
 int monsteri::getexperience() const {
 	int r = hd[0];
 	if(r && hd[1] > 0)
@@ -48,8 +53,10 @@ int monsteri::getexperience() const {
 		r += 2;
 	else if(is(DeadlyPoison))
 		r += 3;
-	if(feats.is(ResistBludgeon) || feats.is(ResistPierce) || feats.is(ResistSlashing))
+	if(is(ResistBludgeon) || is(ResistPierce) || is(ResistSlashing))
 		r += 1;
+	if(is(OfEnergyDrain))
+		r += 3;
 	auto exp = maptbl(hd_experience, r);
 	if(r > 13)
 		exp += (r - 13) * 1000;
