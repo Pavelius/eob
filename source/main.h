@@ -217,12 +217,13 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	NoAction,
-	HealParty, RessurectBones, StartCombat,
+	HealParty, RessurectBones,
+	StartCombat, WinCombat, GainExperience,
 	AddVariant, HaveVariant, RemoveVariant,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Gender, Race, Spell,
+	Alignment, Class, Item, Race, Spell,
 };
 class creature;
 class item;
@@ -237,13 +238,15 @@ struct varianti {
 		class_s			cls;
 		item_s			item;
 		race_s			race;
+		spell_s			spell;
 		unsigned char	value;
 	};
 	constexpr varianti() : type(NoVariant), value(0) {}
-	constexpr varianti(const alignment_s v) : type(NoVariant), alignment(v) {}
-	constexpr varianti(const class_s v) : type(NoVariant), cls(v) {}
-	constexpr varianti(const item_s v) : type(NoVariant), item(v) {}
-	constexpr varianti(const race_s v) : type(NoVariant), race(v) {}
+	constexpr varianti(const alignment_s v) : type(Alignment), alignment(v) {}
+	constexpr varianti(const class_s v) : type(Class), cls(v) {}
+	constexpr varianti(const item_s v) : type(Item), item(v) {}
+	constexpr varianti(const race_s v) : type(Race), race(v) {}
+	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
 };
 struct abilityi {
 	const char*			name;
@@ -578,7 +581,8 @@ public:
 	int					getspellsperlevel(class_s type, int spell_level) const;
 	int					getstrex() const;
 	int					getthac0(class_s cls, int level) const;
-	bool				have_class(aref<class_s> source) const;
+	bool				have(aref<class_s> source) const;
+	bool				have(item_s v) const;
 	bool				is(state_s id) const;
 	bool				is(state_s id, wear_s slot) const;
 	bool				is(feat_s v) const { return feats.is(v); }
@@ -782,6 +786,7 @@ struct dialogi {
 		action_s		action;
 		varianti		variant;
 		constexpr explicit operator bool() const { return text != 0; }
+		bool			isallow() const;
 	};
 	constexpr explicit operator bool() const { return id != 0; }
 	imagei				overlay[4];

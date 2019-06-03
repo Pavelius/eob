@@ -1059,7 +1059,15 @@ short unsigned creature::getindex() const {
 	return game::getcamera();
 }
 
-bool creature::have_class(aref<class_s> source) const {
+bool creature::have(item_s v) const {
+	for(auto& e : wears) {
+		if(e && e.gettype() == v)
+			return true;
+	}
+	return false;
+}
+
+bool creature::have(aref<class_s> source) const {
 	for(auto e : source) {
 		if(get(e))
 			return true;
