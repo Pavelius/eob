@@ -214,15 +214,35 @@ enum reaction_s : unsigned char {
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
-enum condition_s : unsigned char {
-	NoCondition,
-	HaveAlignment, HaveItem, NeedHeal,
+enum action_s : unsigned char {
+	NoAction,
+	HealParty, RessurectBones, StartCombat,
+	AddVariant, HaveVariant, RemoveVariant,
+};
+enum variant_s : unsigned char {
+	NoVariant,
+	Alignment, Class, Gender, Race, Spell,
 };
 class creature;
 class item;
 template<typename T> struct bsmeta {
 	typedef T			data_type;
 	static T			elements[];
+};
+struct varianti {
+	variant_s			type;
+	union {
+		alignment_s		alignment;
+		class_s			cls;
+		item_s			item;
+		race_s			race;
+		unsigned char	value;
+	};
+	constexpr varianti() : type(NoVariant), value(0) {}
+	constexpr varianti(const alignment_s v) : type(NoVariant), alignment(v) {}
+	constexpr varianti(const class_s v) : type(NoVariant), cls(v) {}
+	constexpr varianti(const item_s v) : type(NoVariant), item(v) {}
+	constexpr varianti(const race_s v) : type(NoVariant), race(v) {}
 };
 struct abilityi {
 	const char*			name;
@@ -747,12 +767,15 @@ private:
 };
 struct dialogi {
 	struct elementi {
-		condition_s		condition;
 		const char*		text;
-		const char*		next;
+		const char*		success;
+		const char*		fail;
+		action_s		action;
+		varianti		variant;
+		constexpr explicit operator bool() const { return text != 0; }
 	};
 	const char*			id;
-	elementi			header;
+	const char*			text;
 	elementi			variants[3];
 };
 namespace game {

@@ -4,6 +4,8 @@ using namespace draw;
 
 callback		next_proc;
 
+static dialogi dialogs[] = {{"main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+};
 static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, 5, 0},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, 0, 10},
 {{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, 0, 10},
