@@ -1032,12 +1032,13 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static int buttonw(int x, int y, const char* title, const void* id) {
+static int buttonw(int x, int y, const char* title, const void* id, unsigned key = 0) {
 	auto w = textw(title);
 	rect r1 = {x, y, x + w + 6, y + texth() + 3};
 	focusing(r1, (int)id);
 	auto isfocused = (getfocus() == (int)id);
-	if(isfocused && hot::key == KeyEnter)
+	if((isfocused && hot::key == KeyEnter)
+		|| (key && hot::key == key))
 		focus_pressed = (int)id;
 	else if(hot::key == InputKeyUp && focus_pressed == (int)id) {
 		focus_pressed = 0;
@@ -1061,8 +1062,8 @@ int answers::choosebg(const char* title) const {
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
-		for(auto& e : elements)
-			x += buttonw(x, y, e.text, &e);
+		for(unsigned i = 0; i < elements.count; i++)
+			x += buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
 		domodal();
 		navigate();
 	}
