@@ -7,31 +7,26 @@ static const int hd_experience[] = {
 };
 
 monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
-{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {WeakPoison}},
-{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}, {}},
-{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}, {}},
-{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 10, {AxeBattle, ArmorChain}, {}},
-{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}, {}},
-{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {Paralized}},
-{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}, {}, {}},
-{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}, {}},
-{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}, {}},
-{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {}, {OfVampirism}},
-{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}, {}, {}},
-{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}, {}, {}},
-{"Skeleton Warrior", SKELWAR, {0}, Human, Male, Medium, NeutralEvil, Exeptional, {Undead, ImmuneNormalWeapon}, {9, 10}, 2, {SwordTwoHanded}, {Scared}, {}, {{ResistMagic, 90}}},
-{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {Poison}},
-{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {}, {OfEnergyDrain}},
-{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}, {}, {}},
-{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}, {}, {}}
+{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {OfPoison}},
+{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}},
+{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
+{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 5, {AxeBattle}},
+{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}},
+{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {OfParalize}},
+{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}},
+{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}},
+{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}},
+{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {OfVampirism}},
+{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}},
+{"Shadow", SHADOW, {0}, Humanoid, Male, Medium, ChaoticEvil, Low, {Undead, ImmuneNormalWeapon}, {3, 3}, 7, {Bite1d41}, {OfStrenghtDrain}},
+{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}},
+{"Skeleton Warrior", SKELWAR, {0}, Human, Male, Medium, NeutralEvil, Exeptional, {Undead, ImmuneNormalWeapon}, {9, 10}, 2, {SwordTwoHanded}, {OfFear}, {{ResistMagic, 90}}},
+{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoisonStrong}},
+{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {OfEnergyDrain}},
+{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}},
+{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}}
 };
 assert_enum(monster, Zombie);
-
-bool monsteri::is(state_s id) const {
-	return special[0] == id
-		|| special[1] == id
-		|| special[2] == id;
-}
 
 bool monsteri::is(enchant_s id) const {
 	return enchantments[0] == id
@@ -45,15 +40,13 @@ bool monsteri::is(feat_s id) const {
 int monsteri::getexperience() const {
 	auto r = hd[0];
 	if(r && hd[1] > 0)
-		r++;
+		r += 1;
 	if(ac <= 0)
-		r++;
-	if(is(WeakPoison) || is(Poison))
-		r++;
-	else if(is(StrongPoison))
+		r += 1;
+	if(is(OfPoison))
+		r += 1;
+	else if(is(OfPoisonStrong))
 		r += 2;
-	else if(is(DeadlyPoison))
-		r += 3;
 	if(is(ResistBludgeon) || is(ResistPierce) || is(ResistSlashing))
 		r += 1;
 	if(is(ImmuneNormalWeapon))
@@ -62,7 +55,9 @@ int monsteri::getexperience() const {
 		r += 3;
 	if(is(Undead))
 		r++;
-	if(is(Paralized))
+	if(is(OfFear))
+		r += 1;
+	if(is(OfParalize))
 		r += 2;
 	if(skills.data[ResistMagic] >= 50)
 		r++;

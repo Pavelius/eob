@@ -416,10 +416,6 @@ int	creature::getbonus(enchant_s id, wear_s slot) const {
 	return wears[slot].get(id);
 }
 
-bool creature::is(state_s id, wear_s slot) const {
-	return slot == RightHand && bsmeta<monsteri>::elements[kind].is(id);
-}
-
 int creature::gethitpenalty(int bonus) const {
 	if(is(Ambidextrity))
 		return 0;
@@ -477,20 +473,20 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			}
 		}
 		// Fear attack (Not depend on attack result)
-		if(is(Scared, slot))
+		if(getbonus(OfFear, slot))
 			defender->add(Scared, xrand(1, 3) * 10, SaveNegate);
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
-			// RULE: when attacking sleeping creature she wake up!
+			// When attacking sleeping creature she wake up!
 			defender->set(Sleeped, 0);
 			// Poison attack
-			for(auto& e : poison_effects) {
-				if(is(e.state, slot))
-					defender->add(e.state, xrand(4, 12), SaveNegate, e.save);
-			}
+			if(getbonus(OfPoison))
+				defender->add(Poison, xrand(5, 10), SaveNegate);
+			if(getbonus(OfPoisonStrong))
+				defender->add(StrongPoison, xrand(5, 15), SaveNegate);
 			// Paralize attack
-			if(is(Paralized, slot))
+			if(getbonus(OfParalize))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			// Drain ability
 			if(getbonus(OfEnergyDrain) > 0) {

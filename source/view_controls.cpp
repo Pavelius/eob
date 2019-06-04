@@ -53,6 +53,7 @@ static struct resource_info {
 {"KUOTOA", "art/monsters"},
 {"LEECH", "art/monsters"},
 {"ORC", "art/monsters"},
+{"SHADOW", "art/monsters"},
 {"SKELETON", "art/monsters"},
 {"SKELWAR", "art/monsters"},
 {"SPIDER1", "art/monsters"},

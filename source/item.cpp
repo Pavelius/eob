@@ -283,7 +283,7 @@ char* item::getname(char* result, const char* result_maximum) const {
 		if(type == RationIron || type == Ration)
 			sc.adds("rotten");
 		else
-			sc.adds("broken");
+			sc.adds("damaged");
 	}
 	if(isidentified() && iscursed())
 		sc.adds("cursed");

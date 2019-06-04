@@ -29,7 +29,7 @@ enum resource_s : unsigned char {
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
-	SKELETON, SKELWAR, SPIDER1, WIGHT, WOLF, ZOMBIE,
+	SHADOW, SKELETON, SKELWAR, SPIDER1, WIGHT, WOLF, ZOMBIE,
 	Count
 };
 enum race_s : unsigned char {
@@ -88,7 +88,7 @@ enum class_s : unsigned char {
 enum monster_s : unsigned char {
 	NoMonster,
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
-	Orc, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie
+	Orc, Shadow, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie
 };
 enum state_s : unsigned char {
 	NoState,
@@ -110,7 +110,6 @@ enum skill_s : unsigned char {
 	CriticalDeflect,
 	DetectSecrets,
 	FirstSave = SaveVsParalization, LastSave = SaveVsMagic,
-	FirstResist = ResistFire, LastResist = ResistCharm,
 	LastSkill = DetectSecrets
 };
 enum wear_s : unsigned char {
@@ -123,9 +122,9 @@ enum enchant_s : unsigned char {
 	NoEnchant,
 	OfAccuracy, OfAdvise, OfCharisma, OfClimbing, OfCold, OfDamage, OfDexterity,
 	OfEnergyDrain,
-	OfFire, OfFireResistance, OfHealing, OfHolyness,
+	OfFear, OfFire, OfFireResistance, OfHealing, OfHolyness,
 	OfIntellegence, OfInvisibility, OfLuck, OfMagicResistance, OfNeutralizePoison,
-	OfPoison, OfPoisonResistance, OfProtection, OfRegeneration,
+	OfParalize, OfPoison, OfPoisonStrong, OfPoisonResistance, OfProtection, OfRegeneration,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenght, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
 };
@@ -345,14 +344,12 @@ struct monsteri {
 	char				hd[2];
 	char				ac;
 	item_s				attacks[4];
-	state_s				special[3];
 	enchant_s			enchantments[2];
 	adatc<skill_s, char, DetectSecrets + 1> skills;
 	//
 	int					getexperience() const;
 	char				getpallette() const;
 	bool				is(enchant_s id) const;
-	bool				is(state_s id) const;
 	bool				is(feat_s id) const;
 };
 struct racei {
@@ -592,7 +589,6 @@ public:
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	bool				is(state_s id) const;
-	bool				is(state_s id, wear_s slot) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				is(spell_s v) const { return known[v] != 0; }

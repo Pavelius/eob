@@ -29,7 +29,7 @@ static void test_dungeon(resource_s type) {
 	test_room2(x, y);
 	//location.addmonster(Wight, location.getindex(x, y - 1), 0, Down);
 	//location.addmonster(Wight, location.getindex(x, y - 1), 3, Down);
-	location.addmonster(SkeletonWarrior, location.getindex(x, y - 1), 2, Down);
+	location.addmonster(Shadow, location.getindex(x, y - 1), 2, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
