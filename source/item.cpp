@@ -3,26 +3,15 @@
 static enchant_s magic_swords[] = {OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness};
 static enchant_s magic_weapon[] = {OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
 static enchant_s magic_bludgeon[] = {OfFire, OfSmashing, OfDamage, OfHolyness};
-static enchant_s ring_red[] = {OfSpeed, OfFireResistance, OfProtection, OfAdvise};
+static enchant_s ring_red[] = {OfWizardy, OfFireResistance, OfProtection, OfAdvise};
 static enchant_s ring_green[] = {OfRegeneration, OfHealing, OfPoison, OfPoisonResistance, OfProtection};
-static enchant_s ring_blue[] = {OfClimbing, OfWizardy, OfProtection, OfLuck, OfInvisibility};
+static enchant_s ring_blue[] = {OfClimbing, OfSpeed, OfProtection, OfLuck, OfInvisibility};
 static enchant_s potion_red[] = {OfSpeed, OfFireResistance};
 static enchant_s potion_green[] = {OfNeutralizePoison, OfClimbing, OfStrenght};
-static enchant_s potion_blue[] = {OfClimbing, OfHealing, OfAdvise};
-static enchant_s magic_boots[] = {OfSpeed};
+static enchant_s potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfAdvise};
+static enchant_s magic_boots[] = {OfSpeed, OfClimbing};
 static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
 static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
-
-
-static int get_item_portrait(int rec) {
-	switch(rec) {
-	case HolySymbol: return 20;
-	default:
-		if(rec >= KeyShelf && rec <= KeyGreen)
-			return 8;
-		return 0;
-	}
-}
 
 itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Battle axe", {7, 4}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
@@ -43,7 +32,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Bow", {10, 6}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {OneAttack, Pierce, -8, {1, 8}, {1, 8}}},
 {"Sling", {18, 4}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
 //
-{"Robe", {32, 8}, Body},
+{"Robe", {32, 8}, Body, {UseArcane}},
 {"Leather armor", {31, 8}, Body, {UseLeatherArmor}, {}, {}, {2}},
 {"Studded leather armor", {31, 8}, Body, {UseLeatherArmor}, {}, {}, {3}},
 {"Scale mail", {30, 9}, Body, {UseMetalArmor}, {}, {}, {4, 2}},
@@ -53,9 +42,9 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 //
 {"Helm", {20, 6}, Head, {UseShield}, {}, {}, {0, 2}},
 {"Shield", {23, 7}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
-{"Boots", {21, 9}, Legs, {}, {}, {}, {}, magic_boots},
+{"Boots", {21, 9}, Legs, {}, {Wonderful}, {}, {}, magic_boots},
 //
-{"Bracers", {25, 16}, Elbow, {}, {}, {}, {0, 2}, magic_bracers},
+{"Bracers", {25, 16}, Elbow, {}, {Wonderful}, {}, {0, 2}, magic_bracers},
 //
 {"Arrow", {16, 5}},
 {"Dart", {14, 0}, RightHand},
@@ -81,7 +70,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
 // Кольца
-{"Ring", {55, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_red},
+{"Ring", {55, 15}, RightRing, {UseArcane, UseDivine}, {Wonderful}, {}, {}, ring_red},
 {"Ring", {78, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
 {"Ring", {79, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_green},
 //
@@ -97,7 +86,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Ration", {38, 14}},
 {"Iron ration", {37, 14}},
 // Уникальные
-{"Dust of Ages", {97, 25}, {}, {}, {Unique}},
+{"Dust of Ages", {97, 25}, {}, {UseArcane}, {Unique}},
 {"Horn", {59, 23}, {}, {}, {Unique}},
 {"Mantist Head", {51, 18}, {}, {}, {Unique}},
 {"Scepeter", {66, 17}, RightHand, {}, {Unique}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
@@ -105,7 +94,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Stone amulet", {64, 13}, Neck, {}, {Unique}},
 {"Stone dagger", {60, 3}, {}, {}, {Unique}},
 {"Stone gem", {57, 22}, {}, {}, {Unique}},
-{"Stone holy symbol", {63, 20}, {}, {}, {Unique}},
+{"Stone holy symbol", {63, 20}, {}, {UseDivine}, {Unique}},
 {"Stone orb", {61, 18}, {}, {}, {Unique}},
 //
 {"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
