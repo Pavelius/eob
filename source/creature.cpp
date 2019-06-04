@@ -488,15 +488,13 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			if(is(Paralized, slot))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(!is(ProtectedFromEvil)) {
-				if(getbonus(OfEnergyDrain)>0) {
-					defender->drain_energy++;
-					if(defender->drain_energy >= defender->gethd())
-						hits = defender->gethits() + 10;
-				}
-				if(getbonus(OfStrenghtDrain))
-					defender->drain_ability[Strenght]--;
+			if(getbonus(OfEnergyDrain) > 0) {
+				defender->drain_energy++;
+				if(defender->drain_energy >= defender->gethd())
+					hits = defender->gethits() + 10;
 			}
+			if(getbonus(OfStrenghtDrain))
+				defender->drain_ability[Strenght]--;
 			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
@@ -541,7 +539,7 @@ void creature::addexp(int value) {
 		value += value * b / 20;
 	// RULE: if class ability if hight enought you gain additional 10% experience
 	auto pa = bsmeta<classi>::elements[type].ability;
-	if(get(pa)>=16)
+	if(get(pa) >= 16)
 		value += value / 10;
 	experience += value;
 }
@@ -623,7 +621,7 @@ void creature::raise_level(class_s type) {
 		}
 	} else {
 		if(type == Cleric) {
-			auto spell_level = get_cleric_spell_level(level+1);
+			auto spell_level = get_cleric_spell_level(level + 1);
 			random_spells(type, spell_level, 32);
 		}
 	}

@@ -318,7 +318,7 @@ int main(int argc, char* argv[]) {
 	srand(clock());
 	//srand(2112);
 #ifdef _DEBUG
-	util_main();
+	//util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG
