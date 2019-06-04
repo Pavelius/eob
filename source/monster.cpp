@@ -64,6 +64,10 @@ int monsteri::getexperience() const {
 		r++;
 	if(is(Paralized))
 		r += 2;
+	if(skills.data[ResistMagic] >= 50)
+		r++;
+	if(skills.data[ResistMagic] >= 90)
+		r++;
 	auto exp = maptbl(hd_experience, r);
 	if(r > 13)
 		exp += (r - 13) * 1000;
