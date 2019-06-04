@@ -1,6 +1,6 @@
 #include "main.h"
 
-static enchant_s magic_swords[] = {OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness};
+static enchant_s magic_swords[] = {OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
 static enchant_s magic_weapon[] = {OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
 static enchant_s magic_bludgeon[] = {OfFire, OfSmashing, OfDamage, OfHolyness};
 static enchant_s ring_red[] = {OfWizardy, OfFireResistance, OfProtection, OfAdvise};
@@ -12,6 +12,7 @@ static enchant_s potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfAdvise};
 static enchant_s magic_boots[] = {OfSpeed, OfClimbing};
 static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
 static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
+static enchant_s magic_helm[] = {OfIntellegence, OfCharisma};
 
 itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Battle axe", {7, 4}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
@@ -40,9 +41,9 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Banded mail", {28, 9}, Body, {UseMetalArmor}, {}, {}, {7, 1}},
 {"Plate mail", {26, 9}, Body, {UseMetalArmor}, {}, {}, {8, 2}},
 //
-{"Helm", {20, 6}, Head, {UseShield}, {}, {}, {0, 2}},
+{"Helm", {20, 6}, Head, {UseShield}, {Wonderful}, {}, {0, 2}, magic_helm},
 {"Shield", {23, 7}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
-{"Boots", {21, 9}, Legs, {}, {Wonderful}, {}, {}, magic_boots},
+{"Boots", {21, 9}, Legs, {}, {Wonderful}, {}, {0, 1}, magic_boots},
 //
 {"Bracers", {25, 16}, Elbow, {}, {Wonderful}, {}, {0, 2}, magic_bracers},
 //

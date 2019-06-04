@@ -489,13 +489,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			if(getbonus(OfParalize))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(getbonus(OfEnergyDrain) > 0) {
+			if(getbonus(OfEnergyDrain) > 0)
 				defender->drain_energy++;
-				if(defender->drain_energy >= defender->gethd())
-					hits = defender->gethits() + 10;
-			}
 			if(getbonus(OfStrenghtDrain))
-				defender->drain_ability[Strenght]--;
+				defender->drain_ability[Strenght]++;
+			// Dead from draining
+			if(defender->drain_energy >= defender->gethd()
+				|| defender->drain_ability[Strenght] >= get(Strenght)
+				|| defender->drain_ability[Constitution] >= get(Constitution))
+				hits = defender->gethits() + 10;
 			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
@@ -776,6 +778,7 @@ int	creature::get(class_s type) const {
 
 int	creature::get(ability_s id) const {
 	auto r = ability[id];
+	r -= drain_ability[id];
 	// ¬ременное усиление атрибута, если используетс€
 	auto boost = bsmeta<abilityi>::elements[id].boost;
 	if(boost) {
