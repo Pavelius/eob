@@ -567,7 +567,7 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 		if(random_content) {
 			static dungeon_proc corridor_random[] = {empthy,
 				empthy, empthy, empthy, empthy, empthy, empthy,
-				empthy, empthy, empthy, empthy, empthy, empthy,
+				empthy, empthy, empthy, empthy,
 				secret,
 				monster, monster, monster, monster,
 				rations,

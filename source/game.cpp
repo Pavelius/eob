@@ -40,7 +40,7 @@ void game::setcamera(short unsigned index, direction_s direction) {
 	camera_index = index;
 	if(direction != Center)
 		camera_direction = direction;
-	if(index==Blocked)
+	if(index == Blocked)
 		return;
 	int x = gx(index);
 	int y = gy(index);
@@ -703,12 +703,23 @@ wear_s game::getitempart(item* itm) {
 	return Head;
 }
 
+static size_s get_maximum_size(creature** source) {
+	auto result = Tiny;
+	for(int i = 0; i < 4; i++) {
+		if(!source[i])
+			continue;
+		auto v = source[i]->getsize();
+		if(result < v)
+			result = v;
+	}
+	return result;
+}
+
 static bool is_valid_move_by_size(creature** s_side, creature** d_side) {
-	if(!s_side[0])
-		return true;
-	if(s_side[0]->getsize() < Large)
-		return true;
-	return !d_side[0] && !d_side[1] && !d_side[2] && !d_side[3];
+	auto r = get_maximum_size(s_side);
+	if(r == Large)
+		return !d_side[0] && !d_side[1] && !d_side[2] && !d_side[3];
+	return true;
 }
 
 static void stop_monster(short unsigned index) {
@@ -727,12 +738,12 @@ static void move_monster(dungeon& location, short unsigned index, direction_s dr
 		return;
 	if(dest == game::getcamera())
 		return;
-	creature* s_side[4]; location.getmonsters(s_side, index, Center);
-	creature* d_side[4]; location.getmonsters(d_side, dest, Center);
 	if(index == dest) {
 		stop_monster(index);
 		return;
 	}
+	creature* s_side[4]; location.getmonsters(s_side, index, Center);
+	creature* d_side[4]; location.getmonsters(d_side, dest, Center);
 	// Large monsters move only to free index
 	if(!is_valid_move_by_size(s_side, d_side)
 		|| !is_valid_move_by_size(d_side, s_side))
@@ -790,7 +801,7 @@ void game::passround() {
 			if(location.isblocked(next_index) || d100() < 30) {
 				short unsigned indicies[5];
 				auto n = location.random(location.getnearestfree(indicies, monster_index));
-				if(n!=Blocked)
+				if(n != Blocked)
 					location.turnto(monster_index, pointto(monster_index, n));
 			} else
 				move_monster(location, monster_index, monster_direct);
@@ -847,12 +858,12 @@ void game::hearnoises() {
 	auto index = getcamera();
 	auto dir = getdirection();
 	auto door_index = to(index, dir);
-	if(door_index==Blocked || location.get(door_index) != CellDoor)
+	if(door_index == Blocked || location.get(door_index) != CellDoor)
 		return;
 	if(location.is(door_index, CellActive))
 		return;
 	door_index = to(door_index, dir);
-	if(door_index==Blocked)
+	if(door_index == Blocked)
 		return;
 	for(auto pc : game::party) {
 		if(!pc || !pc->isready())
@@ -902,7 +913,7 @@ void game::enter(unsigned short index, unsigned char level) {
 	if(location_level > 1)
 		location_above.read(overland_index, location_level - 1);
 	draw::settiles(location.head.type);
-	if(camera_index==Blocked)
+	if(camera_index == Blocked)
 		game::setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 

@@ -276,8 +276,8 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	debug_dungeon2();
-	return;
+	//debug_dungeon2();
+	//return;
 	if(game::read())
 		setnext(adventure);
 	else {
