@@ -247,11 +247,6 @@ static int getweapon(wear_s weapon) {
 
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.attack = OneAttack;
-	if(is(Hasted))
-		result.bonus += 2;
-	if(is(Blessed))
-		result.bonus += 1;
-	result.bonus -= drain_energy;
 	auto hd = gethd();
 	if(kind)
 		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
@@ -276,8 +271,6 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	auto k = getstrex();
 	result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
-	result.damage.b += maptbl(damage_adjustment, k);
-	result.damage.b -= drain_energy;
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
@@ -285,6 +278,15 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.attack = OneAndTwoAttacks;
 		result.bonus++;
 	}
+	if(is(Hasted))
+		result.bonus += 2;
+	if(is(Blessed))
+		result.bonus += 1;
+	if(is(Scared))
+		result.bonus -= 4;
+	result.bonus -= drain_energy;
+	result.damage.b += maptbl(damage_adjustment, k);
+	result.damage.b -= drain_energy;
 }
 
 void creature::add(item value) {
@@ -474,6 +476,9 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				this->damage(Heal, hits_healed);
 			}
 		}
+		// Fear attack (Not depend on attack result)
+		if(is(Scared, slot))
+			defender->add(Scared, xrand(1, 3) * 10, SaveNegate);
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {

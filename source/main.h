@@ -88,7 +88,7 @@ enum class_s : unsigned char {
 enum monster_s : unsigned char {
 	NoMonster,
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
-	Orc, Skeleton, Spider, Wight, Wolf, Zombie
+	Orc, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie
 };
 enum state_s : unsigned char {
 	NoState,
@@ -106,7 +106,7 @@ enum skill_s : unsigned char {
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
 	ClimbWalls, HearNoise, MoveSilently, OpenLocks, RemoveTraps, ReadLanguages,
 	LearnSpell,
-	ResistCharm, ResistCold, ResistFire,
+	ResistCharm, ResistCold, ResistFire, ResistMagic,
 	CriticalDeflect,
 	DetectSecrets,
 	FirstSave = SaveVsParalization, LastSave = SaveVsMagic,
@@ -347,6 +347,7 @@ struct monsteri {
 	item_s				attacks[4];
 	state_s				special[3];
 	enchant_s			enchantments[2];
+	adatc<skill_s, char, DetectSecrets + 1> skills;
 	//
 	int					getexperience() const;
 	char				getpallette() const;

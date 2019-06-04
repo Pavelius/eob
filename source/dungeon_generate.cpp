@@ -580,7 +580,7 @@ static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigne
 				decoration, decoration,
 				message,
 			};
-			auto proc = corridor_random[rand() % sizeof(corridor_random) / sizeof(corridor_random[0])];
+			auto proc = corridor_random[rand() % (sizeof(corridor_random) / sizeof(corridor_random[0]))];
 			proc(pd, index, to(dir, rnd[0]), flags);
 			if(d100() < 60)
 				iswap(rnd[0], rnd[1]);

@@ -644,7 +644,8 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static dialogi first_dialog[] = {{{{ZOMBIE, 0}}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+				static dialogi first_dialog[] = {{{{ZOMBIE, 0}}, "main", "You see strange door from blue stone",
+				{{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
 				{}};
 				first_dialog->choose(true);
 			}

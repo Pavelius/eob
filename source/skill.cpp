@@ -17,6 +17,7 @@ skilli bsmeta<skilli>::elements[] = {{"Save vs Paralize"},
 {"Resist Charm"},
 {"Resist Cold"},
 {"Resist Fire"},
+{"Resist Magic"},
 //
 {"Deflect critical"},
 {"Detect secrets"},
