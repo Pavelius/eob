@@ -483,6 +483,13 @@ public:
 	void				setspell(spell_s spell);
 };
 class creature {
+	struct applyi {
+		ability_s		id;
+		char			bonus;
+		varianti		source;
+		unsigned		round;
+		// Ability, AC, THAC0, Damage, Resist, Saves
+	};
 	alignment_s			alignment;
 	race_s				race;
 	gender_s			gender;
