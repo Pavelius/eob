@@ -644,7 +644,7 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static dialogi first_dialog[] = {{{}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+				static dialogi first_dialog[] = {{{{ZOMBIE, 0}}, "main", "You see strange door from blue stone", {{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
 				{}};
 				first_dialog->choose(true);
 			}
@@ -1050,7 +1050,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, bool border) const {
+int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi) const {
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
@@ -1058,6 +1058,12 @@ int answers::choosebg(const char* title, bool border) const {
 	openform();
 	while(ismodal()) {
 		screen.restore();
+		if(pi) {
+			for(int i = 0; i < 4; i++) {
+				if(pi[i].res)
+					image(100, 110, gres(pi[i].res), pi[i].id, pi[i].flags);
+			}
+		}
 		if(border)
 			image(0, 0, gres(BORDER), 0, 0);
 		rect rc = {0, 121, 319, 199};

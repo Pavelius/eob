@@ -755,28 +755,11 @@ struct dungeon {
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
 };
-struct answers {
-	struct element {
-		int				id;
-		const char*		text;
-	};
-	answers();
-	adat<element, 32>	elements;
-	void				add(int id, const char* name);
-	int					choose(const char* title) const;
-	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, bool border = false) const;
-	int					choosesm(const char* title, bool allow_cancel = true) const;
-	int					random() const;
-	void				sort();
-private:
-	char				buffer[512];
-	stringcreator		sc;
-};
 struct dialogi {
 	struct imagei {
 		resource_s		res;
 		short			id;
+		unsigned		flags;
 		constexpr explicit operator bool() const { return res != 0; }
 	};
 	struct elementi {
@@ -795,6 +778,24 @@ struct dialogi {
 	elementi			variants[3];
 	void				choose(bool border = false) const;
 	const dialogi*		find(const char* id) const;
+};
+struct answers {
+	struct element {
+		int				id;
+		const char*		text;
+	};
+	answers();
+	adat<element, 32>	elements;
+	void				add(int id, const char* name);
+	int					choose(const char* title) const;
+	int					choose(const char* title, bool interactive) const;
+	int					choosebg(const char* title, bool border = false, const dialogi::imagei* pi = 0) const;
+	int					choosesm(const char* title, bool allow_cancel = true) const;
+	int					random() const;
+	void				sort();
+private:
+	char				buffer[512];
+	stringcreator		sc;
 };
 namespace game {
 namespace action {
