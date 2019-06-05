@@ -71,13 +71,13 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
 // Кольца
-{"Ring", {55, 15}, RightRing, {UseArcane, UseDivine}, {Wonderful}, {}, {}, ring_red},
+{"Ring", {55, 15}, RightRing, {UseArcane}, {Wonderful}, {}, {}, ring_red},
 {"Ring", {78, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
 {"Ring", {79, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_green},
 //
 {"Potion", {39, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_red},
-{"Potion", {40, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_blue},
-{"Potion", {41, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_green},
+{"Potion", {40, 19}, {}, {}, {Wonderful}, {}, {}, potion_blue},
+{"Potion", {41, 19}, {}, {}, {Wonderful}, {}, {}, potion_green},
 //
 {"Red gem", {93, 22}},
 {"Blue gem", {94, 22}},

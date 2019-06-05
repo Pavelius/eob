@@ -722,8 +722,8 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 				e.overland_index = overland_index;
 				e.head = p->head;
 				e.level = level;
-				e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->magic);
-				e.chance.curse = 5 + p->curse;
+				e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->chance.magic);
+				e.chance.curse = 5 + p->chance.curse;
 				e.chance.special = imax(0, imin(45, 4 + level));
 				if(!stairs(&e, start, last_level))
 					continue;

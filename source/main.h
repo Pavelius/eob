@@ -424,10 +424,14 @@ struct sitei {
 		item_s			special[2]; // Two special items find on this level
 		race_s			language; // All messages in this language
 	};
+	struct chancei {
+		char			magic;
+		char			curse;
+		char			special;
+	};
 	headi				head;
 	char				levels;
-	char				magic; // base chance for magic items
-	char				curse; // base chance for cursed items
+	chancei				chance;
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
 };
@@ -533,7 +537,7 @@ public:
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
-	void				attack(short unsigned index, direction_s d, int bonus);
+	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	static void			camp(item& it);
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
@@ -687,16 +691,11 @@ struct dungeon {
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
 	};
-	struct chancei {
-		char			magic;
-		char			curse;
-		char			special;
-	};
 	unsigned short		overland_index;
 	unsigned char		level;
 	sitei::headi		head;
 	statei				stat;
-	chancei				chance;
+	sitei::chancei		chance;
 	unsigned char		data[mpx*mpy];
 	groundi				items[512];
 	overlayi			overlays[256];
@@ -803,7 +802,7 @@ private:
 };
 namespace game {
 namespace action {
-void					attack(short unsigned index);
+void					attack(short unsigned index, bool ranged);
 void					automap(dungeon& area, bool fow);
 creature*				choosehero();
 void					dropitem(item* itm, int side = -1);
@@ -877,5 +876,6 @@ short unsigned			to(short unsigned index, direction_s d);
 void					mslog(const char* format, ...);
 void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
+int						rangeto(short unsigned i1, short unsigned i2);
 direction_s				to(direction_s d, direction_s d1);
 direction_s				vectorized(direction_s d, direction_s d1);

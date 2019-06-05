@@ -511,7 +511,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	}
 }
 
-void creature::attack(short unsigned index, direction_s d, int bonus) {
+void creature::attack(short unsigned index, direction_s d, int bonus, bool ranged) {
 	auto defender = game::getdefender(index, d, this);
 	if(!defender)
 		return;
@@ -522,6 +522,8 @@ void creature::attack(short unsigned index, direction_s d, int bonus) {
 		wp2 = NoItem;
 	if(!wp3.ismelee())
 		wp3 = NoItem;
+	if(ranged && !wp1.isranged())
+		return;
 	if(wp1.isranged())
 		attack(defender, RightHand, bonus);
 	else {

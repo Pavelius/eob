@@ -103,3 +103,11 @@ direction_s vectorized(direction_s d, direction_s d1) {
 	}
 	return Center;
 }
+
+int rangeto(short unsigned i1, short unsigned i2) {
+	if(i1 == Blocked || i2 == Blocked)
+		return -1;
+	auto x1 = gx(i1), y1 = gy(i1);
+	auto x2 = gx(i2), y2 = gy(i2);
+	return imax(iabs(x1 - x2), iabs(y1 - y2));
+}

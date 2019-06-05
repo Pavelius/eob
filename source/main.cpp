@@ -4,9 +4,9 @@ using namespace draw;
 
 callback		next_proc;
 
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, 5, 0},
-{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, 0, 10},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, 0, 10},
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5, 0}},
+{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {0, 10}},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {0, 10}},
 {}};
 
 #ifdef _DEBUG
@@ -276,8 +276,8 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	debug_dungeon2();
-	return;
+	//debug_dungeon2();
+	//return;
 	if(game::read())
 		setnext(adventure);
 	else {
