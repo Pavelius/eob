@@ -339,16 +339,17 @@ void item::setcharges(int value) {
 }
 
 void item::damage(const char* text_damage, const char* text_broke) {
-	if(is(Natural) || is(Unique) || magic==3)
-		return;
-	char name[128]; getname(name, zendof(name));
+	char name[128];
 	if(broken) {
+		// Not all items can be broken
+		if(is(Natural) || is(Unique) || magic == 3)
+			return;
 		if(text_damage)
-			mslog(text_damage, name);
+			mslog(text_damage, getname(name, zendof(name)));
 		clear();
 	} else {
 		if(text_broke)
-			mslog(text_broke, name);
+			mslog(text_broke, getname(name, zendof(name)));
 		broken = 1;
 	}
 }
