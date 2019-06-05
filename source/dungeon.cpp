@@ -614,3 +614,68 @@ void dungeon::attack(const combati& wi, creature* defender) const {
 		defender->damage(wi.type, hits);
 	}
 }
+
+void dungeon::stop(short unsigned index) {
+	creature* s_side[4]; getmonsters(s_side, index, Center);
+	for(auto pc : s_side) {
+		if(!pc)
+			continue;
+		pc->setmoved(true);
+	}
+}
+
+static size_s get_maximum_size(creature** source) {
+	auto result = Tiny;
+	for(int i = 0; i < 4; i++) {
+		if(!source[i])
+			continue;
+		auto v = source[i]->getsize();
+		if(result < v)
+			result = v;
+	}
+	return result;
+}
+
+static bool is_valid_move_by_size(creature** s_side, creature** d_side) {
+	auto r = get_maximum_size(s_side);
+	if(r == Large)
+		return !d_side[0] && !d_side[1] && !d_side[2] && !d_side[3];
+	return true;
+}
+
+void dungeon::move(short unsigned index, direction_s dr) {
+	auto dest = to(index, dr);
+	if(isblocked(dest))
+		return;
+	if(get(dest) == CellPit)
+		return;
+	if(dest == game::getcamera())
+		return;
+	if(index == dest) {
+		stop(index);
+		return;
+	}
+	creature* s_side[4]; getmonsters(s_side, index, Center);
+	creature* d_side[4]; getmonsters(d_side, dest, Center);
+	// Large monsters move only to free index
+	if(!is_valid_move_by_size(s_side, d_side) || !is_valid_move_by_size(d_side, s_side))
+		return;
+	// Medium or smaller monsters can be mixed on different sides
+	for(int i = 0; i < 4; i++) {
+		auto pc = s_side[i];
+		if(!pc)
+			continue;
+		pc->setmoved(true);
+		auto s = i;
+		if(d_side[s]) {
+			s = game::getfreeside(d_side);
+			if(s == -1)
+				continue;
+		}
+		d_side[s] = pc;
+		s_side[i] = 0;
+		pc->setside(s);
+		pc->setindex(dest);
+		pc->set(dr);
+	}
+}

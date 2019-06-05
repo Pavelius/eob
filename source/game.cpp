@@ -1,7 +1,7 @@
 #include "archive.h"
 #include "main.h"
 
-const int				chance_broke_instrument = 13;
+const int				chance_broke_instrument = 15;
 static unsigned short	camera_index = Blocked;
 static direction_s		camera_direction;
 static unsigned			overland_index = 1;
@@ -180,10 +180,6 @@ static int find_index(int** items, int* itm) {
 		if(items[i] == itm)
 			return i;
 	return -1;
-}
-
-int get_potion_duration(char magic) {
-	return 60 + dice::roll(1, 6) * 10;
 }
 
 bool game::action::question(item* current_item) {
@@ -496,72 +492,6 @@ wear_s game::getitempart(item* itm) {
 	return Head;
 }
 
-static size_s get_maximum_size(creature** source) {
-	auto result = Tiny;
-	for(int i = 0; i < 4; i++) {
-		if(!source[i])
-			continue;
-		auto v = source[i]->getsize();
-		if(result < v)
-			result = v;
-	}
-	return result;
-}
-
-static bool is_valid_move_by_size(creature** s_side, creature** d_side) {
-	auto r = get_maximum_size(s_side);
-	if(r == Large)
-		return !d_side[0] && !d_side[1] && !d_side[2] && !d_side[3];
-	return true;
-}
-
-static void stop_monster(short unsigned index) {
-	creature* s_side[4]; location.getmonsters(s_side, index, Center);
-	for(auto pc : s_side) {
-		if(pc)
-			pc->setmoved(true);
-	}
-}
-
-static void move_monster(dungeon& location, short unsigned index, direction_s dr) {
-	auto dest = to(index, dr);
-	if(location.isblocked(dest))
-		return;
-	if(location.get(dest) == CellPit)
-		return;
-	if(dest == game::getcamera())
-		return;
-	if(index == dest) {
-		stop_monster(index);
-		return;
-	}
-	creature* s_side[4]; location.getmonsters(s_side, index, Center);
-	creature* d_side[4]; location.getmonsters(d_side, dest, Center);
-	// Large monsters move only to free index
-	if(!is_valid_move_by_size(s_side, d_side)
-		|| !is_valid_move_by_size(d_side, s_side))
-		return;
-	// Medium or smaller monsters
-	// can be mixed on different sides
-	for(int i = 0; i < 4; i++) {
-		auto pc = s_side[i];
-		if(!pc)
-			continue;
-		pc->setmoved(true);
-		auto s = i;
-		if(d_side[s]) {
-			s = game::getfreeside(d_side);
-			if(s == -1)
-				continue;
-		}
-		d_side[s] = pc;
-		s_side[i] = 0;
-		pc->setside(s);
-		pc->setindex(dest);
-		pc->set(dr);
-	}
-}
-
 static void combat_formation(short unsigned index, direction_s dr) {
 	int sides[][3] = {{2, 0, 1}, {3, 1, 0}};
 }
@@ -583,7 +513,7 @@ void game::passround() {
 			if(monster_direct != free_direct)
 				location.turnto(monster_index, free_direct);
 			if(free_direct)
-				move_monster(location, monster_index, free_direct);
+				location.move(monster_index, free_direct);
 		} else if(to(monster_index, monster_direct) == party_index) {
 			mslog("You are under attack!");
 			location.turnto(party_index, vectorized(monster_direct, Down));
@@ -597,9 +527,9 @@ void game::passround() {
 				if(n != Blocked)
 					location.turnto(monster_index, pointto(monster_index, n));
 			} else
-				move_monster(location, monster_index, monster_direct);
+				location.move(monster_index, monster_direct);
 		} else
-			stop_monster(monster_index);
+			location.stop(monster_index);
 	}
 	// Let monster update
 	for(auto& e : location.monsters) {
@@ -694,222 +624,6 @@ void game::passtime(int minutes) {
 		minutes -= count;
 		game::rounds += count;
 	}
-}
-
-bool creature::use(item* pi) {
-	unsigned short forward_index = to(game::getcamera(), game::getdirection());
-	auto pc = game::gethero(pi);
-	if(!pc || pc->gethits() <= 0)
-		return false;
-	auto slot = game::getitempart(pi);
-	if(!pc->isuse(*pi)) {
-		pc->say("I don't know what to do with this");
-		return false;
-	}
-	// Weapon is special case
-	if((slot == RightHand || slot == LeftHand)) {
-		if((!(*pi) || pi->ismelee())) {
-			game::action::attack(forward_index, false);
-			return true;
-		} else if(pi->isranged()) {
-			auto original = game::getcamera();
-			auto index = location.gettarget(game::getcamera(), game::getdirection());
-			if(index != Blocked) {
-				auto ranged = rangeto(original, index) > 1;
-				game::action::attack(index, ranged);
-				if(ranged)
-					move_monster(location, index, to(game::getdirection(), Down));
-			}
-			return true;
-		}
-	}
-	spell_s spell_element;
-	bool firsttime;
-	char name[128]; pi->getname(name, zendof(name));
-	bool consume = true;
-	auto type = pi->gettype();
-	auto po = location.getoverlay(game::getcamera(), game::getdirection());
-	switch(type) {
-	case PotionBlue:
-	case PotionGreen:
-	case PotionRed:
-		if(pi->iscursed()) {
-			// RULE: Cursed potion always apply strong poison
-			pc->add(StrongPoison, xrand(2, 6) * 4, NoSave);
-		} else {
-			auto enchant = pi->getenchant();
-			switch(enchant) {
-			case OfAdvise:
-				if(pi->isartifact())
-					pc->addexp(10000);
-				else
-					pc->addexp(1000 * pi->getmagic());
-				break;
-			case OfPoison:
-				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
-				break;
-			case OfHealing:
-				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 4) + 3);
-				break;
-			case OfRegeneration:
-				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 8) + 6);
-				break;
-			case OfNeutralizePoison:
-				pc->set(WeakPoison, 0);
-				pc->set(Poison, 0);
-				pc->set(StrongPoison, 0);
-				pc->set(DeadlyPoison, 0);
-				break;
-			default:
-				if(pi->isartifact()) {
-					if(!pc->raise(enchant)) {
-						pc->say("Not drinkable!");
-						consume = false;
-					} else
-						pc->say("I feel really better!");
-				} else if(bsmeta<enchanti>::elements[enchant].effect)
-					pc->set(bsmeta<enchanti>::elements[enchant].effect, get_potion_duration(pi->getmagic()));
-				break;
-			}
-		}
-		break;
-	case Ration:
-	case RationIron:
-		if(pi->isbroken()) {
-			mslog("%1 is not eadible!", name);
-			return false;
-		}
-		if(!draw::dlgask("Do you want make camp?"))
-			return false;
-		creature::camp(*pi);
-		break;
-	case MagicBook:
-	case HolySymbol:
-		consume = false;
-		spell_element = pc->choosespell(type == HolySymbol ? Cleric : Mage);
-		if(!spell_element)
-			return false;
-		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
-		break;
-	case TheifTools:
-		consume = false;
-		firsttime = false;
-		if(location.get(forward_index) == CellPit) {
-			if(pc->use(RemoveTraps, forward_index, 15, &firsttime, 100, true)) {
-				location.set(forward_index, CellPassable);
-				mslog("You remove pit");
-			}
-		} else if(location.get(forward_index) == CellButton) {
-			if(pc->use(RemoveTraps, forward_index, 0, &firsttime, 100, true)) {
-				location.set(forward_index, CellPassable);
-				mslog("You remove trap");
-			}
-		} else if(po && po->type == CellTrapLauncher) {
-			if(location.isactive(po))
-				pc->say("This trap already disabled");
-			else if(pc->use(RemoveTraps, forward_index, 0, &firsttime, 100, true)) {
-				location.setactive(po, true);
-				mslog("You disable trap");
-			}
-		} else if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
-			if(location.isactive(po))
-				pc->say("This lock already open");
-			else if(pc->use(OpenLocks, forward_index, 0, &firsttime, 100, true)) {
-				location.setactive(po, true);
-				mslog("You pick lock");
-			}
-		} else {
-			pc->say("This usable on pit, lock or trap");
-			return false;
-		}
-		if(pi->iscursed()) {
-			mslog("Theif tool wound finger and turn into dust");
-			pc->damage(Pierce, dice::roll(1, 6));
-			consume = true;
-		} else if(d100() < chance_broke_instrument) {
-			mslog("You broke %1", name);
-			consume = true;
-		}
-		break;
-	case MagicWand:
-		consume = false;
-		spell_element = pi->getspell();
-		if(!spell_element)
-			return false;
-		if(pi->getcharges()) {
-			int magic = pi->getmagic();
-			if(magic <= 0)
-				magic = 1;
-			if(pc->cast(spell_element, Mage, magic)) {
-				pi->setidentified(1);
-				pi->setcharges(pi->getcharges() - 1);
-				if(pi->iscursed()) {
-					// RULE: Cursed wands want drawback
-					if(d100() < 30)
-						pc->damage(Pierce, dice::roll(1, 6));
-				}
-			} else {
-				char name[32];
-				mslog("Nothing happened, when %1 try use wand", pc->getname(name, zendof(name)));
-			}
-		}
-		break;
-	case DungeonMap:
-		forward_index = location.getsecret();
-		if(forward_index) {
-			static const char* speech[] = {
-				"Aha! This map show secret door!",
-				"I know this! Map show me secret door!",
-			};
-			pc->say(maprnd(speech));
-			draw::animation::appear(location, forward_index, 2);
-		}
-		break;
-	case MageScroll:
-	case PriestScroll:
-		consume = false;
-		if(!pi->isidentified()) {
-			pc->say("When camping try to identify this");
-			return false;
-		}
-		spell_element = pi->getspell();
-		if(!spell_element)
-			return false;
-		else {
-			int magic = pi->getmagic();
-			if(magic <= 0)
-				magic = 1;
-			auto cls = (type == MageScroll) ? Mage : Cleric;
-			if(pc->cast(spell_element, cls, magic))
-				consume = true;
-			else {
-				char name[64];
-				mslog("Nothing happened, when %1 try use scroll", pc->getname(name, zendof(name)));
-			}
-		}
-		break;
-	case KeyShelf: case KeySilver: case KeyCooper: case KeySkull: case KeySpider:
-	case KeyMoon: case KeyDiamond: case KeyGreen:
-		if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
-			if(location.getkeytype(po->type) == type) {
-				location.setactive(po, true);
-				creature::addexp(100, 0);
-				mslog("You open lock");
-			} else {
-				pc->say("This does not fit");
-				return false;
-			}
-		} else {
-			pc->say("This must be used on key hole");
-			return false;
-		}
-		break;
-	default:
-		return false;
-	}
-	if(consume)
-		pi->clear();
-	return true;
 }
 
 void game::enter(unsigned short index, unsigned char level) {

@@ -744,6 +744,7 @@ struct dungeon {
 	static bool			isvisible(short unsigned index);
 	dungeon::overlayi*	getlinked(short unsigned index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
+	void				move(short unsigned index, direction_s dr);
 	void				passround();
 	short unsigned		random(short unsigned* indicies);
 	bool				read(unsigned short overland_index, unsigned char level);
@@ -756,6 +757,7 @@ struct dungeon {
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);
+	void				stop(short unsigned index);
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, const combati& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();

@@ -313,7 +313,7 @@ bool creature::set(state_s id, unsigned rounds) {
 }
 
 item creature::get(wear_s id) const {
-	auto pi = ((creature*)this)->getitem(id);
+	auto pi = const_cast<creature*>(this)->getitem(id);
 	if(!pi)
 		return NoItem;
 	return *pi;
@@ -1557,4 +1557,218 @@ void creature::camp(item& it) {
 			}
 		}
 	}
+}
+
+bool creature::use(item* pi) {
+	unsigned short forward_index = to(game::getcamera(), game::getdirection());
+	auto pc = game::gethero(pi);
+	if(!pc || pc->gethits() <= 0)
+		return false;
+	auto slot = game::getitempart(pi);
+	if(!pc->isuse(*pi)) {
+		pc->say("I don't know what to do with this");
+		return false;
+	}
+	// Weapon is special case
+	if((slot == RightHand || slot == LeftHand)) {
+		if((!(*pi) || pi->ismelee())) {
+			game::action::attack(forward_index, false);
+			return true;
+		} else if(pi->isranged()) {
+			auto original = game::getcamera();
+			auto index = location.gettarget(game::getcamera(), game::getdirection());
+			if(index != Blocked) {
+				auto ranged = rangeto(original, index) > 1;
+				game::action::attack(index, ranged);
+				if(ranged)
+					location.move(index, to(game::getdirection(), Down));
+			}
+			return true;
+		}
+	}
+	spell_s spell_element;
+	bool firsttime;
+	char name[128]; pi->getname(name, zendof(name));
+	bool consume = true;
+	auto type = pi->gettype();
+	auto po = location.getoverlay(game::getcamera(), game::getdirection());
+	auto magic = pi->getmagic();
+	switch(type) {
+	case PotionBlue:
+	case PotionGreen:
+	case PotionRed:
+		if(pi->iscursed()) {
+			// RULE: Cursed potion always apply strong poison
+			pc->add(StrongPoison, xrand(2, 6) * 4, NoSave);
+		} else {
+			auto enchant = pi->getenchant();
+			switch(enchant) {
+			case OfAdvise:
+				if(pi->isartifact())
+					pc->addexp(10000);
+				else
+					pc->addexp(1000 * pi->getmagic());
+				break;
+			case OfPoison:
+				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
+				break;
+			case OfHealing:
+				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 4) + 3);
+				break;
+			case OfRegeneration:
+				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 8) + 6);
+				break;
+			case OfNeutralizePoison:
+				pc->set(WeakPoison, 0);
+				pc->set(Poison, 0);
+				pc->set(StrongPoison, 0);
+				pc->set(DeadlyPoison, 0);
+				break;
+			default:
+				if(pi->isartifact()) {
+					if(!pc->raise(enchant)) {
+						pc->say("Not drinkable!");
+						consume = false;
+					} else
+						pc->say("I feel really better!");
+				} else if(bsmeta<enchanti>::elements[enchant].effect)
+					pc->set(bsmeta<enchanti>::elements[enchant].effect, 60 + (dice::roll(1, 6) + magic) * 10);
+				break;
+			}
+		}
+		break;
+	case Ration:
+	case RationIron:
+		if(pi->isbroken()) {
+			mslog("%1 is not eadible!", name);
+			return false;
+		}
+		if(!draw::dlgask("Do you want make camp?"))
+			return false;
+		creature::camp(*pi);
+		break;
+	case MagicBook:
+	case HolySymbol:
+		consume = false;
+		spell_element = pc->choosespell(type == HolySymbol ? Cleric : Mage);
+		if(!spell_element)
+			return false;
+		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
+		break;
+	case TheifTools:
+		consume = false;
+		firsttime = false;
+		if(location.get(forward_index) == CellPit) {
+			if(pc->use(RemoveTraps, forward_index, 15 + magic * 2, &firsttime, 100, true)) {
+				location.set(forward_index, CellPassable);
+				mslog("You remove pit");
+			}
+		} else if(location.get(forward_index) == CellButton) {
+			if(pc->use(RemoveTraps, forward_index, magic * 2, &firsttime, 100, true)) {
+				location.set(forward_index, CellPassable);
+				mslog("You remove trap");
+			}
+		} else if(po && po->type == CellTrapLauncher) {
+			if(location.isactive(po))
+				pc->say("This trap already disabled");
+			else if(pc->use(RemoveTraps, forward_index, magic * 5, &firsttime, 100, true)) {
+				location.setactive(po, true);
+				mslog("You disable trap");
+			}
+		} else if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
+			if(location.isactive(po))
+				pc->say("This lock already open");
+			else if(pc->use(OpenLocks, forward_index, magic * 3, &firsttime, 100, true)) {
+				location.setactive(po, true);
+				mslog("You pick lock");
+			}
+		} else {
+			pc->say("This usable on pit, lock or trap");
+			return false;
+		}
+		if(magic < 0) {
+			mslog("Lockpicks bite your finger and turn to dust");
+			pc->damage(Pierce, dice::roll(1, 3));
+			consume = true;
+		} else if(d100() < (15 - magic * 2)) {
+			mslog("You broke %1", name);
+			consume = true;
+		}
+		break;
+	case MagicWand:
+		consume = false;
+		spell_element = pi->getspell();
+		if(!spell_element)
+			return false;
+		if(pi->getcharges()) {
+			int magic = pi->getmagic();
+			if(magic <= 0)
+				magic = 1;
+			if(pc->cast(spell_element, Mage, magic)) {
+				pi->setidentified(1);
+				pi->setcharges(pi->getcharges() - 1);
+				if(pi->iscursed()) {
+					// RULE: Cursed wands want drawback
+					if(d100() < 30)
+						pc->damage(Pierce, dice::roll(1, 6));
+				}
+			} else {
+				char name[32];
+				mslog("Nothing happened, when %1 try use wand", pc->getname(name, zendof(name)));
+			}
+		}
+		break;
+	case DungeonMap:
+		forward_index = location.getsecret();
+		if(forward_index) {
+			static const char* speech[] = {
+				"Aha! This map show secret door!",
+				"I know this! Map show me secret door!",
+			};
+			pc->say(maprnd(speech));
+			draw::animation::appear(location, forward_index, 2);
+		}
+		break;
+	case MageScroll:
+	case PriestScroll:
+		consume = false;
+		if(!pi->isidentified()) {
+			pc->say("When camping try to identify this");
+			return false;
+		}
+		spell_element = pi->getspell();
+		if(!spell_element)
+			return false;
+		else {
+			auto cls = (type == MageScroll) ? Mage : Cleric;
+			if(pc->cast(spell_element, cls, iabs(magic)))
+				consume = true;
+			else {
+				char name[64];
+				mslog("Nothing happened, when %1 try use scroll", pc->getname(name, zendof(name)));
+			}
+		}
+		break;
+	case KeyShelf: case KeySilver: case KeyCooper: case KeySkull: case KeySpider:
+	case KeyMoon: case KeyDiamond: case KeyGreen:
+		if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
+			if(location.getkeytype(po->type) == type) {
+				location.setactive(po, true);
+				creature::addexp(100, 0);
+				mslog("You open lock");
+			} else {
+				pc->say("This does not fit");
+				return false;
+			}
+		} else {
+			pc->say("This must be used on key hole");
+			return false;
+		}
+		break;
+	default:
+		return false;
+	}
+	if(consume)
+		pi->clear();
+	return true;
 }
