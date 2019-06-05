@@ -345,12 +345,12 @@ void item::damage(const char* text_damage, const char* text_broke) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || magic == 3)
 			return;
-		if(text_damage)
-			mslog(text_damage, getname(name, zendof(name)));
-		clear();
-	} else {
 		if(text_broke)
 			mslog(text_broke, getname(name, zendof(name)));
+		clear();
+	} else {
+		if(text_damage)
+			mslog(text_damage, getname(name, zendof(name)));
 		broken = 1;
 	}
 }

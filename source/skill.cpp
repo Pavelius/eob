@@ -210,7 +210,7 @@ int	creature::get(skill_s id) const {
 			result += wears[Body].getdeflect() * 5;
 			result += wears[Head].getdeflect() * 5;
 			result += wears[Neck].getdeflect() * 5;
-			result += wears[Boots].getdeflect() * 5;
+			result += wears[Legs].getdeflect() * 5;
 			result += wears[RightHand].getdeflect() * 5;
 			result += wears[LeftHand].getdeflect() * 5;
 			break;
