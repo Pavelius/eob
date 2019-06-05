@@ -30,7 +30,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Short sword", {2, 0}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
 {"Two-handed sword", {42, 0}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_weapon},
 //
-{"Bow", {10, 6}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {OneAttack, Pierce, -8, {1, 8}, {1, 8}}},
+{"Bow", {10, 6, Arrow}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {OneAttack, Pierce, -8, {1, 8}, {1, 8}}},
 {"Sling", {18, 4}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
 //
 {"Robe", {32, 8}, Body, {UseArcane}},

@@ -414,9 +414,9 @@ void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 		auto pind = zfind(game::party, attacker);
 		if(pind != -1) {
 			auto sdr = (pind == 0 || pind == 2) ? Left : Right;
-			auto type = attacker->get(slot).gettype();
-			if(type == Bow)
-				draw::animation::thrown(attacker->getindex(), attacker->getdirection(), Arrow, sdr, 50);
+			auto sht = bsmeta<itemi>::elements[attacker->get(slot).gettype()].image.shoot;
+			if(sht)
+				draw::animation::thrown(attacker->getindex(), attacker->getdirection(), sht, sdr, 50, true);
 			disp_hits[pind][((slot == RightHand) ? 0 : 1)] = hits;
 		}
 	} else {
@@ -1222,12 +1222,17 @@ int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s ity
 	return index;
 }
 
-int draw::animation::thrown(short unsigned index, direction_s dr, item_s type, direction_s sdr, int wait) {
+int draw::animation::thrown(short unsigned index, direction_s dr, item_s type, direction_s sdr, int wait, bool block_monsters) {
 	for(int i = 0; i < 3; i++) {
 		int i2 = thrownstep(index, dr, type, sdr, wait);
 		if(i2 == Blocked || location.isblocked(i2))
 			break;
 		index = i2;
+		if(block_monsters) {
+			creature* source[4]; location.getmonsters(source, i2, dr);
+			if(source[0] || source[1] || source[2] || source[3])
+				return i2;
+		}
 	}
 	return index;
 }

@@ -696,12 +696,12 @@ void game::passtime(int minutes) {
 	}
 }
 
-bool game::action::use(item* pi) {
-	unsigned short forward_index = to(getcamera(), getdirection());
-	auto pc = gethero(pi);
+bool creature::use(item* pi) {
+	unsigned short forward_index = to(game::getcamera(), game::getdirection());
+	auto pc = game::gethero(pi);
 	if(!pc || pc->gethits() <= 0)
 		return false;
-	auto slot = getitempart(pi);
+	auto slot = game::getitempart(pi);
 	if(!pc->isuse(*pi)) {
 		pc->say("I don't know what to do with this");
 		return false;
@@ -709,16 +709,16 @@ bool game::action::use(item* pi) {
 	// Weapon is special case
 	if((slot == RightHand || slot == LeftHand)) {
 		if((!(*pi) || pi->ismelee())) {
-			attack(forward_index, false);
+			game::action::attack(forward_index, false);
 			return true;
 		} else if(pi->isranged()) {
-			auto original = getcamera();
-			auto index = location.gettarget(getcamera(), getdirection());
+			auto original = game::getcamera();
+			auto index = location.gettarget(game::getcamera(), game::getdirection());
 			if(index != Blocked) {
 				auto ranged = rangeto(original, index) > 1;
-				attack(index, ranged);
+				game::action::attack(index, ranged);
 				if(ranged)
-					move_monster(location, index, to(getdirection(), Down));
+					move_monster(location, index, to(game::getdirection(), Down));
 			}
 			return true;
 		}
@@ -728,7 +728,7 @@ bool game::action::use(item* pi) {
 	char name[128]; pi->getname(name, zendof(name));
 	bool consume = true;
 	auto type = pi->gettype();
-	auto po = location.getoverlay(getcamera(), getdirection());
+	auto po = location.getoverlay(game::getcamera(), game::getdirection());
 	switch(type) {
 	case PotionBlue:
 	case PotionGreen:
@@ -822,7 +822,11 @@ bool game::action::use(item* pi) {
 			pc->say("This usable on pit, lock or trap");
 			return false;
 		}
-		if(d100() < chance_broke_instrument) {
+		if(pi->iscursed()) {
+			mslog("Theif tool wound finger and turn into dust");
+			pc->damage(Pierce, dice::roll(1, 6));
+			consume = true;
+		} else if(d100() < chance_broke_instrument) {
 			mslog("You broke %1", name);
 			consume = true;
 		}

@@ -501,7 +501,7 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 	pd->stat.traps++;
 }
 
-static int random_count() {
+static int random_cellar_count() {
 	auto rolled = d100();
 	if(rolled < 60)
 		return 0;
@@ -516,9 +516,15 @@ static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 		return;
 	pd->set(i1, CellWall);
 	auto po = pd->add(index, CellCellar, dir);
-	auto count = random_count();
-	while((count--) > 0)
-		pd->add(po, create_item(pd, random_type(true), 10));
+	auto count = random_cellar_count();
+	while(count > 0) {
+		auto i1 = create_item(pd, random_type(true), 10);
+		// Items in cellar can be identified
+		if(d100() < 60)
+			i1.setidentified(1);
+		pd->add(po, i1);
+		count--;
+	}
 }
 
 static void empthy(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {}

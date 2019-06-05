@@ -318,6 +318,7 @@ struct itemi {
 	struct portraiti {
 		unsigned char	avatar;
 		unsigned char	ground;
+		item_s			shoot;
 	};
 	const char*			name;
 	portraiti			image;
@@ -647,6 +648,7 @@ public:
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
+	static bool			use(item* pi);
 	void				view_ability();
 	static void			view_party();
 	void				view_portrait(int x, int y) const;
@@ -815,7 +817,6 @@ void					preparespells(class_s type);
 bool					question(item* current_item);
 void					thrown(item* itm);
 void					rotate(direction_s direction);
-bool					use(item* itm);
 }
 void					endround();
 void					enter(unsigned short index, unsigned char level);
@@ -855,7 +856,7 @@ void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);
 void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
-int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100);
+int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					update();
 }

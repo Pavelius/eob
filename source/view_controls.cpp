@@ -627,7 +627,7 @@ void draw::adventure() {
 			game::action::dropitem(current_item);
 			break;
 		case Alpha + 'U':
-			if(game::action::use(current_item))
+			if(creature::use(current_item))
 				game::endround();
 			break;
 		case Alpha + 'T':
