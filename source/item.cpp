@@ -327,13 +327,28 @@ int	item::getmagic() const {
 	if(subtype && !havespell(type))
 		r++;
 	if(iscursed())
-		return - r - 1;
+		return -r - 1;
 	return r;
 }
 
 void item::setcharges(int value) {
-	if(value<=0)
+	if(value <= 0)
 		clear();
 	else
 		charges = value;
+}
+
+void item::damage(const char* text_damage, const char* text_broke) {
+	if(is(Natural) || is(Unique) || magic==3)
+		return;
+	char name[128]; getname(name, zendof(name));
+	if(broken) {
+		if(text_damage)
+			mslog(text_damage, name);
+		clear();
+	} else {
+		if(text_broke)
+			mslog(text_broke, name);
+		broken = 1;
+	}
 }

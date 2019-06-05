@@ -452,6 +452,7 @@ public:
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
+	void				damage(const char* text_damage, const char* text_brokes);
 	int					get(enchant_s value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;

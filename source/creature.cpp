@@ -508,6 +508,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			draw::animation::render();
 		draw::animation::update();
 		draw::animation::clear();
+		// Weapon can be broken
+		if(rolls == 1 && wi.weapon) {
+			wi.weapon->damage(0, 0);
+			return;
+		}
 	}
 }
 
@@ -1607,16 +1612,16 @@ bool creature::use(item* pi) {
 				if(pi->isartifact())
 					pc->addexp(10000);
 				else
-					pc->addexp(1000 * pi->getmagic());
+					pc->addexp(1000 * magic);
 				break;
 			case OfPoison:
 				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
 				break;
 			case OfHealing:
-				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 4) + 3);
+				pc->damage(Heal, dice::roll(1 + magic, 4) + 3);
 				break;
 			case OfRegeneration:
-				pc->damage(Heal, dice::roll(1 + pi->getmagic(), 8) + 6);
+				pc->damage(Heal, dice::roll(1 + magic, 8) + 6);
 				break;
 			case OfNeutralizePoison:
 				pc->set(WeakPoison, 0);
@@ -1650,7 +1655,7 @@ bool creature::use(item* pi) {
 	case MagicBook:
 	case HolySymbol:
 		consume = false;
-		spell_element = pc->choosespell(type == HolySymbol ? Cleric : Mage);
+		spell_element = pc->choosespell((type == HolySymbol) ? Cleric : Mage);
 		if(!spell_element)
 			return false;
 		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
@@ -1691,8 +1696,8 @@ bool creature::use(item* pi) {
 			pc->damage(Pierce, dice::roll(1, 3));
 			consume = true;
 		} else if(d100() < (15 - magic * 2)) {
-			mslog("You broke %1", name);
-			consume = true;
+			pi->damage("Your %1 is damaged", "You broke %1");
+			return true;
 		}
 		break;
 	case MagicWand:
@@ -1701,7 +1706,6 @@ bool creature::use(item* pi) {
 		if(!spell_element)
 			return false;
 		if(pi->getcharges()) {
-			int magic = pi->getmagic();
 			if(magic <= 0)
 				magic = 1;
 			if(pc->cast(spell_element, Mage, magic)) {
