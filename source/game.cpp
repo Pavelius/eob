@@ -51,31 +51,6 @@ void game::setcamera(short unsigned index, direction_s direction) {
 	location.set(location.getindex(x, y - 1), CellExplored);
 }
 
-size_s game::getsize(item_s id) {
-	switch(id) {
-	case AxeBattle:
-	case Axe:
-	case Bow:
-	case Flail:
-	case Halberd:
-	case Mace:
-	case Robe:
-	case Shield:
-	case SwordLong:
-	case SwordShort:
-	case SwordBastard:
-	case SwordTwoHanded:
-	case Spear:
-	case Staff:
-	case HammerWar:
-		return Large;
-	default:
-		if(id >= ArmorLeather && id <= ArmorPlate)
-			return Large;
-		return Medium;
-	}
-}
-
 creature* creature::newhero() {
 	for(auto& e : hero_data) {
 		if(e)
@@ -88,91 +63,6 @@ creature* creature::newhero() {
 bool creature::ishero() const {
 	return this >= hero_data
 		&& this <= (hero_data + sizeof(hero_data) / sizeof(hero_data[0]));
-}
-
-int game::getfreeside(creature* sides[4]) {
-	if(sides[0] && sides[0]->getsize() >= Large)
-		return -1;
-	for(int i = 0; i < 4; i++) {
-		if(!sides[i])
-			return i;
-	}
-	return -1;
-}
-
-static void falling_damage() {
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		// RULE: Climb walls helps when you drop down in pits
-		if(e->roll(ClimbWalls))
-			continue;
-		e->damage(Bludgeon, dice::roll(3, 6));
-	}
-}
-
-static void falling_landing() {
-	creature* monsters[4];
-	auto index = game::getcamera();
-	location.getmonsters(monsters, index, game::getdirection());
-	for(auto e : monsters) {
-		if(!e)
-			continue;
-		e->clear();
-	}
-}
-
-void game::action::move(direction_s direction) {
-	int i = getcamera();
-	int i1 = to(i, vectorized(getdirection(), direction));
-	auto t = location.get(i1);
-	if(location.isblocked(i1) || location.ismonster(i1)
-		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
-		mslog("You can\'t go that way");
-		return;
-	}
-	switch(t) {
-	case CellStairsUp:
-		mslog("Going up");
-		write();
-		if(location.level <= 1) {
-			draw::setnext(draw::mainmenu);
-			return;
-		}
-		enter(location.overland_index, location.level - 1);
-		game::setcamera(to(location.stat.down.index, location.stat.down.dir),
-			location.stat.down.dir);
-		break;
-	case CellStairsDown:
-		mslog("Going down");
-		write();
-		enter(location.overland_index, location.level + 1);
-		game::setcamera(to(location.stat.up.index, location.stat.up.dir),
-			location.stat.up.dir);
-		break;
-	case CellPit:
-		mslog("You falling down!");
-		write();
-		setcamera(to(getcamera(), getdirection()));
-		draw::animation::update();
-		falling_damage();
-		enter(location.overland_index, location.level + 1);
-		falling_landing();
-		break;
-	default:
-		mslog(0);
-		setcamera(i1);
-		hearnoises();
-		break;
-	}
-	endround();
-}
-
-void game::action::rotate(direction_s direction) {
-	auto i = getcamera();
-	auto d = getdirection();
-	setcamera(i, to(d, direction));
-	hearnoises();
 }
 
 static int find_index(int** items, int* itm) {
@@ -196,58 +86,6 @@ int game::getside(int side, direction_s dr) {
 	if(dr == Center)
 		return side;
 	return place_sides[dr - Left][side];
-}
-
-static item* find_item_to_get(short unsigned index, int side) {
-	item* result[2];
-	int count = location.getitems(result, zendof(result), game::getcamera(), side);
-	if(!count)
-		count = location.getitems(result, zendof(result), game::getcamera());
-	if(!count)
-		return 0;
-	return result[0];
-}
-
-static int autodetect_side(item* itm) {
-	auto pc = game::gethero(itm);
-	if(!pc)
-		return 0;
-	int n = zfind(game::party, pc);
-	return n == -1 ? 0 : (n % 2);
-}
-
-void game::action::getitem(item* itm, int side) {
-	char temp[260];
-	if(!itm || *itm)
-		return;
-	if(side == -1)
-		side = autodetect_side(itm);
-	auto gitm = find_item_to_get(getcamera(), getside(side, getdirection()));
-	if(!gitm)
-		return;
-	auto slot = getitempart(itm);
-	auto pc = gethero(itm);
-	if(!pc->isallow(*gitm, slot))
-		return;
-	iswap(*itm, *gitm);
-	mslog("%1 picked up", itm->getname(temp, zendof(temp)));
-}
-
-void game::action::dropitem(item* pi, int side) {
-	auto pc = gethero(pi);
-	if(!pc)
-		return;
-	if(!pi || !(*pi))
-		return;
-	if(side == -1)
-		side = autodetect_side(pi);
-	auto s1 = getitempart(pi);
-	if(!pc->isallowremove(*pi, s1, true))
-		return;
-	char temp[260]; ;
-	mslog("%1 dropped", pi->getname(temp, zendof(temp)));
-	location.dropitem(getcamera(), *pi, getside(side, getdirection()));
-	pi->clear();
 }
 
 static void select_parcipants(creature** result, short unsigned index) {
@@ -376,7 +214,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 		break;
 	case CellCellar:
 		if(*itm) {
-			if(game::getsize(itm->gettype()) == Large) {
+			if(bsmeta<itemi>::elements[itm->gettype()].image.size == 1) {
 				pc->say("This item does not fit in cellar");
 			} else {
 				location.add(po, *itm);
@@ -551,45 +389,6 @@ void game::findsecrets() {
 			continue;
 		if(pc->roll(DetectSecrets)) {
 			pc->say(maprnd(speech), name_direction[secret_dir]);
-			break;
-		}
-	}
-}
-
-void game::hearnoises() {
-	direction_s secret_dir = Center;
-	auto index = getcamera();
-	auto dir = getdirection();
-	auto door_index = to(index, dir);
-	if(door_index == Blocked || location.get(door_index) != CellDoor)
-		return;
-	if(location.is(door_index, CellActive))
-		return;
-	door_index = to(door_index, dir);
-	if(door_index == Blocked)
-		return;
-	for(auto pc : game::party) {
-		if(!pc || !pc->isready())
-			continue;
-		int exp = 0;
-		if(pc->get(Theif))
-			exp = 50;
-		if(pc->use(HearNoise, door_index, 0, 0, 50, false)) {
-			creature* sides[4]; location.getmonsters(sides, door_index, Center);
-			int count = 0;
-			for(auto e : sides) {
-				if(e)
-					count++;
-			}
-			if(count) {
-				if(count == 1 && sides[0] && sides[0]->getsize() >= Large)
-					pc->say("There is something large behind this door", count);
-				else if(count > 2)
-					pc->say("Behind this door hide %1i creatures", count);
-				else
-					pc->say("Behind this door creature", count);
-			} else
-				pc->say("Nobody is behide this door");
 			break;
 		}
 	}

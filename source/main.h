@@ -318,6 +318,7 @@ struct itemi {
 	struct portraiti {
 		unsigned char	avatar;
 		unsigned char	ground;
+		unsigned char	size;;
 		item_s			shoot;
 	};
 	const char*			name;
@@ -716,12 +717,14 @@ struct dungeon {
 	void				clear();
 	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
+	void				dropitem(item* pi, int side = -1);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
 	cell_s				get(short unsigned index) const;
 	cell_s				get(int x, int y) const;
 	short unsigned		gettarget(short unsigned start, direction_s dir);
 	void				getblocked(short unsigned* pathmap, bool treat_door_as_passable);
+	int					getfreeside(creature** sides);
 	int					getfreeside(short unsigned index);
 	unsigned			getitems(item** result, item** result_maximum, short unsigned index, int side = -1);
 	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
@@ -734,6 +737,7 @@ struct dungeon {
 	short unsigned*		getnearestfree(short unsigned* indicies, short unsigned index);
 	direction_s			getpassable(short unsigned index, direction_s* dirs);
 	short unsigned		getsecret() const;
+	static size_s		getsize(creature** sides);
 	overlayi*			getoverlay(short unsigned index, direction_s dir);
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
@@ -747,12 +751,15 @@ struct dungeon {
 	dungeon::overlayi*	getlinked(short unsigned index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	void				move(short unsigned index, direction_s dr);
+	void				move(direction_s direction);
 	void				passround();
+	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(short unsigned* indicies);
 	bool				read(unsigned short overland_index, unsigned char level);
 	void				remove(unsigned short index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
+	void				rotate(direction_s direction);
 	void				set(short unsigned index, cell_s value);
 	void				set(short unsigned index, cell_flag_s value);
 	void				set(short unsigned index, direction_s dir, cell_s type);
@@ -811,16 +818,12 @@ namespace action {
 void					attack(short unsigned index, bool ranged);
 void					automap(dungeon& area, bool fow);
 creature*				choosehero();
-void					dropitem(item* itm, int side = -1);
 void					fly(item_s item, int side);
-void					getitem(item* itm, int side = -1);
 bool					manipulate(item* itm, direction_s direction);
-void					move(direction_s direction);
 void					pause();
 void					preparespells(class_s type);
 bool					question(item* current_item);
 void					thrown(item* itm);
-void					rotate(direction_s direction);
 }
 void					endround();
 void					enter(unsigned short index, unsigned char level);
@@ -830,15 +833,12 @@ int						getavatar(int* result, const int* result_maximum, race_s race, gender_s
 short unsigned			getcamera();
 creature*				getdefender(short unsigned index, direction_s dr, creature* attacker);
 direction_s				getdirection();
-int						getfreeside(creature* sides[4]);
 wear_s					getitempart(item* itm);
 creature*				gethero(item* itm);
 void					getheroes(creature** result, direction_s dir);
 int						getrandom(int type, race_s race, gender_s gender, int prev_name);
 int						getpartyskill(int rec, skill_s id);
-size_s					getsize(item_s rec);
 int						getside(int side, direction_s dr);
-void					hearnoises();
 extern creature*		party[7];
 void					passround();
 void					passtime(int minutes);

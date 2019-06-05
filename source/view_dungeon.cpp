@@ -507,7 +507,7 @@ static int get_throw_index(item_s type) {
 }
 
 static void fill_item_sprite(render_disp* p, item_s type, int frame = 0) {
-	if(game::getsize(type) == Large)
+	if(bsmeta<itemi>::elements[type].image.size == 1)
 		p->rdata = draw::gres(ITEMGL);
 	else
 		p->rdata = draw::gres(ITEMGS);

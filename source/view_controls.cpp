@@ -597,13 +597,13 @@ void draw::adventure() {
 		case KeyRight:
 		case KeyDown:
 		case KeyUp:
-			game::action::move(map_key_to_dir(hot::key));
+			location.move(map_key_to_dir(hot::key));
 			break;
 		case KeyHome:
-			game::action::rotate(Left);
+			location.rotate(Left);
 			break;
 		case KeyPageUp:
-			game::action::rotate(Right);
+			location.rotate(Right);
 			break;
 		case Alpha + 'W':
 			current_item = (item*)getnext((int)current_item, KeyUp);
@@ -621,10 +621,10 @@ void draw::adventure() {
 			place_item(current_item);
 			break;
 		case Alpha + 'G':
-			game::action::getitem(current_item);
+			location.pickitem(current_item);
 			break;
 		case Alpha + 'D':
-			game::action::dropitem(current_item);
+			location.dropitem(current_item);
 			break;
 		case Alpha + 'U':
 			if(creature::use(current_item))
