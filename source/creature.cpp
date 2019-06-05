@@ -968,7 +968,7 @@ int creature::get_base_save_throw(skill_s st) const {
 }
 
 int creature::armor_penalty(skill_s skill) const {
-	return game::getarmorpenalty(wears[Body].gettype(), skill);
+	return wears[Body].getarmorpenalty(skill);
 }
 
 void creature::preparespells() {
@@ -1592,7 +1592,6 @@ bool creature::use(item* pi) {
 		}
 	}
 	spell_s spell_element;
-	bool firsttime;
 	char name[128]; pi->getname(name, zendof(name));
 	bool consume = true;
 	auto type = pi->gettype();
@@ -1662,28 +1661,27 @@ bool creature::use(item* pi) {
 		break;
 	case TheifTools:
 		consume = false;
-		firsttime = false;
 		if(location.get(forward_index) == CellPit) {
-			if(pc->use(RemoveTraps, forward_index, 15 + magic * 2, &firsttime, 100, true)) {
+			if(pc->use(RemoveTraps, forward_index, 15 + magic * 2, 0, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove pit");
 			}
 		} else if(location.get(forward_index) == CellButton) {
-			if(pc->use(RemoveTraps, forward_index, magic * 2, &firsttime, 100, true)) {
+			if(pc->use(RemoveTraps, forward_index, magic * 2, 0, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove trap");
 			}
 		} else if(po && po->type == CellTrapLauncher) {
 			if(location.isactive(po))
 				pc->say("This trap already disabled");
-			else if(pc->use(RemoveTraps, forward_index, magic * 5, &firsttime, 100, true)) {
+			else if(pc->use(RemoveTraps, forward_index, magic * 5, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You disable trap");
 			}
 		} else if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
 			if(location.isactive(po))
 				pc->say("This lock already open");
-			else if(pc->use(OpenLocks, forward_index, magic * 3, &firsttime, 100, true)) {
+			else if(pc->use(OpenLocks, forward_index, magic * 3, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You pick lock");
 			}
@@ -1695,10 +1693,8 @@ bool creature::use(item* pi) {
 			mslog("Lockpicks bite your finger and turn to dust");
 			pc->damage(Pierce, dice::roll(1, 3));
 			consume = true;
-		} else if(d100() < (15 - magic * 2)) {
+		} else if(d100() < (15 - magic * 2))
 			pi->damage("Your %1 is damaged", "You broke %1");
-			return true;
-		}
 		break;
 	case MagicWand:
 		consume = false;

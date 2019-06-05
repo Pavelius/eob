@@ -453,26 +453,6 @@ int game::getpartyskill(int rec, skill_s id) {
 	return total / count;
 }
 
-int game::getarmorpenalty(item_s armor, skill_s skill) {
-	switch(armor) {
-	case ArmorStuddedLeather:
-		switch(skill) {
-		case OpenLocks: return 10;
-		case RemoveTraps: return 15;
-		case ClimbWalls: return 30;
-		default: return 20;
-		}
-		break;
-	case ArmorChain:
-	case ArmorScale:
-		return 40;
-	case ArmorPlate:
-		return 80;
-	default:
-		return 0;
-	}
-}
-
 creature* game::gethero(item* itm) {
 	for(auto e : party) {
 		if(!e)

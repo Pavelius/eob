@@ -456,6 +456,7 @@ public:
 	int					get(enchant_s value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
+	int					getarmorpenalty(skill_s skill) const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
 	enchant_s			getenchant() const;
@@ -826,7 +827,6 @@ void					enter(unsigned short index, unsigned char level);
 void					findsecrets();
 int						getavatar(race_s race, gender_s gender, class_s cls);
 int						getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
-int						getarmorpenalty(item_s armor, skill_s skill);
 short unsigned			getcamera();
 creature*				getdefender(short unsigned index, direction_s dr, creature* attacker);
 direction_s				getdirection();
