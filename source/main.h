@@ -224,6 +224,11 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Alignment, Class, Item, Race, Spell,
 };
+enum prop_s : unsigned char {
+	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
+	MV, AC, Speed, Hits, HitsBase, HitsBoost, ExeptionalStrenght,
+	DrainEnergy, DrainStrenght, DrainConstitution,
+};
 class creature;
 class item;
 template<typename T> struct bsmeta {
@@ -418,6 +423,9 @@ struct statei {
 	const char*			name;
 	skill_s				save;
 };
+struct roomi {
+	monster_s			boss, minions[2];
+};
 struct sitei {
 	struct headi {
 		resource_s		type;
@@ -489,11 +497,9 @@ public:
 };
 class creature {
 	struct applyi {
-		ability_s		id;
+		prop_s			id;
 		char			bonus;
-		varianti		source;
 		unsigned		round;
-		// Ability, AC, THAC0, Damage, Resist, Saves
 	};
 	alignment_s			alignment;
 	race_s				race;
