@@ -1628,6 +1628,10 @@ bool creature::use(item* pi) {
 				pc->set(StrongPoison, 0);
 				pc->set(DeadlyPoison, 0);
 				break;
+			case OfKnowledge:
+				for(auto i = 0; i < magic; i++)
+					pc->identify(true);
+				break;
 			default:
 				if(pi->isartifact()) {
 					if(!pc->raise(enchant)) {
