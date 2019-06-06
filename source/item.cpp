@@ -13,7 +13,8 @@ static enchant_s magic_boots[] = {OfSpeed, OfClimbing};
 static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
 static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
 static enchant_s magic_helm[] = {OfIntellegence, OfCharisma};
-
+static enchant_s magic_armor[] = {OfFireResistance, OfPoisonResistance, OfMagicResistance, OfClimbing};
+static enchant_s magic_robe[] = {OfProtection, OfSpeed, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
 
 itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Battle axe", {7, 4, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
@@ -31,16 +32,16 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Short sword", {2, 0, 1}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
 {"Two-handed sword", {42, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_weapon},
 //
-{"Bow", {10, 6, 1, Arrow}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {OneAttack, Pierce, -8, {1, 8}, {1, 8}}},
-{"Sling", {18, 4}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
+{"Bow", {10, 6, 1, Arrow}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}},
+{"Sling", {18, 4, 0, Stone}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
 //
-{"Robe", {32, 8, 1}, Body, {UseArcane}},
-{"Leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {2}},
-{"Studded leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {3}},
-{"Scale mail", {30, 9, 1}, Body, {UseMetalArmor}, {}, {}, {4, 2}},
-{"Chain mail", {29, 9, 1}, Body, {UseMetalArmor}, {}, {}, {5}},
-{"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 1}},
-{"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 2}},
+{"Robe", {32, 8, 1}, Body, {UseArcane}, {Wonderful}, {}, {}, magic_robe},
+{"Leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
+{"Studded leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
+{"Scale mail", {30, 9, 1}, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
+{"Chain mail", {29, 9, 1}, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
+{"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 1}, magic_armor},
+{"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 2}, magic_armor},
 //
 {"Helm", {20, 6}, Head, {UseShield}, {Wonderful}, {}, {0, 2}, magic_helm},
 {"Shield", {23, 7, 1}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},

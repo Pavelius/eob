@@ -195,12 +195,12 @@ static item_s random_subtype(item_s type) {
 }
 
 static item_s random_type(bool small_size = false) {
-	static item_s standart_item_types[] = {PotionRed,
+	static item_s standart_item_types[] = {PotionRed, PotionRed, PotionRed,
 		RedGem,
 		SwordLong, SwordLong, SwordLong, SwordLong, SwordLong,
 		Helm, Helm,
 		Shield,
-		ArmorLeather, ArmorLeather, ArmorLeather, ArmorLeather,
+		ArmorLeather, ArmorLeather, ArmorLeather,
 		RedRing,
 		Boots, Boots,
 		Bracers,
@@ -208,7 +208,7 @@ static item_s random_type(bool small_size = false) {
 		TheifTools,
 		Bones,
 		DungeonMap,
-		PriestScroll
+		PriestScroll, PriestScroll
 	};
 	static item_s small_item_types[] = {PotionRed,
 		RedGem,

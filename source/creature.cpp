@@ -1557,6 +1557,17 @@ void creature::camp(item& it) {
 					}
 				}
 				break;
+			case PotionRed:
+			case PotionGreen:
+			case PotionBlue:
+				if(!pi->isidentified()) {
+					if(pc->roll(Intellegence)) {
+						char temp[128];
+						pi->setidentified(1);
+						pc->say("It's %1", pi->getname(temp, zendof(temp)));
+					}
+				}
+				break;
 			default:
 				break;
 			}
