@@ -1779,11 +1779,12 @@ bool creature::use(item* pi) {
 
 bool creature::identify(bool interactive) {
 	char temp[260];
+	static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
 	for(auto& e : wears) {
 		if(e.ismagical() && !e.isidentified()) {
 			e.setidentified(1);
 			if(interactive)
-				say("I know this! It's %1.", e.getname(temp, zendof(temp)));
+				say("%1 It's %2.", maprnd(talk), e.getname(temp, zendof(temp)));
 			return true;
 		}
 	}
