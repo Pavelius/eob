@@ -123,7 +123,7 @@ enum enchant_s : unsigned char {
 	OfAccuracy, OfAdvise, OfCharisma, OfClimbing, OfCold, OfDamage, OfDexterity,
 	OfEnergyDrain,
 	OfFear, OfFire, OfFireResistance, OfHealing, OfHolyness,
-	OfIntellegence, OfInvisibility, OfLuck, OfMagicResistance, OfNeutralizePoison,
+	OfIntellegence, OfInvisibility, OfKnowledge, OfLuck, OfMagicResistance, OfNeutralizePoison,
 	OfParalize, OfPoison, OfPoisonStrong, OfPoisonResistance, OfProtection, OfRegeneration,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenght, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
@@ -596,6 +596,7 @@ public:
 	int					getthac0(class_s cls, int level) const;
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
+	bool				identify(bool interactive);
 	bool				is(state_s id) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }

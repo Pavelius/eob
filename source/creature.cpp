@@ -1772,3 +1772,16 @@ bool creature::use(item* pi) {
 		pi->clear();
 	return true;
 }
+
+bool creature::identify(bool interactive) {
+	char temp[260];
+	for(auto& e : wears) {
+		if(e.ismagical() && !e.isidentified()) {
+			e.setidentified(1);
+			if(interactive)
+				say("I know this! It's %1.", e.getname(temp, zendof(temp)));
+			return true;
+		}
+	}
+	return false;
+}
