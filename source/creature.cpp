@@ -732,55 +732,12 @@ void creature::random_spells(class_s type, int level, int count) {
 }
 
 int	creature::get(class_s type) const {
-	switch(type) {
-	case Cleric:
-		switch(this->type) {
-		case Cleric:
-		case ClericTheif:
-			return levels[0];
-		case FighterCleric:
-			return levels[1];
-		default:
-			return 0;
-		}
-	case Fighter:
-		switch(this->type) {
-		case Fighter:
-		case FighterCleric:
-		case FighterMage:
-		case FighterMageTheif:
-		case FighterTheif:
-			return levels[0];
-		default:
-			return 0;
-		}
-	case Mage:
-		switch(this->type) {
-		case Mage:
-		case MageTheif:
-			return levels[0];
-		case FighterMage:
-		case FighterMageTheif:
-			return levels[1];
-		default:
-			return 0;
-		}
-	case Theif:
-		switch(this->type) {
-		case Theif:
-			return levels[0];
-		case MageTheif:
-		case ClericTheif:
-		case FighterTheif:
-			return levels[1];
-		case FighterMageTheif:
-			return levels[2];
-		default:
-			return 0;
-		}
-	default:
-		return (this->type == type) ? levels[0] : 0;
+	auto& ci = bsmeta<classi>::elements[this->type].classes;
+	for(unsigned i = 0; i < ci.count; i++) {
+		if(ci.data[i] == type)
+			return levels[i];
 	}
+	return 0;
 }
 
 int	creature::get(ability_s id) const {

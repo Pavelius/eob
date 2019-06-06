@@ -423,9 +423,6 @@ struct statei {
 	const char*			name;
 	skill_s				save;
 };
-struct roomi {
-	monster_s			boss, minions[2];
-};
 struct sitei {
 	struct headi {
 		resource_s		type;
