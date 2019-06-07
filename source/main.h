@@ -76,7 +76,7 @@ enum spell_s : unsigned char {
 	// Spells (level 2)
 	Aid, FlameBlade, Goodberry, HoldPerson, ProduceFlame, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness,
+	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -103,7 +103,7 @@ enum state_s : unsigned char {
 };
 enum condition_s : unsigned char {
 	Blinded, Deafned, Diseased,
-	Moved,
+	Moved, ProtectedNegativeEnergy,
 	Surprised,
 };
 enum ability_s : unsigned char {

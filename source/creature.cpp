@@ -498,10 +498,22 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			if(getbonus(OfParalize))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(getbonus(OfEnergyDrain) > 0)
-				defender->drain_energy++;
-			if(getbonus(OfStrenghtDrain))
-				defender->drain_ability[Strenght]++;
+			if(getbonus(OfEnergyDrain)) {
+				if(is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
+					damage(Magic, dice::roll(2, 6));
+					hits = 0;
+					defender->remove(ProtectedNegativeEnergy);
+				} else
+					defender->drain_energy++;
+			}
+			if(getbonus(OfStrenghtDrain)) {
+				if(defender->is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
+					damage(Magic, dice::roll(2, 6));
+					hits = 0;
+					defender->remove(ProtectedNegativeEnergy);
+				} else
+					defender->drain_ability[Strenght]++;
+			}
 			// Dead from draining
 			if(defender->drain_energy >= defender->gethd()
 				|| defender->drain_ability[Strenght] >= get(Strenght)

@@ -83,6 +83,14 @@ static void cure_deafness(creature* player, creature* target, const effecti& e, 
 	target->remove(Deafned);
 }
 
+static void cure_disease(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->remove(Diseased);
+}
+
+static void negative_plan_protection(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->set(ProtectedNegativeEnergy);
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -108,7 +116,9 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // 3 - level
 {"Create Food", {0, 3}, TargetSpecial, create_food},
-{"Cure Blindness/Deafness", {0, 3}, TargetAlly, {cure_deafness}},
+{"Cure Blindness", {0, 3}, TargetAlly, {cure_deafness}},
+{"Cure Disease", {0, 3}, TargetAlly, {cure_disease}},
+{"Protected negative", {0, 3}, TargetAlly, {negative_plan_protection}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
