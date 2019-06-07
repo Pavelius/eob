@@ -329,16 +329,18 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	pc->view_portrait(x + 1, y + 9);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
-	for(auto id = Armored; id < Scared; id = (state_s)(id + 1)) {
+	for(auto id = Armored; id <= Paralized; id = (state_s)(id + 1)) {
 		if(pc->is(id)) {
 			switch(id) {
 			case DetectedEvil:
 			case DetectedMagic:
+			case Invisibled:
 				continue;
-			case Hasted:
+			case Paralized:
 				draw::rectb(rc, colors::red);
 				break;
 			case Blessed:
+			case ProtectedFromEvil:
 				draw::rectb(rc, colors::yellow);
 				break;
 			default:

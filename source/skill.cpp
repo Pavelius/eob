@@ -198,7 +198,7 @@ int	creature::get(skill_s id) const {
 		result += value;
 		auto dex = get(Dexterity);
 		result += maptbl(theive_skills_by_dex[id - ClimbWalls], dex);
-		result += wears[Body].getarmorpenalty(id);
+		result -= wears[Body].getarmorpenalty(id);
 	} else {
 		if(!allow_skill(id, type))
 			return 0;

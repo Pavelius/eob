@@ -284,6 +284,8 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.bonus += 1;
 	if(is(Scared))
 		result.bonus -= 4;
+	if(is(Blinded))
+		result.bonus -= 4;
 	result.bonus -= drain_energy;
 	result.damage.b += maptbl(damage_adjustment, k);
 	result.damage.b -= drain_energy;
@@ -346,7 +348,7 @@ bool creature::isready() const {
 }
 
 void creature::update(bool interactive) {
-	moved = false;
+	remove(Moved);
 	// Обноим эффект ядов
 	if((game::rounds % 4) == 0)
 		update_poison(interactive);
@@ -427,11 +429,16 @@ int creature::gethitpenalty(int bonus) const {
 	return bonus;
 }
 
+void creature::subenergy() {
+	if(food > 0)
+		food--;
+}
+
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
 	// RULE: invisible characters hard to hit and more likely to hit
-	if(defender->isinvisible())
+	if(!is(Blinded) && defender->isinvisible())
 		ac += 4;
 	if(isinvisible())
 		wi.bonus += 4;
@@ -444,6 +451,8 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	auto magic_bonus = 0;
 	if(wi.weapon)
 		magic_bonus = wi.weapon->getmagic();
+	if(ishero())
+		subenergy();
 	for(auto atn = (bsmeta<attacki>::elements[wi.attack].attacks_p2r + (game::rounds % 2)) / 2; atn > 0; atn--) {
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 		auto rolls = xrand(1, 20);
@@ -590,7 +599,8 @@ void creature::finish() {
 			raise_level(c);
 		}
 	}
-	sethits(gethitsmaximum());
+	hits = gethitsmaximum();
+	food = getfoodmax();
 	if(is(NoExeptionalStrenght))
 		str_exeptional = 0;
 }
@@ -621,7 +631,7 @@ void creature::raise_level(class_s type) {
 		hp = hd;
 		if(type == Mage) {
 			setknown(DetectMagic, 1);
-			random_spells(type, 1, 3);
+			random_spells(type, 1, 6);
 			prepare_random_spells(type, 1);
 			preparespells();
 		} else if(type == Cleric) {
@@ -804,6 +814,10 @@ int creature::getspeed() const {
 	r += getbonus(OfSpeed);
 	if(is(Hasted))
 		r += 2;
+	if(is(Blinded))
+		r -= 2;
+	if(is(Deafned))
+		r -= 1;
 	return r;
 }
 
@@ -824,6 +838,8 @@ int creature::getac() const {
 		r += 4;
 	if(is(Shielded))
 		r += 7;
+	if(is(Blinded))
+		r -= 4;
 	return r;
 }
 
@@ -1470,6 +1486,7 @@ void creature::camp(item& it) {
 				break;
 			}
 		}
+		pc->food = pc->getfoodmax();
 		// Remove additional hit points
 		pc->hits_aid = 0;
 		// Remove enchanted weapon
@@ -1753,4 +1770,8 @@ bool creature::identify(bool interactive) {
 		}
 	}
 	return false;
+}
+
+int	creature::getfoodmax() const {
+	return get(Constitution) * 15;
 }

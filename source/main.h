@@ -75,6 +75,8 @@ enum spell_s : unsigned char {
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
 	Aid, FlameBlade, Goodberry, HoldPerson, ProduceFlame, SlowPoison,
+	// Spells (level 3)
+	CreateFood, CureBlindnessDeafness,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -98,6 +100,11 @@ enum state_s : unsigned char {
 	Scared, Paralized,
 	WeakPoison, Poison, StrongPoison, DeadlyPoison,
 	LastState = DeadlyPoison,
+};
+enum condition_s : unsigned char {
+	Blinded, Deafned, Diseased,
+	Moved,
+	Surprised,
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
@@ -511,9 +518,9 @@ class creature {
 	unsigned			states[LastState + 1];
 	cflags<feat_s>		feats;
 	cflags<usability_s>	usability;
+	cflags<condition_s> condition;
 	short				hits, hits_aid, hits_rolled;
 	char				initiative;
-	bool				moved;
 	char				levels[3];
 	char				ability[Charisma + 1];
 	item				wears[LastInvertory + 1];
@@ -527,6 +534,7 @@ class creature {
 	char				drain_energy;
 	char				drain_ability[Charisma + 1];
 	char				pallette;
+	short				food;
 	reaction_s			reaction;
 	//
 	int					get_base_save_throw(skill_s st) const;
@@ -575,6 +583,8 @@ public:
 	int					getclasscount() const;
 	direction_s			getdirection() const;
 	int					getexperience() const { return experience; }
+	int					getfood() const { return food; }
+	int					getfoodmax() const;
 	int					gethd() const;
 	dice				gethitdice() const;
 	int					gethitpenalty(int bonus) const;
@@ -601,7 +611,8 @@ public:
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	bool				identify(bool interactive);
-	bool				is(state_s id) const;
+	bool				is(condition_s v) const { return condition.is(v); }
+	bool				is(state_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				is(spell_s v) const { return known[v] != 0; }
@@ -612,13 +623,14 @@ public:
 	bool				isenemy(creature* target) const;
 	bool				isinvisible() const;
 	bool				ishero() const;
-	bool				ismoved() const { return moved; }
+	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
 	bool				isuse(const item v) const;
 	static creature*	newhero();
 	void				preparespells();
 	bool				raise(enchant_s v);
 	void				random_name();
+	void				remove(condition_s v) { condition.remove(v); }
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
@@ -633,6 +645,7 @@ public:
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }
+	void				set(condition_s value) { condition.add(value); }
 	void				set(gender_s value) { gender = value; }
 	void				set(monster_s type);
 	void				set(race_s value) { race = value; }
@@ -648,11 +661,12 @@ public:
 	void				setindex(short unsigned value) { index = value; }
 	void				setinitiative(char value) { initiative = value; }
 	void				setknown(spell_s id, char v) { known[id] = v; }
-	void				setmoved(bool value) { moved = value; }
+	void				setmoved(bool value) { remove(Moved); }
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
 	bool				setweapon(item_s v, int charges);
 	void				slowpoison();
+	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);

@@ -73,6 +73,16 @@ static void slow_poison(creature* player, creature* target, const effecti& e, in
 	player->slowpoison();
 }
 
+static void create_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	item it(Ration);
+	creature::camp(it);
+}
+
+static void cure_deafness(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->remove(Blinded);
+	target->remove(Deafned);
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -96,6 +106,9 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
+// 3 - level
+{"Create Food", {0, 3}, TargetSpecial, create_food},
+{"Cure Blindness/Deafness", {0, 3}, TargetAlly, {cure_deafness}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
@@ -184,6 +197,10 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		level = (spell_level + wand_magic - 1) * 2 - 1;
 	if(!level || !spell_level)
 		return false;
+	if(is(Deafned) && (d100() < 20)) {
+		if(ishero())
+			mslog("Spell failed!");
+	}
 	switch(range) {
 	case TargetSelf:
 		say(id);
