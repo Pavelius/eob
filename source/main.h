@@ -371,6 +371,8 @@ struct racei {
 struct skilli {
 	const char*			name;
 	adat<class_s, 4>	allow;
+	enchant_s			enchant;
+	char				multiplier;
 };
 struct spell_effect {
 	dice				base;

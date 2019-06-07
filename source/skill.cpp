@@ -1,7 +1,7 @@
 #include "main.h"
 
 skilli bsmeta<skilli>::elements[] = {{"Save vs Paralize"},
-{"Save vs Poison"},
+{"Save vs Poison", {}, OfPoisonResistance, 10},
 {"Save vs Traps"},
 {"Save vs Magic"},
 //
@@ -16,8 +16,8 @@ skilli bsmeta<skilli>::elements[] = {{"Save vs Paralize"},
 //
 {"Resist Charm"},
 {"Resist Cold"},
-{"Resist Fire"},
-{"Resist Magic"},
+{"Resist Fire", {}, OfFireResistance, 20},
+{"Resist Magic", {}, OfMagicResistance, 10},
 //
 {"Deflect critical"},
 {"Detect secrets"},
@@ -162,6 +162,8 @@ static bool allow_skill(skill_s id, class_s type) {
 
 int	creature::get(skill_s id) const {
 	int result = bsmeta<racei>::elements[race].skills[id];
+	if(bsmeta<skilli>::elements[id].multiplier)
+		result += getbonus(bsmeta<skilli>::elements[id].enchant) * bsmeta<skilli>::elements[id].multiplier;
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);
