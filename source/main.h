@@ -529,7 +529,6 @@ class creature {
 	char				pallette;
 	reaction_s			reaction;
 	//
-	int					armor_penalty(skill_s skill) const;
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);

@@ -357,14 +357,19 @@ void item::damage(const char* text_damage, const char* text_broke) {
 }
 
 int item::getarmorpenalty(skill_s skill) const {
-	if(is(UseMetalArmor))
-		return 50;
-	else if(is(UseLeatherArmor)) {
+	if(is(UseMetalArmor)) {
+		switch(skill) {
+		case OpenLocks: return 20;
+		case RemoveTraps: return 30;
+		case ClimbWalls: return 60;
+		case MoveSilently: return 60;
+		}
+	} else if(is(UseLeatherArmor)) {
 		switch(skill) {
 		case OpenLocks: return 10;
 		case RemoveTraps: return 15;
 		case ClimbWalls: return 30;
-		default: return 20;
+		case MoveSilently: return 40;
 		}
 	}
 	return 0;

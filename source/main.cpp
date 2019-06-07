@@ -316,7 +316,7 @@ void draw::setnext(void(*v)()) {
 
 int main(int argc, char* argv[]) {
 	srand(clock());
-	//return 0;
+	return 0;
 	//srand(2112);
 #ifdef _DEBUG
 	//util_main();

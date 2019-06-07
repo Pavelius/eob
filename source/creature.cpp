@@ -924,10 +924,6 @@ int creature::get_base_save_throw(skill_s st) const {
 	return (21 - r) * 5;
 }
 
-int creature::armor_penalty(skill_s skill) const {
-	return wears[Body].getarmorpenalty(skill);
-}
-
 void creature::preparespells() {
 	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
 		auto level = getlevel(i, Mage);
