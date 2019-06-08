@@ -390,6 +390,9 @@ void creature::update_turn(bool interactive) {
 			}
 		}
 	}
+	// Every turn heroes use food
+	if(ishero())
+		subenergy();
 }
 
 void creature::update(bool interactive) {
@@ -675,7 +678,8 @@ void creature::raise_level(class_s type) {
 			random_spells(type, 1, 32);
 			prepare_random_spells(type, 1);
 			preparespells();
-		}
+		} else if(type == Paladin)
+			preparespells();
 	} else {
 		if(type == Cleric) {
 			auto spell_level = get_cleric_spell_level(level + 1);
@@ -732,7 +736,7 @@ void creature::random_equipment() {
 		else
 			add(MagicBook);
 	}
-	if(get(Cleric)) {
+	if(get(Cleric) || get(Paladin)) {
 		if(!wears[LeftHand])
 			wears[LeftHand] = item(HolySymbol);
 		else
@@ -999,10 +1003,10 @@ void creature::preparespells() {
 	if(get(Cleric))
 		set(TurnUndead, 2);
 	if(get(Paladin)) {
-		set(DetectedEvil, 2);
+		set(DetectEvil, 2);
 		set(LayOnHands, 1);
 		if(get(Paladin) >= 3)
-			set(TurnUndead, 2);
+			set(TurnUndead, 1);
 		if(get(Paladin) >= 5)
 			set(CureDisease, 1);
 	}
@@ -1598,6 +1602,10 @@ bool creature::use(item* pi) {
 	auto slot = game::getitempart(pi);
 	if(!pc->isuse(*pi)) {
 		pc->say("I don't know what to do with this");
+		return false;
+	}
+	if(pi->is(UseInHand) && slot!=RightHand && slot!=LeftHand) {
+		pc->say("I must use this in hand");
 		return false;
 	}
 	// Weapon is special case

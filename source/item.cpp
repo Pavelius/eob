@@ -56,11 +56,11 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Bones", {43, 7}, {}, {}, {}},
 {"Map", {86, 12}, {}, {}, {}},
 //
-{"Holy Symbol", {53, 20}, {}, {UseDivine}},
-{"Spell book", {35, 11}, {}, {UseArcane}},
+{"Holy Symbol", {53, 20}, {}, {UseDivine}, {UseInHand}},
+{"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, {}, {UseTheif}},
 //
-{"Wand", {52, 10}, {}, {UseArcane}},
+{"Wand", {52, 10}, {}, {UseArcane}, {UseInHand}},
 {"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}},
 {"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}},
 //

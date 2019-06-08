@@ -7,7 +7,7 @@ classi bsmeta<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {UseLeather
 {BonusHP}, {9, 0, 0, 0, 0, 0}, {Human, Dwarf, Elf, HalfElf, Halfling}},
 {"Mage", 1, 4, Intellegence, {Mage}, {UseScrolls, UseArcane},
 {NoExeptionalStrenght}, {0, 0, 0, 9, 0, 0}, {Human, Elf, HalfElf}},
-{"Paladin", 1, 10, Strenght, {Paladin}, {UseMartialWeapon, UseLeatherArmor, UseShield, UseMetalArmor, UseTheifWeapon},
+{"Paladin", 1, 10, Strenght, {Paladin}, {UseScrolls, UseDivine, UseMartialWeapon, UseLeatherArmor, UseShield, UseMetalArmor, UseTheifWeapon},
 {HolyGrace, ImmuneDisease}, {12, 0, 9, 0, 13, 17}, {Human}},
 {"Ranger", 1, 10, Strenght, {Ranger}, {UseMartialWeapon, UseLeatherArmor, UseShield, UseMetalArmor, UseTheifWeapon},
 {BonusDamageVsEnemy, Ambidextrity}, {13, 13, 14, 0, 14, 0}, {Human, Elf, HalfElf}},

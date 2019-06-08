@@ -206,7 +206,7 @@ enum usability_s : unsigned char {
 	UseScrolls, UseDivine, UseArcane, UseTheif
 };
 enum item_feat_s : unsigned char {
-	TwoHanded, Light, Versatile, Ranged, Deadly, Quick,
+	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
 	Natural, Charged,
 	Unique, Wonderful, Magical,

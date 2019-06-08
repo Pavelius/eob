@@ -106,15 +106,14 @@ static void test_dungeon2(resource_s type) {
 
 static void random_heroes() {
 	game::party[0] = creature::newhero();
-	game::party[0]->create(Male, Elf, Ranger, ChaoticGood);
+	game::party[0]->create(Male, Human, Paladin, LawfulGood);
 	game::party[1] = creature::newhero();
-	game::party[1]->create(Male, Human, Fighter, LawfulGood);
+	game::party[1]->create(Male, Dwarf, Fighter, LawfulGood);
 	game::party[2] = creature::newhero();
 	game::party[2]->create(Female, Elf, MageTheif, ChaoticNeutral);
 	game::party[3] = creature::newhero();
 	game::party[3]->create(Male, Dwarf, Cleric, LawfulGood);
 	//
-	game::party[0]->set(item(SwordLong, OfFire), RightHand);
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
 	game::party[0]->add(item(KeySilver, 20, 0, 0));
 	game::party[0]->add(item(PotionGreen, OfPoison, 1));
@@ -129,9 +128,9 @@ static void random_heroes() {
 	game::party[3]->add(item(PotionGreen, OfAdvise, 3));
 	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
 	//
-	item artifact(SwordShort, 100, 5, 100);
+	item artifact(SwordLong, 100, 0, 100);
 	artifact.setidentified(1);
-	game::party[0]->set(artifact, LeftHand);
+	game::party[0]->set(artifact, RightHand);
 }
 
 void util_main();
