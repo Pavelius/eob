@@ -716,6 +716,7 @@ struct dungeon {
 		overlayi		up; // where is stairs up
 		overlayi		down; // where is stairs down
 		overlayi		portal; // where is portal
+		short unsigned	spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
 		unsigned char	artifacts; // count of powerful items (+4 or hight)
@@ -728,6 +729,12 @@ struct dungeon {
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
 	};
+	struct eventi {
+		const creature*	pc;
+		skill_s			skill;
+		short unsigned	index;
+		operator bool() const { return pc != 0; }
+	};
 	unsigned short		overland_index;
 	unsigned char		level;
 	sitei::headi		head;
@@ -738,6 +745,7 @@ struct dungeon {
 	overlayi			overlays[256];
 	overlayitem			cellar_items[256];
 	creature			monsters[200];
+	eventi				events[256];
 	dungeon() { clear(); }
 	operator bool() const { return head.type!=NONE; }
 	overlayi*			add(short unsigned index, cell_s type, direction_s dir);
@@ -763,6 +771,7 @@ struct dungeon {
 	int					getitemside(item* pi);
 	short unsigned		getindex(int x, int y) const;
 	race_s				getlanguage() const;
+	unsigned			getmonstercount() const;
 	void				getmonsters(creature** result, short unsigned index, direction_s dr);
 	item_s				getkeytype(cell_s keyhole) const;
 	short unsigned		getnearest(short unsigned index, int radius, cell_s t1);
@@ -784,6 +793,7 @@ struct dungeon {
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	void				move(short unsigned index, direction_s dr);
 	void				move(direction_s direction);
+	void				passhour();
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(short unsigned* indicies);

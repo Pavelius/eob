@@ -9,7 +9,7 @@ static unsigned char	path_pop;
 const unsigned char		CellMask = 0x1F;
 
 static void snode(unsigned short index, short unsigned* pathmap, short unsigned cost) {
-	if(index==Blocked)
+	if(index == Blocked)
 		return;
 	auto a = pathmap[index];
 	if(a == Blocked)
@@ -160,7 +160,7 @@ void dungeon::add(overlayi* po, item it) {
 
 void dungeon::remove(overlayi* po, item it) {
 	for(auto& e : cellar_items) {
-		if(e==it && e.storage==po) {
+		if(e == it && e.storage == po) {
 			e.clear();
 			e.storage = 0;
 			return;
@@ -269,6 +269,8 @@ void dungeon::clear() {
 	stat.down.index = Blocked;
 	stat.up.index = Blocked;
 	stat.portal.index = Blocked;
+	for(auto& e : stat.spawn)
+		e = Blocked;
 	for(auto& e : overlays)
 		e.clear();
 }
@@ -361,14 +363,14 @@ short unsigned dungeon::random(short unsigned* indicies) {
 }
 
 bool dungeon::ismatch(short unsigned index, cell_s t1, cell_s t2) {
-	if(index==Blocked)
+	if(index == Blocked)
 		return true;
 	auto t = dungeon::get(index);
 	return t == t1 || t == t2;
 }
 
 bool dungeon::allaround(short unsigned index, cell_s t1, cell_s t2) {
-	if(index==Blocked)
+	if(index == Blocked)
 		return false;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
 		if(ismatch(to(index, d), t1, t2))
@@ -396,7 +398,7 @@ void dungeon::turnto(short unsigned index, direction_s dr) {
 
 void dungeon::getmonsters(creature** result, short unsigned index, direction_s dr) {
 	result[0] = result[1] = result[2] = result[3] = 0;
-	if(index==Blocked)
+	if(index == Blocked)
 		return;
 	for(auto& e : monsters) {
 		if(!e)
@@ -455,7 +457,7 @@ void dungeon::getblocked(short unsigned* pathmap, bool treat_door_as_passable) {
 }
 
 void dungeon::makewave(short unsigned start, short unsigned* pathmap) {
-	if(start==Blocked || !pathmap)
+	if(start == Blocked || !pathmap)
 		return;
 	path_push = 0;
 	path_pop = 0;
@@ -519,8 +521,8 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, con
 	bool stop = false;
 	creature* result[4];
 	draw::animation::update();
-	while(index!=Blocked) {
-		if(index==Blocked)
+	while(index != Blocked) {
+		if(index == Blocked)
 			break;
 		if(location.isblocked(index))
 			return;
@@ -532,7 +534,7 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, con
 			}
 		}
 		for(auto p : game::party) {
-			if(p && p->getindex()==index) {
+			if(p && p->getindex() == index) {
 				attack(ci, p);
 				stop = true;
 			}
@@ -556,7 +558,7 @@ void dungeon::passround() {
 		if(!e)
 			continue;
 		auto i = e.getindex();
-		if(i == Blocked || map[i]>0)
+		if(i == Blocked || map[i] > 0)
 			continue;
 		map[i]++;
 	}
@@ -564,7 +566,7 @@ void dungeon::passround() {
 		if(!p || !(*p))
 			continue;
 		auto i = p->getindex();
-		if(i == Blocked || map[i]>0)
+		if(i == Blocked || map[i] > 0)
 			continue;
 		map[i]++;
 	}
@@ -854,4 +856,32 @@ void dungeon::dropitem(item* pi, int side) {
 	mslog("%1 dropped", pi->getname(temp, zendof(temp)));
 	dropitem(game::getcamera(), *pi, game::getside(side, game::getdirection()));
 	pi->clear();
+}
+
+unsigned dungeon::getmonstercount() const {
+	auto result = 0;
+	for(auto& e : monsters) {
+		if(e)
+			result++;
+	}
+	return result;
+}
+
+void dungeon::passhour() {
+	short unsigned monster_count = getmonstercount();
+	if(monster_count >= stat.monsters / 2)
+		return;
+	short unsigned source[2];
+	source[0] = stat.spawn[0];
+	source[1] = stat.spawn[1];
+	zshuffle(source, sizeof(source) / sizeof(source[0]));
+	for(auto index : source) {
+		if(index == Blocked)
+			continue;
+		auto distance = rangeto(index, game::getcamera());
+		if(distance <= 3)
+			continue;
+		addmonster(head.habbits[rand() % 2], index);
+		break;
+	}
 }

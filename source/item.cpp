@@ -40,8 +40,8 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Studded leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
 {"Scale mail", {30, 9, 1}, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
 {"Chain mail", {29, 9, 1}, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
-{"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 1}, magic_armor},
-{"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 2}, magic_armor},
+{"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
+{"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 4}, magic_armor},
 //
 {"Helm", {20, 6}, Head, {UseShield}, {Wonderful}, {}, {0, 2}, magic_helm},
 {"Shield", {23, 7, 1}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
@@ -64,7 +64,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Wand", {52, 10}, {}, {UseArcane}, {UseInHand}},
 {"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}},
 {"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}},
-//
+// Keys
 {"Shelf key", {46, 8}},
 {"Silver key", {47, 8}},
 {"Cooper key", {48, 8}},
@@ -73,23 +73,23 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Moon key", {88, 8}},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
-// Кольца
+// Rings
 {"Ring", {55, 15}, RightRing, {UseArcane}, {Wonderful}, {}, {}, ring_red},
 {"Ring", {78, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
 {"Ring", {79, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_green},
-//
+// Potions
 {"Potion", {39, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_red},
 {"Potion", {40, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_blue},
 {"Potion", {41, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_green},
-//
+// Gems
 {"Red gem", {93, 22}},
 {"Blue gem", {94, 22}},
 {"Green gem", {95, 22}},
 {"Purple gem", {96, 22}},
-// Еда
+// Food
 {"Ration", {38, 14}},
 {"Iron ration", {37, 14}},
-// Уникальные
+// Unique/Special items
 {"Dust of Ages", {97, 25}, {}, {UseArcane}, {Unique}},
 {"Horn", {59, 23}, {}, {}, {Unique}},
 {"Mantist Head", {51, 18}, {}, {}, {Unique}},
@@ -100,7 +100,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Stone gem", {57, 22}, {}, {}, {Unique}},
 {"Stone holy symbol", {63, 20}, {}, {UseDivine}, {Unique}},
 {"Stone orb", {61, 18}, {}, {}, {Unique}},
-//
+// Natural weapon
 {"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
 {"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
 {"Claws", {}, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},

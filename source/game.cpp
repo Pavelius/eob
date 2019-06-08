@@ -14,14 +14,6 @@ dungeon					location_above;
 dungeon					location;
 static creature			hero_data[32];
 
-static struct event_info {
-	unsigned			rounds;
-	const creature*		pc;
-	skill_s				skill;
-	short unsigned		index;
-	operator bool() const { return pc != 0; }
-} events[256];
-
 static const char place_sides[4][4] = {{1, 3, 0, 2},
 {0, 1, 2, 3},
 {2, 0, 3, 1},
@@ -186,16 +178,6 @@ void game::action::attack(short unsigned index_of_monsters, bool ranged) {
 			|| attacker->getbonus(OfSpeed, Elbow))
 			attacker->attack(index_of_monsters, dr, 0, ranged);
 	}
-}
-
-unsigned creature::select(spell_s* result, spell_s* result_maximum, class_s type, int level) {
-	auto p = result;
-	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
-		if(getlevel(rec, type) != level)
-			continue;
-		*p++ = rec;
-	}
-	return p - result;
 }
 
 void read_message(dungeon* pd, dungeon::overlayi* po);
@@ -383,6 +365,7 @@ void game::passround() {
 				pc->update_hour(true);
 		}
 		rounds_hour += 60;
+		location.passhour();
 	}
 	location.passround();
 }
@@ -444,7 +427,7 @@ void game::enter(unsigned short index, unsigned char level) {
 }
 
 bool creature::set(skill_s skill, short unsigned index) {
-	for(auto& e : events) {
+	for(auto& e : location.events) {
 		if(e.pc == this
 			&& e.skill == skill
 			&& e.index == index)
@@ -453,23 +436,10 @@ bool creature::set(skill_s skill, short unsigned index) {
 			e.pc = this;
 			e.skill = skill;
 			e.index = index;
-			e.rounds = game::rounds;
 			return true;
 		}
 	}
 	return false;
-}
-
-template<> void archive::set<event_info>(event_info& e) {
-	set(e.pc);
-	set(e.index);
-	set(e.rounds);
-	set(e.skill);
-}
-
-template<> void archive::set<dungeon::overlayitem>(dungeon::overlayitem& e) {
-	set(*((item*)&e));
-	set(e.storage);
 }
 
 static bool serialize(bool writemode) {
@@ -502,6 +472,15 @@ static char* fname(char* result, unsigned short index, int level) {
 	return result;
 }
 
+template<> void archive::set<dungeon::eventi>(dungeon::eventi& e) {
+	set(e.pc);
+	set(e.index);
+	set(e.skill);
+}
+template<> void archive::set<dungeon::overlayitem>(dungeon::overlayitem& e) {
+	set(*((item*)&e));
+	set(e.storage);
+}
 template<> void archive::set<dungeon>(dungeon& e) {
 	set(e.head);
 	set(e.overland_index);
@@ -513,7 +492,7 @@ template<> void archive::set<dungeon>(dungeon& e) {
 	set(e.overlays);
 	set(e.monsters);
 	set(e.cellar_items);
-	set(events);
+	set(e.events);
 }
 
 static bool serialize(dungeon& e, short unsigned overland_index, int level, bool write_mode) {

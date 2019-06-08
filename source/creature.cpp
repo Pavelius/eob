@@ -1769,3 +1769,13 @@ int	creature::getfoodmax() const {
 const spellprogi* creature::getprogress(class_s v) const {
 	return bsmeta<classi>::elements[type].spells[(v == Mage) ? 0 : 1];
 }
+
+unsigned creature::select(spell_s* result, spell_s* result_maximum, class_s type, int level) {
+	auto p = result;
+	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
+		if(getlevel(rec, type) != level)
+			continue;
+		*p++ = rec;
+	}
+	return p - result;
+}
