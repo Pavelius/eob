@@ -226,7 +226,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAlly:
 		if(!target)
-			target = game::action::choosehero();
+			target = choosehero();
 		if(!target)
 			return false;
 		say(id);

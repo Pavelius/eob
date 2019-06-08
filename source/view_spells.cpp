@@ -7,7 +7,7 @@ static creature*	current_hero = 0;
 
 static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse) {
 	unsigned flags = 0;
-	if(!pe->get(type))
+	if(!pe->iscast(type))
 		flags |= Disabled;
 	if(pe == pse)
 		flags |= Checked;
@@ -68,7 +68,7 @@ static creature* get_valid_hero(creature* pc, class_s type) {
 		i = 0;
 	auto stop = i;
 	while(true) {
-		if(game::party[i] && game::party[i]->get(type))
+		if(game::party[i] && game::party[i]->iscast(type))
 			return game::party[i];
 		if(++i >= (int)(sizeof(game::party) / sizeof(game::party[0])))
 			i = 0;
@@ -115,7 +115,7 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 	return height;
 }
 
-creature* game::action::choosehero() {
+creature* creature::choosehero() {
 	answers elements;
 	char temp[260];
 	for(auto p : game::party) {
@@ -228,7 +228,7 @@ void game::action::preparespells(class_s type) {
 		case Alpha + '4':
 			if(true) {
 				auto id = hot::key - (Alpha + '1');
-				if(!game::party[id] || !game::party[id]->get(type))
+				if(!game::party[id] || !game::party[id]->iscast(type))
 					break;
 				hero = game::party[id];
 			}
@@ -327,7 +327,7 @@ void creature::scriblescrolls() {
 		case Alpha + '4':
 			if(true) {
 				auto id = hot::key - (Alpha + '1');
-				if(!game::party[id] || !game::party[id]->get(caster_type))
+				if(!game::party[id] || !game::party[id]->iscast(caster_type))
 					break;
 				current_hero = game::party[id];
 			}

@@ -48,72 +48,6 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 {4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 {4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
-static char wizard_spells[21][10] = {{},
-{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
-{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
-{4, 3, 2, 0, 0, 0, 0, 0, 0, 0},
-{5, 4, 2, 1, 0, 0, 0, 0, 0, 0},
-{6, 4, 2, 2, 0, 0, 0, 0, 0, 0},
-{7, 4, 3, 2, 1, 0, 0, 0, 0, 0},
-{8, 4, 3, 3, 2, 0, 0, 0, 0, 0},
-{9, 4, 3, 3, 2, 1, 0, 0, 0, 0},
-{10, 4, 4, 3, 2, 2, 0, 0, 0, 0},// 10
-{11, 4, 4, 4, 3, 3, 0, 0, 0, 0},
-{12, 4, 4, 4, 4, 4, 1, 0, 0, 0},
-{13, 5, 5, 5, 4, 4, 2, 0, 0, 0},
-{14, 5, 5, 5, 4, 4, 2, 1, 0, 0},
-{15, 5, 5, 5, 5, 5, 2, 1, 0, 0},// 15
-{16, 5, 5, 5, 5, 5, 3, 2, 1, 0},
-{17, 5, 5, 5, 5, 5, 3, 3, 2, 0},
-{18, 5, 5, 5, 5, 5, 3, 3, 2, 1},
-{19, 5, 5, 5, 5, 5, 3, 3, 3, 1},
-{20, 5, 5, 5, 5, 5, 4, 3, 3, 2},
-};
-static char cleric_spells[21][10] = {{},
-{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
-{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
-{4, 3, 2, 0, 0, 0, 0, 0, 0, 0},
-{5, 3, 3, 1, 0, 0, 0, 0, 0, 0},
-{6, 3, 3, 2, 0, 0, 0, 0, 0, 0},
-{7, 3, 3, 2, 1, 0, 0, 0, 0, 0},
-{8, 3, 3, 3, 2, 0, 0, 0, 0, 0},
-{9, 4, 4, 3, 2, 1, 0, 0, 0, 0},
-{10, 4, 4, 3, 3, 2, 0, 0, 0, 0},
-{11, 5, 4, 4, 3, 2, 1, 0, 0, 0},
-{12, 6, 5, 5, 3, 2, 2, 0, 0, 0},
-{13, 6, 6, 6, 4, 2, 2, 0, 0, 0},
-{14, 6, 6, 6, 5, 3, 2, 1, 0, 0},
-{15, 6, 6, 6, 6, 4, 2, 1, 0, 0},
-{16, 7, 7, 7, 6, 4, 3, 1, 0, 0},
-{17, 7, 7, 7, 7, 5, 3, 2, 0, 0},
-{18, 8, 8, 8, 8, 6, 4, 2, 0, 0},
-{19, 9, 9, 8, 8, 6, 4, 2, 0, 0},
-{20, 9, 9, 9, 8, 7, 5, 2, 0, 0},
-};
-static char paladin_spells[21][10] = {{},
-{},
-{},
-{},
-{},
-{},
-{},
-{},
-{},
-{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
-{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
-{4, 2, 2, 0, 0, 0, 0, 0, 0, 0},
-{5, 2, 2, 1, 0, 0, 0, 0, 0, 0},
-{6, 3, 2, 1, 0, 0, 0, 0, 0, 0},
-{7, 3, 2, 1, 1, 0, 0, 0, 0, 0},
-{8, 3, 3, 2, 1, 0, 0, 0, 0, 0},
-{9, 3, 3, 3, 1, 0, 0, 0, 0, 0},
-{9, 3, 3, 3, 1, 0, 0, 0, 0, 0},
-{9, 3, 3, 3, 2, 0, 0, 0, 0, 0},
-{9, 3, 3, 3, 3, 0, 0, 0, 0, 0},
-};
 static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
 static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
 static char racial_remove_traps[] = {0, 10, 0, 0, 5, 0};
@@ -645,9 +579,11 @@ void creature::finish() {
 		str_exeptional = 0;
 }
 
-int get_cleric_spell_level(int hd) {
+int get_cleric_spell_level(const spellprogi* pr, int hd) {
+	if(!pr)
+		return 0;
+	auto p = pr->elements[hd];
 	auto result = 0;
-	auto p = cleric_spells[hd];
 	for(auto i = 1; i <= 9; i++) {
 		if(p[i])
 			result = i;
@@ -682,8 +618,9 @@ void creature::raise_level(class_s type) {
 			preparespells();
 	} else {
 		if(type == Cleric) {
-			auto spell_level = get_cleric_spell_level(level + 1);
-			random_spells(type, spell_level, 32);
+			auto spell_level = get_cleric_spell_level(getprogress(Cleric), level + 1);
+			if(spell_level)
+				random_spells(type, spell_level, 32);
 		}
 	}
 	hits_rolled += hp;
@@ -730,18 +667,12 @@ void creature::random_equipment() {
 		break;
 	}
 	add(RationIron);
-	if(get(Mage)) {
-		if(!wears[LeftHand])
-			wears[LeftHand] = item(MagicBook);
-		else
-			add(MagicBook);
-	}
-	if(get(Cleric) || get(Paladin)) {
-		if(!wears[LeftHand])
-			wears[LeftHand] = item(HolySymbol);
-		else
-			add(HolySymbol);
-	}
+	if(get(Mage))
+		equip(MagicBook);
+	if(get(Cleric))
+		equip(HolySymbol);
+	if(get(Paladin))
+		equip(HolyWarriorSymbol);
 	if(get(Theif))
 		add(TheifTools);
 	if(get(Fighter))
@@ -1013,15 +944,15 @@ void creature::preparespells() {
 }
 
 int creature::getspellsperlevel(class_s cls, int spell_level) const {
-	int caster_level = get(cls);
-	int b = 0;
+	auto pr = getprogress(cls);
+	if(!pr)
+		return 0;
+	auto level = get(cls);
+	if(level > 20)
+		level = 20;
+	int b = pr->elements[level][spell_level];
 	if(spell_level > 9)
 		spell_level = 9;
-	switch(cls) {
-	case Mage: b = maptbl(wizard_spells, caster_level)[spell_level]; break;
-	case Cleric: b = maptbl(cleric_spells, caster_level)[spell_level]; break;
-	case Paladin: b = maptbl(paladin_spells, caster_level)[spell_level]; break;
-	}
 	if(cls == Cleric && b) {
 		if(spell_level > 7)
 			spell_level = 7;
@@ -1604,7 +1535,7 @@ bool creature::use(item* pi) {
 		pc->say("I don't know what to do with this");
 		return false;
 	}
-	if(pi->is(UseInHand) && slot!=RightHand && slot!=LeftHand) {
+	if(pi->is(UseInHand) && slot != RightHand && slot != LeftHand) {
 		pc->say("I must use this in hand");
 		return false;
 	}
@@ -1696,11 +1627,12 @@ bool creature::use(item* pi) {
 		break;
 	case MagicBook:
 	case HolySymbol:
+	case HolyWarriorSymbol:
 		consume = false;
-		spell_element = pc->choosespell((type == HolySymbol) ? Cleric : Mage);
+		spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
 		if(!spell_element)
 			return false;
-		pc->cast(spell_element, (type == HolySymbol) ? Cleric : Mage, 0);
+		pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
 		break;
 	case TheifTools:
 		consume = false;
@@ -1832,4 +1764,8 @@ bool creature::identify(bool interactive) {
 
 int	creature::getfoodmax() const {
 	return get(Constitution) * 15;
+}
+
+const spellprogi* creature::getprogress(class_s v) const {
+	return bsmeta<classi>::elements[type].spells[(v == Mage) ? 0 : 1];
 }

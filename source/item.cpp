@@ -57,6 +57,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Map", {86, 12}, {}, {}, {}},
 //
 {"Holy Symbol", {53, 20}, {}, {UseDivine}, {UseInHand}},
+{"Holy Symbol", {27, 20}, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
 {"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, {}, {UseTheif}},
 //
@@ -78,8 +79,8 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Ring", {79, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_green},
 //
 {"Potion", {39, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_red},
-{"Potion", {40, 19}, {}, {}, {Wonderful}, {}, {}, potion_blue},
-{"Potion", {41, 19}, {}, {}, {Wonderful}, {}, {}, potion_green},
+{"Potion", {40, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_blue},
+{"Potion", {41, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_green},
 //
 {"Red gem", {93, 22}},
 {"Blue gem", {94, 22}},

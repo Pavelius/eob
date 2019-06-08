@@ -147,7 +147,7 @@ enum item_s : unsigned char {
 	Bracers,
 	Arrow, Dart, Stone,
 	Bones, DungeonMap,
-	HolySymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
+	HolySymbol, HolyWarriorSymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
 	KeyShelf, KeySilver, KeyCooper, KeySkull, KeySpider, KeyMoon, KeyDiamond, KeyGreen,
 	RedRing, BlueRing, GreenRing,
 	PotionRed, PotionBlue, PotionGreen,
@@ -264,6 +264,9 @@ struct varianti {
 	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
 	constexpr varianti(const state_s v) : type(State), state(v) {}
 };
+struct spellprogi {
+	char				elements[21][10];
+};
 struct abilityi {
 	const char*			name;
 	enchant_s			enchant;
@@ -287,6 +290,7 @@ struct classi {
 	cflags<feat_s>		feats;
 	char				minimum[Charisma + 1];
 	adat<race_s, 12>	races;
+	const spellprogi*	spells[2];
 };
 struct commandi {
 	const char*			name;
@@ -565,6 +569,7 @@ public:
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
+	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	int					damaged(const creature* defender, wear_s slot) const;
@@ -577,6 +582,7 @@ public:
 	int					get(skill_s id) const;
 	void				get(combati& e, wear_s slot = RightHand, creature* enemy = 0) const;
 	item				get(wear_s id) const;
+	const spellprogi*	getprogress(class_s v) const;
 	alignment_s			getalignment() const { return alignment; }
 	int					getac() const;
 	int					getavatar() const { return avatar; }
@@ -625,6 +631,7 @@ public:
 	static bool			isallow(alignment_s id, class_s c);
 	bool				isallow(const item it, wear_s slot) const;
 	bool				isallowremove(const item i, wear_s slot, bool interactive);
+	bool				iscast(class_s v) const { return getprogress(v) != 0; }
 	bool				isenemy(creature* target) const;
 	bool				isinvisible() const;
 	bool				ishero() const;
@@ -842,7 +849,6 @@ namespace game {
 namespace action {
 void					attack(short unsigned index, bool ranged);
 void					automap(dungeon& area, bool fow);
-creature*				choosehero();
 void					fly(item_s item, int side);
 bool					manipulate(item* itm, direction_s direction);
 void					pause();
