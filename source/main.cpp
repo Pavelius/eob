@@ -117,7 +117,7 @@ static void random_heroes() {
 	game::party[0]->set(item(SwordLong, OfFire), RightHand);
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
 	game::party[0]->add(item(KeySilver, 20, 0, 0));
-	game::party[0]->add(item(PotionGreen, OfPoison));
+	game::party[0]->add(item(PotionGreen, OfPoison, 1));
 	game::party[1]->set(item(SwordLong, OfDamage, 3), RightHand);
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
 	game::party[1]->add(item(Bow, 20, 0, 0));

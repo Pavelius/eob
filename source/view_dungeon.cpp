@@ -293,6 +293,7 @@ void creature::view_portrait(int x, int y) const {
 	{Poison, colors::green},
 	{PoisonStrong, colors::green},
 	{PoisonDeadly, colors::green},
+	{Diseased, colors::green.mix(colors::red)},
 	{Paralized, colors::red},
 	{Sleeped, colors::blue}
 	};

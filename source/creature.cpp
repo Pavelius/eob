@@ -48,49 +48,71 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 {4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 {4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
-static char wizard_spells[21][9] = {{},
-{1, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 1, 0, 0, 0, 0, 0, 0, 0},
-{3, 2, 0, 0, 0, 0, 0, 0, 0},
-{4, 2, 1, 0, 0, 0, 0, 0, 0}, // 5
-{4, 2, 2, 0, 0, 0, 0, 0, 0},
-{4, 3, 2, 1, 0, 0, 0, 0, 0},
-{4, 3, 3, 2, 0, 0, 0, 0, 0},
-{4, 3, 3, 2, 1, 0, 0, 0, 0},
-{4, 4, 3, 2, 2, 0, 0, 0, 0},// 10
-{4, 4, 4, 3, 3, 0, 0, 0, 0},
-{4, 4, 4, 4, 4, 1, 0, 0, 0},
-{5, 5, 5, 4, 4, 2, 0, 0, 0},
-{5, 5, 5, 4, 4, 2, 1, 0, 0},
-{5, 5, 5, 5, 5, 2, 1, 0, 0},// 15
-{5, 5, 5, 5, 5, 3, 2, 1, 0},
-{5, 5, 5, 5, 5, 3, 3, 2, 0},
-{5, 5, 5, 5, 5, 3, 3, 2, 1},
-{5, 5, 5, 5, 5, 3, 3, 3, 1},
-{5, 5, 5, 5, 5, 4, 3, 3, 2},
+static char wizard_spells[21][10] = {{},
+{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
+{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
+{4, 3, 2, 0, 0, 0, 0, 0, 0, 0},
+{5, 4, 2, 1, 0, 0, 0, 0, 0, 0},
+{6, 4, 2, 2, 0, 0, 0, 0, 0, 0},
+{7, 4, 3, 2, 1, 0, 0, 0, 0, 0},
+{8, 4, 3, 3, 2, 0, 0, 0, 0, 0},
+{9, 4, 3, 3, 2, 1, 0, 0, 0, 0},
+{10, 4, 4, 3, 2, 2, 0, 0, 0, 0},// 10
+{11, 4, 4, 4, 3, 3, 0, 0, 0, 0},
+{12, 4, 4, 4, 4, 4, 1, 0, 0, 0},
+{13, 5, 5, 5, 4, 4, 2, 0, 0, 0},
+{14, 5, 5, 5, 4, 4, 2, 1, 0, 0},
+{15, 5, 5, 5, 5, 5, 2, 1, 0, 0},// 15
+{16, 5, 5, 5, 5, 5, 3, 2, 1, 0},
+{17, 5, 5, 5, 5, 5, 3, 3, 2, 0},
+{18, 5, 5, 5, 5, 5, 3, 3, 2, 1},
+{19, 5, 5, 5, 5, 5, 3, 3, 3, 1},
+{20, 5, 5, 5, 5, 5, 4, 3, 3, 2},
 };
-static char cleric_spells[21][9] = {{},
-{1, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 0, 0, 0, 0, 0, 0, 0, 0},
-{2, 1, 0, 0, 0, 0, 0, 0, 0},
-{3, 2, 0, 0, 0, 0, 0, 0, 0},
-{3, 3, 1, 0, 0, 0, 0, 0, 0}, // 5
-{3, 3, 2, 0, 0, 0, 0, 0, 0},
-{3, 3, 2, 1, 0, 0, 0, 0, 0},
-{3, 3, 3, 2, 0, 0, 0, 0, 0},
-{4, 4, 3, 2, 1, 0, 0, 0, 0},
-{4, 4, 3, 3, 2, 0, 0, 0, 0},// 10
-{5, 4, 4, 3, 2, 1, 0, 0, 0},
-{6, 5, 5, 3, 2, 2, 0, 0, 0},
-{6, 6, 6, 4, 2, 2, 0, 0, 0},
-{6, 6, 6, 5, 3, 2, 1, 0, 0},
-{6, 6, 6, 6, 4, 2, 1, 0, 0},// 15
-{7, 7, 7, 6, 4, 3, 1, 0, 0},
-{7, 7, 7, 7, 5, 3, 2, 0, 0},
-{8, 8, 8, 8, 6, 4, 2, 0, 0},
-{9, 9, 8, 8, 6, 4, 2, 0, 0},
-{9, 9, 9, 8, 7, 5, 2, 0, 0},
+static char cleric_spells[21][10] = {{},
+{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
+{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
+{4, 3, 2, 0, 0, 0, 0, 0, 0, 0},
+{5, 3, 3, 1, 0, 0, 0, 0, 0, 0},
+{6, 3, 3, 2, 0, 0, 0, 0, 0, 0},
+{7, 3, 3, 2, 1, 0, 0, 0, 0, 0},
+{8, 3, 3, 3, 2, 0, 0, 0, 0, 0},
+{9, 4, 4, 3, 2, 1, 0, 0, 0, 0},
+{10, 4, 4, 3, 3, 2, 0, 0, 0, 0},
+{11, 5, 4, 4, 3, 2, 1, 0, 0, 0},
+{12, 6, 5, 5, 3, 2, 2, 0, 0, 0},
+{13, 6, 6, 6, 4, 2, 2, 0, 0, 0},
+{14, 6, 6, 6, 5, 3, 2, 1, 0, 0},
+{15, 6, 6, 6, 6, 4, 2, 1, 0, 0},
+{16, 7, 7, 7, 6, 4, 3, 1, 0, 0},
+{17, 7, 7, 7, 7, 5, 3, 2, 0, 0},
+{18, 8, 8, 8, 8, 6, 4, 2, 0, 0},
+{19, 9, 9, 8, 8, 6, 4, 2, 0, 0},
+{20, 9, 9, 9, 8, 7, 5, 2, 0, 0},
+};
+static char paladin_spells[21][10] = {{},
+{},
+{},
+{},
+{},
+{},
+{},
+{},
+{},
+{1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+{2, 2, 0, 0, 0, 0, 0, 0, 0, 0},
+{3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
+{4, 2, 2, 0, 0, 0, 0, 0, 0, 0},
+{5, 2, 2, 1, 0, 0, 0, 0, 0, 0},
+{6, 3, 2, 1, 0, 0, 0, 0, 0, 0},
+{7, 3, 2, 1, 1, 0, 0, 0, 0, 0},
+{8, 3, 3, 2, 1, 0, 0, 0, 0, 0},
+{9, 3, 3, 3, 1, 0, 0, 0, 0, 0},
+{9, 3, 3, 3, 1, 0, 0, 0, 0, 0},
+{9, 3, 3, 3, 2, 0, 0, 0, 0, 0},
+{9, 3, 3, 3, 3, 0, 0, 0, 0, 0},
 };
 static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
 static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
@@ -623,9 +645,9 @@ void creature::finish() {
 int get_cleric_spell_level(int hd) {
 	auto result = 0;
 	auto p = cleric_spells[hd];
-	for(auto i = 0; i < 9; i++) {
+	for(auto i = 1; i <= 9; i++) {
 		if(p[i])
-			result = i + 1;
+			result = i;
 	}
 	return result;
 }
@@ -976,8 +998,14 @@ void creature::preparespells() {
 	}
 	if(get(Cleric))
 		set(TurnUndead, 2);
-	if(get(Paladin))
+	if(get(Paladin)) {
+		set(DetectedEvil, 2);
 		set(LayOnHands, 1);
+		if(get(Paladin) >= 3)
+			set(TurnUndead, 2);
+		if(get(Paladin) >= 5)
+			set(CureDisease, 1);
+	}
 }
 
 int creature::getspellsperlevel(class_s cls, int spell_level) const {
@@ -986,8 +1014,9 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 	if(spell_level > 9)
 		spell_level = 9;
 	switch(cls) {
-	case Mage: b = maptbl(wizard_spells, caster_level)[spell_level - 1]; break;
-	case Cleric: b = maptbl(cleric_spells, caster_level)[spell_level - 1];
+	case Mage: b = maptbl(wizard_spells, caster_level)[spell_level]; break;
+	case Cleric: b = maptbl(cleric_spells, caster_level)[spell_level]; break;
+	case Paladin: b = maptbl(paladin_spells, caster_level)[spell_level]; break;
 	}
 	if(cls == Cleric && b) {
 		if(spell_level > 7)
@@ -1462,12 +1491,12 @@ creature* get_most_damaged() {
 static void try_autocast(creature* pc) {
 	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry};
 	for(auto e : healing_spells) {
-		if(!pc->get(e))
-			continue;
-		auto target = get_most_damaged();
-		if(!target)
-			continue;
-		pc->cast(e, Cleric, 0, target);
+		while(pc->get(e) > 0) {
+			auto target = get_most_damaged();
+			if(!target)
+				break;
+			pc->cast(e, Cleric, 0, target);
+		}
 	}
 }
 
