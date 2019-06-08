@@ -136,13 +136,13 @@ static int experience_rogue[21] = {
 };
 
 static struct poison_effect {
-	state_s		state;
+	condition_s	state;
 	char		save;
 	dice		damage[2];
-} poison_effects[DeadlyPoison - WeakPoison + 1] = {{WeakPoison, 2, {{0}, {1, 3}}},
+} poison_effects[] = {{PoisonWeak, 2, {{0}, {1, 3}}},
 {Poison, 0, {{0}, {1, 6}}},
-{StrongPoison, -1, {{1, 3}, {1, 8}}},
-{DeadlyPoison, -4, {{1, 3}, {3, 6}}},
+{PoisonStrong, -1, {{1, 3}, {1, 8}}},
+{PoisonDeadly, -4, {{1, 3}, {3, 6}}},
 };
 
 static const poison_effect* find_poison(state_s id) {
@@ -162,16 +162,18 @@ static int* get_experience_table(class_s cls) {
 	}
 }
 
-// Poison effect apply every 4 round.
-// Make save vs posoin or get damage
+// Make save vs posoin and/or get damage
 void creature::update_poison(bool interactive) {
 	auto hits = 0;
+	if(is(PosionSlowed))
+		return;
 	for(auto& pe : poison_effects) {
 		if(is(pe.state)) {
-			if(roll(SaveVsPoison, pe.save))
-				hits += pe.damage[1].roll();
-			else if(pe.damage[0].c)
+			if(roll(SaveVsPoison, pe.save)) {
 				hits += pe.damage[0].roll();
+				remove(pe.state);
+			} else
+				hits += pe.damage[1].roll();
 		}
 	}
 	if(hits > 0) {
@@ -347,25 +349,27 @@ bool creature::isready() const {
 		&& !is(Sleeped);
 }
 
-void creature::update(bool interactive) {
-	remove(Moved);
-	// Обноим эффект ядов
-	if((game::rounds % 4) == 0)
-		update_poison(interactive);
-	// Обновим эффекты других способностей, которые действуют не так часто
-	if((game::rounds % 10) == 0) {
-		for(auto slot = Head; slot <= Legs; slot = (wear_s)(slot + 1)) {
-			auto pi = getitem(slot);
-			if(pi && *pi) {
-				auto magic = pi->getmagic();
-				switch(pi->getenchant()) {
-				case OfRegeneration:
-					damage(Heal, magic);
-					break;
-				}
+void creature::update_hour(bool interactive) {}
+
+void creature::update_turn(bool interactive) {
+	// Poison effect
+	update_poison(interactive);
+	// Regeneration effect
+	for(auto slot = Head; slot <= Legs; slot = (wear_s)(slot + 1)) {
+		auto pi = getitem(slot);
+		if(pi && *pi) {
+			auto magic = pi->getmagic();
+			switch(pi->getenchant()) {
+			case OfRegeneration:
+				damage(Heal, magic);
+				break;
 			}
 		}
 	}
+}
+
+void creature::update(bool interactive) {
+	remove(Moved);
 	if(!kind)
 		update_levelup(interactive);
 }
@@ -434,6 +438,20 @@ void creature::subenergy() {
 		food--;
 }
 
+void creature::attack_drain(creature* defender, char& value, int& hits) {
+	if(is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
+		hits = 0;
+		damage(Magic, dice::roll(2, 6));
+		defender->remove(ProtectedNegativeEnergy);
+	} else
+		value++;
+	// Dead from draining
+	if(defender->drain_energy >= defender->gethd()
+		|| get(Strenght) <= 1
+		|| get(Constitution) <= 1)
+		hits = defender->gethits() + 10;
+}
+
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
@@ -491,34 +509,17 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			defender->set(Sleeped, 0);
 			// Poison attack
 			if(getbonus(OfPoison))
-				defender->add(Poison, xrand(5, 10), SaveNegate);
+				defender->set(Poison);
 			if(getbonus(OfPoisonStrong))
-				defender->add(StrongPoison, xrand(5, 15), SaveNegate);
+				defender->set(PoisonStrong);
 			// Paralize attack
 			if(getbonus(OfParalize))
 				defender->add(Paralized, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(getbonus(OfEnergyDrain)) {
-				if(is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
-					damage(Magic, dice::roll(2, 6));
-					hits = 0;
-					defender->remove(ProtectedNegativeEnergy);
-				} else
-					defender->drain_energy++;
-			}
-			if(getbonus(OfStrenghtDrain)) {
-				if(defender->is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
-					damage(Magic, dice::roll(2, 6));
-					hits = 0;
-					defender->remove(ProtectedNegativeEnergy);
-				} else
-					defender->drain_ability[Strenght]++;
-			}
-			// Dead from draining
-			if(defender->drain_energy >= defender->gethd()
-				|| defender->drain_ability[Strenght] >= get(Strenght)
-				|| defender->drain_ability[Constitution] >= get(Constitution))
-				hits = defender->gethits() + 10;
+			if(getbonus(OfEnergyDrain))
+				attack_drain(defender, defender->drain_energy, hits);
+			if(getbonus(OfStrenghtDrain))
+				attack_drain(defender, defender->drain_energy, hits);
 			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
@@ -764,7 +765,11 @@ int	creature::get(class_s type) const {
 
 int	creature::get(ability_s id) const {
 	auto r = ability[id];
-	r -= drain_ability[id];
+	switch(id) {
+	case Strenght:
+		r -= drain_strenght;
+		break;
+	}
 	// Временное усиление атрибута, если используется
 	auto boost = bsmeta<abilityi>::elements[id].boost;
 	if(boost) {
@@ -1416,15 +1421,6 @@ bool creature::raise(enchant_s v) {
 	return true;
 }
 
-void creature::slowpoison() {
-	state_s elements[] = {WeakPoison, Poison, StrongPoison, DeadlyPoison};
-	auto current = game::rounds;
-	for(auto e : elements) {
-		if(states[e] > current)
-			states[e] = current + (states[e] - current) / 2;
-	}
-}
-
 bool creature::setweapon(item_s v, int charges) {
 	if(wears[RightHand]) {
 		say("No, my hand is busy!");
@@ -1487,7 +1483,7 @@ void creature::camp(item& it) {
 		auto healed = pc->getbonus(OfHealing) * 3;
 		if(poisoned) {
 			// RULE: Cursed food add weak poison
-			pc->add(WeakPoison);
+			pc->set(PoisonWeak);
 		} else {
 			switch(food) {
 			case Ration:
@@ -1596,7 +1592,7 @@ bool creature::use(item* pi) {
 	case PotionRed:
 		if(pi->iscursed()) {
 			// RULE: Cursed potion always apply strong poison
-			pc->add(StrongPoison, xrand(2, 6) * 4, NoSave);
+			pc->set(PoisonStrong);
 		} else {
 			auto enchant = pi->getenchant();
 			switch(enchant) {
@@ -1607,7 +1603,12 @@ bool creature::use(item* pi) {
 					pc->addexp(1000 * magic);
 				break;
 			case OfPoison:
-				pc->add(WeakPoison, xrand(2, 8) * 4, NoSave);
+				switch(magic) {
+				case 1: pc->set(PoisonWeak); break;
+				case 2: pc->set(Poison); break;
+				case 3: pc->set(PoisonStrong); break;
+				default: pc->set(PoisonDeadly); break;
+				}
 				break;
 			case OfHealing:
 				pc->damage(Heal, dice::roll(1 + magic, 4) + 3);
@@ -1616,10 +1617,10 @@ bool creature::use(item* pi) {
 				pc->damage(Heal, dice::roll(1 + magic, 8) + 6);
 				break;
 			case OfNeutralizePoison:
-				pc->set(WeakPoison, 0);
-				pc->set(Poison, 0);
-				pc->set(StrongPoison, 0);
-				pc->set(DeadlyPoison, 0);
+				pc->remove(PoisonWeak);
+				pc->remove(Poison);
+				pc->remove(PoisonStrong);
+				pc->remove(PoisonDeadly);
 				break;
 			case OfKnowledge:
 				for(auto i = 0; i < magic; i++)

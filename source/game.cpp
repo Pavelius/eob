@@ -8,6 +8,8 @@ static unsigned			overland_index = 1;
 static unsigned char	location_level = 1;
 creature*				game::party[7];
 unsigned				game::rounds;
+static unsigned			rounds_turn;
+static unsigned			rounds_hour;
 dungeon					location_above;
 dungeon					location;
 static creature			hero_data[32];
@@ -360,6 +362,32 @@ void game::passround() {
 			continue;
 		pc->update(true);
 	}
+	// Slow update
+	while(rounds_turn < rounds) {
+		for(auto& e : location.monsters) {
+			if(e)
+				e.update_turn(false);
+		}
+		for(auto pc : game::party) {
+			if(!pc)
+				continue;
+			pc->update_turn(true);
+		}
+		rounds_turn += 10;
+	}
+	// Hourly update
+	while(rounds_hour < rounds) {
+		for(auto& e : location.monsters) {
+			if(e)
+				e.update_turn(false);
+		}
+		for(auto pc : game::party) {
+			if(!pc)
+				continue;
+			pc->update_turn(true);
+		}
+		rounds_hour += 60;
+	}
 	location.passround();
 }
 
@@ -397,7 +425,7 @@ void game::findsecrets() {
 void game::passtime(int minutes) {
 	while(minutes > 0) {
 		passround();
-		int count = 3;
+		auto count = 5;
 		if(count > minutes)
 			count = minutes;
 		minutes -= count;
@@ -463,6 +491,8 @@ static bool serialize(bool writemode) {
 	a.set(camera_index);
 	a.set(camera_direction);
 	a.set(game::rounds);
+	a.set(rounds_turn);
+	a.set(rounds_hour);
 	a.set(hero_data);
 	a.set(game::party);
 	return true;

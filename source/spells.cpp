@@ -70,7 +70,7 @@ static void aid_spell(creature* player, creature* target, const effecti& e, int 
 }
 
 static void slow_poison(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	player->slowpoison();
+	player->set(PosionSlowed);
 }
 
 static void create_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {

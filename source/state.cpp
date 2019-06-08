@@ -17,9 +17,5 @@ statei bsmeta<statei>::elements[] = {{"No state"},
 {"Scared", SaveVsMagic},
 //
 {"Paralized", SaveVsParalization},
-{"Weak Poison", SaveVsPoison},
-{"Poison", SaveVsPoison},
-{"Strong Poison", SaveVsPoison},
-{"Lethal Poison", SaveVsPoison},
 };
-assert_enum(state, DeadlyPoison);
+assert_enum(state, Paralized);

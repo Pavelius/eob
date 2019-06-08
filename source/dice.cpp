@@ -2,10 +2,6 @@
 #include "dice.h"
 #include "stringcreator.h"
 
-dice dice::create(int c, int d, int b, int m) {
-	return{(unsigned char)c, (unsigned char)d, (char)b, (char)m};
-}
-
 int dice::roll(int c, int d) {
 	if(!d)
 		return c;
@@ -13,10 +9,6 @@ int dice::roll(int c, int d) {
 	for(int i = 0; i < c; i++)
 		result += 1 + (rand() % d);
 	return result;
-}
-
-int dice::roll() const {
-	return (m ? roll(c, d)*m : roll(c, d)) + b;
 }
 
 const char* dice::print(char* result, const char* result_maximum) const {

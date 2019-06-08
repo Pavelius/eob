@@ -266,6 +266,15 @@ static void charstate(int x, int y, const creature* pc, state_s id, color c0, co
 	}
 }
 
+static void charstate(int x, int y, const creature* pc, condition_s id, color c0, color& result) {
+	if(pc->is(id)) {
+		if(result.b == result.g == result.r == 0)
+			result = c0;
+		else
+			result = result.mix(c0);
+	}
+}
+
 static void render_player_damage(int x, int y, int hits, unsigned counter) {
 	draw::state push;
 	char temp[32];
@@ -294,10 +303,10 @@ void creature::view_portrait(int x, int y) const {
 	else
 		image(x, y, gres(PORTM), getavatar(), 0);
 	color c1 = colors::black; c1.a = 0xFF;
-	charstate(x, y, this, WeakPoison, colors::green, c1);
+	charstate(x, y, this, PoisonWeak, colors::green, c1);
 	charstate(x, y, this, Poison, colors::green, c1);
-	charstate(x, y, this, StrongPoison, colors::green, c1);
-	charstate(x, y, this, DeadlyPoison, colors::green, c1);
+	charstate(x, y, this, PoisonStrong, colors::green, c1);
+	charstate(x, y, this, PoisonDeadly, colors::green, c1);
 	charstate(x, y, this, Paralized, colors::red, c1);
 	charstate(x, y, this, Sleeped, colors::blue, c1);
 	if(c1.a == 0)

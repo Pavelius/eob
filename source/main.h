@@ -98,12 +98,13 @@ enum state_s : unsigned char {
 	FireResisted, Invisibled, Hasted,
 	ProtectedFromEvil, Shielded, Sleeped, StateSpeakable, Strenghted,
 	Scared, Paralized,
-	WeakPoison, Poison, StrongPoison, DeadlyPoison,
-	LastState = DeadlyPoison,
+	LastState = Paralized,
 };
 enum condition_s : unsigned char {
 	Blinded, Deafned, Diseased,
 	Moved, ProtectedNegativeEnergy,
+	PoisonWeak, Poison, PoisonStrong, PoisonDeadly,
+	PosionSlowed,
 	Surprised,
 };
 enum ability_s : unsigned char {
@@ -531,12 +532,12 @@ class creature {
 	unsigned			experience;
 	unsigned char		name[2];
 	char				str_exeptional;
-	char				drain_energy;
-	char				drain_ability[Charisma + 1];
+	char				drain_energy, drain_strenght, disease_progress;
 	char				pallette;
 	short				food;
 	reaction_s			reaction;
 	//
+	void				attack_drain(creature* defender, char& value, int& hits);
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
@@ -665,10 +666,11 @@ public:
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
 	bool				setweapon(item_s v, int charges);
-	void				slowpoison();
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
 	void				update(bool interactive);
+	void				update_turn(bool interactive);
+	void				update_hour(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	void				view_ability();
