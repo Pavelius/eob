@@ -230,7 +230,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Item, Race, Spell,
+	Alignment, Class, Condition, Item, Race, Spell, State,
 };
 enum prop_s : unsigned char {
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
@@ -248,17 +248,21 @@ struct varianti {
 	union {
 		alignment_s		alignment;
 		class_s			cls;
+		condition_s		condition;
 		item_s			item;
 		race_s			race;
 		spell_s			spell;
+		state_s			state;
 		unsigned char	value;
 	};
 	constexpr varianti() : type(NoVariant), value(0) {}
 	constexpr varianti(const alignment_s v) : type(Alignment), alignment(v) {}
 	constexpr varianti(const class_s v) : type(Class), cls(v) {}
+	constexpr varianti(const condition_s v) : type(Condition), condition(v) {}
 	constexpr varianti(const item_s v) : type(Item), item(v) {}
 	constexpr varianti(const race_s v) : type(Race), race(v) {}
 	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
+	constexpr varianti(const state_s v) : type(State), state(v) {}
 };
 struct abilityi {
 	const char*			name;

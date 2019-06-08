@@ -257,24 +257,6 @@ static void compass() {
 	draw::logs();
 }
 
-static void charstate(int x, int y, const creature* pc, state_s id, color c0, color& result) {
-	if(pc->is(id)) {
-		if(result.b == result.g == result.r == 0)
-			result = c0;
-		else
-			result = result.mix(c0);
-	}
-}
-
-static void charstate(int x, int y, const creature* pc, condition_s id, color c0, color& result) {
-	if(pc->is(id)) {
-		if(result.b == result.g == result.r == 0)
-			result = c0;
-		else
-			result = result.mix(c0);
-	}
-}
-
 static void render_player_damage(int x, int y, int hits, unsigned counter) {
 	draw::state push;
 	char temp[32];
@@ -297,20 +279,46 @@ static void render_player_attack(int x, int y, int hits) {
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);
 }
 
+static unsigned char getalpha(unsigned f, unsigned range) {
+	if(f < range / 2)
+		return f * 2;
+	return (range - f) * 2;
+}
+
 void creature::view_portrait(int x, int y) const {
+	static struct elementi {
+		varianti	v;
+		color		c;
+	} variants[] = {{PoisonWeak, colors::green},
+	{Poison, colors::green},
+	{PoisonStrong, colors::green},
+	{PoisonDeadly, colors::green},
+	{Paralized, colors::red},
+	{Sleeped, colors::blue}
+	};
 	if(isinvisible())
 		image(x, y, gres(PORTM), getavatar(), 0, 64);
 	else
 		image(x, y, gres(PORTM), getavatar(), 0);
-	color c1 = colors::black; c1.a = 0xFF;
-	charstate(x, y, this, PoisonWeak, colors::green, c1);
-	charstate(x, y, this, Poison, colors::green, c1);
-	charstate(x, y, this, PoisonStrong, colors::green, c1);
-	charstate(x, y, this, PoisonDeadly, colors::green, c1);
-	charstate(x, y, this, Paralized, colors::red, c1);
-	charstate(x, y, this, Sleeped, colors::blue, c1);
-	if(c1.a == 0)
-		rectf({x, y, x + 31, y + 31}, c1, ciclic(64, 2));
+	adat<elementi*, sizeof(variants) / sizeof(variants[0])> source;
+	for(auto& e : variants) {
+		switch(e.v.type) {
+		case State:
+			if(is(e.v.state))
+				source.add(&e);
+			break;
+		case Condition:
+			if(is(e.v.condition))
+				source.add(&e);
+			break;
+		}
+	}
+	auto variant_count = source.getcount();
+	if(variant_count > 0) {
+		auto range = 64;
+		auto pv = source.data[(frametick / range) % variant_count];
+		rectf({x, y, x + 31, y + 31}, pv->c, getalpha(frametick % range, range));
+	}
 	int pind = zfind(game::party, const_cast<creature*>(this));
 	if(pind != -1) {
 		auto v = disp_damage[pind];

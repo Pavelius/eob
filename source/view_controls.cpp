@@ -146,7 +146,7 @@ static void update_frame_counter() {
 		frametick_last = cur;
 	const int ms = 1000 / 20;
 	if(frametick_last + ms <= cur) {
-		int count = (cur - frametick_last) / ms;
+		auto count = (cur - frametick_last) / ms;
 		draw::frametick += count;
 		frametick_last += count * ms;
 	}

@@ -351,16 +351,14 @@ void game::passround() {
 		} else
 			location.stop(monster_index);
 	}
-	// Let monster update
+	// Regular monster and heroes update
 	for(auto& e : location.monsters) {
 		if(e)
 			e.update(false);
 	}
-	// Let hero update
 	for(auto pc : game::party) {
-		if(!pc)
-			continue;
-		pc->update(true);
+		if(pc)
+			pc->update(true);
 	}
 	// Slow update
 	while(rounds_turn < rounds) {
@@ -369,9 +367,8 @@ void game::passround() {
 				e.update_turn(false);
 		}
 		for(auto pc : game::party) {
-			if(!pc)
-				continue;
-			pc->update_turn(true);
+			if(pc)
+				pc->update_turn(true);
 		}
 		rounds_turn += 10;
 	}
@@ -379,12 +376,11 @@ void game::passround() {
 	while(rounds_hour < rounds) {
 		for(auto& e : location.monsters) {
 			if(e)
-				e.update_turn(false);
+				e.update_hour(false);
 		}
 		for(auto pc : game::party) {
-			if(!pc)
-				continue;
-			pc->update_turn(true);
+			if(pc)
+				pc->update_hour(true);
 		}
 		rounds_hour += 60;
 	}
