@@ -135,24 +135,6 @@ static int experience_rogue[21] = {
 	160000, 220000, 440000, 660000, 880000, 1100000, 1320000, 1540000, 1760000, 1980000, 2200000
 };
 
-static struct poison_effect {
-	condition_s	state;
-	char		save;
-	dice		damage[2];
-} poison_effects[] = {{PoisonWeak, 2, {{0}, {1, 3}}},
-{Poison, 0, {{0}, {1, 6}}},
-{PoisonStrong, -1, {{1, 3}, {1, 8}}},
-{PoisonDeadly, -4, {{1, 3}, {3, 6}}},
-};
-
-static const poison_effect* find_poison(state_s id) {
-	for(auto& e : poison_effects) {
-		if(e.state == id)
-			return &e;
-	}
-	return 0;
-}
-
 static int* get_experience_table(class_s cls) {
 	switch(cls) {
 	case Cleric: return experience_priest;
@@ -164,6 +146,15 @@ static int* get_experience_table(class_s cls) {
 
 // Make save vs posoin and/or get damage
 void creature::update_poison(bool interactive) {
+	static struct poison_effect {
+		condition_s	state;
+		char		save;
+		dice		damage[2];
+	} poison_effects[] = {{PoisonWeak, 2, {{0}, {1, 3}}},
+	{Poison, 0, {{0}, {1, 6}}},
+	{PoisonStrong, -1, {{1, 3}, {1, 8}}},
+	{PoisonDeadly, -4, {{1, 3}, {3, 6}}},
+	};
 	auto hits = 0;
 	if(is(PosionSlowed))
 		return;
@@ -349,7 +340,18 @@ bool creature::isready() const {
 		&& !is(Sleeped);
 }
 
-void creature::update_hour(bool interactive) {}
+void creature::update_hour(bool interactive) {
+	if(is(Diseased)) {
+		if(roll(SaveVsPoison))
+			disease_progress--;
+		else
+			disease_progress++;
+		if(disease_progress <= 0) {
+			disease_progress = 0;
+			remove(Diseased);
+		}
+	}
+}
 
 void creature::update_turn(bool interactive) {
 	// Poison effect
@@ -768,6 +770,12 @@ int	creature::get(ability_s id) const {
 	switch(id) {
 	case Strenght:
 		r -= drain_strenght;
+		if(disease_progress > 2)
+			r -= disease_progress / 2;
+		break;
+	case Constitution:
+		if(disease_progress > 2)
+			r -= disease_progress - 2;
 		break;
 	}
 	// ¬ременное усиление атрибута, если используетс€
