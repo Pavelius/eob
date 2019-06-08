@@ -144,7 +144,7 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 	return pc;
 }
 
-void dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) {
+int dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) {
 	const auto& e = bsmeta<monsteri>::elements[type];
 	int count = 1;
 	if(e.size == Tall)
@@ -160,6 +160,7 @@ void dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) 
 		else
 			count = 4;
 	}
+	auto result = count;
 	while(count > 0) {
 		int side = getfreeside(index);
 		if(side == -1)
@@ -167,4 +168,5 @@ void dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) 
 		addmonster(type, index, side, dir);
 		count--;
 	}
+	return result;
 }

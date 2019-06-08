@@ -311,12 +311,8 @@ static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 }
 
 static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	int n = 0;
-	int d = d100();
-	if(d < 30)
-		n = 1;
-	pd->addmonster(pd->head.habbits[n], index);
-	pd->stat.monsters++;
+	auto n = (d100() < 30) ? 1 : 0;
+	pd->stat.monsters += pd->addmonster(pd->head.habbits[n], index);
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -632,23 +628,23 @@ static void remove_all_overlay(dungeon* pd, short unsigned index) {
 	}
 }
 
-static void validate_special_items(dungeon* pd) {
-	while(pd->stat.special < sizeof(pd->head.special) / sizeof(pd->head.special[0])) {
-		auto index = pd->stat.special;
-		if(!pd->head.special[index])
+static void validate_special_items(dungeon& location) {
+	while(location.stat.special < sizeof(location.head.special) / sizeof(location.head.special[0])) {
+		auto index = location.stat.special;
+		if(!location.head.special[index])
 			break;
 		adat<creature*, 512> source;
-		for(auto& e : pd->monsters) {
+		for(auto& e : location.monsters) {
 			if(!e || !e.isready())
 				continue;
 			source.add(&e);
 		}
 		if(source) {
 			auto p = source.data[rand() % source.count];
-			item it(pd->head.special[index], 40, 10, 20);
+			item it(location.head.special[index], 40, 10, 20);
 			p->add(it);
 		}
-		pd->stat.special++;
+		location.stat.special++;
 	}
 }
 
@@ -706,6 +702,45 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 		location.set(pme[i], CellPit);
 }
 
+static bool isroom(const dungeon& location, int x, int y, int r) {
+	for(auto x1 = x - r; x1 <= x + r; x1++) {
+		for(auto y1 = y - r; y1 <= y + r; y1++) {
+			auto i = location.getindex(x, y);
+			if(i == Blocked)
+				return false;
+			if(location.isblocked(i))
+				return false;
+		}
+	}
+	return true;
+}
+
+static unsigned find_rooms(short unsigned* source, const short unsigned* pe, const dungeon& location) {
+	auto pb = source;
+	for(auto x = 0; x < mpx; x++) {
+		for(auto y = 0; y < mpy; y++) {
+			if(isroom(location, x, y, 1)) {
+				if(pb < pe) {
+					auto i = location.getindex(x, y);
+					if(i!=Blocked)
+						*pb++ = i;
+				}
+			}
+		}
+	}
+	return pb - source;
+}
+
+static void add_spawn_points(dungeon& location) {
+	adat<short unsigned> source;
+	source.count = find_rooms(source.data, source.endof(), location);
+	if(!source.count)
+		return;
+	zshuffle(source.data, source.count);
+	for(unsigned i = 0; i < sizeof(location.stat.spawn) / sizeof(location.stat.spawn[0]); i++)
+		location.stat.spawn[i] = source.data[i];
+}
+
 void dungeon::create(short unsigned overland_index, const sitei* site, bool interactive) {
 	auto count = site->getleveltotal();
 	if(!count)
@@ -747,7 +782,8 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 					break;
 			}
 			remove_dead_door(&e);
-			validate_special_items(&e);
+			validate_special_items(e);
+			add_spawn_points(e);
 			e.overland_index = overland_index;
 			previous = &e;
 		}
