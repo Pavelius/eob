@@ -1779,3 +1779,11 @@ unsigned creature::select(spell_s* result, spell_s* result_maximum, class_s type
 	}
 	return p - result;
 }
+
+int creature::getcasterlevel(class_s id) const {
+	auto pr = getprogress(id);
+	if(!pr)
+		return 0;
+	auto hd = gethd();
+	return pr->elements[hd][0];
+}

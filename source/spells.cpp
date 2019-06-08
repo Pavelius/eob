@@ -202,10 +202,12 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		spell_level = getlevel(id, Mage);
 	if(!spell_level)
 		spell_level = getlevel(id, Cleric);
-	auto level = get(type);
+	auto level = getcasterlevel(type);
+	if(!level)
+		level = gethd();
 	if(wand_magic)
 		level = (spell_level + wand_magic - 1) * 2 - 1;
-	if(!level || !spell_level)
+	if(!spell_level)
 		return false;
 	if(is(Deafned) && (d100() < 20)) {
 		if(ishero())

@@ -589,6 +589,7 @@ public:
 	int					getawards() const;
 	int					getbonus(enchant_s id) const;
 	int					getbonus(enchant_s id, wear_s slot) const;
+	int					getcasterlevel(class_s id) const;
 	class_s				getclass() const { return type; }
 	static class_s		getclass(class_s id, int index);
 	int					getclasscount() const;
