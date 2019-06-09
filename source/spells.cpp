@@ -99,6 +99,20 @@ static void mending(creature* player, creature* target, const effecti& e, int le
 	target->mending(true);
 }
 
+static void knock(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	auto index = game::getcamera();
+	auto direction = game::getdirection();
+	auto pe = location.getoverlay(index, direction);
+	if(!pe)
+		return;
+	if(pe->type == CellKeyHole1 || pe->type == CellKeyHole2) {
+		if(pe->is(Active))
+			return;
+		pe->set(Active);
+		mslog("Lock is magically open");
+	}
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -126,6 +140,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Goodberry", {0, 2}, TargetAllAlly, {Heal, {1, 4}, {0}, 0, 0, NoSave}},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
 {"Invisibility", {2}, TargetAlly, {Duration2Hours, Invisibled}},
+{"Knock", {2}, TargetSpecial, knock},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // 3 - level

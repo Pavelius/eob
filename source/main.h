@@ -75,7 +75,7 @@ enum spell_s : unsigned char {
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
 	Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
-	Invisibility, ProduceFlame, SlowPoison,
+	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
 	// Specila ability
