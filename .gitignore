@@ -3,6 +3,8 @@
 
 # User-specific files
 *_util.cpp
+*.aum
+*.sav
 *.suo
 *.user
 *.userosscache

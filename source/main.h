@@ -74,7 +74,8 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	Aid, FlameBlade, Goodberry, HoldPerson, ProduceFlame, SlowPoison,
+	Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
+	Invisibility, ProduceFlame, SlowPoison,
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
 	// Specila ability
@@ -94,7 +95,7 @@ enum monster_s : unsigned char {
 };
 enum state_s : unsigned char {
 	NoState,
-	Armored, Blessed, Climbed, DetectedEvil, DetectedMagic,
+	Armored, Blessed, Blured, Climbed, DetectedEvil, DetectedMagic,
 	FireResisted, Invisibled, Hasted,
 	ProtectedFromEvil, Shielded, Sleeped, StateSpeakable, Strenghted,
 	Scared, Paralized,
@@ -407,6 +408,11 @@ struct effecti {
 			char		save_bonus;
 		};
 		struct {
+			condition_s condition;
+			save_s		condition_save;
+			char		condition_save_bonus;
+		};
+		struct {
 			damage_s	damage_type;
 			dice		damage;
 			dice		damage_per;
@@ -418,12 +424,15 @@ struct effecti {
 		};
 		int				value;
 	};
+	static void			apply_condition(creature* player, creature* target, const effecti& e, int level, int wand_magic);
 	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	constexpr effecti(callback proc, int value = 0) : proc(proc), value(value) {}
 	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
 		duration(duration), state(state), save(save), save_bonus(save_bonus) {}
+	constexpr effecti(condition_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
+		condition(state), condition_save(save), condition_save_bonus(save_bonus) {}
 	constexpr effecti(item_s item_weapon) : proc(apply_weapon),
 		item_weapon(item_weapon) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
@@ -558,6 +567,7 @@ class creature {
 public:
 	explicit operator bool() const { return states[0] != 0; }
 	void				add(item i);
+	bool				add(condition_s type, save_s save = NoSave, char save_bonus = 0);
 	bool				add(state_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);

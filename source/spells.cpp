@@ -119,9 +119,13 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // 2 - level
 {"Aid", {0, 2}, TargetAlly, aid_spell},
+{"Blindness", {2}, TargetClose, {Duration5PerLevel, Blured}},
+{"Blur", {2}, TargetSelf, {Duration5PerLevel, Blured}},
 {"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
+{"Flaming sphere", {2}, TargetAllThrow, {Fire, {2, 4}, {}, 0, 0, SaveNegate}, FireThrown},
 {"Goodberry", {0, 2}, TargetAllAlly, {Heal, {1, 4}, {0}, 0, 0, NoSave}},
 {"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}},
+{"Invisibility", {2}, TargetAlly, {Duration2Hours, Invisibled}},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
 {"Slow Poison", {0, 2}, TargetAlly, slow_poison},
 // 3 - level
@@ -145,6 +149,10 @@ int	creature::getlevel(spell_s id, class_s type) {
 void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	auto duration = getduration(e.duration, level);
 	target->add(e.state, duration, e.save, e.save_bonus);
+}
+
+void effecti::apply_condition(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->add(e.condition, e.condition_save, e.condition_save_bonus);
 }
 
 static bool test_save(creature* target, int& value, skill_s skill, save_s type, int bonus) {

@@ -3,6 +3,7 @@
 statei bsmeta<statei>::elements[] = {{"No state"},
 {"Armored", SaveVsMagic},
 {"Blessed", SaveVsMagic},
+{"Blured", SaveVsMagic},
 {"Climbed", SaveVsMagic},
 {"Detected Evil", SaveVsMagic},
 {"Detected Magic", SaveVsMagic},

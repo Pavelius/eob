@@ -162,6 +162,13 @@ bool creature::add(state_s type, unsigned duration, save_s save, char save_bonus
 	return true;
 }
 
+bool creature::add(condition_s type, save_s save, char save_bonus) {
+	if(save == SaveNegate && roll(SaveVsMagic, save_bonus))
+		return false;
+	set(type);
+	return true;
+}
+
 int creature::gethd() const {
 	if(kind)
 		return bsmeta<monsteri>::elements[kind].hd[0];
