@@ -1765,7 +1765,6 @@ bool creature::identify(bool interactive) {
 }
 
 bool creature::mending(bool interactive) {
-	char temp[260];
 	auto result = 0;
 	for(auto& e : wears) {
 		if(e.isbroken() && e.gettype() != Ration && e.gettype() != RationIron) {
@@ -1816,4 +1815,11 @@ item* creature::find(item_s v) const {
 			return const_cast<item*>(&e);
 	}
 	return 0;
+}
+
+void creature::setmoved(bool value) {
+	if(value)
+		set(Moved);
+	else
+		remove(Moved);
 }

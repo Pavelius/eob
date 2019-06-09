@@ -676,7 +676,7 @@ public:
 	void				setindex(short unsigned value) { index = value; }
 	void				setinitiative(char value) { initiative = value; }
 	void				setknown(spell_s id, char v) { known[id] = v; }
-	void				setmoved(bool value) { remove(Moved); }
+	void				setmoved(bool value);
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
 	bool				setweapon(item_s v, int charges);

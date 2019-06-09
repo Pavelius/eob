@@ -191,6 +191,7 @@ int	creature::get(skill_s id) const {
 		case ClimbWalls:
 			if(is(Climbed))
 				result += 100;
+			result += getbonus(OfClimbing)*10;
 			break;
 		}
 		if(value <= 0)
