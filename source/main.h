@@ -70,7 +70,7 @@ enum spell_s : unsigned char {
 	NoSpell,
 	// Spells (level 1)
 	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, FeatherFall,
-	MageArmor, MagicMissile,
+	Identify, MageArmor, MagicMissile, Mending,
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
@@ -574,6 +574,7 @@ public:
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	int					damaged(const creature* defender, wear_s slot) const;
 	void				equip(item it);
+	item*				find(item_s v) const;
 	void				finish();
 	int					get(ability_s id) const;
 	int					get(class_s id) const;
@@ -639,6 +640,7 @@ public:
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
 	bool				isuse(const item v) const;
+	bool				mending(bool interactive);
 	static creature*	newhero();
 	void				preparespells();
 	bool				raise(enchant_s v);
@@ -815,6 +817,12 @@ struct dungeon {
 	void				write();
 };
 struct dialogi {
+	struct actioni {
+		action_s		action;
+		varianti		variant;
+		bool			isallow() const;
+		constexpr explicit operator bool() const { return action != NoAction; }
+	};
 	struct imagei {
 		resource_s		res;
 		short			id;
@@ -823,10 +831,8 @@ struct dialogi {
 	};
 	struct elementi {
 		const char*		text;
-		const char*		success;
-		const char*		fail;
-		action_s		action;
-		varianti		variant;
+		const char*		next[2];
+		actioni			actions[4];
 		constexpr explicit operator bool() const { return text != 0; }
 		bool			isallow() const;
 	};
@@ -834,7 +840,7 @@ struct dialogi {
 	imagei				overlay[4];
 	const char*			id;
 	const char*			text;
-	elementi			variants[3];
+	elementi			variants[5];
 	void				choose(bool border = false) const;
 	const dialogi*		find(const char* id) const;
 };

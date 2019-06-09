@@ -1759,7 +1759,27 @@ bool creature::identify(bool interactive) {
 			return true;
 		}
 	}
+	if(interactive)
+		say("I don't see any magical items.");
 	return false;
+}
+
+bool creature::mending(bool interactive) {
+	char temp[260];
+	auto result = 0;
+	for(auto& e : wears) {
+		if(e.isbroken() && e.gettype() != Ration && e.gettype() != RationIron) {
+			e.setbroken(0);
+			result++;
+		}
+	}
+	if(interactive) {
+		if(result > 0)
+			say("I fix %1i items.", result);
+		else
+			say("There is no damaged items.");
+	}
+	return result != 0;
 }
 
 int	creature::getfoodmax() const {
@@ -1786,4 +1806,14 @@ int creature::getcasterlevel(class_s id) const {
 		return 0;
 	auto hd = gethd();
 	return pr->elements[hd][0];
+}
+
+item* creature::find(item_s v) const {
+	for(auto& e : wears) {
+		if(!e)
+			continue;
+		if(e.gettype() == v)
+			return const_cast<item*>(&e);
+	}
+	return 0;
 }

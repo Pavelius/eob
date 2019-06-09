@@ -28,7 +28,7 @@ static bool allow(const creature* p, const varianti v) {
 	return false;
 }
 
-bool allowparty(const varianti v) {
+static bool allowparty(const varianti v) {
 	for(auto p : game::party) {
 		if(!p)
 			continue;
@@ -38,13 +38,39 @@ bool allowparty(const varianti v) {
 	return false;
 }
 
-bool dialogi::elementi::isallow() const {
+static bool allowpartyitem(const item_s v) {
+	for(auto p : game::party) {
+		if(!p)
+			continue;
+		if(p->find(v))
+			return true;
+	}
+	return false;
+}
+
+bool dialogi::actioni::isallow() const {
 	switch(action) {
 	case HaveVariant:
 	case RemoveVariant:
 		if(!allowparty(variant))
 			return false;
 		break;
+	case RessurectBones:
+		if(!allowpartyitem(Bones))
+			return false;
+		break;
+	}
+	return true;
+}
+
+bool dialogi::elementi::isallow() const {
+	if(!text)
+		return false;
+	for(auto& e : actions) {
+		if(!e)
+			break;
+		if(!e.isallow())
+			return false;
 	}
 	return true;
 }
@@ -59,9 +85,9 @@ void dialogi::choose(bool border) const {
 			aw.add((int)&e, e.text);
 		}
 		auto pe = (elementi*)aw.choosebg(p->text, border, p->overlay);
-		if(!pe || !pe->success)
+		if(!pe || !pe->next[0])
 			break;
-		p = find(pe->success);
+		p = find(pe->next[0]);
 	}
 }
 

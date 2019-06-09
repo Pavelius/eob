@@ -91,6 +91,14 @@ static void negative_plan_protection(creature* player, creature* target, const e
 	target->set(ProtectedNegativeEnergy);
 }
 
+static void identify(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->identify(true);
+}
+
+static void mending(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->mending(true);
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -99,8 +107,10 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Detect Evil", {2, 1}, TargetAllAlly, {DurationTurn, DetectedEvil, NoSave}},
 {"Detect Magic", {1, 1}, TargetAllAlly, {DurationTurn, DetectedMagic, NoSave}},
 {"Feather Fall", {1, 0}, TargetAlly, {DurationTurnPerLevel, Climbed, NoSave}},
+{"Identify", {1, 0}, TargetSelf, identify},
 {"Mage Armor", {1, 0}, TargetSelf, {Duration4Hours, Armored, NoSave}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
+{"Mending", {1, 0}, TargetSelf, mending},
 {"Prot. from Evil", {1, 1}, TargetAlly, {DurationTurn, ProtectedFromEvil, NoSave}},
 {"Purify food", {0, 1}, TargetAllAlly, {purify_food}},
 {"Read Languages", {1, 0}, TargetSelf, {DurationTurn, StateSpeakable, NoSave}},
