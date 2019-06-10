@@ -76,6 +76,7 @@ bool dialogi::elementi::isallow() const {
 }
 
 void dialogi::choose(bool border) const {
+	draw::animation::update();
 	auto p = find("main");
 	while(p) {
 		answers aw;
