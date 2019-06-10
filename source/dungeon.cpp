@@ -885,3 +885,28 @@ void dungeon::passhour() {
 		break;
 	}
 }
+
+void dungeon::set(short unsigned index, reaction_s v) {
+	for(auto& e : monsters) {
+		if(!e || e.getindex() != index)
+			continue;
+		e.set(v);
+	}
+}
+
+void dungeon::formation(short unsigned index, direction_s dr) {
+	creature* creatures[4]; getmonsters(creatures, index, dr);
+	int sides[][3] = {{2, 0, 1}, {3, 1, 0}};
+	for(auto& m : sides) {
+		if(!creatures[m[0]])
+			continue;
+		auto r = -1;
+		if(!creatures[m[1]])
+			r = m[1];
+		else if(!creatures[m[2]])
+			r = m[2];
+		if(r == -1)
+			continue;
+		creatures[m[0]]->setside(r);
+	}
+}

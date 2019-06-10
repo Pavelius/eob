@@ -48,9 +48,14 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 {4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 {4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
-static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
-static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
-static char racial_remove_traps[] = {0, 10, 0, 0, 5, 0};
+static char charisma_reaction_bonus[] = {-8,
+-7, -6, -5, -4, -3, -2, -1, 0, 0, 0,
+0, 0, 1, 2, 3, 5, 6, 7, 8, 9,
+10, 11, 12, 13, 14
+};
+//static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
+//static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
+//static char racial_remove_traps[] = {0, 10, 0, 0, 5, 0};
 static char thac0_monster[] = {
 	0, 1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17
 };
@@ -1833,4 +1838,52 @@ void creature::setmoved(bool value) {
 		set(Moved);
 	else
 		remove(Moved);
+}
+
+reaction_s creature::rollreaction(int bonus) const {
+	static reaction_s indifferent[19] = {Friendly, Friendly, Cautious, Cautious, Cautious, Cautious, Cautious, Cautious,
+		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening, Hostile, Hostile, Hostile, Hostile, Hostile};
+	auto cha = getparty(Charisma);
+	bonus += maptbl(charisma_reaction_bonus, cha);
+	auto result = d10() + d10() - bonus;
+	result = imax(2, imin(20, result));
+	auto result_table = indifferent;
+	return result_table[result - 2];
+}
+
+int	creature::getparty(ability_s v) {
+	auto total = 0;
+	auto count = 0;
+	for(auto p : game::party) {
+		if(!p || !(*p) || !p->isready())
+			continue;
+		total += p->get(v);
+		count++;
+	}
+	if(!count)
+		return 0;
+	return total / count;
+}
+
+void creature::interract() {
+	auto old_reaction = reaction;
+	auto new_reaction = reaction;
+	if(reaction == Indifferent)
+		new_reaction = rollreaction(0);
+	if(old_reaction != new_reaction) {
+		location.set(index, new_reaction);
+	}
+	auto party_index = game::getcamera();
+	auto party_direction = game::getdirection();
+	switch(reaction) {
+	case Hostile:
+		mslog("You are under attack!");
+		location.turnto(party_index, to(direction, Down));
+		game::action::attack(index, false);
+		break;
+	case Flight:
+		// Just run away
+		location.move(index, party_direction);
+		break;
+	}
 }

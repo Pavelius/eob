@@ -623,6 +623,8 @@ public:
 	int					getpallette() const { return pallette; }
 	int					getprepare(spell_s v) const { return prepared[v]; }
 	race_s				getrace() const { return race; }
+	reaction_s			getreaction() const { return reaction; }
+	static int			getparty(ability_s v);
 	resource_s			getres() const;
 	int					getside() const;
 	size_s				getsize() const;
@@ -634,6 +636,7 @@ public:
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	bool				identify(bool interactive);
+	void				interract();
 	bool				is(condition_s v) const { return condition.is(v); }
 	bool				is(state_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
@@ -661,6 +664,7 @@ public:
 	bool				roll(ability_s id, int bonus = 0) const;
 	bool				roll(skill_s id, int bonus = 0) const;
 	void				roll_ability();
+	reaction_s			rollreaction(int bonus) const;
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
 	void				sayv(const char* format, const char* vl);
@@ -674,6 +678,7 @@ public:
 	void				set(gender_s value) { gender = value; }
 	void				set(monster_s type);
 	void				set(race_s value) { race = value; }
+	void				set(reaction_s v) { reaction = v; }
 	bool				set(skill_s skill, short unsigned index);
 	void				set(spell_s spell, char v) { spells[spell] = v; }
 	bool				set(state_s id, unsigned rounds);
@@ -773,6 +778,7 @@ struct dungeon {
 	void				dropitem(item* pi, int side = -1);
 	void				fill(short unsigned index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
+	void				formation(short unsigned index, direction_s dr);
 	cell_s				get(short unsigned index) const;
 	cell_s				get(int x, int y) const;
 	short unsigned		gettarget(short unsigned start, direction_s dir);
@@ -818,6 +824,7 @@ struct dungeon {
 	void				set(short unsigned index, cell_s value);
 	void				set(short unsigned index, cell_flag_s value);
 	void				set(short unsigned index, direction_s dir, cell_s type);
+	void				set(short unsigned index, reaction_s v);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(short unsigned index, bool value);
 	void				setactive(short unsigned index, bool value, int radius);

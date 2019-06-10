@@ -159,6 +159,7 @@ void game::action::attack(short unsigned index_of_monsters, bool ranged) {
 	creature* parcipants[13];
 	auto dr = getdirection();
 	location.turnto(index_of_monsters, vectorized(dr, Down));
+	location.formation(index_of_monsters, vectorized(dr, Down));
 	draw::animation::update();
 	select_parcipants(parcipants, index_of_monsters);
 	roll_inititative(parcipants);
@@ -294,10 +295,6 @@ wear_s game::getitempart(item* itm) {
 	return Head;
 }
 
-static void combat_formation(short unsigned index, direction_s dr) {
-	int sides[][3] = {{2, 0, 1}, {3, 1, 0}};
-}
-
 void game::passround() {
 	// Походим за монстров
 	for(auto& e : location.monsters) {
@@ -316,12 +313,9 @@ void game::passround() {
 				location.turnto(monster_index, free_direct);
 			if(free_direct)
 				location.move(monster_index, free_direct);
-		} else if(to(monster_index, monster_direct) == party_index) {
-			mslog("You are under attack!");
-			location.turnto(party_index, vectorized(monster_direct, Down));
-			combat_formation(monster_index, monster_direct);
-			game::action::attack(monster_index, false);
-		} else if(d100() < 45) {
+		} else if(to(monster_index, monster_direct) == party_index)
+			e.interract();
+		else if(d100() < 45) {
 			auto next_index = to(monster_index, monster_direct);
 			if(location.isblocked(next_index) || d100() < 30) {
 				short unsigned indicies[5];
