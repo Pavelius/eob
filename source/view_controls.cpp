@@ -634,7 +634,7 @@ void draw::adventure() {
 			game::action::thrown(current_item);
 			break;
 		case Alpha + 'M':
-			if(game::action::manipulate(current_item, vectorized(game::getdirection(), Up)))
+			if(game::action::manipulate(current_item, to(game::getdirection(), Up)))
 				game::endround();
 			break;
 		case Alpha + 'V':

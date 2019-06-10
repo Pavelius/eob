@@ -1216,7 +1216,7 @@ int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s ity
 	if(i == -1)
 		return index;
 	auto p = get_last_disp();
-	dr = devectorized(dr, game::getdirection());
+	dr = to(dr, Down);
 	int inc, side;
 	switch(dr) {
 	case Up:

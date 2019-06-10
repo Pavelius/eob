@@ -938,7 +938,6 @@ bool					settiles(resource_s id);
 }
 extern dungeon			location_above;
 extern dungeon			location;
-direction_s				devectorized(direction_s dr, direction_s d);
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
 short unsigned			to(short unsigned index, direction_s d);
@@ -947,4 +946,3 @@ void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
 int						rangeto(short unsigned i1, short unsigned i2);
 direction_s				to(direction_s d, direction_s d1);
-direction_s				vectorized(direction_s d, direction_s d1);

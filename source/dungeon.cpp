@@ -763,7 +763,7 @@ void dungeon::rotate(direction_s direction) {
 
 void dungeon::move(direction_s direction) {
 	int i = game::getcamera();
-	int i1 = to(i, vectorized(game::getdirection(), direction));
+	int i1 = to(i, to(game::getdirection(), direction));
 	auto t = get(i1);
 	if(isblocked(i1) || ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {

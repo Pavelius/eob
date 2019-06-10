@@ -36,72 +36,12 @@ short unsigned to(short unsigned index, direction_s d) {
 }
 
 direction_s pointto(short unsigned from, short unsigned dest) {
-	static direction_s dirs[] = {Left, Right, Up, Down};
+	static direction_s dirs[] = {left, right, up, down};
 	for(auto e : dirs) {
 		if(to(from, e) == dest)
 			return e;
 	}
-	return Center;
-}
-
-direction_s devectorized(direction_s dr, direction_s d) {
-	switch(dr) {
-	case Right:
-		switch(d) {
-		case Right: return Up;
-		case Left: return Down;
-		case Up: return Left;
-		default: return Right;
-		}
-	case Left:
-		switch(d) {
-		case Left: return Up;
-		case Right: return Down;
-		case Up: return Right;
-		default: return Left;
-		}
-	case Down:
-		switch(d) {
-		case Up: return Down;
-		case Down: return Up;
-		case Left: return Right;
-		default: return Left;
-		}
-	default:
-		return d;
-	}
-}
-
-direction_s vectorized(direction_s d, direction_s d1) {
-	switch(d) {
-	case Up:
-		return d1;
-	case Left:
-		switch(d1) {
-		case Left: return Down;
-		case Up: return Left;
-		case Right: return Up;
-		case Down: return Right;
-		}
-		break;
-	case Right:
-		switch(d1) {
-		case Left: return Up;
-		case Up: return Right;
-		case Right: return Down;
-		case Down: return Left;
-		}
-		break;
-	case Down:
-		switch(d1) {
-		case Left: return Right;
-		case Up: return Down;
-		case Right: return Left;
-		case Down: return Up;
-		}
-		break;
-	}
-	return Center;
+	return center;
 }
 
 int rangeto(short unsigned i1, short unsigned i2) {
