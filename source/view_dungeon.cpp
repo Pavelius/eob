@@ -297,8 +297,8 @@ void creature::view_portrait(int x, int y) const {
 	{Paralized, colors::red},
 	{Sleeped, colors::blue}
 	};
-	if(isinvisible())
-		image(x, y, gres(PORTM), getavatar(), 0, 64);
+	if(isinvisible() || is(Blured))
+		image(x, y, gres(PORTM), getavatar(), 0, 128);
 	else
 		image(x, y, gres(PORTM), getavatar(), 0);
 	adat<elementi*, sizeof(variants) / sizeof(variants[0])> source;

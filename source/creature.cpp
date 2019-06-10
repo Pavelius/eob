@@ -424,8 +424,6 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
 	// RULE: invisible characters hard to hit and more likely to hit
-	if(!is(Blinded) && defender->isinvisible())
-		ac += 4;
 	if(isinvisible())
 		wi.bonus += 4;
 	// RULE: Dwarf can hit goblinoid by 5% better that others
@@ -829,6 +827,12 @@ int creature::getac() const {
 		r += 7;
 	if(is(Blinded))
 		r -= 4;
+	auto m = 0;
+	if(isinvisible() && m < 4)
+		m = 4;
+	if(is(Blured) && m < 3)
+		m = 3;
+	r += m;
 	return r;
 }
 
