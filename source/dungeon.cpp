@@ -896,24 +896,17 @@ void dungeon::set(short unsigned index, reaction_s v) {
 
 void dungeon::formation(short unsigned index, direction_s dr) {
 	creature* creatures[4]; getmonsters(creatures, index, dr);
-	int r, n;
-	int sides[][3] = {{0, 2, 3}, {1, 3, 2}};
+	int sides[][2] = {{0, 2}, {1, 3}, {1, 2}, {0, 3}};
 	for(auto& m : sides) {
-		auto b = game::getside(m[0], dr);
-		if(!creatures[b])
+		auto s1 = m[0];
+		if(creatures[s1])
 			continue;
-		r = -1;
-		n = game::getside(m[1], dr);
-		if(r == -1 && !creatures[n])
-			r = n;
-		n = game::getside(m[2], dr);
-		if(r == -1 && !creatures[n])
-			r = n;
-		if(r == -1)
+		auto s2 = m[1];
+		if(!creatures[s2])
 			continue;
-		creatures[b]->setside(r);
-		auto pc = creatures[b];
-		creatures[b] = creatures[r];
-		creatures[r] = pc;
+		auto pc = creatures[s2];
+		creatures[s2] = creatures[s1];
+		creatures[s1] = pc;
+		pc->setside(game::getsideb(s1, dr));
 	}
 }

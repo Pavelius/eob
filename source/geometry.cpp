@@ -36,12 +36,12 @@ short unsigned to(short unsigned index, direction_s d) {
 }
 
 direction_s pointto(short unsigned from, short unsigned dest) {
-	static direction_s dirs[] = {left, right, up, down};
+	static direction_s dirs[] = {Left, Right, Up, Down};
 	for(auto e : dirs) {
 		if(to(from, e) == dest)
 			return e;
 	}
-	return center;
+	return Center;
 }
 
 int rangeto(short unsigned i1, short unsigned i2) {

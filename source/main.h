@@ -904,6 +904,7 @@ void					getheroes(creature** result, direction_s dir);
 int						getrandom(int type, race_s race, gender_s gender, int prev_name);
 int						getpartyskill(int rec, skill_s id);
 int						getside(int side, direction_s dr);
+int						getsideb(int side, direction_s dr);
 extern creature*		party[7];
 void					passround();
 void					passtime(int minutes);

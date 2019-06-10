@@ -71,15 +71,25 @@ bool game::action::question(item* current_item) {
 	return true;
 }
 
+static const char place_sides[4][4] = {{1, 3, 0, 2},
+{0, 1, 2, 3},
+{2, 0, 3, 1},
+{3, 2, 1, 0},
+};
 int game::getside(int side, direction_s dr) {
-	static const char place_sides[4][4] = {{1, 3, 0, 2},
-	{0, 1, 2, 3},
-	{2, 0, 3, 1},
-	{3, 2, 1, 0},
-	};
 	if(dr == Center)
 		return side;
 	return place_sides[dr - Left][side];
+}
+
+int game::getsideb(int side, direction_s dr) {
+	if(dr == Center)
+		return side;
+	for(int i = 0; i < 4; i++) {
+		if(place_sides[dr - Left][i] == side)
+			return i;
+	}
+	return -1;
 }
 
 static void select_parcipants(creature** result, short unsigned index) {
