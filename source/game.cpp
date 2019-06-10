@@ -14,11 +14,6 @@ dungeon					location_above;
 dungeon					location;
 static creature			hero_data[32];
 
-static const char place_sides[4][4] = {{1, 3, 0, 2},
-{0, 1, 2, 3},
-{2, 0, 3, 1},
-{3, 2, 1, 0},
-};
 static const char* name_direction[] = {"floor",
 "left", "forward", "right", "rear"};
 
@@ -77,6 +72,11 @@ bool game::action::question(item* current_item) {
 }
 
 int game::getside(int side, direction_s dr) {
+	static const char place_sides[4][4] = {{1, 3, 0, 2},
+	{0, 1, 2, 3},
+	{2, 0, 3, 1},
+	{3, 2, 1, 0},
+	};
 	if(dr == Center)
 		return side;
 	return place_sides[dr - Left][side];
@@ -158,8 +158,8 @@ creature* game::getdefender(short unsigned index, direction_s dr, creature* atta
 void game::action::attack(short unsigned index_of_monsters, bool ranged) {
 	creature* parcipants[13];
 	auto dr = getdirection();
-	location.turnto(index_of_monsters, vectorized(dr, Down));
-	location.formation(index_of_monsters, vectorized(dr, Down));
+	location.turnto(index_of_monsters, to(dr, Down));
+	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
 	select_parcipants(parcipants, index_of_monsters);
 	roll_inititative(parcipants);
