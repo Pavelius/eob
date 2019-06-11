@@ -347,6 +347,9 @@ void item::damage(const char* text_damage, const char* text_broke) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || magic == 3)
 			return;
+		// Magical items more durable (cursed break every time)
+		if(getmagic() > 0 && (d100() < (getmagic() * 15)))
+			return;
 		if(text_broke)
 			mslog(text_broke, getname(name, zendof(name)));
 		clear();

@@ -1684,7 +1684,7 @@ bool creature::use(item* pi) {
 			mslog("Lockpicks bite your finger and turn to dust");
 			pc->damage(Pierce, dice::roll(1, 3));
 			consume = true;
-		} else if(d100() < (15 - magic * 2))
+		} else if(d100() < 15)
 			pi->damage("Your %1 is damaged", "You broke %1");
 		break;
 	case MagicWand:
