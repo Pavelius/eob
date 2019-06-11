@@ -1866,32 +1866,23 @@ int	creature::getparty(ability_s v) {
 }
 
 void creature::interract() {
-	static dialogi low_intellegence[] = {{{}, "main", "\"Oh! Who is you?? How you dig so deep? Are you from a master? Master send you?\"", {{"\"Die scums!\""}, {"\"Master? Yes we are from Master! Hi send us to say you something.\""}}},
+	static dialogi low_intellegence[] = {{{}, "main", "\"Oh! Who is you?? How you dig so deep? Are you from a master? Master send you?\"", {{"Attack"}, {"Lie"}}},
 	{}};
 	auto old_reaction = reaction;
 	auto new_reaction = reaction;
 	if(reaction == Indifferent)
 		new_reaction = rollreaction(0);
-	if(old_reaction != new_reaction) {
+	if(old_reaction != new_reaction)
 		location.set(index, new_reaction);
-		switch(new_reaction) {
-		case Cautious:
-			low_intellegence->choose();
-			if(!*this)
-				return;
-			break;
-		}
-	}
 	auto ins = get(Intellegence);
 	auto party_index = game::getcamera();
 	auto party_direction = game::getdirection();
 	switch(reaction) {
 	case Hostile:
+	case Cautious:
 		mslog("You are under attack!");
 		location.turnto(party_index, to(direction, Down));
 		game::action::attack(index, false);
-		break;
-	case Cautious:
 		break;
 	case Flight:
 		// Just run away
