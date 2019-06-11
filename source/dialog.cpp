@@ -63,6 +63,49 @@ bool dialogi::actioni::isallow() const {
 	return true;
 }
 
+void dialogi::actioni::apply() {
+	auto party_index = game::getcamera();
+	auto party_direction = game::getdirection();
+	auto monster_index = to(party_index, party_direction);
+	creature* creatures[4]; location.getmonsters(creatures, monster_index, party_direction);
+	switch(action) {
+	case WinCombat:
+		for(auto p : creatures) {
+			if(p && p->gethits() > 0)
+				p->damage(Magic, p->gethits(), 5);
+		}
+		break;
+	case StartCombat:
+		location.set(monster_index, Hostile);
+		break;
+	case GainExperience:
+		creature::addexp(variant.value, 0);
+		break;
+	case HealParty:
+		creature::apply(&creature::heal);
+		break;
+	case AddVariant:
+		switch(variant.type) {
+		case Item:
+			creature::addparty(variant.item);
+			break;
+		case State:
+			for(auto p : game::party) {
+				if(p)
+					p->add(variant.state, xrand(3, 10) * 5);
+			}
+			break;
+		case Condition:
+			for(auto p : game::party) {
+				if(p)
+					p->add(variant.condition);
+			}
+			break;
+		}
+		break;
+	}
+}
+
 bool dialogi::elementi::isallow() const {
 	if(!text)
 		return false;
@@ -73,6 +116,14 @@ bool dialogi::elementi::isallow() const {
 			return false;
 	}
 	return true;
+}
+
+void dialogi::elementi::apply() {
+	for(auto& e : actions) {
+		if(!e)
+			break;
+		e.apply();
+	}
 }
 
 void dialogi::choose(bool border) const {
@@ -93,6 +144,7 @@ void dialogi::choose(bool border) const {
 		auto pe = (elementi*)aw.choosebg(p->text, border, p->overlay, horizontal);
 		if(!pe || !pe->next[0])
 			break;
+		pe->apply();
 		p = find(pe->next[0]);
 	}
 }

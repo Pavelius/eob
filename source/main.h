@@ -231,7 +231,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Condition, Item, Race, Spell, State,
+	Alignment, Class, Condition, Item, Number, Race, Spell, State,
 };
 enum prop_s : unsigned char {
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
@@ -264,6 +264,7 @@ struct varianti {
 	constexpr varianti(const race_s v) : type(Race), race(v) {}
 	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
 	constexpr varianti(const state_s v) : type(State), state(v) {}
+	constexpr varianti(const unsigned char v) : type(Number), value(v) {}
 };
 struct spellprogi {
 	char				elements[21][10];
@@ -565,6 +566,7 @@ class creature {
 	void				update_levelup(bool interactive);
 	void				update_poison(bool interactive);
 public:
+	typedef void		(creature::*apply_proc)(bool);
 	explicit operator bool() const { return states[0] != 0; }
 	void				add(item i);
 	bool				add(condition_s type, save_s save = NoSave, char save_bonus = 0);
@@ -572,6 +574,8 @@ public:
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
+	static void			addparty(item i);
+	static void			apply(apply_proc proc, bool interactive = true);
 	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	static void			camp(item& it);
@@ -637,6 +641,7 @@ public:
 	int					getthac0(class_s cls, int level) const;
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
+	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				identify(bool interactive);
 	void				interract();
 	bool				is(condition_s v) const { return condition.is(v); }
@@ -839,6 +844,7 @@ struct dialogi {
 	struct actioni {
 		action_s		action;
 		varianti		variant;
+		void			apply();
 		bool			isallow() const;
 		constexpr explicit operator bool() const { return action != NoAction; }
 	};
@@ -854,6 +860,7 @@ struct dialogi {
 		actioni			actions[4];
 		constexpr explicit operator bool() const { return text != 0; }
 		bool			isallow() const;
+		void			apply();
 	};
 	constexpr explicit operator bool() const { return id != 0; }
 	imagei				overlay[4];

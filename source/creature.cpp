@@ -1902,3 +1902,24 @@ void creature::interract() {
 		break;
 	}
 }
+
+void creature::apply(apply_proc proc, bool interactive) {
+	for(auto p : game::party) {
+		if(p)
+			(p->*proc)(interactive);
+	}
+}
+
+void creature::addparty(item i) {
+	for(auto p : game::party) {
+		if(!p)
+			continue;
+		for(auto& e : p->wears) {
+			if(e)
+				continue;
+			e = i;
+			return;
+		}
+	}
+	location.dropitem(game::getcamera(), i, game::getside(0, game::getdirection()));
+}
