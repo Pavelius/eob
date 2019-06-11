@@ -101,6 +101,9 @@ void dialogi::actioni::apply() {
 					p->add(variant.condition);
 			}
 			break;
+		case Reaction:
+			location.set(monster_index, variant.reaction);
+			break;
 		}
 		break;
 	}

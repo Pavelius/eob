@@ -231,7 +231,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Condition, Item, Number, Race, Spell, State,
+	Alignment, Class, Condition, Item, Number, Race, Reaction, Spell, State,
 };
 enum prop_s : unsigned char {
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
@@ -240,10 +240,6 @@ enum prop_s : unsigned char {
 };
 class creature;
 class item;
-template<typename T> struct bsmeta {
-	typedef T			data_type;
-	static T			elements[];
-};
 struct varianti {
 	variant_s			type;
 	union {
@@ -252,6 +248,7 @@ struct varianti {
 		condition_s		condition;
 		item_s			item;
 		race_s			race;
+		reaction_s		reaction;
 		spell_s			spell;
 		state_s			state;
 		unsigned char	value;
@@ -262,9 +259,14 @@ struct varianti {
 	constexpr varianti(const condition_s v) : type(Condition), condition(v) {}
 	constexpr varianti(const item_s v) : type(Item), item(v) {}
 	constexpr varianti(const race_s v) : type(Race), race(v) {}
+	constexpr varianti(const reaction_s v) : type(Reaction), reaction(v) {}
 	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
 	constexpr varianti(const state_s v) : type(State), state(v) {}
 	constexpr varianti(const unsigned char v) : type(Number), value(v) {}
+};
+template<typename T> struct bsmeta {
+	typedef T			data_type;
+	static T			elements[];
 };
 struct spellprogi {
 	char				elements[21][10];
