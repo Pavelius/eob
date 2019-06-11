@@ -1,7 +1,6 @@
 #include "archive.h"
 #include "main.h"
 
-const int				chance_broke_instrument = 15;
 static unsigned short	camera_index = Blocked;
 static direction_s		camera_direction;
 static unsigned			overland_index = 1;
@@ -76,6 +75,7 @@ static const char place_sides[4][4] = {{1, 3, 0, 2},
 {2, 0, 3, 1},
 {3, 2, 1, 0},
 };
+
 int game::getside(int side, direction_s dr) {
 	if(dr == Center)
 		return side;
@@ -270,20 +270,6 @@ void game::action::thrown(item* itm) {
 		itm->gettype(), side ? Right : Left);
 	location.dropitem(index, *itm, place_sides[getdirection() - Left][side]);
 	itm->clear();
-}
-
-int game::getpartyskill(int rec, skill_s id) {
-	int count = 0;
-	int total = 0;
-	for(auto pc : party) {
-		if(!pc)
-			continue;
-		total += pc->get(id);
-		count++;
-	}
-	if(!count)
-		return 0;
-	return total / count;
 }
 
 creature* game::gethero(item* itm) {

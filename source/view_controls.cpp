@@ -1052,7 +1052,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi) const {
+int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi, bool horizontal_buttons) const {
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
@@ -1072,9 +1072,17 @@ int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi)
 		form(rc);
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
-		auto x = rc.x1, y = rc.y1;
-		for(unsigned i = 0; i < elements.count; i++)
-			x += buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
+		auto x = rc.x1 - 2, y = rc.y1;
+		if(horizontal_buttons)
+			y = getheight() - texth() - 6;
+		for(unsigned i = 0; i < elements.count; i++) {
+			if(horizontal_buttons)
+				x += buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
+			else {
+				buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
+				y += texth() + 5;
+			}
+		}
 		domodal();
 		navigate();
 	}

@@ -1865,6 +1865,20 @@ int	creature::getparty(ability_s v) {
 	return total / count;
 }
 
+int	creature::getparty(skill_s v) {
+	auto total = 0;
+	auto count = 0;
+	for(auto p : game::party) {
+		if(!p || !(*p) || !p->isready())
+			continue;
+		total += p->get(v);
+		count++;
+	}
+	if(!count)
+		return 0;
+	return total / count;
+}
+
 void creature::interract() {
 	static dialogi low_intellegence[] = {{{}, "main", "\"Oh! Who is you?? How you dig so deep? Are you from a master? Master send you?\"", {{"Attack"}, {"Lie"}}},
 	{}};
@@ -1872,21 +1886,25 @@ void creature::interract() {
 	auto new_reaction = reaction;
 	if(reaction == Indifferent)
 		new_reaction = rollreaction(0);
-	if(old_reaction != new_reaction)
+	if(old_reaction != new_reaction) {
+		encounter(new_reaction);
 		location.set(index, new_reaction);
-	auto ins = get(Intellegence);
+	}
 	auto party_index = game::getcamera();
 	auto party_direction = game::getdirection();
 	switch(reaction) {
-	case Hostile:
-	case Cautious:
-		mslog("You are under attack!");
-		location.turnto(party_index, to(direction, Down));
-		game::action::attack(index, false);
-		break;
 	case Flight:
 		// Just run away
 		location.move(index, party_direction);
 		break;
+	default:
+		mslog("You are under attack!");
+		location.turnto(party_index, to(direction, Down));
+		game::action::attack(index, false);
+		break;
 	}
+}
+
+void creature::encounter(reaction_s id) {
+	auto ins = get(Intellegence);
 }

@@ -85,7 +85,12 @@ void dialogi::choose(bool border) const {
 				continue;
 			aw.add((int)&e, e.text);
 		}
-		auto pe = (elementi*)aw.choosebg(p->text, border, p->overlay);
+		auto horizontal = true;
+		if(!aw.elements) {
+			horizontal = true;
+			aw.add(0, "Next");
+		}
+		auto pe = (elementi*)aw.choosebg(p->text, border, p->overlay, horizontal);
 		if(!pe || !pe->next[0])
 			break;
 		p = find(pe->next[0]);

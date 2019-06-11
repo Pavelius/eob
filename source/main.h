@@ -583,6 +583,7 @@ public:
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	int					damaged(const creature* defender, wear_s slot) const;
+	void				encounter(reaction_s id);
 	void				equip(item it);
 	item*				find(item_s v) const;
 	void				finish();
@@ -625,6 +626,7 @@ public:
 	race_s				getrace() const { return race; }
 	reaction_s			getreaction() const { return reaction; }
 	static int			getparty(ability_s v);
+	static int			getparty(skill_s id);
 	resource_s			getres() const;
 	int					getside() const;
 	size_s				getsize() const;
@@ -871,7 +873,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, bool border = false, const dialogi::imagei* pi = 0) const;
+	int					choosebg(const char* title, bool border = false, const dialogi::imagei* pi = 0, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
@@ -902,7 +904,6 @@ wear_s					getitempart(item* itm);
 creature*				gethero(item* itm);
 void					getheroes(creature** result, direction_s dir);
 int						getrandom(int type, race_s race, gender_s gender, int prev_name);
-int						getpartyskill(int rec, skill_s id);
 int						getside(int side, direction_s dr);
 int						getsideb(int side, direction_s dr);
 extern creature*		party[7];
