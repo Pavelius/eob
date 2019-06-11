@@ -1880,8 +1880,6 @@ int	creature::getparty(skill_s v) {
 }
 
 void creature::interract() {
-	static dialogi low_intellegence[] = {{{}, "main", "\"Oh! Who is you?? How you dig so deep? Are you from a master? Master send you?\"", {{"Attack"}, {"Lie"}}},
-	{}};
 	auto old_reaction = reaction;
 	auto new_reaction = reaction;
 	if(reaction == Indifferent)
@@ -1903,8 +1901,4 @@ void creature::interract() {
 		game::action::attack(index, false);
 		break;
 	}
-}
-
-void creature::encounter(reaction_s id) {
-	auto ins = get(Intellegence);
 }
