@@ -1885,8 +1885,8 @@ void creature::interract() {
 	if(reaction == Indifferent)
 		new_reaction = rollreaction(0);
 	if(old_reaction != new_reaction) {
-		encounter(new_reaction);
 		location.set(index, new_reaction);
+		encounter(new_reaction);
 	}
 	auto party_index = game::getcamera();
 	auto party_direction = game::getdirection();

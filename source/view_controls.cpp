@@ -1053,6 +1053,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 }
 
 int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi, bool horizontal_buttons) const {
+	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();

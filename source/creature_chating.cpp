@@ -9,9 +9,11 @@ void creature::encounter(reaction_s id) {
 	auto ins = get(Intellegence);
 	switch(id) {
 	case Cautious:
+		location.turnto(game::getcamera(), to(direction, Down));
 		cautions_dialog->choose(false);
 		break;
 	case Friendly:
+		location.turnto(game::getcamera(), to(direction, Down));
 		friendly_dialog->choose(false);
 		break;
 	}
