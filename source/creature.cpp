@@ -1092,6 +1092,8 @@ bool creature::isallow(const item it, wear_s slot) const {
 		return true;
 	if(slot >= Backpack && slot <= LastBackpack)
 		return true;
+	if(slot >= FirstBelt && slot <= LastBelt)
+		return true;
 	if(slot == LeftHand) {
 		// RULE: two-handed items cannot be equiped in left hand
 		if(it.istwohanded())

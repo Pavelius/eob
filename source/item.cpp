@@ -11,6 +11,7 @@ static enchant_s potion_green[] = {OfNeutralizePoison, OfClimbing, OfStrenght};
 static enchant_s potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfRegeneration, OfAdvise};
 static enchant_s magic_boots[] = {OfSpeed, OfClimbing};
 static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
+static enchant_s magic_amulets[] = {OfSpeed, OfProtection};
 static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
 static enchant_s magic_helm[] = {OfIntellegence, OfCharisma};
 static enchant_s magic_armor[] = {OfFireResistance, OfPoisonResistance, OfMagicResistance, OfClimbing};
@@ -55,7 +56,10 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Shield", {23, 7, 1}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
 {"Boots", {21, 9}, Legs, {}, {Wonderful}, {}, {0, 1}, magic_boots},
 //
-{"Bracers", {25, 16}, Elbow, {}, {Wonderful}, {}, {0, 2}, magic_bracers},
+{"Bracers", {25, 16}, Elbow, {}, {Wonderful}, {}, {}, magic_bracers},
+{"Necklage", {33, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
+{"Necklage", {34, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
+{"Jewelry", {108, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
 //
 {"Arrow", {16, 5}},
 {"Dart", {14, 0}, RightHand},

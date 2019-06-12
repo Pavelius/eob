@@ -172,6 +172,7 @@ static item_s random_subtype(item_s type) {
 		ArmorChain, ArmorBanded, ArmorPlate,
 	};
 	static item_s rings[] = {RedRing, BlueRing, GreenRing};
+	static item_s necklages[] = {Necklage, Necklage, Necklage, Necklage, NecklageRich, NecklageRich, Jewelry};
 	static item_s scrolls[] = {PriestScroll, MageScroll, MageScroll, MageScroll};
 	static item_s tools[] = {HolySymbol, MagicBook, TheifTools, TheifTools};
 	switch(type) {
@@ -183,6 +184,8 @@ static item_s random_subtype(item_s type) {
 		if(d100() < 40)
 			return maprnd(swords);
 		return maprnd(weapons);
+	case Necklage:
+		return maprnd(necklages);
 	case ArmorLeather:
 		return maprnd(armors);
 	case RedRing:
@@ -204,20 +207,21 @@ static item_s random_type(bool small_size = false) {
 		RedRing,
 		Boots, Boots,
 		Bracers,
+		Necklage,
 		KeyCooper,
 		TheifTools,
 		Bones,
 		DungeonMap,
 		PriestScroll, PriestScroll
 	};
-	static item_s small_item_types[] = {PotionRed,
+	static item_s small_item_types[] = {PotionRed, PotionRed, PotionRed,
 		RedGem,
 		RedRing,
-		KeyCooper,
+		KeyCooper, KeyCooper, KeyCooper,
 		TheifTools,
 		MagicWand,
 		DungeonMap,
-		PriestScroll
+		PriestScroll, PriestScroll, PriestScroll, PriestScroll,
 	};
 	item_s t = NoItem;
 	if(small_size)

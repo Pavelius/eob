@@ -146,6 +146,7 @@ enum item_s : unsigned char {
 	Robe, ArmorLeather, ArmorStuddedLeather, ArmorScale, ArmorChain, ArmorBanded, ArmorPlate,
 	Helm, Shield, Boots,
 	Bracers,
+	Necklage, NecklageRich, Jewelry,
 	Arrow, Dart, Stone,
 	Bones, DungeonMap,
 	HolySymbol, HolyWarriorSymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
