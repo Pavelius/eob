@@ -14,7 +14,7 @@ struct roominfo {
 };
 static roominfo		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
 static unsigned char stack_put; // Вершина стека.
-static unsigned char stack_get; // Низ стека.
+static unsigned char stack_get; // Низ стека
 
 typedef void(*dungeon_proc)(dungeon* pd, short unsigned index, direction_s dir, unsigned flags);
 

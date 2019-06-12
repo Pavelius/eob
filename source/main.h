@@ -354,6 +354,7 @@ struct itemi {
 	weaponi				weapon;
 	armori				armor;
 	aref<enchant_s>		enchantments;
+	aref<spell_s>		spells;
 };
 struct feati {
 	const char*			name;
@@ -679,7 +680,7 @@ public:
 	void				sayv(const char* format, const char* vl);
 	void				scribe(item& it);
 	static void			scriblescrolls();
-	static unsigned		select(spell_s* result, spell_s* result_maximum, class_s type, int level);
+	static unsigned		select(spell_s* result, const spell_s* result_maximum, class_s type, int level);
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }

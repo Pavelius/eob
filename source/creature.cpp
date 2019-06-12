@@ -53,9 +53,6 @@ static char charisma_reaction_bonus[] = {-8,
 0, 0, 1, 2, 3, 5, 6, 7, 8, 9,
 10, 11, 12, 13, 14
 };
-//static char racial_move_silently[] = {0, 0, 15, 5, 10, 0};
-//static char racial_open_locks[] = {0, 5, 0, 0, 10, 0};
-//static char racial_remove_traps[] = {0, 10, 0, 0, 5, 0};
 static char thac0_monster[] = {
 	0, 1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17
 };
@@ -1805,7 +1802,7 @@ const spellprogi* creature::getprogress(class_s v) const {
 	return bsmeta<classi>::elements[type].spells[(v == Mage) ? 0 : 1];
 }
 
-unsigned creature::select(spell_s* result, spell_s* result_maximum, class_s type, int level) {
+unsigned creature::select(spell_s* result, const spell_s* result_maximum, class_s type, int level) {
 	auto p = result;
 	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
 		if(getlevel(rec, type) != level)

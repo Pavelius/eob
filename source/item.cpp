@@ -16,6 +16,14 @@ static enchant_s magic_helm[] = {OfIntellegence, OfCharisma};
 static enchant_s magic_armor[] = {OfFireResistance, OfPoisonResistance, OfMagicResistance, OfClimbing};
 static enchant_s magic_robe[] = {OfProtection, OfSpeed, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
 
+static spell_s wand_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
+static spell_s wizard_spells[] = {BurningHands, DetectMagic, FeatherFall, MageArmor, MagicMissile, Mending,
+ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
+Blur, Invisibility, Knock, ProduceFlame};
+static spell_s priest_spells[] = {Bless, CureLightWounds, DetectEvil, ProtectionFromEvil, PurifyFood,
+Aid, FlameBlade, Goodberry, HoldPerson, SlowPoison,
+CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection};
+
 itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Battle axe", {7, 4, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 {"Axe", {7, 4, 1}, RightHand, {UseMartialWeapon}, {Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
@@ -26,7 +34,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Warhammer", {99, 10, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
 {"Mace", {4, 1, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
 {"Spear", {6, 3, 1}, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
-{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, magic_weapon},
+{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, {}, wand_spells},
 {"Bastard sword", {45, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_weapon},
 {"Longsword", {1, 0, 1}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 {"Short sword", {2, 0, 1}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
@@ -61,9 +69,9 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, {}, {UseTheif}},
 //
-{"Wand", {52, 10}, {}, {UseArcane}, {UseInHand}},
-{"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}},
-{"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}},
+{"Wand", {52, 10}, {}, {UseArcane}, {Magical, Wonderful, UseInHand}, {}, {}, {}, wand_spells},
+{"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}, {Magical, Wonderful}, {}, {}, {}, wizard_spells},
+{"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}, {Magical, Wonderful}, {}, {}, {}, priest_spells},
 // Keys
 {"Shelf key", {46, 8}},
 {"Silver key", {47, 8}},
@@ -140,10 +148,6 @@ static char random_mage_spell_level() {
 	return maprnd(levels);
 }
 
-static bool havespell(item_s t) {
-	return t == PriestScroll || t == MageScroll || t == MagicWand;
-}
-
 static item_s getscroll(spell_s id) {
 	if(creature::getlevel(id, Mage))
 		return MageScroll;
@@ -173,39 +177,21 @@ static int standart_magic_bonus() {
 }
 
 item::item(item_s type, int chance_magic, int chance_cursed, int chance_special) : item(type) {
-	adat<spell_s, 32> spells;
-	static spell_s random_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep};
-	switch(type) {
-	case MagicWand:
-		setspell(maprnd(random_spells));
+	if(is(Magical))
+		chance_magic = 100;
+	if(is(Wonderful))
+		chance_special = 100;
+	if(is(Charged))
 		setcharges(dice::roll(3, 6));
-		magic = special_magic_bonus();
-		break;
-	case MageScroll:
-		spells.count = creature::select(spells.data, zendof(spells.data), Mage, 1);
-		if(spells.count)
-			setspell(spells.data[rand() % spells.count]);
-		magic = special_magic_bonus();
-		break;
-	case PriestScroll:
-		spells.count = creature::select(spells.data, zendof(spells.data), Cleric, 1);
-		if(spells.count)
-			setspell(spells.data[rand() % spells.count]);
-		magic = special_magic_bonus();
-		break;
-	default:
-		if(is(Magical))
-			chance_magic = 100;
-		if(is(Wonderful))
-			chance_special = 100;
-		if(d100() < chance_magic) {
-			if(bsmeta<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
-				subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
-				magic = special_magic_bonus();
-			} else
-				magic = standart_magic_bonus();
-		}
-		break;
+	if(d100() < chance_magic) {
+		if(bsmeta<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
+			subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
+			magic = special_magic_bonus();
+		} else if(bsmeta<itemi>::elements[type].spells.count && (d100() < chance_special)) {
+			subtype = (enchant_s)bsmeta<itemi>::elements[type].spells.data[rand() % bsmeta<itemi>::elements[type].spells.count];
+			magic = special_magic_bonus();
+		} else
+			magic = standart_magic_bonus();
 	}
 	if(d100() < chance_cursed)
 		setcursed(1);
@@ -241,19 +227,20 @@ int item::getportrait() const {
 }
 
 spell_s item::getspell() const {
-	if(!havespell(type))
+	if(bsmeta<itemi>::elements[type].spells.count == 0)
 		return NoSpell;
 	return (spell_s)subtype;
 }
 
 enchant_s item::getenchant() const {
-	if(havespell(type))
+	if(bsmeta<itemi>::elements[type].enchantments.count == 0)
 		return NoEnchant;
 	return subtype;
 }
 
 int	item::get(enchant_s value) const {
-	if(!havespell(type) && subtype == value)
+	if(bsmeta<itemi>::elements[type].enchantments.count != 0
+		&& subtype == value)
 		return getmagic();
 	return 0;
 }
@@ -316,7 +303,7 @@ char* item::getname(char* result, const char* result_maximum) const {
 }
 
 void item::setspell(spell_s spell) {
-	if(havespell(type))
+	if(bsmeta<itemi>::elements[type].spells.count != 0)
 		subtype = (enchant_s)spell;
 }
 
@@ -327,9 +314,9 @@ bool item::ismelee() const {
 
 int	item::getmagic() const {
 	auto r = magic;
-	if(subtype && !havespell(type))
+	if(subtype)
 		r++;
-	if(iscursed())
+	if(cursed != 0)
 		return -r - 1;
 	return r;
 }
