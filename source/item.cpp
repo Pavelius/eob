@@ -18,6 +18,7 @@ static enchant_s magic_armor[] = {OfFireResistance, OfPoisonResistance, OfMagicR
 static enchant_s magic_robe[] = {OfProtection, OfSpeed, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
 
 static spell_s wand_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
+static spell_s staff_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
 static spell_s wizard_spells[] = {BurningHands, DetectMagic, FeatherFall, MageArmor, MagicMissile, Mending,
 ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 Blur, Invisibility, Knock, ProduceFlame};
@@ -35,7 +36,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Warhammer", {99, 10, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
 {"Mace", {4, 1, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
 {"Spear", {6, 3, 1}, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
-{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, {}, wand_spells},
+{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, {}, staff_spells},
 {"Bastard sword", {45, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_weapon},
 {"Longsword", {1, 0, 1}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 {"Short sword", {2, 0, 1}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
@@ -105,7 +106,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Dust of Ages", {97, 25}, {}, {UseArcane}, {Unique}},
 {"Horn", {59, 23}, {}, {}, {Unique}},
 {"Mantist Head", {51, 18}, {}, {}, {Unique}},
-{"Scepeter", {66, 17}, RightHand, {}, {Unique}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
+{"Scepeter", {66, 17}, RightHand, {}, {Unique, Wonderful}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
 {"Silver sword", {65, 0}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 {"Stone amulet", {64, 13}, Neck, {}, {Unique}},
 {"Stone dagger", {60, 3}, {}, {}, {Unique}},

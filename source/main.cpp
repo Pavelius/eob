@@ -117,7 +117,6 @@ static void random_heroes() {
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
 	game::party[1]->set(item(AxeBattle, OfDamage, 3), RightHand);
 	game::party[1]->equip(item(BlueRing, OfInvisibility));
-	//game::party[1]->add(item(Bow, 20, 0, 0));
 	game::party[2]->add(item(MagicWand, 20, 0, 0));
 	game::party[2]->add(Identify);
 	game::party[2]->equip(item(BlueRing, OfWizardy));
@@ -131,6 +130,8 @@ static void random_heroes() {
 	item artifact(SwordLong, 100, 0, 100);
 	artifact.setidentified(1);
 	game::party[0]->set(artifact, RightHand);
+	item super_staff(Staff, BurningHands, 3);
+	game::party[2]->set(super_staff, RightHand);
 }
 
 void util_main();

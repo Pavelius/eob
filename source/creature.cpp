@@ -457,6 +457,16 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 					damage.c += wi.critical_multiplier;
 					hits += damage.roll();
 				}
+				if(wi.weapon) {
+					// RULE: Staff and rods magic use this
+					auto spell = wi.weapon->getspell();
+					if(spell) {
+						if(bsmeta<spelli>::elements[spell].effect.proc == effecti::apply_damage)
+							cast(spell, Mage, wi.weapon->getmagic(), defender);
+						else
+							cast(spell, Mage, wi.weapon->getmagic(), this);
+					}
+				}
 			}
 			// RULE: vampiric ability allow user to drain blood and regain own HP
 			auto vampirism = getbonus(OfVampirism, slot);

@@ -485,6 +485,7 @@ class item {
 public:
 	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(NoEnchant), charges(0) {}
 	constexpr item(item_s type, enchant_s enchant, int magic = 0) : type(type), identified(1), cursed(0), broken(0), magic(magic), subtype(enchant), charges(0) {}
+	constexpr item(item_s type, spell_s spell, int magic = 0) : type(type), identified(1), cursed(0), broken(0), magic(magic), subtype((enchant_s)spell), charges(0) {}
 	item(spell_s type);
 	item(item_s type, int chance_magic, int chance_cursed, int chance_special);
 	constexpr explicit operator bool() const { return type != NoItem; }
