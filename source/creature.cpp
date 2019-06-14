@@ -510,7 +510,8 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		draw::animation::clear();
 		// Weapon can be broken
 		if(rolls == 1 && wi.weapon) {
-			wi.weapon->damage(0, 0);
+			if(wi.weapon->damage(0, 0))
+				usequick();
 			return;
 		}
 	}
@@ -1102,8 +1103,12 @@ bool creature::isallow(const item it, wear_s slot) const {
 		return true;
 	if(slot >= Backpack && slot <= LastBackpack)
 		return true;
-	if(slot >= FirstBelt && slot <= LastBelt)
+	auto w = it.getwear();
+	if(slot >= FirstBelt && slot <= LastBelt) {
+		if(w == Body || w == Head || w == Neck || w == RightRing || w == Elbow)
+			return false;
 		return true;
+	}
 	if(slot == LeftHand) {
 		// RULE: two-handed items cannot be equiped in left hand
 		if(it.istwohanded())
@@ -1931,4 +1936,24 @@ void creature::addparty(item i) {
 		}
 	}
 	location.dropitem(game::getcamera(), i, game::getside(0, game::getdirection()));
+}
+
+bool creature::usequick() {
+	item* pi = 0;
+	if(!wears[RightHand])
+		pi = &wears[RightHand];
+	else if(!wears[LeftHand])
+		pi = &wears[LeftHand];
+	else
+		return false;
+	item* ps = 0;
+	for(auto i = FirstBelt; i <= LastBelt; i = (wear_s)(i+1)) {
+		if(!wears[i])
+			continue;
+		ps = &wears[i];
+		break;
+	}
+	if(!ps)
+		return false;
+	return swap(pi, ps);
 }

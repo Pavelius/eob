@@ -491,7 +491,7 @@ public:
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
-	void				damage(const char* text_damage, const char* text_brokes);
+	bool				damage(const char* text_damage, const char* text_brokes);
 	int					get(enchant_s value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
@@ -714,6 +714,7 @@ public:
 	void				update_hour(bool interactive);
 	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
+	bool				usequick();
 	void				view_ability();
 	static void			view_party();
 	void				view_portrait(int x, int y) const;

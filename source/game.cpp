@@ -266,10 +266,12 @@ void game::action::thrown(item* itm) {
 		return;
 	auto pc = gethero(itm);
 	auto side = pc->getside() % 2;
-	auto index = draw::animation::thrown(getcamera(), getdirection(),
-		itm->gettype(), side ? Right : Left);
-	location.dropitem(index, *itm, place_sides[getdirection() - Left][side]);
+	auto itmo = *itm;
 	itm->clear();
+	pc->usequick();
+	auto index = draw::animation::thrown(getcamera(), getdirection(),
+		itmo.gettype(), side ? Right : Left);
+	location.dropitem(index, itmo, place_sides[getdirection() - Left][side]);
 }
 
 creature* game::gethero(item* itm) {

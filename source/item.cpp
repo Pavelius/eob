@@ -333,23 +333,25 @@ void item::setcharges(int value) {
 		charges = value;
 }
 
-void item::damage(const char* text_damage, const char* text_broke) {
+bool item::damage(const char* text_damage, const char* text_broke) {
 	char name[128];
 	if(broken) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || magic == 3)
-			return;
+			return false;
 		// Magical items more durable (cursed break every time)
 		if(getmagic() > 0 && (d100() < (getmagic() * 15)))
-			return;
+			return false;
 		if(text_broke)
 			mslog(text_broke, getname(name, zendof(name)));
 		clear();
+		return true;
 	} else {
 		if(text_damage)
 			mslog(text_damage, getname(name, zendof(name)));
 		broken = 1;
 	}
+	return false;
 }
 
 int item::getarmorpenalty(skill_s skill) const {
