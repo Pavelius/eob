@@ -77,7 +77,8 @@ enum spell_s : unsigned char {
 	Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection, RemoveCurse,
+	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
+	RemoveCurse, RemoveParalizes,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -671,6 +672,7 @@ public:
 	bool				raise(enchant_s v);
 	void				random_name();
 	void				remove(condition_s v) { condition.remove(v); }
+	void				remove(state_s v) { states[v] = 0; }
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;

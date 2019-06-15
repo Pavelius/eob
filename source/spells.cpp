@@ -116,6 +116,10 @@ static void remove_curse(creature* player, creature* target, const effecti& e, i
 	target->uncurse();
 }
 
+static void remove_parasizes(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	target->remove(Paralized);
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -152,6 +156,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Cure Disease", {0, 3}, TargetAlly, {cure_disease}},
 {"Protected negative", {0, 3}, TargetAlly, {negative_plan_protection}},
 {"Remove curse", {0, 3}, TargetAlly, {remove_curse}},
+{"Remove paralizes", {0, 3}, TargetAllAlly, {remove_parasizes}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, {lay_on_hands}},
 {"Turn Undead", {0, 1}, TargetSpecial, {turn_undead}, MagicThrown},
