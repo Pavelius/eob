@@ -815,6 +815,7 @@ struct dungeon {
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
 	bool				is(short unsigned index, cell_flag_s value) const;
+	bool				is(short unsigned index, int width, int height, cell_s v) const;
 	bool				isactive(const overlayi* po);
 	bool				isblocked(short unsigned index) const;
 	bool				isblocked(short unsigned index, int side) const;

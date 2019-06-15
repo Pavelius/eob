@@ -910,3 +910,17 @@ void dungeon::formation(short unsigned index, direction_s dr) {
 		pc->setside(game::getsideb(s1, dr));
 	}
 }
+
+bool dungeon::is(short unsigned index, int width, int height, cell_s v) const {
+	if(index == Blocked)
+		return false;
+	auto x = gx(index), y = gy(index);
+	for(auto x1 = x; x1 < x + width; x1++) {
+		for(auto y1 = y; y1 < y + height; y1++) {
+			auto t = get(get(x1, y1));
+			if(t != v)
+				return false;
+		}
+	}
+	return true;
+}

@@ -290,8 +290,11 @@ char* item::getname(char* result, const char* result_maximum) const {
 			sc.adds("of %1", getstr(spell));
 		} else {
 			auto enchant = getenchant();
+			auto spell = getspell();
 			if(enchant)
 				sc.adds("of %1", getstr(enchant));
+			else if(spell)
+				sc.adds("of %1", getstr(spell));
 			if(type != PotionBlue && type != PotionGreen && type != PotionRed) {
 				auto magic = getmagic();
 				if(magic) {

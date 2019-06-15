@@ -537,6 +537,39 @@ static void stones(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	items(pd, index, Stone, 0);
 }
 
+static bool test_hall(const dungeon* pd, short unsigned& index, direction_s dir, int w, int h) {
+	if(index == Blocked)
+		return false;
+	auto x = gx(index), y = gy(index);
+	if(x + w > mpx - 2)
+		x = mpx - 2 - w;
+	if(y + h > mpy - 2)
+		y = mpy - 2 - y;
+	if(x < 1)
+		x = 1;
+	if(y < 1)
+		y = 1;
+	auto w2 = w / 2;
+	for(auto x1 = x - w2; x1 < x + w2; x1++) {
+		for(auto y1 = y - h; y1 < y + h; y1++) {
+			auto t = pd->get(pd->get(x1, y1));
+			if(t != CellUnknown)
+				return false;
+		}
+	}
+	return true;
+}
+
+static void set(dungeon* pd, short unsigned index, int w, int h, cell_s v) {
+	if(index == Blocked)
+		return;
+	auto x = gx(index), y = gy(index);
+	auto w2 = w / 2;
+	for(auto x1 = x - w2; x1 < x + w2; x1++)
+		for(auto y1 = y - h; y1 < y + h; y1++)
+			pd->set(pd->get(x1, y1), v);
+}
+
 static void corridor(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	auto chance = 0;
 	if(index == Blocked)
