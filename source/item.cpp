@@ -74,7 +74,7 @@ itemi bsmeta<itemi>::elements[] = {{"No item"},
 {"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, {}, {UseTheif}},
 //
-{"Wand", {52, 10}, {}, {UseArcane}, {Magical, Wonderful, UseInHand}, {}, {}, {}, wand_spells},
+{"Wand", {52, 10}, {}, {UseArcane}, {Magical, Wonderful, UseInHand, Charged}, {}, {}, {}, wand_spells},
 {"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}, {Magical, Wonderful}, {}, {}, {}, wizard_spells},
 {"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}, {Magical, Wonderful}, {}, {}, {}, priest_spells},
 // Keys

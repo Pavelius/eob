@@ -77,7 +77,7 @@ enum spell_s : unsigned char {
 	Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
+	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection, RemoveCurse,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -709,6 +709,7 @@ public:
 	bool				setweapon(item_s v, int charges);
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
+	void				uncurse();
 	void				update(bool interactive);
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);

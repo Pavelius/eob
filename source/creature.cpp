@@ -1957,3 +1957,12 @@ bool creature::usequick() {
 		return false;
 	return swap(pi, ps);
 }
+
+void creature::uncurse() {
+	for(auto i = Head; i <= LastBelt; i = (wear_s)(i + 1)) {
+		if(wears[i].iscursed() && wears[i].isidentified()) {
+			char temp[260]; wears[i].getname(temp, zendof(temp));
+			mslog("%1 is turned to dust", temp);
+		}
+	}
+}
