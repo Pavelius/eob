@@ -1514,6 +1514,7 @@ void creature::camp(item& it) {
 			auto type = pi->gettype();
 			switch(type) {
 			case MagicWand:
+			case Staff:
 				if(pi->iscursed())
 					break;
 				// RULE: Only mages can recharge spells
@@ -1525,7 +1526,7 @@ void creature::camp(item& it) {
 			case MageScroll:
 			case PriestScroll:
 				// Autodetect scrolls by itellegence check
-				if((type == MageScroll && (pc->get(Mage) || pc->get(Ranger)))
+				if((type == MageScroll && pc->get(Mage))
 					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
 					|| pc->get(Theif) >= 3) {
 					if(pi->isidentified())
@@ -1540,6 +1541,8 @@ void creature::camp(item& it) {
 			case PotionRed:
 			case PotionGreen:
 			case PotionBlue:
+				if(!pc->get(Mage))
+					break;
 				if(!pi->isidentified()) {
 					if(pc->roll(Intellegence)) {
 						char temp[128];
