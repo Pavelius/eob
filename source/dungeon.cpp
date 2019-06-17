@@ -911,16 +911,42 @@ void dungeon::formation(short unsigned index, direction_s dr) {
 	}
 }
 
-bool dungeon::is(short unsigned index, int width, int height, cell_s v) const {
+bool dungeon::is(short unsigned index, int width, int height, cell_s t1) const {
 	if(index == Blocked)
 		return false;
 	auto x = gx(index), y = gy(index);
 	for(auto x1 = x; x1 < x + width; x1++) {
 		for(auto y1 = y; y1 < y + height; y1++) {
 			auto t = get(get(x1, y1));
-			if(t != v)
+			if(t != t1)
 				return false;
 		}
+	}
+	return true;
+}
+
+bool dungeon::islinev(short unsigned index, int count, cell_s t1, cell_s t2) const {
+	if(index == Blocked)
+		return false;
+	auto x = gx(index), y = gy(index);
+	auto y2 = y + count;
+	for(auto y1 = y; y1 < y2; y1++) {
+		auto t = get(get(x, y1));
+		if(t != t1 && t != t2)
+			return false;
+	}
+	return true;
+}
+
+bool dungeon::islineh(short unsigned index, int count, cell_s t1, cell_s t2) const {
+	if(index == Blocked)
+		return false;
+	auto x = gx(index), y = gy(index);
+	auto x2 = x + count;
+	for(auto x1 = x; x1 < x2; x1++) {
+		auto t = get(get(x1, y));
+		if(t != t1 && t != t2)
+			return false;
 	}
 	return true;
 }

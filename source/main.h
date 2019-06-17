@@ -822,6 +822,8 @@ struct dungeon {
 	bool				isactive(const overlayi* po);
 	bool				isblocked(short unsigned index) const;
 	bool				isblocked(short unsigned index, int side) const;
+	bool				islinev(short unsigned index, int count, cell_s t1, cell_s t2 = CellUnknown) const;
+	bool				islineh(short unsigned index, int count, cell_s t1, cell_s t2 = CellUnknown) const;
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
 	static bool			isvisible(short unsigned index);
