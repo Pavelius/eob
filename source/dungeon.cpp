@@ -925,28 +925,30 @@ bool dungeon::is(short unsigned index, int width, int height, cell_s t1) const {
 	return true;
 }
 
-bool dungeon::islinev(short unsigned index, int count, cell_s t1, cell_s t2) const {
+bool dungeon::islineh(short unsigned index, direction_s dir, int count, cell_s t1, cell_s t2) const {
 	if(index == Blocked)
 		return false;
-	auto x = gx(index), y = gy(index);
-	auto y2 = y + count;
-	for(auto y1 = y; y1 < y2; y1++) {
-		auto t = get(get(x, y1));
-		if(t != t1 && t != t2)
+	auto i1 = index;
+	auto i2 = index;
+	while(count>0) {
+		i1 = to(i1, to(dir, Left));
+		i2 = to(i2, to(dir, Right));
+		if(i1 == Blocked || i2 == Blocked)
 			return false;
+		if(get(i1) != t1 && get(i1) != t2)
+			return false;
+		if(get(i2) != t1 && get(i2) != t2)
+			return false;
+		count--;
 	}
 	return true;
 }
 
-bool dungeon::islineh(short unsigned index, int count, cell_s t1, cell_s t2) const {
-	if(index == Blocked)
-		return false;
-	auto x = gx(index), y = gy(index);
-	auto x2 = x + count;
-	for(auto x1 = x; x1 < x2; x1++) {
-		auto t = get(get(x1, y));
-		if(t != t1 && t != t2)
+bool dungeon::isroom(short unsigned index, direction_s dir, int side, int height) const {
+	while(height > 0) {
+		if(!islineh(index, dir, side, CellWall, CellUnknown))
 			return false;
+		index = to(index, dir);
 	}
 	return true;
 }

@@ -4,9 +4,6 @@
     <Filter Include="Коллекции">
       <UniqueIdentifier>{b4f58ffa-777d-4d72-ac80-16fcc4ddaf81}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Логика">
-      <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Интерфейс">
       <UniqueIdentifier>{3082bc5c-54fb-4f01-b825-2ff2e7841f2c}</UniqueIdentifier>
     </Filter>
@@ -18,6 +15,9 @@
     </Filter>
     <Filter Include="Утилиты">
       <UniqueIdentifier>{c6aca1e2-a50e-4704-8711-94b9d0ebb23f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Логика">
+      <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

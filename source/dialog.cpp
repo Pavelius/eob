@@ -22,6 +22,10 @@ static bool allow(const creature* p, const varianti v) {
 		if(p->getknown(v.spell)>0)
 			return true;
 		break;
+	case Reaction:
+		if(p->getreaction() == v.reaction)
+			return true;
+		break;
 	default:
 		return true;
 	}
