@@ -384,7 +384,7 @@ static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsig
 }
 
 static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	if(pd->stat.portal.index)
+	if(pd->stat.portal.index!=Blocked)
 		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
@@ -776,6 +776,11 @@ static void add_spawn_points(dungeon& location) {
 	zshuffle(source.data, source.count);
 	for(unsigned i = 0; i < sizeof(location.stat.spawn) / sizeof(location.stat.spawn[0]); i++)
 		location.stat.spawn[i] = source.data[i];
+}
+
+static void den(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(!pd->isroom(index, dir, 2, 6))
+		return;
 }
 
 void dungeon::create(short unsigned overland_index, const sitei* site, bool interactive) {
