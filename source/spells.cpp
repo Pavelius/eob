@@ -120,6 +120,14 @@ static void remove_parasizes(creature* player, creature* target, const effecti& 
 	target->remove(Paralized);
 }
 
+static void acid_arrow(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+	auto th = player->getthac0(Fighter, level);
+	auto rs = d20();
+	if(rs < (th - target->getac()))
+		return;
+	target->set(AcidCorrosion, 1 + level / 3);
+}
+
 spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
@@ -139,6 +147,7 @@ spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Shoking grasp", {1, 0}, TargetSelf, ShokingHand},
 {"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
 // 2 - level
+{"Acid arrow", {2}, TargetThrow, acid_arrow, Arrow},
 {"Aid", {0, 2}, TargetAlly, aid_spell},
 {"Blindness", {2}, TargetClose, {Duration5PerLevel, Blured}},
 {"Blur", {2}, TargetSelf, {Duration5PerLevel, Blured}},

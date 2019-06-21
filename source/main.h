@@ -74,7 +74,7 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
+	AcidArrow, Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
@@ -96,7 +96,7 @@ enum monster_s : unsigned char {
 };
 enum state_s : unsigned char {
 	NoState,
-	Armored, Blessed, Blured, Climbed, DetectedEvil, DetectedMagic,
+	AcidCorrosion, Armored, Blessed, Blured, Climbed, DetectedEvil, DetectedMagic,
 	FireResisted, Invisibled, Hasted,
 	ProtectedFromEvil, Shielded, Sleeped, StateSpeakable, Strenghted,
 	Scared, Paralized,

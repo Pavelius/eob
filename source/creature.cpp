@@ -206,8 +206,13 @@ static int getweapon(wear_s weapon) {
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.attack = OneAttack;
 	auto hd = gethd();
+	auto t = getbestclass();
+	auto k = getstrex();
 	if(kind)
 		result.bonus += maptbl(monsters_thac0, (int)bsmeta<monsteri>::elements[kind].hd[0]);
+	else
+		result.bonus += getthac0(t, get(t));
+	result.bonus += maptbl(hit_probability, k);
 	if(wears[weapon]) {
 		auto& wi = bsmeta<itemi>::elements[wears[weapon].gettype()].weapon;
 		wears[weapon].get(result, enemy);
@@ -225,10 +230,6 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	} else
 		result.damage = {1, 2};
 	auto race = getrace();
-	auto t = getbestclass();
-	auto k = getstrex();
-	result.bonus += getthac0(t, get(t));
-	result.bonus += maptbl(hit_probability, k);
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
@@ -339,6 +340,8 @@ void creature::update_turn(bool interactive) {
 }
 
 void creature::update(bool interactive) {
+	if(is(AcidCorrosion))
+		damage(Magic, dice::roll(2, 4), 5);
 	remove(Moved);
 	if(!kind)
 		update_levelup(interactive);
@@ -1815,7 +1818,7 @@ bool creature::mending(bool interactive) {
 }
 
 int	creature::getfoodmax() const {
-	return get(Constitution) * 15;
+	return get(Constitution) * 10;
 }
 
 const spellprogi* creature::getprogress(class_s v) const {
