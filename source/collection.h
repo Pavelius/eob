@@ -90,8 +90,15 @@ struct arem : aref<T> {
 	~arem() { if(this->data) delete this->data; this->data = 0; this->count = 0; count_maximum = 0; }
 	T*						add() { reserve(this->count + 1); return &aref<T>::data[aref<T>::count++]; }
 	void					add(const T& e) { *(add()) = e; }
-	void					clear() { count = 0; }
-	void					remove(int index, int elements_count = 1) { if(index < 0 || index >= count) return; count -= elements_count; if(index >= count) return; memmove(data + index, data + index + elements_count, sizeof(data[0])*(count - index)); }
+	void					clear() { aref::count = 0; }
+	void					remove(int index, int elements_count = 1) {
+		if(index < 0 || index >= aref::count)
+			return;
+		aref::count -= elements_count;
+		if(index >= aref::count)
+			return;
+		memmove(aref::data + index, aref::data + index + elements_count, sizeof(aref::data[0])*(aref::count - index));
+	}
 	void					reserve(unsigned count) { if(count >= count_maximum) { count_maximum = rmoptimal(count + 1); this->data = (T*)rmreserve(this->data, count_maximum * sizeof(T)); } }
 };
 // Abstract flag data bazed on enumerator
