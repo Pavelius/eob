@@ -20,10 +20,9 @@ extern command* command_##name;\
 static command local_##name(&command_##name, name);\
 static void name()
 
-struct command
-{
+struct command {
 	command*		next;
-	void			(*proc)();
+	void(*proc)();
 	command(command** first, void(*proc)());
 	void			execute();
 };

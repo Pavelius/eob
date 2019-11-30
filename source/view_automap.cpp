@@ -181,6 +181,7 @@ void game::action::pause() {
 		draw::domodal();
 		switch(hot::key) {
 		case KeyEscape:
+		case Alpha + 'V':
 			return;
 		}
 	}
