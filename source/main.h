@@ -599,7 +599,6 @@ public:
 	void				finish();
 	int					get(ability_s id) const;
 	int					get(class_s id) const;
-	static int			get(duration_s duration, int level);
 	int					get(spell_s spell) const { return spells[spell]; }
 	int					get(skill_s id) const;
 	void				get(combati& e, wear_s slot = RightHand, creature* enemy = 0) const;
