@@ -66,7 +66,7 @@ static spellprogi paladin_spells = {{{},
 {9, 3, 3, 3, 2, 0, 0, 0, 0, 0},
 {9, 3, 3, 3, 3, 0, 0, 0, 0, 0}}
 };
-classi bsmeta<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {UseLeatherArmor, UseShield, UseMetalArmor, UseMartialWeapon, UseLargeWeapon}, {Ambidextrity}},
+classi bsdata<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {UseLeatherArmor, UseShield, UseMetalArmor, UseMartialWeapon, UseLargeWeapon}, {Ambidextrity}},
 {"Cleric", 1, 8, Wisdow, {Cleric}, {UseScrolls, UseDivine, UseLeatherArmor, UseShield, UseMetalArmor},
 {NoExeptionalStrenght}, {0, 0, 0, 0, 9, 0}, {Human, Dwarf, Elf, HalfElf, Halfling}, {0, &cleric_spells}},
 {"Fighter", 1, 10, Strenght, {Fighter}, {UseMartialWeapon, UseLeatherArmor, UseShield, UseMetalArmor, UseTheifWeapon},

@@ -209,7 +209,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 		break;
 	case CellCellar:
 		if(*itm) {
-			if(bsmeta<itemi>::elements[itm->gettype()].image.size == 1) {
+			if(bsdata<itemi>::elements[itm->gettype()].image.size == 1) {
 				pc->say("This item does not fit in cellar");
 			} else {
 				location.add(po, *itm);

@@ -5,8 +5,8 @@
 #include "rect.h"
 #include "stringcreator.h"
 
-#define assert_enum(e, last) static_assert(sizeof(bsmeta<e##i>::elements) / sizeof(bsmeta<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");\
-template<> const char* getstr<e##_s>(const e##_s i) { return bsmeta<e##i>::elements[i].name; }
+#define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");\
+template<> const char* getstr<e##_s>(const e##_s i) { return bsdata<e##i>::elements[i].name; }
 
 const unsigned short	Blocked = 0xFFFF;
 const int				walls_frames = 9;
@@ -266,7 +266,7 @@ struct varianti {
 	constexpr varianti(const state_s v) : type(State), state(v) {}
 	constexpr varianti(const unsigned char v) : type(Number), value(v) {}
 };
-template<typename T> struct bsmeta {
+template<typename T> struct bsdata {
 	typedef T			data_type;
 	static T			elements[];
 };
@@ -506,10 +506,10 @@ public:
 	int					getspeed() const;
 	spell_s				getspell() const;
 	item_s				gettype() const { return type; }
-	wear_s				getwear() const { return bsmeta<itemi>::elements[type].equipment; }
-	unsigned			getuse() const { return bsmeta<itemi>::elements[type].usability.data; }
-	bool				is(usability_s v) const { return bsmeta<itemi>::elements[type].usability.is(v); }
-	bool				is(item_feat_s v) const { return bsmeta<itemi>::elements[type].feats.is(v); }
+	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
+	unsigned			getuse() const { return bsdata<itemi>::elements[type].usability.data; }
+	bool				is(usability_s v) const { return bsdata<itemi>::elements[type].usability.is(v); }
+	bool				is(item_feat_s v) const { return bsdata<itemi>::elements[type].feats.is(v); }
 	bool				isartifact() const { return magic == 3; }
 	bool				isbroken() const { return broken != 0; }
 	bool				ischarged() const { return is(Charged); }
@@ -561,6 +561,7 @@ class creature {
 	short				food;
 	reaction_s			reaction;
 	//
+	void				affect(varianti source, prop_s i, unsigned duration);
 	void				attack_drain(creature* defender, char& value, int& hits);
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
@@ -654,6 +655,7 @@ public:
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				is(spell_s v) const { return known[v] != 0; }
+	bool				isaffect(spell_s v) const { return false; }
 	static bool			isallow(class_s id, race_s r);
 	static bool			isallow(alignment_s id, class_s c);
 	bool				isallow(const item it, wear_s slot) const;
@@ -714,7 +716,9 @@ public:
 	void				update(bool interactive);
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);
-	bool				use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
+	bool				use(spell_s id, short unsigned target, bool run);
+	bool				use(spell_s id, creature& target, bool run);
+	bool				use(skill_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	bool				usequick();
 	void				view_ability();

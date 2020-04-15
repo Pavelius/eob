@@ -434,7 +434,7 @@ void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 		auto pind = zfind(game::party, attacker);
 		if(pind != -1) {
 			auto sdr = (pind == 0 || pind == 2) ? Left : Right;
-			auto sht = bsmeta<itemi>::elements[attacker->get(slot).gettype()].image.shoot;
+			auto sht = bsdata<itemi>::elements[attacker->get(slot).gettype()].image.shoot;
 			if(sht)
 				draw::animation::thrown(attacker->getindex(), attacker->getdirection(), sht, sdr, 50, true);
 			disp_hits[pind][((slot == RightHand) ? 0 : 1)] = hits;
@@ -527,11 +527,11 @@ static int get_throw_index(item_s type) {
 }
 
 static void fill_item_sprite(render_disp* p, item_s type, int frame = 0) {
-	if(bsmeta<itemi>::elements[type].image.size == 1)
+	if(bsdata<itemi>::elements[type].image.size == 1)
 		p->rdata = draw::gres(ITEMGL);
 	else
 		p->rdata = draw::gres(ITEMGS);
-	p->frame[frame] = bsmeta<itemi>::elements[type].image.ground;
+	p->frame[frame] = bsdata<itemi>::elements[type].image.ground;
 }
 
 static void fill_sprite(render_disp* p, item_s type, direction_s drs) {

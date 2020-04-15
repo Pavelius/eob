@@ -6,7 +6,7 @@ static const int hd_experience[] = {
 	1400, 2000, 3000
 };
 
-monsteri bsmeta<monsteri>::elements[] = {{"No monster"},
+monsteri bsdata<monsteri>::elements[] = {{"No monster"},
 {"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {OfPoison}},
 {"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}},
 {"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
@@ -72,9 +72,9 @@ int monsteri::getexperience() const {
 dice creature::gethitdice() const {
 	dice hd = {};
 	hd.c = gethd();
-	hd.d = bsmeta<classi>::elements[getclass(type, 0)].hd;
+	hd.d = bsdata<classi>::elements[getclass(type, 0)].hd;
 	if(kind)
-		hd.b = bsmeta<monsteri>::elements[kind].hd[1];
+		hd.b = bsdata<monsteri>::elements[kind].hd[1];
 	if(!hd.c) {
 		hd.c = 1;
 		hd.d = hd.b;
@@ -85,11 +85,11 @@ dice creature::gethitdice() const {
 
 void creature::set(monster_s value) {
 	kind = value;
-	auto& mi = bsmeta<monsteri>::elements[kind];
+	auto& mi = bsdata<monsteri>::elements[kind];
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		ability[i] = 10;
-	if(bsmeta<intellegencei>::elements[mi.ins].v2)
-		ability[Intellegence] = xrand(bsmeta<intellegencei>::elements[mi.ins].v1, bsmeta<intellegencei>::elements[mi.ins].v2);
+	if(bsdata<intellegencei>::elements[mi.ins].v2)
+		ability[Intellegence] = xrand(bsdata<intellegencei>::elements[mi.ins].v1, bsdata<intellegencei>::elements[mi.ins].v2);
 	else
 		ability[Intellegence] = 0;
 	switch(getsize()) {
@@ -130,7 +130,7 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 	pc->setside(side);
 	pc->finish();
 	auto hitd = pc->gethd();
-	auto& mi = bsmeta<monsteri>::elements[type];
+	auto& mi = bsdata<monsteri>::elements[type];
 	for(auto i : mi.attacks) {
 		if(!i)
 			continue;
@@ -145,7 +145,7 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 }
 
 int dungeon::addmonster(monster_s type, short unsigned index, direction_s dir) {
-	const auto& e = bsmeta<monsteri>::elements[type];
+	const auto& e = bsdata<monsteri>::elements[type];
 	int count = 1;
 	if(e.size == Tall)
 		count = xrand(1, 2);

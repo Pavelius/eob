@@ -1,6 +1,6 @@
 #include "main.h"
 
-attacki bsmeta<attacki>::elements[] = {{"AutoHit", 0},
+attacki bsdata<attacki>::elements[] = {{"AutoHit", 0},
 {"OneAttack", 2},
 {"OneAndTwoAttacks", 3},
 {"TwoAttacks", 4},

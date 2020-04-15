@@ -293,7 +293,7 @@ void creature::scriblescrolls() {
 				if(!it || !it.isidentified())
 					continue;
 				auto sp = it.getspell();
-				if(!sp || !bsmeta<spelli>::elements[sp].levels[0])
+				if(!sp || !bsdata<spelli>::elements[sp].levels[0])
 					continue;
 				if(current_hero->is(sp))
 					continue;

@@ -1,6 +1,6 @@
 #include "main.h"
 
-abilityi bsmeta<abilityi>::elements[] = {{"Str", OfStrenght},
+abilityi bsdata<abilityi>::elements[] = {{"Str", OfStrenght},
 {"Dex", OfDexterity},
 {"Con", NoEnchant},
 {"Int", OfIntellegence},

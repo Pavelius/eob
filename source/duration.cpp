@@ -1,6 +1,6 @@
 #include "main.h"
 
-durationi bsmeta<durationi>::elements[] = {{"Instant"},
+durationi bsdata<durationi>::elements[] = {{"Instant"},
 {"round/level", 1, 1},
 {"5 rounds/level", 5, 1},
 {"turn", 0, 0, 10},

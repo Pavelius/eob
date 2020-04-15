@@ -1,6 +1,6 @@
 #include "main.h"
 
-statei bsmeta<statei>::elements[] = {{"No state"},
+statei bsdata<statei>::elements[] = {{"No state"},
 {"Acid Corrosion", SaveVsMagic},
 {"Armored", SaveVsMagic},
 {"Blessed", SaveVsMagic},

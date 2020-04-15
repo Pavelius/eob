@@ -26,7 +26,7 @@ static spell_s priest_spells[] = {Bless, CureLightWounds, DetectEvil, Protection
 Aid, FlameBlade, Goodberry, HoldPerson, SlowPoison,
 CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection};
 
-itemi bsmeta<itemi>::elements[] = {{"No item"},
+itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Battle axe", {7, 4, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 {"Axe", {7, 4, 1}, RightHand, {UseMartialWeapon}, {Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 {"Club", {76, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
@@ -189,11 +189,11 @@ item::item(item_s type, int chance_magic, int chance_cursed, int chance_special)
 	if(is(Charged))
 		setcharges(dice::roll(3, 6));
 	if(d100() < chance_magic) {
-		if(bsmeta<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
-			subtype = bsmeta<itemi>::elements[type].enchantments.data[rand() % bsmeta<itemi>::elements[type].enchantments.count];
+		if(bsdata<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
+			subtype = bsdata<itemi>::elements[type].enchantments.data[rand() % bsdata<itemi>::elements[type].enchantments.count];
 			magic = special_magic_bonus();
-		} else if(bsmeta<itemi>::elements[type].spells.count && (d100() < chance_special)) {
-			subtype = (enchant_s)bsmeta<itemi>::elements[type].spells.data[rand() % bsmeta<itemi>::elements[type].spells.count];
+		} else if(bsdata<itemi>::elements[type].spells.count && (d100() < chance_special)) {
+			subtype = (enchant_s)bsdata<itemi>::elements[type].spells.data[rand() % bsdata<itemi>::elements[type].spells.count];
 			magic = special_magic_bonus();
 		} else
 			magic = standart_magic_bonus();
@@ -216,42 +216,42 @@ bool item::ismagical() const {
 }
 
 int	item::getac() const {
-	return bsmeta<itemi>::elements[type].armor.ac;
+	return bsdata<itemi>::elements[type].armor.ac;
 }
 
 int	item::getdeflect() const {
-	return bsmeta<itemi>::elements[type].armor.critical_deflect;
+	return bsdata<itemi>::elements[type].armor.critical_deflect;
 }
 
 int	item::getspeed() const {
-	return bsmeta<itemi>::elements[type].weapon.speed;
+	return bsdata<itemi>::elements[type].weapon.speed;
 }
 
 int item::getportrait() const {
-	return bsmeta<itemi>::elements[type].image.avatar;
+	return bsdata<itemi>::elements[type].image.avatar;
 }
 
 spell_s item::getspell() const {
-	if(bsmeta<itemi>::elements[type].spells.count == 0)
+	if(bsdata<itemi>::elements[type].spells.count == 0)
 		return NoSpell;
 	return (spell_s)subtype;
 }
 
 enchant_s item::getenchant() const {
-	if(bsmeta<itemi>::elements[type].enchantments.count == 0)
+	if(bsdata<itemi>::elements[type].enchantments.count == 0)
 		return NoEnchant;
 	return subtype;
 }
 
 int	item::get(enchant_s value) const {
-	if(bsmeta<itemi>::elements[type].enchantments.count != 0
+	if(bsdata<itemi>::elements[type].enchantments.count != 0
 		&& subtype == value)
 		return getmagic();
 	return 0;
 }
 
 void item::get(combati& result, const creature* enemy) const {
-	auto& wi = bsmeta<itemi>::elements[type].weapon;
+	auto& wi = bsdata<itemi>::elements[type].weapon;
 	auto size = enemy ? enemy->getsize() : Medium;
 	if(size == Large && !is(Natural))
 		result.damage = wi.damage_large;
@@ -283,7 +283,7 @@ char* item::getname(char* result, const char* result_maximum) const {
 	}
 	if(isidentified() && iscursed())
 		sc.adds("cursed");
-	sc.adds(bsmeta<itemi>::elements[type].name);
+	sc.adds(bsdata<itemi>::elements[type].name);
 	if(isidentified()) {
 		if(type == MagicWand || type == MageScroll || type == PriestScroll) {
 			auto spell = getspell();
@@ -298,8 +298,8 @@ char* item::getname(char* result, const char* result_maximum) const {
 			if(type != PotionBlue && type != PotionGreen && type != PotionRed) {
 				auto magic = getmagic();
 				if(magic) {
-					if(bsmeta<enchanti>::elements[enchant].names)
-						sc.adds(bsmeta<enchanti>::elements[enchant].names[imin(5, iabs(magic)) - 1]);
+					if(bsdata<enchanti>::elements[enchant].names)
+						sc.adds(bsdata<enchanti>::elements[enchant].names[imin(5, iabs(magic)) - 1]);
 					else
 						sc.adds("%+1i", magic);
 				}
@@ -311,7 +311,7 @@ char* item::getname(char* result, const char* result_maximum) const {
 }
 
 void item::setspell(spell_s spell) {
-	if(bsmeta<itemi>::elements[type].spells.count != 0)
+	if(bsdata<itemi>::elements[type].spells.count != 0)
 		subtype = (enchant_s)spell;
 }
 

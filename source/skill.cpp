@@ -1,6 +1,6 @@
 #include "main.h"
 
-skilli bsmeta<skilli>::elements[] = {{"Save vs Paralize"},
+skilli bsdata<skilli>::elements[] = {{"Save vs Paralize"},
 {"Save vs Poison", {}, OfPoisonResistance, 10},
 {"Save vs Traps"},
 {"Save vs Magic"},
@@ -114,11 +114,11 @@ static int get_save_group(class_s value) {
 static int get_save_thrown(skill_s id, class_s type, const char* levels) {
 	auto index = save_index[id];
 	auto result = 20;
-	for(unsigned i = 0; i < bsmeta<classi>::elements[type].classes.count; i++) {
+	for(unsigned i = 0; i < bsdata<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
 		if(n < 1)
 			continue;
-		auto e = bsmeta<classi>::elements[type].classes.data[i];
+		auto e = bsdata<classi>::elements[type].classes.data[i];
 		auto g = get_save_group(e);
 		if(n >= sizeof(savevs_data[0][0]) / sizeof(savevs_data[0][0][0]))
 			n = sizeof(savevs_data[0][0]) / sizeof(savevs_data[0][0][0]) - 1;
@@ -131,13 +131,13 @@ static int get_save_thrown(skill_s id, class_s type, const char* levels) {
 
 static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 	auto result = 0;
-	for(unsigned i = 0; i < bsmeta<classi>::elements[type].classes.count; i++) {
+	for(unsigned i = 0; i < bsdata<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
 		if(n < 1)
 			continue;
-		auto e = bsmeta<classi>::elements[type].classes.data[i];
+		auto e = bsdata<classi>::elements[type].classes.data[i];
 		auto m = 0;
-		if(bsmeta<skilli>::elements[id].allow && !bsmeta<skilli>::elements[id].allow.is(e))
+		if(bsdata<skilli>::elements[id].allow && !bsdata<skilli>::elements[id].allow.is(e))
 			m = default_theive_skills[id - ClimbWalls][0];
 		else {
 			if(n > 17)
@@ -151,19 +151,19 @@ static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 }
 
 static bool allow_skill(skill_s id, class_s type) {
-	if(!bsmeta<skilli>::elements[id].allow)
+	if(!bsdata<skilli>::elements[id].allow)
 		return true;
-	for(auto e : bsmeta<classi>::elements[type].classes) {
-		if(bsmeta<skilli>::elements[id].allow.is(e))
+	for(auto e : bsdata<classi>::elements[type].classes) {
+		if(bsdata<skilli>::elements[id].allow.is(e))
 			return true;
 	}
 	return false;
 }
 
 int	creature::get(skill_s id) const {
-	int result = bsmeta<racei>::elements[race].skills[id];
-	if(bsmeta<skilli>::elements[id].multiplier)
-		result += getbonus(bsmeta<skilli>::elements[id].enchant) * bsmeta<skilli>::elements[id].multiplier;
+	int result = bsdata<racei>::elements[race].skills[id];
+	if(bsdata<skilli>::elements[id].multiplier)
+		result += getbonus(bsdata<skilli>::elements[id].enchant) * bsdata<skilli>::elements[id].multiplier;
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);

@@ -1,6 +1,6 @@
 #include "main.h"
 
-racei bsmeta<racei>::elements[] = {{"No race"},
+racei bsdata<racei>::elements[] = {{"No race"},
 {"Dwarf", {8, 3, 11, 3, 3, 3}, {18, 17, 18, 18, 18, 17}, {0, 0, 1, 0, 0, -1},
 {BonusSaveVsPoison, BonusSaveVsSpells, BonusToHitVsGoblinoid, BonusACVsLargeEnemy}, {UseLargeWeapon},
 {{OpenLocks, 10}, {RemoveTraps, 15}, {ClimbWalls, -10}, {ReadLanguages, -10}}},

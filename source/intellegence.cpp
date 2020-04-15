@@ -1,6 +1,6 @@
 #include "main.h"
 
-intellegencei bsmeta<intellegencei>::elements[] = {{"NoInt"},
+intellegencei bsdata<intellegencei>::elements[] = {{"NoInt"},
 {"Animal", 1},
 {"Semi", 2, 4},
 {"Low", 5, 7},

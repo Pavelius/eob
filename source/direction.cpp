@@ -1,6 +1,6 @@
 #include "main.h"
 
-directioni bsmeta<directioni>::elements[] = {{"Center"},
+directioni bsdata<directioni>::elements[] = {{"Center"},
 {"Left"},
 {"Up"},
 {"Right"},

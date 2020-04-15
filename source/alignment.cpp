@@ -1,6 +1,6 @@
 #include "main.h"
 
-alignmenti bsmeta<alignmenti>::elements[] = {{"Lawful Good", {Theif}},
+alignmenti bsdata<alignmenti>::elements[] = {{"Lawful Good", {Theif}},
 {"Neutral Good", {Paladin}},
 {"Chaotic Good", {Paladin}},
 {"Lawful Neutral", {Theif, Ranger, Paladin}},

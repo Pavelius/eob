@@ -108,7 +108,7 @@ void draw::abilities(int x, int y, creature* pc) {
 	header(x1 + 6 * 11, y1, "Exp");
 	y1 += 8;
 	auto cls = pc->getclass();
-	auto exp = pc->getexperience() / bsmeta<classi>::elements[cls].classes.count;
+	auto exp = pc->getexperience() / bsdata<classi>::elements[cls].classes.count;
 	for(int i = 0; i < 3; i++) {
 		char temp[16];
 		auto m = pc->getclass(cls, i);

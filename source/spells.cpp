@@ -14,7 +14,7 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 };
 
 static int getduration(duration_s duration, int level) {
-	return bsmeta<durationi>::elements[duration].get(level);
+	return bsdata<durationi>::elements[duration].get(level);
 }
 
 static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {
@@ -128,7 +128,7 @@ static void acid_arrow(creature* player, creature* target, const effecti& e, int
 	target->set(AcidCorrosion, 1 + level / 3);
 }
 
-spelli bsmeta<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
+spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, {1, 3}, {2}, 1, 10, SaveHalf}, FireThrown},
@@ -174,8 +174,8 @@ assert_enum(spell, TurnUndead);
 
 int	creature::getlevel(spell_s id, class_s type) {
 	switch(type) {
-	case Cleric: return bsmeta<spelli>::elements[id].levels[1];
-	default: return bsmeta<spelli>::elements[id].levels[0];
+	case Cleric: return bsdata<spelli>::elements[id].levels[1];
+	default: return bsdata<spelli>::elements[id].levels[0];
 	}
 }
 
@@ -242,9 +242,98 @@ void creature::say(spell_s id) const {
 	mslog("%1 cast %2", getname(temp, zendof(temp)), getstr(id));
 }
 
+bool creature::use(spell_s id, creature& target, bool run) {
+	if(isaffect(id))
+		return false;
+	switch(id) {
+	case Bless:
+		if(run) {
+
+		}
+		break;
+	case BurningHands:
+		break;
+	case CureLightWounds:
+		break;
+	case DetectEvil:
+		break;
+	case DetectMagic:
+		break;
+	case FeatherFall:
+		break;
+	case Identify:
+		break;
+	case MageArmor:
+		break;
+	case MagicMissile:
+		break;
+	case Mending:
+		break;
+	case ProtectionFromEvil:
+		break;
+	case PurifyFood:
+		break;
+	case ReadLanguagesSpell:
+		break;
+	case ShieldSpell:
+		break;
+	case ShokingGrasp:
+		break;
+	case Sleep:
+		break;
+	case AcidArrow:
+		break;
+	case Aid:
+		break;
+	case Blindness:
+		break;
+	case Blur:
+		break;
+	case FlameBlade:
+		break;
+	case FlamingSphere:
+		break;
+	case Goodberry:
+		break;
+	case HoldPerson:
+		break;
+	case Invisibility:
+		break;
+	case Knock:
+		break;
+	case ProduceFlame:
+		break;
+	case SlowPoison:
+		break;
+	case CreateFood:
+		break;
+	case CureBlindnessDeafness:
+		break;
+	case CureDisease:
+		break;
+	case NegativePlanProtection:
+		break;
+	case RemoveCurse:
+		break;
+	case RemoveParalizes:
+		break;
+	case LayOnHands:
+		break;
+	case TurnUndead:
+		if(!target.is(Undead))
+			return false;
+		if(run) {
+		}
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
 bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {
 	creature* targets[4];
-	auto& si = bsmeta<spelli>::elements[id];
+	auto& si = bsdata<spelli>::elements[id];
 	auto index = getindex();
 	auto dir = getdirection();
 	auto range = si.range;
