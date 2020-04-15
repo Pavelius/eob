@@ -244,16 +244,26 @@ class creature;
 class item;
 struct varianti {
 	variant_s			type;
-	unsigned char		value;
+	union {
+		alignment_s		alignment;
+		class_s			cls;
+		condition_s		condition;
+		item_s			item;
+		race_s			race;
+		reaction_s		reaction;
+		spell_s			spell;
+		state_s			state;
+		unsigned char	value;
+	};
 	constexpr varianti() : type(NoVariant), value(0) {}
-	constexpr varianti(const alignment_s v) : type(Alignment), value(v) {}
-	constexpr varianti(const class_s v) : type(Class), value(v) {}
-	constexpr varianti(const condition_s v) : type(Condition), value(v) {}
-	constexpr varianti(const item_s v) : type(Item), value(v) {}
-	constexpr varianti(const race_s v) : type(Race), value(v) {}
-	constexpr varianti(const reaction_s v) : type(Reaction), value(v) {}
-	constexpr varianti(const spell_s v) : type(Spell), value(v) {}
-	constexpr varianti(const state_s v) : type(State), value(v) {}
+	constexpr varianti(const alignment_s v) : type(Alignment), alignment(v) {}
+	constexpr varianti(const class_s v) : type(Class), cls(v) {}
+	constexpr varianti(const condition_s v) : type(Condition), condition(v) {}
+	constexpr varianti(const item_s v) : type(Item), item(v) {}
+	constexpr varianti(const race_s v) : type(Race), race(v) {}
+	constexpr varianti(const reaction_s v) : type(Reaction), reaction(v) {}
+	constexpr varianti(const spell_s v) : type(Spell), spell(v) {}
+	constexpr varianti(const state_s v) : type(State), state(v) {}
 	constexpr varianti(const unsigned char v) : type(Number), value(v) {}
 };
 template<typename T> struct bsmeta {
