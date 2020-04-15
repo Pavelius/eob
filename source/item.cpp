@@ -325,7 +325,7 @@ int	item::getmagic() const {
 	if(subtype)
 		r++;
 	if(cursed != 0)
-		return -r - 1;
+		return - (r + 1);
 	return r;
 }
 

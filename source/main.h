@@ -479,7 +479,7 @@ class item {
 	item_s				type;
 	unsigned char		identified : 1;
 	unsigned char		cursed : 1; // -2 to quality and not remove
-	unsigned char		broken : 1; // -1 to quality and next breaking destroy item
+	unsigned char		broken : 1; // sometime -1 to quality and next breaking destroy item
 	unsigned char		magic : 2; // 0, 1, 2, 3 this is plus item
 	enchant_s			subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
