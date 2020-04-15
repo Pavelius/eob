@@ -3,27 +3,27 @@
 static bool allow(const creature* p, const varianti v) {
 	switch(v.type) {
 	case Race:
-		if(p->getrace() == v.race)
+		if(p->getrace() == v.value)
 			return true;
 		break;
 	case Alignment:
-		if(p->getalignment() == v.alignment)
+		if(p->getalignment() == v.value)
 			return true;
 		break;
 	case Class:
-		if(p->get(v.cls)>0)
+		if(p->get((class_s)v.value)>0)
 			return true;
 		break;
 	case Item:
-		if(p->have(v.item))
+		if(p->have((item_s)v.value))
 			return true;
 		break;
 	case Spell:
-		if(p->getknown(v.spell)>0)
+		if(p->getknown((spell_s)v.value)>0)
 			return true;
 		break;
 	case Reaction:
-		if(p->getreaction() == v.reaction)
+		if(p->getreaction() == v.value)
 			return true;
 		break;
 	default:
@@ -91,22 +91,22 @@ void dialogi::actioni::apply() {
 	case AddVariant:
 		switch(variant.type) {
 		case Item:
-			creature::addparty(variant.item);
+			creature::addparty((item_s)variant.value);
 			break;
 		case State:
 			for(auto p : game::party) {
 				if(p)
-					p->add(variant.state, xrand(3, 10) * 5);
+					p->add((state_s)variant.value, xrand(3, 10) * 5);
 			}
 			break;
 		case Condition:
 			for(auto p : game::party) {
 				if(p)
-					p->add(variant.condition);
+					p->add((condition_s)variant.value);
 			}
 			break;
 		case Reaction:
-			location.set(monster_index, variant.reaction);
+			location.set(monster_index, (reaction_s)variant.value);
 			break;
 		}
 		break;

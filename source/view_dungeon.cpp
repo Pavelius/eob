@@ -305,11 +305,11 @@ void creature::view_portrait(int x, int y) const {
 	for(auto& e : variants) {
 		switch(e.v.type) {
 		case State:
-			if(is(e.v.state))
+			if(is((state_s)e.v.value))
 				source.add(&e);
 			break;
 		case Condition:
-			if(is(e.v.condition))
+			if(is((condition_s)e.v.value))
 				source.add(&e);
 			break;
 		}

@@ -1969,6 +1969,7 @@ void creature::uncurse() {
 		if(wears[i].iscursed() && wears[i].isidentified()) {
 			char temp[260]; wears[i].getname(temp, zendof(temp));
 			mslog("%1 is turned to dust", temp);
+			wears[i].clear();
 		}
 	}
 }
