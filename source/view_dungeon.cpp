@@ -287,7 +287,7 @@ static unsigned char getalpha(unsigned f, unsigned range) {
 
 void creature::view_portrait(int x, int y) const {
 	static struct elementi {
-		varianti	v;
+		variant	v;
 		color		c;
 	} variants[] = {{PoisonWeak, colors::green},
 	{Poison, colors::green},

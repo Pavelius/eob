@@ -1,6 +1,6 @@
 #include "main.h"
 
-static bool allow(const creature* p, const varianti v) {
+static bool allow(const creature* p, const variant v) {
 	switch(v.type) {
 	case Race:
 		if(p->getrace() == v.value)
@@ -32,7 +32,7 @@ static bool allow(const creature* p, const varianti v) {
 	return false;
 }
 
-static bool allowparty(const varianti v) {
+static bool allowparty(const variant v) {
 	for(auto p : game::party) {
 		if(!p)
 			continue;

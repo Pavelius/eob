@@ -248,7 +248,7 @@ bool creature::use(spell_s id, creature& target, bool run) {
 	switch(id) {
 	case Bless:
 		if(run) {
-
+			addboost(id, Damage, 1, DurationTurn);
 		}
 		break;
 	case BurningHands:

@@ -11,7 +11,7 @@ static unsigned			rounds_turn;
 static unsigned			rounds_hour;
 dungeon					location_above;
 dungeon					location;
-static creature			hero_data[32];
+creature				hero_data[32];
 
 static const char* name_direction[] = {"floor",
 "left", "forward", "right", "rear"};

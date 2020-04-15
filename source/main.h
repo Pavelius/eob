@@ -233,7 +233,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Condition, Item, Number, Race, Reaction, Spell, State,
+	Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
 };
 enum prop_s : unsigned char {
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
@@ -242,20 +242,23 @@ enum prop_s : unsigned char {
 };
 class creature;
 class item;
-struct varianti {
+struct variant {
 	variant_s			type;
 	unsigned char		value;
-	constexpr varianti() : type(NoVariant), value(0) {}
-	constexpr varianti(const alignment_s v) : type(Alignment), value(v) {}
-	constexpr varianti(const class_s v) : type(Class), value(v) {}
-	constexpr varianti(const condition_s v) : type(Condition), value(v) {}
-	constexpr varianti(const item_s v) : type(Item), value(v) {}
-	constexpr varianti(const race_s v) : type(Race), value(v) {}
-	constexpr varianti(const reaction_s v) : type(Reaction), value(v) {}
-	constexpr varianti(const spell_s v) : type(Spell), value(v) {}
-	constexpr varianti(const state_s v) : type(State), value(v) {}
-	constexpr varianti(const unsigned char v) : type(Number), value(v) {}
-	varianti(const creature* v);
+	constexpr variant() : type(NoVariant), value(0) {}
+	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(const class_s v) : type(Class), value(v) {}
+	constexpr variant(const condition_s v) : type(Condition), value(v) {}
+	constexpr variant(const item_s v) : type(Item), value(v) {}
+	constexpr variant(const race_s v) : type(Race), value(v) {}
+	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
+	constexpr variant(const spell_s v) : type(Spell), value(v) {}
+	constexpr variant(const state_s v) : type(State), value(v) {}
+	constexpr variant(const unsigned char v) : type(Number), value(v) {}
+	variant(const creature* v);
+	constexpr explicit operator bool() const { return type == NoVariant; }
+	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	creature*			getcreature() const;
 };
 template<typename T> struct bsdata {
 	typedef T			data_type;
@@ -518,10 +521,11 @@ public:
 	void				setspell(spell_s spell);
 };
 struct boosti {
-	varianti			id;
-	varianti			owner;
-	unsigned			round;
+	variant				owner, id, source;
 	char				value;
+	unsigned			round;
+	constexpr explicit operator bool() const { return id.type != NoVariant; }
+	void				clear();
 };
 class creature {
 	struct applyi {
@@ -558,7 +562,7 @@ class creature {
 	short				food;
 	reaction_s			reaction;
 	//
-	void				affect(varianti source, prop_s i, unsigned duration);
+	void				addboost(variant source, variant id, char value, unsigned duration) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
@@ -652,7 +656,7 @@ public:
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				is(spell_s v) const { return known[v] != 0; }
-	bool				isaffect(spell_s v) const { return false; }
+	bool				isaffect(variant v) const;
 	static bool			isallow(class_s id, race_s r);
 	static bool			isallow(alignment_s id, class_s c);
 	bool				isallow(const item it, wear_s slot) const;
@@ -713,6 +717,7 @@ public:
 	void				update(bool interactive);
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);
+	static void			update_boost();
 	bool				use(spell_s id, short unsigned target, bool run);
 	bool				use(spell_s id, creature& target, bool run);
 	bool				use(skill_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
@@ -855,7 +860,7 @@ struct dungeon {
 struct dialogi {
 	struct actioni {
 		action_s		action;
-		varianti		variant;
+		variant		variant;
 		void			apply();
 		bool			isallow() const;
 		constexpr explicit operator bool() const { return action != NoAction; }
