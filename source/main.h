@@ -233,7 +233,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
+	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
 };
 enum prop_s : unsigned char {
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
@@ -528,11 +528,6 @@ struct boosti {
 	void				clear();
 };
 class creature {
-	struct applyi {
-		prop_s			id;
-		char			bonus;
-		unsigned		round;
-	};
 	alignment_s			alignment;
 	race_s				race;
 	gender_s			gender;
@@ -563,6 +558,7 @@ class creature {
 	reaction_s			reaction;
 	//
 	void				addboost(variant source, variant id, char value, unsigned duration) const;
+	static void			apply_boost(int m);
 	void				attack_drain(creature* defender, char& value, int& hits);
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
@@ -718,8 +714,6 @@ public:
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);
 	static void			update_boost();
-	bool				use(spell_s id, short unsigned target, bool run);
-	bool				use(spell_s id, creature& target, bool run);
 	bool				use(skill_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	bool				usequick();
