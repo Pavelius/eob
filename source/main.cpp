@@ -263,8 +263,8 @@ static void debug_dungeon1() {
 	game.setcamera(Blocked);
 	dungeon::create(1, first_adventure, false);
 	random_heroes();
-	game.write();
 	game.enter(1, 1);
+	game.write();
 	setnext(adventure);
 }
 

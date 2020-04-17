@@ -10,10 +10,7 @@ struct archive {
 	archive(io::stream& source, bool writemode) : source(source), writemode(writemode) {}
 	bool			signature(const char* id);
 	bool			version(short major, short minor);
-	template<typename T, unsigned N> void set(T(&value)[N]) {
-		for(int i = 0; i < N; i++)
-			set(value[i]);
-	};
+	void			set(array& value);
 	template<typename T> void set(T& value) {
 		if(writemode)
 			source.write(&value, sizeof(value));

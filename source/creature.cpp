@@ -1070,7 +1070,7 @@ bool creature::have(aref<class_s> source) const {
 }
 
 bool creature::isuse(const item v) const {
-	return bsdata<itemi>::elements[type].usability.is(usability);
+	return bsdata<itemi>::elements[v.gettype()].usability.is(usability);
 }
 
 void creature::set(direction_s v) {
@@ -1126,7 +1126,7 @@ bool creature::isallow(const item it, wear_s slot) const {
 		return false;
 	if(slot == LeftRing)
 		slot = RightRing;
-	return it.getwear() == slot;
+	return w == slot;
 }
 
 static void remove_hits(short& bonus, int v) {

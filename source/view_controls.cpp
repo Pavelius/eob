@@ -541,7 +541,7 @@ void draw::adventure() {
 		draw::animation::render(0, true, current_item);
 		domodal();
 		switch(hot::key) {
-		case Alpha + 'B':
+		case KeyEscape:
 			if(true) {
 				setmode(0);
 				auto pc = game.getcreature(current_item);

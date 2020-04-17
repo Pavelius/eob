@@ -58,7 +58,7 @@ bool gamei::question(item* current_item) {
 	if(!pc || pc->gethits() <= 0)
 		return false;
 	char name[128]; stringbuilder sb(name); current_item->getname(sb);
-	pc->say("This is %1", sb);
+	pc->say("This is %1", name);
 	return true;
 }
 
@@ -76,43 +76,6 @@ int gamei::getsideb(int side, direction_s dr) {
 			return i;
 	}
 	return -1;
-}
-
-void creaturea::select(short unsigned index) {
-	if(game.getcamera() == index) {
-		for(auto v : game.party) {
-			auto p = v.getcreature();
-			if(!p || !p->isready())
-				continue;
-			add(p);
-		}
-	} else {
-		creature* monster_data[4];
-		location.getmonsters(monster_data, index, Right);
-		for(auto p : monster_data) {
-			if(!p || !p->isready())
-				continue;
-			add(p);
-		}
-	}
-}
-
-static int compare_parcipants(const void* p1, const void* p2) {
-	auto pc1 = *((creature**)p1);
-	auto pc2 = *((creature**)p2);
-	int i1 = pc1->getinitiative();
-	int i2 = pc2->getinitiative();
-	return i2 - i1;
-}
-
-void roll_inititative(creaturea& result) {
-	for(auto pc : result) {
-		int value = xrand(1, 10);
-		value += pc->getspeed();
-		pc->setinitiative(value);
-		pc->setmoved(true);
-	}
-	qsort(result.data, result.count, sizeof(result[0]), compare_parcipants);
 }
 
 static creature* get_best_enemy(creature** quarter, int* indecies) {
@@ -160,15 +123,16 @@ void gamei::attack(short unsigned index_of_monsters, bool ranged) {
 	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
 	parcipants.select(index_of_monsters);
-	roll_inititative(parcipants);
+	parcipants.select(game.getcamera());
+	parcipants.rollinitiative();
+	// All actions made in initiative order
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
 		attacker->attack(index_of_monsters, dr, 0, ranged);
 	}
 	// RULE: Hasted units make second move at end of combat round
-	for(int i = 0; parcipants[i]; i++) {
-		auto attacker = parcipants[i];
+	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
 		if(attacker->is(Hasted)
@@ -421,15 +385,15 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(unsigned short index, unsigned char level) {
-	overland_index = index;
+void gamei::enter(indext index, indext level) {
+	location_index = index;
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	if(!location.read(overland_index, location_level))
+	if(!location.read(location_index, location_level))
 		return;
 	if(location_level > 1)
-		location_above.read(overland_index, location_level - 1);
+		location_above.read(location_index, location_level - 1);
 	draw::settiles(location.head.type);
 	if(camera_index == Blocked)
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
@@ -462,11 +426,12 @@ static bool serialize(bool writemode) {
 	if(!a.version(0, 1))
 		return false;
 	a.set(game);
-	a.set(bsdata<creature>::elements);
+	a.set(game.party);
+	a.set(bsdata<creature>::source);
 	return true;
 }
 
-static char* fname(char* result, unsigned short index, int level) {
+static char* fname(char* result, indext index, indext level) {
 	zcpy(result, "maps/d");
 	sznum(zend(result), index, 5, "00000", 10);
 	sznum(zend(result), level, 2, "00", 10);
@@ -474,7 +439,7 @@ static char* fname(char* result, unsigned short index, int level) {
 	return result;
 }
 
-static bool serialize(dungeon& e, short unsigned overland_index, int level, bool write_mode) {
+static bool serialize(dungeon& e, indext overland_index, indext level, bool write_mode) {
 	char temp[260];
 	io::file file(fname(temp, overland_index, level), write_mode ? StreamWrite : StreamRead);
 	if(!file)
@@ -488,7 +453,7 @@ void dungeon::write() {
 	serialize(*this, overland_index, level, true);
 }
 
-bool dungeon::read(unsigned short overland_index, unsigned char level) {
+bool dungeon::read(indext overland_index, indext level) {
 	return serialize(*this, overland_index, level, false);
 }
 
@@ -502,6 +467,6 @@ void gamei::write() {
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	enter(overland_index, location_level);
+	enter(location_index, location_level);
 	return true;
 }

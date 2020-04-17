@@ -145,6 +145,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="command.cpp" />
     <ClCompile Include="creature.cpp" />
+    <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="creature_chating.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="dialog.cpp" />

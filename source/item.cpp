@@ -344,14 +344,14 @@ bool item::damage(const char* text_damage, const char* text_broke) {
 			return false;
 		if(text_broke) {
 			stringbuilder sb(name); getname(sb);
-			mslog(text_broke, sb);
+			mslog(text_broke, name);
 		}
 		clear();
 		return true;
 	} else {
 		if(text_damage) {
 			stringbuilder sb(name); getname(sb);
-			mslog(text_damage, sb);
+			mslog(text_damage, name);
 		}
 		broken = 1;
 	}

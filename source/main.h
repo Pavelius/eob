@@ -722,6 +722,7 @@ public:
 };
 class creaturea : public adat<creature*, 12> {
 public:
+	void				rollinitiative();
 	void				select(short unsigned index);
 };
 struct dungeon {
@@ -839,7 +840,7 @@ struct dungeon {
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(short unsigned* indicies);
-	bool				read(unsigned short overland_index, unsigned char level);
+	bool				read(indext overland_index, indext level);
 	void				remove(unsigned short index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
@@ -889,40 +890,40 @@ struct dialogi {
 class gamei {
 	indext				camera_index;
 	direction_s			camera_direction;
-	unsigned			overland_index;
-	unsigned char		location_level;
+	indext				location_index;
+	indext				location_level;
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
 public:
 	static variant		party[6];
-	void				attack(short unsigned index, bool ranged);
-	bool				manipulate(item* itm, direction_s direction);
-	void				pause();
-	bool				question(item* current_item);
-	void				thrown(item* itm);
+	void				attack(indext index, bool ranged);
 	void				endround();
-	void				enter(unsigned short index, unsigned char level);
+	void				enter(indext index, indext level);
 	void				findsecrets();
 	int					getavatar(race_s race, gender_s gender, class_s cls);
 	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
+	indext				getcamera() const { return camera_index; }
+	creature*			getcreature(const item* itm) const;
+	creature*			getcreature(int n) const { return (n >= 0 && n<6) ? party[n].getcreature() : 0; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);
 	int					getrandom(int type, race_s race, gender_s gender, int prev_name);
 	unsigned			getrounds() const { return rounds; }
 	int					getside(int side, direction_s dr);
 	int					getsideb(int side, direction_s dr);
-	void				passround();
-	void				passtime(int minutes);
-	indext				getcamera() const { return camera_index; }
-	creature*			getcreature(const item* itm) const;
-	creature*			getcreature(int n) const { return (n >=0 && n<6) ? party[n].getcreature() : 0; }
 	direction_s			getdirection() const { return camera_direction; }
 	int					getindex(const creature* p) const;
 	creature*			getvalid(creature* pc, class_s type) const;
 	wear_s				getwear(const item* itm) const;
 	static bool			isalive();
+	bool				manipulate(item* itm, direction_s direction);
+	void				passround();
+	void				passtime(int minutes);
+	void				pause();
+	bool				question(item* current_item);
 	void				setcamera(short unsigned index, direction_s direction = Center);
+	void				thrown(item* itm);
 	bool				read();
 	void				write();
 };
