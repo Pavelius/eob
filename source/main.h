@@ -110,8 +110,7 @@ enum condition_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
-	MV, AC, Speed, Hits, HitsBase, HitsBoost, ExeptionalStrenght,
-	DrainEnergy, DrainStrenght, DrainConstitution,
+	MV, AC, Speed, Hits, ExeptionalStrenght
 };
 enum skill_s : unsigned char {
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
@@ -266,7 +265,8 @@ struct spellprogi {
 struct abilityi {
 	const char*			name;
 	enchant_s			enchant;
-	state_s				boost;
+	char				base;
+	char				multiplier;
 };
 struct alignmenti {
 	const char*			name;
@@ -472,7 +472,7 @@ struct sitei {
 class item {
 	item_s				type;
 	unsigned char		identified : 1;
-	unsigned char		cursed : 1; // -2 to quality and not remove
+	unsigned char		cursed : 1; // -1 to quality and not remove
 	unsigned char		broken : 1; // sometime -1 to quality and next breaking destroy item
 	unsigned char		magic : 2; // 0, 1, 2, 3 this is plus item
 	enchant_s			subtype; // spell scroll or spell of wand
@@ -498,6 +498,7 @@ public:
 	void				getname(stringbuilder& sb) const;
 	int					getportrait() const;
 	int					getspeed() const;
+	variant				getspecial() const { return variant(); }
 	spell_s				getspell() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
@@ -559,6 +560,9 @@ class creature {
 	void				addboost(variant source, variant id, char value, unsigned duration) const;
 	static void			apply_boost(int m);
 	void				attack_drain(creature* defender, char& value, int& hits);
+	void				dress_wears(int m);
+	void				dressoff();
+	void				dresson();
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);

@@ -756,14 +756,6 @@ int	creature::get(ability_s id) const {
 			r -= disease_progress - 2;
 		break;
 	}
-	// Временное усиление атрибута, если используется
-	auto boost = bsdata<abilityi>::elements[id].boost;
-	if(boost) {
-		if(is(boost)) {
-			if(r < 18)
-				r = 18;
-		}
-	}
 	// Зачарованные атрибуты имеют фиксированные значения
 	auto enchant = bsdata<abilityi>::elements[id].enchant;
 	if(enchant) {
@@ -1872,7 +1864,7 @@ reaction_s creature::rollreaction(int bonus) const {
 		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening, Hostile, Hostile, Hostile, Hostile, Hostile};
 	auto cha = getparty(Charisma);
 	bonus += maptbl(charisma_reaction_bonus, cha);
-	auto result = (rand()%10) + (rand() % 10) + 2 - bonus;
+	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));
 	auto result_table = indifferent;
 	return result_table[result - 2];
@@ -1964,7 +1956,7 @@ bool creature::usequick() {
 	else
 		return false;
 	item* ps = 0;
-	for(auto i = FirstBelt; i <= LastBelt; i = (wear_s)(i+1)) {
+	for(auto i = FirstBelt; i <= LastBelt; i = (wear_s)(i + 1)) {
 		if(!wears[i])
 			continue;
 		ps = &wears[i];
@@ -1987,4 +1979,27 @@ void creature::uncurse() {
 
 int creature::getpartyindex() const {
 	return game.getindex(this);
+}
+
+void creature::dressoff() {
+	dress_wears(-1);
+}
+
+void creature::dresson() {
+	dress_wears(1);
+}
+
+void creature::dress_wears(int m) {
+	for(auto id = Head; id <= Legs; id = (wear_s)(id + 1)) {
+		auto it = wears[id];
+		if(!it)
+			continue;
+		auto sp = it.getspecial();
+		if(!sp)
+			continue;
+		if(sp.type == Ability) {
+			auto& ei = bsdata<abilityi>::elements[sp.value];
+			ability[sp.value] += (ei.base + ei.multiplier)*it.getmagic()*m;
+		}
+	}
 }

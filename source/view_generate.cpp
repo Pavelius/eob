@@ -66,7 +66,8 @@ static int button(int x, int y, const cmd& ev, const char* name, int key) {
 }
 
 static void genavatar(int x, int y, const cmd& ev) {
-	auto pc = *((creature**)ev.param);
+	auto v = *((variant*)ev.param);
+	auto pc = v.getcreature();
 	if(pc) {
 		if(current_player != pc) {
 			draw::state push;
