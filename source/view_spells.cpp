@@ -63,7 +63,7 @@ static void render_spell_window(aref<spell_s> source, creature* pc, class_s type
 }
 
 static creature* get_valid_hero(creature* pc, class_s type) {
-	auto i = zfind(game::party, pc);
+	auto i = pc->getpartyindex();
 	if(i == -1)
 		i = 0;
 	auto stop = i;

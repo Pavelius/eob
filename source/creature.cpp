@@ -579,10 +579,10 @@ void creature::finish() {
 	memset(spells, 0, sizeof(spells));
 	memset(known, 0, sizeof(known));
 	memset(prepared, 0, sizeof(known));
-	feats.data |= bsdata<racei>::elements[race].feats.data;
-	feats.data |= bsdata<classi>::elements[type].feats.data;
-	usability.data |= bsdata<racei>::elements[race].usability.data;
-	usability.data |= bsdata<classi>::elements[type].usability.data;
+	feats.add(bsdata<racei>::elements[race].feats);
+	feats.add(bsdata<classi>::elements[type].feats);
+	usability.add(bsdata<racei>::elements[race].usability);
+	usability.add(bsdata<classi>::elements[type].usability);
 	states[0] = 1;
 	if(kind)
 		hits_rolled = gethitdice().roll();
@@ -1070,8 +1070,7 @@ bool creature::have(aref<class_s> source) const {
 }
 
 bool creature::isuse(const item v) const {
-	auto vu = v.getuse();
-	return (vu & usability.data) == vu;
+	return bsdata<itemi>::elements[type].usability.is(usability);
 }
 
 void creature::set(direction_s v) {
@@ -1865,7 +1864,7 @@ reaction_s creature::rollreaction(int bonus) const {
 		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening, Hostile, Hostile, Hostile, Hostile, Hostile};
 	auto cha = getparty(Charisma);
 	bonus += maptbl(charisma_reaction_bonus, cha);
-	auto result = d10() + d10() - bonus;
+	auto result = (rand()%10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));
 	auto result_table = indifferent;
 	return result_table[result - 2];

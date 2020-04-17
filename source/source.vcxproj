@@ -121,18 +121,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="archive.h" />
-    <ClInclude Include="collection.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="crt.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
-    <ClInclude Include="initializer_list.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
-    <ClInclude Include="stringcreator.h" />
+    <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="view.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
@@ -144,14 +142,11 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />
-    <ClCompile Include="collection.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="command.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="creature_chating.cpp" />
     <ClCompile Include="crt.cpp" />
-    <ClCompile Include="crt_memory.cpp" />
-    <ClCompile Include="crt_parse.cpp" />
     <ClCompile Include="dialog.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
@@ -186,8 +181,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="state.cpp" />
-    <ClCompile Include="stringcreator.cpp" />
-    <ClCompile Include="surface_serial.cpp" />
+    <ClCompile Include="stringbuilder.cpp" />
+    <ClCompile Include="string_value.cpp" />
+    <ClCompile Include="surface_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="view_automap.cpp" />

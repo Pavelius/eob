@@ -423,7 +423,7 @@ void mslogv(const char* format, const char* vl) {
 		if(get_log_line_count() >= 3)
 			log_delete_line();
 	}
-	stringcreator e(zend(log_message), zendof(log_message));
+	stringbuilder e(zend(log_message), zendof(log_message));
 	if(log_message[0])
 		e.add("\n");
 	e.addv(format, vl);

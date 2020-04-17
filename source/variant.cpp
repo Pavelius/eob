@@ -8,7 +8,7 @@ variant::variant(const creature* p) {
 		value = 0;
 	} else if(p->ishero()) {
 		type = Creature;
-		value = creature_players_base + bsdata<creature>::indexof(p);
+		value = creature_players_base + bsdata<creature>::source.indexof(p);
 	} else {
 		type = Creature;
 		value = p - location.monsters;

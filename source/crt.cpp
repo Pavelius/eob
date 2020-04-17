@@ -1,84 +1,41 @@
 #include "crt.h"
 #include "io.h"
 
-int	locale; // Current localization
+extern "C" void* malloc(unsigned size);
+extern "C" void* realloc(void *ptr, unsigned size);
+extern "C" void	free(void* pointer);
 
-void setsignature(char d[4], const char* s) {
-	d[0] = s[0];
-	d[1] = s[1];
-	d[2] = s[2];
-	d[3] = 0;
-}
-
-bool issignature(const char d[4], const char* s) {
-	return (d[0] == s[0])
-		&& (d[1] == s[1])
-		&& (d[2] == s[2])
-		&& d[3] == 0;
-}
-
-char* szsep(char* result, const char* separator, const char* start) {
-	if(result[0])
-		zcat(result, separator);
-	else if(start) {
-		zcpy(result, start);
-		return result;
+unsigned rmoptimal(unsigned need_count) {
+	const unsigned mc = 256 * 256 * 256;
+	unsigned m = 16;
+	while(m < mc) {
+		if(need_count < m)
+			return m;
+		m = m << 1;
 	}
-	return zend(result);
+	return m;
 }
 
-void szadd(char* result, const char* value, const char* title, const char* separator) {
-	if(result[0] == 0) {
-		if(title)
-			zcpy(result, title);
-	} else
-		zcat(result, separator);
-	zcat(result, value);
+void* rmreserve(void* data, unsigned new_size) {
+	if(data)
+		return realloc(data, new_size);
+	return malloc(new_size);
 }
 
-const char* szskipcr(const char* p) {
-	if(*p == '\n') {
-		p++;
-		if(*p == '\r')
-			p++;
-	} else if(*p == '\r') {
-		p++;
-		if(*p == '\n')
-			p++;
+void rmreserve(void** data, unsigned count, unsigned& count_maximum, unsigned size) {
+	if(count >= count_maximum) {
+		count_maximum = rmoptimal(count + 1);
+		*data = rmreserve(*data, count_maximum * size);
 	}
-	return p;
 }
 
-const char* szskipcrr(const char* p0, const char* p) {
-	if(!p)
-		return 0;
-	if(p0 >= p)
-		return p;
-	if(p[-1] == '\n') {
-		p--;
-		if(p0 >= p)
-			return p;
-		if(p[-1] == '\r')
-			p--;
-	} else if(p[-1] == '\r') {
-		p--;
-		if(p0 >= p)
-			return p;
-		if(p[-1] == '\n')
-			p--;
-	}
-	return p;
-}
-
-int szcmp(const char* p1, const char* p2, int max_count) {
-	for(; *p2 && *p1 && max_count > 0; p1++, p2++, max_count--) {
-		if(*p1 == *p2)
-			continue;
-		return *p1 - *p2;
-	}
-	if(!max_count)
-		return 0;
-	return *p1 - *p2;
+void rmremove(void* data, unsigned size, unsigned index, unsigned& count, int elements_count) {
+	if(index >= count)
+		return;
+	count -= elements_count;
+	if(index >= count)
+		return;
+	memmove((char*)data + index*size, (char*)data + (index + elements_count)*size, (count - index)*size);
 }
 
 int szcmpi(const char* p1, const char* p2) {
@@ -107,237 +64,6 @@ int szcmpi(const char* p1, const char* p2, int max_count) {
 	unsigned s1 = szupper(szget(&p1));
 	unsigned s2 = szupper(szget(&p2));
 	return s1 - s2;
-}
-
-char* sznum(char* result, int num, int precision, const char* empthy, int radix) {
-	char* p1 = result;
-	if(num == 0) {
-		if(empthy)
-			zcpy(p1, empthy);
-		else {
-			zcpy(p1, "0");
-			while(--precision > 0)
-				zcat(p1, "0");
-		}
-		p1 = zend(p1);
-	} else {
-		char temp[32];
-		int p = 0;
-		if(num < 0) {
-			*p1++ = '-';
-			num = -num;
-		}
-		switch(radix) {
-		case 16:
-			while(num) {
-				int a = (num%radix);
-				if(a > 9)
-					temp[p++] = 'A' - 10 + a;
-				else
-					temp[p++] = '0' + a;
-				num /= radix;
-			}
-			break;
-		default:
-			while(num) {
-				temp[p++] = '0' + (num%radix);
-				num /= radix;
-			}
-			break;
-		}
-		while(precision-- > p)
-			*p1++ = '0';
-		while(p)
-			*p1++ = temp[--p];
-		p1[0] = 0;
-	}
-	return result;
-}
-
-char* sznum(char* outbuf, float f, int precision, const char* empthy) {
-	typedef union {
-		long	L;
-		float	F;
-	} LF_t;
-	long mantissa, int_part, frac_part;
-	short exp2;
-	LF_t x;
-	outbuf[0] = 0;
-	if(f == 0.0) {
-		if(empthy)
-			zcpy(outbuf, empthy);
-		return outbuf;
-	}
-	x.F = f;
-
-	exp2 = (unsigned char)(x.L >> 23) - 127;
-	mantissa = (x.L & 0xFFFFFF) | 0x800000;
-	frac_part = 0;
-	int_part = 0;
-
-	if(exp2 >= 31)
-		return 0;
-	else if(exp2 < -23)
-		return 0;
-	else if(exp2 >= 23)
-		int_part = mantissa << (exp2 - 23);
-	else if(exp2 >= 0) {
-		int_part = mantissa >> (23 - exp2);
-		frac_part = (mantissa << (exp2 + 1)) & 0xFFFFFF;
-	} else
-		frac_part = (mantissa & 0xFFFFFF) >> -(exp2 + 1);
-
-	auto p = outbuf;
-
-	if(x.L < 0)
-		*p++ = '-';
-
-	if(int_part == 0)
-		*p++ = '0';
-	else {
-		sznum(p, int_part, 0, 0, 10);
-		while(*p)
-			p++;
-	}
-	if(frac_part == 0) {
-		if(precision) {
-			*p++ = '.';
-			for(int i = 0; i < precision; i++)
-				*p++ = 0;
-		}
-	} else {
-		int max = 7;
-		*p++ = '.';
-		if(precision)
-			max = precision;
-		/* print BCD */
-		for(int m = 0; m < max; m++) {
-			/* frac_part *= 10;	*/
-			frac_part = (frac_part << 3) + (frac_part << 1);
-			*p++ = (frac_part >> 24) + '0';
-			frac_part &= 0xFFFFFF;
-		}
-		if(precision == 0) {
-			for(--p; p[0] == '0' && p[-1] != '.'; --p);
-			++p;
-		}
-	}
-	*p = 0;
-	return outbuf;
-}
-
-int sz2num(const char* p1, const char** pp1) {
-	int result = 0;
-	bool sign = false;
-	const int radix = 10;
-	while(*p1 && *p1 != '-' && (*p1 < '0' || *p1 > '9'))
-		p1++;
-	if(*p1 == '-') {
-		sign = true;
-		p1++;
-	}
-	while(*p1) {
-		char a = *p1;
-		if(a < '0' || a > '9')
-			break;
-		result = result * radix;
-		result += a - '0';
-		p1++;
-	}
-	if(sign)
-		result = -result;
-	if(pp1)
-		*pp1 = p1;
-	return result;
-}
-
-const char* szline(const char* p, int number) {
-	if(number < 1)
-		return p;
-	while(true) {
-		switch(*p) {
-		case 0:
-			return p;
-		case '\n':
-		case '\r':
-			if((p[0] == '\n' && p[1] == '\r')
-				|| (p[0] == '\r' && p[1] == '\n'))
-				p += 2;
-			else
-				p++;
-			if(--number == 0)
-				return p;
-			break;
-		default:
-			p++;
-			break;
-		}
-	}
-}
-
-const char* szline(const char* p, int line_number, int column_number) {
-	const char* p1 = szline(p, line_number);
-	if(column_number < 0)
-		return p1;
-	while(column_number--) {
-		unsigned sym = szget(&p1);
-		if(sym == '\n' || sym == '\r')
-			return p1;
-	}
-	return p1;
-}
-
-const char* szlineb(const char* start_text, const char* position) {
-	if(!start_text || !position)
-		return position;
-	while(position > start_text) {
-		// Для формата unicode это также будет работать
-		if(position[-1] == '\n' || position[-1] == '\r')
-			return position;
-		position--;
-	}
-	return start_text;
-}
-
-const char* szlinee(const char* string) {
-	register const char* p = string;
-	while(*p && *p != '\n' && *p != '\r')
-		p++;
-	return p;
-}
-
-int szline(const char* p, const char* pos) {
-	int r = 0;
-	while(true) {
-		switch(*p) {
-		case 0:
-			return r;
-		case '\n':
-		case '\r':
-			if((p[0] == '\n' && p[1] == '\r')
-				|| (p[0] == '\r' && p[1] == '\n'))
-				p += 2;
-			else
-				p++;
-			if(p > pos)
-				return r;
-			r++;
-			break;
-		default:
-			p++;
-			break;
-		}
-	}
-}
-
-bool szmatch(const char* text, const char* name) {
-	while(*name) {
-		if(*name++ != *text++)
-			return false;
-	}
-	if(ischa(*text))
-		return false;
-	return true;
 }
 
 bool matchuc(const char* name, const char* filter) {
@@ -530,44 +256,138 @@ void szencode(char* output, int output_count, codepages output_code, const char*
 	}
 }
 
-static bool szpmatch(const char* text, const char* s, const char* s2) {
-	while(true) {
-		register const char* d = text;
-		while(s < s2) {
-			if(*d == 0)
-				return false;
-			unsigned char c = *s;
-			if(c == '?') {
-				s++;
-				d++;
-			} else if(c == '*') {
-				s++;
-				if(s == s2)
-					return true;
-				while(*d) {
-					if(*d == *s)
-						break;
-					d++;
-				}
-			} else {
-				if(*d++ != *s++)
-					return false;
-			}
+void* array::add() {
+	if(count >= count_maximum) {
+		if(isgrowable())
+			reserve(count + 1);
+		else
+			return (char*)data;
+	}
+	return (char*)data + size * (count++);
+}
+
+void* array::add(const void* element) {
+	auto p = add();
+	memcpy(p, element, getsize());
+	return p;
+}
+
+array::~array() {
+	if(isgrowable())
+		clear();
+}
+
+void array::clear() {
+	count = 0;
+	if(!isgrowable())
+		return;
+	count_maximum = 0;
+	if(data)
+		delete (char*)data;
+	data = 0;
+}
+
+void array::setup(unsigned size) {
+	if(!isgrowable())
+		return;
+	clear();
+	this->size = size;
+}
+
+void array::reserve(unsigned count) {
+	if(!isgrowable())
+		return;
+	if(!size)
+		return;
+	if(data && count < count_maximum)
+		return;
+	count_maximum = rmoptimal(count);
+	if(data)
+		data = realloc(data, count_maximum*size);
+	else
+		data = malloc(count_maximum*size);
+}
+
+int array::find(const char* value, unsigned offset) const {
+	auto m = getcount();
+	for(unsigned i = 0; i < m; i++) {
+		auto p = (const char**)((char*)ptr(i) + offset);
+		if(!(*p))
+			continue;
+		if(strcmp(*p, value) == 0)
+			return i;
+	}
+	return -1;
+}
+
+int array::find(void* value, unsigned offset, unsigned size) const {
+	auto m = getcount();
+	for(unsigned i = 0; i < m; i++) {
+		if(memcmp(data, (char*)ptr(i) + offset, size) == 0)
+			return i;
+	}
+	return -1;
+}
+
+void array::sort(int i1, int i2, int(*compare)(const void* p1, const void* p2, void* param), void* param) {
+	for(int i = i2; i > i1; i--) {
+		for(int j = i1; j < i; j++) {
+			auto t1 = ptr(j);
+			auto t2 = ptr(j + 1);
+			if(compare(t1, t2, param) > 0)
+				swap(j, j + 1);
 		}
-		return true;
 	}
 }
 
-bool szpmatch(const char* text, const char* pattern) {
-	const char* p = pattern;
-	while(true) {
-		const char* p2 = zchr(p, ',');
-		if(!p2)
-			p2 = zend(p);
-		if(szpmatch(text, p, p2))
-			return true;
-		if(*p2 == 0)
-			return false;
-		p = zskipsp(p2 + 1);
+void array::remove(int index, int elements_count) {
+	if(((unsigned)index) >= count)
+		return;
+	if((unsigned)index < count - elements_count)
+		memcpy(ptr(index), ptr(index + elements_count), (count - (index + elements_count))*getsize());
+	count -= elements_count;
+}
+
+int	array::indexof(const void* element) const {
+	if(element >= data && element < ((char*)data + size*count))
+		return ((char*)element - (char*)data) / size;
+	return -1;
+}
+
+void* array::insert(int index, const void* element) {
+	auto count_before = getcount(); add();
+	memmove((char*)data + (index + 1)*size, (char*)data + index * size, (count_before - index)*size);
+	void* p = ptr(index);
+	if(element)
+		memcpy(p, element, size);
+	else
+		memset(p, 0, size);
+	return p;
+}
+
+void array::swap(int i1, int i2) {
+	unsigned char* a1 = (unsigned char*)ptr(i1);
+	unsigned char* a2 = (unsigned char*)ptr(i2);
+	for(unsigned i = 0; i < size; i++) {
+		char a = a1[i];
+		a1[i] = a2[i];
+		a2[i] = a;
+	}
+}
+
+void array::shift(int i1, int i2, unsigned c1, unsigned c2) {
+	if(i2 < i1) {
+		iswap(i2, i1);
+		iswap(c1, c2);
+	}
+	unsigned char* a1 = (unsigned char*)ptr(i1);
+	unsigned char* a2 = (unsigned char*)ptr(i2);
+	unsigned s1 = c1 * size;
+	unsigned s2 = c2 * size;
+	unsigned s = (a2 - a1) + s2 - 1;
+	for(unsigned i = 0; i < s1; i++) {
+		auto a = a1[0];
+		memcpy(a1, a1 + 1, s);
+		a1[s] = a;
 	}
 }

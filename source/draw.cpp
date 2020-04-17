@@ -895,7 +895,7 @@ int pma::find(const char* name) const {
 }
 
 sprite::operator bool() const {
-	return issignature(name, "PMA");
+	return name[0]=='P' && name[1]=='M' && name[2]=='A';
 }
 
 // Размер секции дополнительной информации,

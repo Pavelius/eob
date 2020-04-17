@@ -1,6 +1,6 @@
 #include "main.h"
 
-abilityi bsdata<abilityi>::elements[] = {{"Str", OfStrenght},
+INSTDATA(abilityi) = {{"Str", OfStrenght},
 {"Dex", OfDexterity},
 {"Con", NoEnchant},
 {"Int", OfIntellegence},

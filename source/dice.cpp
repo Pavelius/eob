@@ -1,6 +1,6 @@
 ﻿#include "crt.h"
 #include "dice.h"
-#include "stringcreator.h"
+#include "stringbuilder.h"
 
 int dice::roll(int c, int d) {
 	if(!d)
@@ -12,7 +12,7 @@ int dice::roll(int c, int d) {
 }
 
 const char* dice::print(char* result, const char* result_maximum) const {
-	stringcreator sc(result, result_maximum);
+	stringbuilder sc(result, result_maximum);
 	sc.add("%1id%2i", c, d);
 	if(b != 0)
 		sc.add("%+1i", b);
@@ -20,7 +20,7 @@ const char* dice::print(char* result, const char* result_maximum) const {
 }
 
 const char* dice::range(char* result, const char* result_maximum) const {
-	stringcreator sc(result, result_maximum);
+	stringbuilder sc(result, result_maximum);
 	sc.add("%1i-%2i", c + b, c*d + b);
 	return result;
 }

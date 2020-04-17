@@ -19,7 +19,7 @@ static int getduration(duration_s duration, int level) {
 
 static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {
 	auto ti = maptbl(turn_undead_index, level);
-	auto result = d20();
+	auto result = rand() % 20 + 1;
 	auto index = caster->getindex();
 	auto dir = caster->getdirection();
 	creature* targets[4];
@@ -122,7 +122,7 @@ static void remove_parasizes(creature* player, creature* target, const effecti& 
 
 static void acid_arrow(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	auto th = player->getthac0(Fighter, level);
-	auto rs = d20();
+	auto rs = rand() % 20 + 1;
 	if(rs < (th - target->getac()))
 		return;
 	target->set(AcidCorrosion, 1 + level / 3);
@@ -321,7 +321,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	}
 	if(wand_magic == 0) {
-		if(get(id)>0)
+		if(get(id) > 0)
 			set(id, get(id) - 1);
 	}
 	// RULE: When casting you gain experience

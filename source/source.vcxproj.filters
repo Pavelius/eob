@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Коллекции">
-      <UniqueIdentifier>{b4f58ffa-777d-4d72-ac80-16fcc4ddaf81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Интерфейс">
       <UniqueIdentifier>{3082bc5c-54fb-4f01-b825-2ff2e7841f2c}</UniqueIdentifier>
     </Filter>
@@ -24,15 +21,6 @@
     <ClInclude Include="win.h">
       <Filter>Платформа</Filter>
     </ClInclude>
-    <ClInclude Include="archive.h">
-      <Filter>Коллекции</Filter>
-    </ClInclude>
-    <ClInclude Include="collection.h">
-      <Filter>Коллекции</Filter>
-    </ClInclude>
-    <ClInclude Include="initializer_list.h">
-      <Filter>Коллекции</Filter>
-    </ClInclude>
     <ClInclude Include="main.h">
       <Filter>Логика</Filter>
     </ClInclude>
@@ -43,9 +31,6 @@
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="point.h">
-      <Filter>Поддержка</Filter>
-    </ClInclude>
-    <ClInclude Include="stringcreator.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="draw.h">
@@ -66,6 +51,12 @@
     <ClInclude Include="view.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="archive.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="stringbuilder.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -76,12 +67,6 @@
     </ClCompile>
     <ClCompile Include="win_time.cpp">
       <Filter>Платформа</Filter>
-    </ClCompile>
-    <ClCompile Include="archive.cpp">
-      <Filter>Коллекции</Filter>
-    </ClCompile>
-    <ClCompile Include="collection.cpp">
-      <Filter>Коллекции</Filter>
     </ClCompile>
     <ClCompile Include="ability.cpp">
       <Filter>Логика</Filter>
@@ -164,9 +149,6 @@
     <ClCompile Include="point.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="stringcreator.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
     <ClCompile Include="szdup.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
@@ -176,9 +158,6 @@
     <ClCompile Include="scale.c">
       <Filter>Интерфейс</Filter>
     </ClCompile>
-    <ClCompile Include="surface_serial.cpp">
-      <Filter>Интерфейс</Filter>
-    </ClCompile>
     <ClCompile Include="color.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
@@ -186,12 +165,6 @@
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="crt.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="crt_memory.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="crt_parse.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="state.cpp">
@@ -235,6 +208,18 @@
     </ClCompile>
     <ClCompile Include="variant.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="surface_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="stringbuilder.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="string_value.cpp">
+      <Filter>Поддержка</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

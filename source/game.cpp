@@ -1,9 +1,7 @@
 #include "archive.h"
 #include "main.h"
 
-template<> creature bsdata<creature>::elements[32];
-template<> unsigned bsdata<creature>::count;
-template<> unsigned bsdata<creature>::count_maximum = sizeof(bsdata<creature>::elements) / sizeof(bsdata<creature>::elements[0]);
+INSTDATAC(creature, 32)
 
 static unsigned short	camera_index = Blocked;
 static direction_s		camera_direction;
@@ -43,7 +41,17 @@ void game::setcamera(short unsigned index, direction_s direction) {
 }
 
 bool creature::ishero() const {
-	return bsdata<creature>::has(this);
+	return bsdata<creature>::source.indexof(this)!=-1;
+}
+
+int	creature::getpartyindex() const {
+	if(!this)
+		return -1;
+	for(unsigned i = 0; i < sizeof(game::party) / sizeof(game::party[0]); i++) {
+		if(game::party[i] == this)
+			return i;
+	}
+	return -1;
 }
 
 static int find_index(int** items, int* itm) {

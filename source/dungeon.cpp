@@ -820,7 +820,7 @@ static int autodetect_side(dungeon& location, item* itm) {
 	auto pc = game::gethero(itm);
 	if(!pc)
 		return 0;
-	int n = zfind(game::party, pc);
+	int n = pc->getpartyindex();
 	return n == -1 ? 0 : (n % 2);
 }
 

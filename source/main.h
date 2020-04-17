@@ -1,12 +1,10 @@
 ﻿#include "dice.h"
-#include "collection.h"
 #include "color.h"
 #include "crt.h"
 #include "rect.h"
-#include "stringcreator.h"
+#include "stringbuilder.h"
 
-#define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");\
-template<> const char* getstr<e##_s>(const e##_s i) { return bsdata<e##i>::elements[i].name; }
+#define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
 
 const unsigned short	Blocked = 0xFFFF;
 const int				walls_frames = 9;
@@ -238,6 +236,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
 };
+typedef adatc<skill_s, char, DetectSecrets + 1> skilla;
 class creature;
 class item;
 struct variant {
@@ -257,17 +256,6 @@ struct variant {
 	constexpr explicit operator bool() const { return type == NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	creature*			getcreature() const;
-};
-template<typename T> struct bsdata {
-	typedef T			data_type;
-	static T			elements[];
-	static unsigned		count;
-	static unsigned		count_maximum;
-	static T*			add() { return (count < count_maximum) ? elements + (count++) : elements; }
-	static T*			begin() { return elements; }
-	static T*			end() { return elements + count; }
-	static bool			has(const void* p) { return p >= elements && p <= elements + count_maximum; }
-	static int			indexof(const void* p) { return (T*)p - elements; }
 };
 struct spellprogi {
 	char				elements[21][10];
@@ -374,7 +362,7 @@ struct monsteri {
 	char				ac;
 	item_s				attacks[4];
 	enchant_s			enchantments[2];
-	adatc<skill_s, char, DetectSecrets + 1> skills;
+	skilla				skills;
 	//
 	int					getexperience() const;
 	char				getpallette() const;
@@ -388,7 +376,7 @@ struct racei {
 	char				adjustment[Charisma + 1];
 	cflags<feat_s>		feats;
 	cflags<usability_s>	usability;
-	adatc<skill_s, char, DetectSecrets + 1> skills;
+	skilla				skills;
 };
 struct skilli {
 	const char*			name;
@@ -510,7 +498,6 @@ public:
 	spell_s				getspell() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
-	unsigned			getuse() const { return bsdata<itemi>::elements[type].usability.data; }
 	bool				is(usability_s v) const { return bsdata<itemi>::elements[type].usability.is(v); }
 	bool				is(item_feat_s v) const { return bsdata<itemi>::elements[type].feats.is(v); }
 	bool				isartifact() const { return magic == 3; }
@@ -638,6 +625,7 @@ public:
 	static int			getlevel(spell_s id, class_s type);
 	const char*			getname(char* result, const char* result_maximum) const;
 	int					getpallette() const { return pallette; }
+	int					getpartyindex() const;
 	int					getprepare(spell_s v) const { return prepared[v]; }
 	race_s				getrace() const { return race; }
 	reaction_s			getreaction() const { return reaction; }
@@ -905,7 +893,7 @@ struct answers {
 	void				sort();
 private:
 	char				buffer[512];
-	stringcreator		sc;
+	stringbuilder		sc;
 };
 namespace game {
 namespace action {
@@ -974,3 +962,13 @@ void					mslogv(const char* format, const char* vl);
 direction_s				pointto(short unsigned from, short unsigned to);
 int						rangeto(short unsigned i1, short unsigned i2);
 direction_s				to(direction_s d, direction_s d1);
+inline int				d100() { return rand() % 100; }
+DECLENUM(ability)
+DECLENUM(alignment)
+DECLENUM(class)
+DECLENUM(enchant)
+DECLENUM(monster)
+DECLENUM(race)
+DECLENUM(skill)
+DECLENUM(spell)
+DECLENUM(gender)

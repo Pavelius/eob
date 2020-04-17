@@ -121,7 +121,7 @@ static render_disp* get_monster_disp(creature* target) {
 static int get_party_disp(creature* target, wear_s id) {
 	if(!target)
 		return 0;
-	int pind = zfind(game::party, target);
+	int pind = target->getpartyindex();
 	if(pind == -1)
 		return 0;
 	if(id == RightHand)
@@ -320,7 +320,7 @@ void creature::view_portrait(int x, int y) const {
 		auto pv = source.data[(frametick / range) % variant_count];
 		rectf({x, y, x + 31, y + 31}, pv->c, getalpha(frametick % range, range));
 	}
-	int pind = zfind(game::party, const_cast<creature*>(this));
+	int pind = this->getpartyindex();
 	if(pind != -1) {
 		auto v = disp_damage[pind];
 		if(v)
@@ -409,7 +409,7 @@ void draw::animation::clear() {
 
 void draw::animation::damage(creature* target, int hits) {
 	if(target->ishero()) {
-		int pind = zfind(game::party, target);
+		int pind = target->getpartyindex();
 		if(pind != -1) {
 			disp_damage[pind] = hits;
 			render();
@@ -431,7 +431,7 @@ void draw::animation::damage(creature* target, int hits) {
 // If hits == -1 the attack is missed
 void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 	if(attacker->ishero()) {
-		auto pind = zfind(game::party, attacker);
+		auto pind = attacker->getpartyindex();
 		if(pind != -1) {
 			auto sdr = (pind == 0 || pind == 2) ? Left : Right;
 			auto sht = bsdata<itemi>::elements[attacker->get(slot).gettype()].image.shoot;

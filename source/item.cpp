@@ -274,7 +274,7 @@ void item::get(combati& result, const creature* enemy) const {
 }
 
 char* item::getname(char* result, const char* result_maximum) const {
-	stringcreator sc(result, result_maximum);
+	stringbuilder sc(result, result_maximum);
 	if(isbroken()) {
 		if(type == RationIron || type == Ration)
 			sc.adds("rotten");
