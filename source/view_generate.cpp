@@ -314,7 +314,7 @@ static void change_character() {
 			current_player = *ptr_player;
 			apply_change_character();
 		} else {
-			(*ptr_player) = creature::newhero();
+			(*ptr_player) = bsdata<creature>::add();
 			current_player = *ptr_player;
 			(*ptr_player)->create(NoGender, NoRace, NoClass, LawfulGood, true);
 		}

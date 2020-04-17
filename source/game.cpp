@@ -1,6 +1,10 @@
 #include "archive.h"
 #include "main.h"
 
+template<> creature bsdata<creature>::elements[32];
+template<> unsigned bsdata<creature>::count;
+template<> unsigned bsdata<creature>::count_maximum = sizeof(bsdata<creature>::elements) / sizeof(bsdata<creature>::elements[0]);
+
 static unsigned short	camera_index = Blocked;
 static direction_s		camera_direction;
 static unsigned			overland_index = 1;
@@ -11,7 +15,6 @@ static unsigned			rounds_turn;
 static unsigned			rounds_hour;
 dungeon					location_above;
 dungeon					location;
-creature				hero_data[32];
 
 static const char* name_direction[] = {"floor",
 "left", "forward", "right", "rear"};
@@ -39,18 +42,8 @@ void game::setcamera(short unsigned index, direction_s direction) {
 	location.set(location.getindex(x, y - 1), CellExplored);
 }
 
-creature* creature::newhero() {
-	for(auto& e : hero_data) {
-		if(e)
-			continue;
-		return &e;
-	}
-	return hero_data;
-}
-
 bool creature::ishero() const {
-	return this >= hero_data
-		&& this <= (hero_data + sizeof(hero_data) / sizeof(hero_data[0]));
+	return bsdata<creature>::has(this);
 }
 
 static int find_index(int** items, int* itm) {
@@ -438,7 +431,7 @@ static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
-	archive::dataset pointers[] = {hero_data};
+	archive::dataset pointers[] = {bsdata<creature>::elements};
 	archive a(file, writemode, pointers);
 	if(!a.signature("SAV"))
 		return false;
@@ -451,7 +444,7 @@ static bool serialize(bool writemode) {
 	a.set(game::rounds);
 	a.set(rounds_turn);
 	a.set(rounds_hour);
-	a.set(hero_data);
+	a.set(bsdata<creature>::elements);
 	a.set(game::party);
 	return true;
 }
@@ -492,7 +485,7 @@ static bool serialize(dungeon& e, short unsigned overland_index, int level, bool
 	io::file file(fname(temp, overland_index, level), write_mode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
-	archive::dataset pointers[] = {hero_data, e.overlays};
+	archive::dataset pointers[] = {bsdata<creature>::elements, e.overlays};
 	archive a(file, write_mode, pointers);
 	a.set(e);
 	return true;

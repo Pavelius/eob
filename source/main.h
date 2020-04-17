@@ -111,6 +111,9 @@ enum condition_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
+	MV, AC, Speed, Hits, HitsBase, HitsBoost, ExeptionalStrenght,
+	DrainEnergy, DrainStrenght, DrainConstitution,
 };
 enum skill_s : unsigned char {
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
@@ -235,11 +238,6 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
 };
-enum prop_s : unsigned char {
-	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
-	MV, AC, Speed, Hits, HitsBase, HitsBoost, ExeptionalStrenght,
-	DrainEnergy, DrainStrenght, DrainConstitution,
-};
 class creature;
 class item;
 struct variant {
@@ -263,6 +261,13 @@ struct variant {
 template<typename T> struct bsdata {
 	typedef T			data_type;
 	static T			elements[];
+	static unsigned		count;
+	static unsigned		count_maximum;
+	static T*			add() { return (count < count_maximum) ? elements + (count++) : elements; }
+	static T*			begin() { return elements; }
+	static T*			end() { return elements + count; }
+	static bool			has(const void* p) { return p >= elements && p <= elements + count_maximum; }
+	static int			indexof(const void* p) { return (T*)p - elements; }
 };
 struct spellprogi {
 	char				elements[21][10];
@@ -430,14 +435,18 @@ struct effecti {
 	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	constexpr effecti(callback proc, int value = 0) : proc(proc), value(value) {}
 	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
-		duration(duration), state(state), save(save), save_bonus(save_bonus) {}
+		duration(duration), state(state), save(save), save_bonus(save_bonus) {
+	}
 	constexpr effecti(condition_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
-		condition(state), condition_save(save), condition_save_bonus(save_bonus) {}
+		condition(state), condition_save(save), condition_save_bonus(save_bonus) {
+	}
 	constexpr effecti(item_s item_weapon) : proc(apply_weapon),
-		item_weapon(item_weapon) {}
+		item_weapon(item_weapon) {
+	}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
 		damage_type(type), damage(damage), damage_per(damage_per), damage_increment(increment), damage_maximum(maximum),
-		damage_save(save) {}
+		damage_save(save) {
+	}
 };
 struct spelli {
 	const char*			name;
@@ -665,7 +674,6 @@ public:
 	bool				isready() const;
 	bool				isuse(const item v) const;
 	bool				mending(bool interactive);
-	static creature*	newhero();
 	void				preparespells();
 	bool				raise(enchant_s v);
 	void				random_name();
@@ -731,7 +739,7 @@ struct dungeon {
 		short unsigned	flags;
 		constexpr explicit operator bool() const { return type != CellUnknown; }
 		void			clear();
-		bool			is(overlay_flag_s v) const { return (flags&(1<<v)) != 0; }
+		bool			is(overlay_flag_s v) const { return (flags&(1 << v)) != 0; }
 		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
 		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
@@ -780,7 +788,7 @@ struct dungeon {
 	creature			monsters[200];
 	eventi				events[256];
 	dungeon() { clear(); }
-	operator bool() const { return head.type!=NONE; }
+	operator bool() const { return head.type != NONE; }
 	overlayi*			add(short unsigned index, cell_s type, direction_s dir);
 	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);

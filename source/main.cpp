@@ -105,13 +105,13 @@ static void test_dungeon2(resource_s type) {
 }
 
 static void random_heroes() {
-	game::party[0] = creature::newhero();
+	game::party[0] = bsdata<creature>::add();
 	game::party[0]->create(Male, Human, Paladin, LawfulGood);
-	game::party[1] = creature::newhero();
+	game::party[1] = bsdata<creature>::add();
 	game::party[1]->create(Male, Dwarf, Fighter, LawfulGood);
-	game::party[2] = creature::newhero();
+	game::party[2] = bsdata<creature>::add();
 	game::party[2]->create(Female, Elf, MageTheif, ChaoticNeutral);
-	game::party[3] = creature::newhero();
+	game::party[3] = bsdata<creature>::add();
 	game::party[3]->create(Male, Dwarf, Cleric, LawfulGood);
 	//
 	game::party[0]->equip(item(GreenRing, OfRegeneration));
