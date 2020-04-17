@@ -9,7 +9,7 @@ static const char place_sides[4][4] = {{1, 3, 0, 2},
 {3, 2, 1, 0},
 };
 gamei					game;
-variant					gamei::party[6];
+variant					party[6];
 dungeon					location_above;
 dungeon					location;
 
@@ -116,7 +116,7 @@ creature* gamei::getdefender(short unsigned index, direction_s dr, creature* att
 	}
 }
 
-void gamei::attack(short unsigned index_of_monsters, bool ranged) {
+void gamei::attack(indext index_of_monsters, bool ranged) {
 	creaturea parcipants;
 	auto dr = getdirection();
 	location.turnto(index_of_monsters, to(dr, Down));
@@ -426,7 +426,7 @@ static bool serialize(bool writemode) {
 	if(!a.version(0, 1))
 		return false;
 	a.set(game);
-	a.set(game.party);
+	a.set(party);
 	a.set(bsdata<creature>::source);
 	return true;
 }

@@ -784,11 +784,11 @@ int	creature::get(ability_s id) const {
 int creature::getside() const {
 	if(kind)
 		return side;
-	if(game.party[0] == this)
+	if(party[0] == this)
 		return 0;
-	else if(game.party[1] == this)
+	else if(party[1] == this)
 		return 1;
-	else if(game.party[2] == this)
+	else if(party[2] == this)
 		return 2;
 	return 3;
 }
@@ -1195,14 +1195,14 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 
 void creature::addexp(int value, int killing_hit_dice) {
 	int count = 0;
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto pc = v.getcreature();
 		if(pc && pc->isready())
 			count++;
 	}
 	if(count) {
 		int value_per_member = imax(1, value / count);
-		for(auto v : game.party) {
+		for(auto v : party) {
 			auto pc = v.getcreature();
 			if(pc && pc->isready()) {
 				pc->addexp(value_per_member);
@@ -1331,7 +1331,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 
 void read_message(dungeon* pd, dungeon::overlayi* po) {
 	creature* pc = 0;
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto p = v.getcreature();
 		if(!p || !p->isready())
 			continue;
@@ -1442,7 +1442,7 @@ bool creature::setweapon(item_s v, int charges) {
 creature* get_most_damaged() {
 	creature* result = 0;
 	int difference = 0;
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto e = v.getcreature();
 		if(!e)
 			continue;
@@ -1472,7 +1472,7 @@ static void try_autocast(creature* pc) {
 }
 
 void creature::camp(item& it) {
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto e = v.getcreature();
 		if(!e)
 			continue;
@@ -1485,7 +1485,7 @@ void creature::camp(item& it) {
 	auto poisoned = it.iscursed();
 	if(poisoned)
 		mslog("Food was poisoned!");
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto pc = v.getcreature();
 		if(!pc)
 			continue;
@@ -1542,7 +1542,7 @@ void creature::camp(item& it) {
 					if(pc->roll(Intellegence)) {
 						pi->setidentified(1);
 						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
-						pc->say("It's %1", sb);
+						pc->say("It's %1", temp);
 					}
 				}
 				break;
@@ -1555,7 +1555,7 @@ void creature::camp(item& it) {
 					if(pc->roll(Intellegence)) {
 						pi->setidentified(1);
 						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
-						pc->say("It's %1", sb);
+						pc->say("It's %1", temp);
 					}
 				}
 				break;
@@ -1618,6 +1618,7 @@ bool creature::use(item* pi) {
 					pc->addexp(10000);
 				else
 					pc->addexp(1000 * magic);
+				pc->say("I see insight!");
 				break;
 			case OfPoison:
 				switch(magic) {
@@ -1796,7 +1797,7 @@ bool creature::identify(bool interactive) {
 			e.setidentified(1);
 			if(interactive) {
 				char temp[128]; stringbuilder sb(temp); e.getname(sb);
-				say("%1 It's %2.", maprnd(talk), sb);
+				say("%1 It's %2.", maprnd(talk), temp);
 			}
 			return true;
 		}
@@ -1880,7 +1881,7 @@ reaction_s creature::rollreaction(int bonus) const {
 int	creature::getparty(ability_s v) {
 	auto total = 0;
 	auto count = 0;
-	for(auto ev : game.party) {
+	for(auto ev : party) {
 		auto p = ev.getcreature();
 		if(!p || !(*p) || !p->isready())
 			continue;
@@ -1895,7 +1896,7 @@ int	creature::getparty(ability_s v) {
 int	creature::getparty(skill_s v) {
 	auto total = 0;
 	auto count = 0;
-	for(auto ev : game.party) {
+	for(auto ev : party) {
 		auto p = ev.getcreature();
 		if(!p || !(*p) || !p->isready())
 			continue;
@@ -1932,7 +1933,7 @@ void creature::interract() {
 }
 
 void creature::apply(apply_proc proc, bool interactive) {
-	for(auto ev : game.party) {
+	for(auto ev : party) {
 		auto p = ev.getcreature();
 		if(p)
 			(p->*proc)(interactive);
@@ -1940,7 +1941,7 @@ void creature::apply(apply_proc proc, bool interactive) {
 }
 
 void creature::addparty(item i) {
-	for(auto ev : game.party) {
+	for(auto ev : party) {
 		auto p = ev.getcreature();
 		if(!p)
 			continue;
@@ -1978,7 +1979,7 @@ void creature::uncurse() {
 	for(auto i = Head; i <= LastBelt; i = (wear_s)(i + 1)) {
 		if(wears[i].iscursed() && wears[i].isidentified()) {
 			char temp[260]; stringbuilder sb(temp); wears[i].getname(sb);
-			mslog("%1 is turned to dust", sb);
+			mslog("%1 is turned to dust", temp);
 			wears[i].clear();
 		}
 	}

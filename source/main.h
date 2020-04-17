@@ -238,6 +238,7 @@ enum variant_s : unsigned char {
 };
 typedef short unsigned indext;
 typedef adatc<skill_s, char, DetectSecrets + 1> skilla;
+typedef cflags<usability_s> usabilitya;
 class creature;
 class item;
 struct variant {
@@ -281,7 +282,7 @@ struct classi {
 	char				hd;
 	ability_s			ability;
 	adat<class_s, 4>	classes;
-	cflags<usability_s>	usability;
+	usabilitya			usability;
 	cflags<feat_s>		feats;
 	char				minimum[Charisma + 1];
 	adat<race_s, 12>	races;
@@ -340,7 +341,7 @@ struct itemi {
 	const char*			name;
 	portraiti			image;
 	wear_s				equipment;
-	cflags<usability_s>	usability;
+	usabilitya			usability;
 	cflags<item_feat_s>	feats;
 	weaponi				weapon;
 	armori				armor;
@@ -377,7 +378,7 @@ struct racei {
 	char				maximum[Charisma + 1];
 	char				adjustment[Charisma + 1];
 	cflags<feat_s>		feats;
-	cflags<usability_s>	usability;
+	usabilitya			usability;
 	skilla				skills;
 };
 struct skilli {
@@ -860,7 +861,7 @@ struct dungeon {
 struct dialogi {
 	struct actioni {
 		action_s		action;
-		variant		variant;
+		variant			variant;
 		void			apply();
 		bool			isallow() const;
 		constexpr explicit operator bool() const { return action != NoAction; }
@@ -896,7 +897,6 @@ class gamei {
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
 public:
-	static variant		party[6];
 	void				attack(indext index, bool ranged);
 	void				endround();
 	void				enter(indext index, indext level);
@@ -905,7 +905,6 @@ public:
 	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getcreature(const item* itm) const;
-	creature*			getcreature(int n) const { return (n >= 0 && n<6) ? party[n].getcreature() : 0; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);
 	int					getrandom(int type, race_s race, gender_s gender, int prev_name);
@@ -972,6 +971,7 @@ bool					settiles(resource_s id);
 extern gamei			game;
 extern dungeon			location_above;
 extern dungeon			location;
+extern variant			party[6];
 inline int				gx(short unsigned index) { return index % mpx; }
 inline int				gy(short unsigned index) { return index / mpx; }
 short unsigned			to(short unsigned index, direction_s d);

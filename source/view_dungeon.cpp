@@ -340,7 +340,7 @@ static void handicn(int x, int y, creature* pc, wear_s id, void* current_item) {
 }
 
 void draw::avatar(int x, int y, int party_index, unsigned flags, item* current_item) {
-	auto p = game.party[party_index].getcreature();
+	auto p = party[party_index].getcreature();
 	if(!p)
 		return;
 	avatar(x, y, p, flags, current_item);
@@ -389,7 +389,7 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 }
 
 static unsigned get_hero_flags(int party_index) {
-	auto p = game.party[party_index].getcreature();
+	auto p = party[party_index].getcreature();
 	if(!p)
 		return Disabled;
 	return (p->gethits() <= 0) ? Disabled : 0;

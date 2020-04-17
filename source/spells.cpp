@@ -271,7 +271,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAllAlly:
 		say(id);
-		for(auto v : game.party) {
+		for(auto v : party) {
 			auto p = v.getcreature();
 			if(!p)
 				continue;

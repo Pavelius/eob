@@ -542,7 +542,7 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, con
 				stop = true;
 			}
 		}
-		for(auto v : game.party) {
+		for(auto v : party) {
 			auto p = v.getcreature();
 			if(p && p->getindex() == index) {
 				attack(ci, p);
@@ -572,7 +572,7 @@ void dungeon::passround() {
 			continue;
 		map[i]++;
 	}
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto p = v.getcreature();
 		if(!p || !(*p))
 			continue;
@@ -705,7 +705,7 @@ void dungeon::move(short unsigned index, direction_s dr) {
 }
 
 static void falling_damage() {
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto e = v.getcreature();
 		if(!e)
 			continue;
@@ -739,7 +739,7 @@ static void hearnoises(dungeon& location) {
 	door_index = to(door_index, dir);
 	if(door_index == Blocked)
 		return;
-	for(auto v : game.party) {
+	for(auto v : party) {
 		auto pc = v.getcreature();
 		if(!pc || !pc->isready())
 			continue;
@@ -851,7 +851,7 @@ void dungeon::pickitem(item* itm, int side) {
 		return;
 	iswap(*itm, *gitm);
 	char temp[260]; stringbuilder sb(temp); itm->getname(sb);
-	mslog("%1 picked up", sb);
+	mslog("%1 picked up", temp);
 }
 
 void dungeon::dropitem(item* pi, int side) {
@@ -866,7 +866,7 @@ void dungeon::dropitem(item* pi, int side) {
 	if(!pc->isallowremove(*pi, s1, true))
 		return;
 	char temp[260]; stringbuilder sb(temp); pi->getname(sb);
-	mslog("%1 dropped", sb);
+	mslog("%1 dropped", temp);
 	dropitem(game.getcamera(), *pi, game.getside(side, game.getdirection()));
 	pi->clear();
 }

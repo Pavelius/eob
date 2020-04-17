@@ -107,7 +107,7 @@ static void test_dungeon2(resource_s type) {
 static creature* add_hero(int n, gender_s gender, race_s race, class_s type, alignment_s alignment) {
 	auto p = bsdata<creature>::add();
 	p->create(gender, race, type, alignment);
-	game.party[n] = p;
+	party[n] = p;
 	return p;
 }
 

@@ -536,7 +536,7 @@ void draw::adventure() {
 		setnext(mainmenu);
 	while(ismodal()) {
 		if(!current_item)
-			current_item = game.party[0].getcreature()->getitem(RightHand);
+			current_item = party[0].getcreature()->getitem(RightHand);
 		draw::animation::update();
 		draw::animation::render(0, true, current_item);
 		domodal();
@@ -647,7 +647,7 @@ void draw::adventure() {
 		case Alpha + '4':
 		case Alpha + '5':
 		case Alpha + '6':
-			pc = game.party[hot::key - (Alpha + '1')].getcreature();
+			pc = party[hot::key - (Alpha + '1')].getcreature();
 			if(!pc)
 				break;
 			if(game.getcreature(current_item) != pc)

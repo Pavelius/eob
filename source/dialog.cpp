@@ -33,7 +33,7 @@ static bool allow(const creature* p, const variant v) {
 }
 
 static bool allowparty(const variant v) {
-	for(auto e : game.party) {
+	for(auto e : party) {
 		auto p = e.getcreature();
 		if(!p)
 			continue;
@@ -44,7 +44,7 @@ static bool allowparty(const variant v) {
 }
 
 static bool allowpartyitem(const item_s v) {
-	for(auto e : game.party) {
+	for(auto e : party) {
 		auto p = e.getcreature();
 		if(!p)
 			continue;
@@ -96,14 +96,14 @@ void dialogi::actioni::apply() {
 			creature::addparty((item_s)variant.value);
 			break;
 		case State:
-			for(auto e : game.party) {
+			for(auto e : party) {
 				auto p = e.getcreature();
 				if(p)
 					p->add((state_s)variant.value, xrand(3, 10) * 5);
 			}
 			break;
 		case Condition:
-			for(auto e : game.party) {
+			for(auto e : party) {
 				auto p = e.getcreature();
 				if(p)
 					p->add((condition_s)variant.value);

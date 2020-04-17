@@ -2,7 +2,7 @@
 
 void creaturea::select(short unsigned index) {
 	if(game.getcamera() == index) {
-		for(auto v : game.party) {
+		for(auto v : party) {
 			auto p = v.getcreature();
 			if(!p || !p->isready())
 				continue;

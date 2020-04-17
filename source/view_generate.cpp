@@ -23,7 +23,7 @@ static void new_game() {
 }
 
 static void delete_character() {
-	for(auto& v : game.party) {
+	for(auto& v : party) {
 		auto p = v.getcreature();
 		if(p == current_player)
 			v.clear();
@@ -95,7 +95,7 @@ static void genheader(callback proc = 0) {
 		genavatar(
 			16 + (i % 2) * 64,
 			64 + (i / 2) * 64,
-			cmd(proc, (int)&game.party[i], (int)&game.party[i]));
+			cmd(proc, (int)&party[i], (int)&party[i]));
 	}
 }
 
@@ -267,7 +267,7 @@ static class_s chooseclass(bool interactive, race_s race) {
 
 static bool is_party_created() {
 	for(int i = 0; i < 4; i++) {
-		auto p = game.party[i].getcreature();
+		auto p = party[i].getcreature();
 		if(!p)
 			return false;
 		if(!*p)
@@ -311,8 +311,8 @@ static void apply_change_character() {
 
 static void change_character() {
 	auto ptr_player = (variant*)hot::param;
-	if(ptr_player >= game.party
-		&& ptr_player <= game.party + sizeof(game.party) / sizeof(game.party[0])) {
+	if(ptr_player >= party
+		&& ptr_player <= party + sizeof(party) / sizeof(party[0])) {
 		if(*ptr_player && ptr_player->getcreature()) {
 			current_player = ptr_player->getcreature();
 			apply_change_character();

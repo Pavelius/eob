@@ -15,7 +15,7 @@ static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse)
 }
 
 static void spell_avatar(int x, int y, int i, class_s type, creature* pc) {
-	auto p = game.getcreature(i);
+	auto p = party[i].getcreature();
 	if(!p)
 		return;
 	draw::avatar(x, y, p, get_hero_spells_flags(p, type, pc), 0);
@@ -110,7 +110,7 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 creature* creature::choosehero() {
 	answers elements;
 	char temp[260];
-	for(auto v : gamei::party) {
+	for(auto v : party) {
 		auto p = v.getcreature();
 		if(!p)
 			continue;
@@ -204,7 +204,7 @@ static bool choose_creature(class_s type, creature** hero) {
 	case Alpha + '4':
 		if(true) {
 			auto id = hot::key - (Alpha + '1');
-			p = game.party[id].getcreature();
+			p = party[id].getcreature();
 			if(!p || !p->iscast(type))
 				break;
 			*hero = p;
