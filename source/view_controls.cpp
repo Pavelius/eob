@@ -443,8 +443,8 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 	if(!pitm)
 		return;
 	rect rc;
-	auto pid = game::getitempart(pitm);
-	auto pc = game::gethero(pitm);
+	auto pid = game.getwear(pitm);
+	auto pc = game.getcreature(pitm);
 	unsigned char alpha = 0xFF;
 	if(invlist) {
 		if(pid == LeftRing || pid == RightRing)
@@ -512,41 +512,31 @@ direction_s map_key_to_dir(int e) {
 }
 
 static void show_invertory(item* current_item) {
-	draw::invertory(178, 0, game::gethero(current_item), current_item);
+	draw::invertory(178, 0, game.getcreature(current_item), current_item);
 }
 
 static void show_abilities(item* current_item) {
-	draw::abilities(178, 0, game::gethero(current_item));
+	draw::abilities(178, 0, game.getcreature(current_item));
 }
 
 static void show_skills(item* current_item) {
-	draw::skills(178, 0, game::gethero(current_item));
+	draw::skills(178, 0, game.getcreature(current_item));
 }
 
-static bool is_anybody_live() {
-	for(auto e : game::party) {
-		if(!e)
-			continue;
-		if(e->isready())
-			return true;
-	}
-	return false;
-}
-
-void game::endround() {
-	game::rounds++;
-	game::passround();
-	game::findsecrets();
+void gamei::endround() {
+	rounds++;
+	passround();
+	findsecrets();
 	setnext(adventure);
 }
 
 void draw::adventure() {
 	creature* pc;
-	if(!is_anybody_live())
+	if(!game.isalive())
 		setnext(mainmenu);
 	while(ismodal()) {
 		if(!current_item)
-			current_item = game::party[0]->getitem(RightHand);
+			current_item = game.party[0].getcreature()->getitem(RightHand);
 		draw::animation::update();
 		draw::animation::render(0, true, current_item);
 		domodal();
@@ -554,8 +544,8 @@ void draw::adventure() {
 		case Alpha + 'B':
 			if(true) {
 				setmode(0);
-				auto pc = game::gethero(current_item);
-				auto pid = game::getitempart(current_item);
+				auto pc = game.getcreature(current_item);
+				auto pid = game.getwear(current_item);
 				if(pid != RightHand && pid != LeftHand)
 					current_item = pc->getitem(RightHand);
 				draw::animation::update();
@@ -566,13 +556,13 @@ void draw::adventure() {
 		case Alpha + 'I':
 			if(getmode() == show_invertory) {
 				setmode(0);
-				auto pc = game::gethero(current_item);
-				auto pid = game::getitempart(current_item);
+				auto pc = game.getcreature(current_item);
+				auto pid = game.getwear(current_item);
 				if(pid != RightHand && pid != LeftHand)
 					current_item = pc->getitem(RightHand);
 			} else {
 				setmode(show_invertory);
-				game::endround();
+				game.endround();
 			}
 			break;
 		case Alpha + 'C':
@@ -589,8 +579,8 @@ void draw::adventure() {
 			break;
 		case Alpha + 'Q':
 			if(current_item) {
-				if(game::action::question(current_item))
-					game::endround();
+				if(game.question(current_item))
+					game.endround();
 			}
 			break;
 		case KeyLeft:
@@ -628,20 +618,20 @@ void draw::adventure() {
 			break;
 		case Alpha + 'U':
 			if(creature::use(current_item))
-				game::endround();
+				game.endround();
 			break;
 		case Alpha + 'T':
-			game::action::thrown(current_item);
+			game.thrown(current_item);
 			break;
 		case Alpha + 'M':
-			if(game::action::manipulate(current_item, to(game::getdirection(), Up)))
-				game::endround();
+			if(game.manipulate(current_item, to(game.getdirection(), Up)))
+				game.endround();
 			break;
 		case Alpha + 'V':
-			game::action::automap(location, true);
+			location.automap(true);
 			break;
 		case Alpha + 'F':
-			draw::animation::thrown(game::getcamera(), game::getdirection(), Arrow, Left, 50);
+			draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 			break;
 		case Alpha + 'H':
 			if(true) {
@@ -657,10 +647,10 @@ void draw::adventure() {
 		case Alpha + '4':
 		case Alpha + '5':
 		case Alpha + '6':
-			pc = game::party[hot::key - (Alpha + '1')];
+			pc = game.party[hot::key - (Alpha + '1')].getcreature();
 			if(!pc)
 				break;
-			if(game::gethero(current_item) != pc)
+			if(game.getcreature(current_item) != pc)
 				current_item = pc->getitem(RightHand);
 			break;
 		}

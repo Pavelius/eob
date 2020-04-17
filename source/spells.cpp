@@ -99,8 +99,8 @@ static void mending(creature* player, creature* target, const effecti& e, int le
 }
 
 static void knock(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	auto index = game::getcamera();
-	auto direction = game::getdirection();
+	auto index = game.getcamera();
+	auto direction = game.getdirection();
 	auto pe = location.getoverlay(index, direction);
 	if(!pe)
 		return;
@@ -271,10 +271,11 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAllAlly:
 		say(id);
-		for(auto e : game::party) {
-			if(!e)
+		for(auto v : game.party) {
+			auto p = v.getcreature();
+			if(!p)
 				continue;
-			si.effect.proc(this, e, si.effect, level, wand_magic);
+			si.effect.proc(this, p, si.effect, level, wand_magic);
 		}
 		break;
 	case TargetAlly:
@@ -309,7 +310,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		index = to(index, to(dir, Down));
 		// Continue this case
 	case TargetClose:
-		target = game::getdefender(to(index, dir), dir, this);
+		target = game.getdefender(to(index, dir), dir, this);
 		if(!target)
 			return false;
 		say(id);

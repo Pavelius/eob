@@ -3,29 +3,20 @@
 
 INSTDATAC(creature, 32)
 
-static unsigned short	camera_index = Blocked;
-static direction_s		camera_direction;
-static unsigned			overland_index = 1;
-static unsigned char	location_level = 1;
-creature*				game::party[7];
-unsigned				game::rounds;
-static unsigned			rounds_turn;
-static unsigned			rounds_hour;
+static const char place_sides[4][4] = {{1, 3, 0, 2},
+{0, 1, 2, 3},
+{2, 0, 3, 1},
+{3, 2, 1, 0},
+};
+gamei					game;
+variant					gamei::party[6];
 dungeon					location_above;
 dungeon					location;
 
 static const char* name_direction[] = {"floor",
 "left", "forward", "right", "rear"};
 
-short unsigned game::getcamera() {
-	return camera_index;
-}
-
-direction_s game::getdirection() {
-	return camera_direction;
-}
-
-void game::setcamera(short unsigned index, direction_s direction) {
+void gamei::setcamera(short unsigned index, direction_s direction) {
 	camera_index = index;
 	if(direction != Center)
 		camera_direction = direction;
@@ -44,11 +35,12 @@ bool creature::ishero() const {
 	return bsdata<creature>::source.indexof(this)!=-1;
 }
 
-int	creature::getpartyindex() const {
+int	gamei::getindex(const creature* p) const {
 	if(!this)
 		return -1;
-	for(unsigned i = 0; i < sizeof(game::party) / sizeof(game::party[0]); i++) {
-		if(game::party[i] == this)
+	variant v = p;
+	for(unsigned i = 0; i < sizeof(party) / sizeof(party[0]); i++) {
+		if(party[i] == v)
 			return i;
 	}
 	return -1;
@@ -61,29 +53,22 @@ static int find_index(int** items, int* itm) {
 	return -1;
 }
 
-bool game::action::question(item* current_item) {
-	char name[128];
-	auto pc = gethero(current_item);
+bool gamei::question(item* current_item) {
+	auto pc = getcreature(current_item);
 	if(!pc || pc->gethits() <= 0)
 		return false;
-	current_item->getname(name, zendof(name));
-	pc->say("This is %1", name);
+	char name[128]; stringbuilder sb(name); current_item->getname(sb);
+	pc->say("This is %1", sb);
 	return true;
 }
 
-static const char place_sides[4][4] = {{1, 3, 0, 2},
-{0, 1, 2, 3},
-{2, 0, 3, 1},
-{3, 2, 1, 0},
-};
-
-int game::getside(int side, direction_s dr) {
+int gamei::getside(int side, direction_s dr) {
 	if(dr == Center)
 		return side;
 	return place_sides[dr - Left][side];
 }
 
-int game::getsideb(int side, direction_s dr) {
+int gamei::getsideb(int side, direction_s dr) {
 	if(dr == Center)
 		return side;
 	for(int i = 0; i < 4; i++) {
@@ -93,20 +78,23 @@ int game::getsideb(int side, direction_s dr) {
 	return -1;
 }
 
-static void select_parcipants(creature** result, short unsigned index) {
-	memset(result, 0, sizeof(result[0]) * 11);
-	auto dr = game::getdirection();
-	location.getmonsters(result, index, dr);
-	auto p = result;
-	for(int i = 0; i < 4; i++) {
-		if(result[i])
-			*p++ = result[i];
+void creaturea::select(short unsigned index) {
+	if(game.getcamera() == index) {
+		for(auto v : game.party) {
+			auto p = v.getcreature();
+			if(!p || !p->isready())
+				continue;
+			add(p);
+		}
+	} else {
+		creature* monster_data[4];
+		location.getmonsters(monster_data, index, Right);
+		for(auto p : monster_data) {
+			if(!p || !p->isready())
+				continue;
+			add(p);
+		}
 	}
-	for(int i = 0; i < 6; i++) {
-		if(game::party[i] && game::party[i]->isready())
-			*p++ = game::party[i];
-	}
-	*p = 0;
 }
 
 static int compare_parcipants(const void* p1, const void* p2) {
@@ -117,16 +105,14 @@ static int compare_parcipants(const void* p1, const void* p2) {
 	return i2 - i1;
 }
 
-void roll_inititative(creature** result) {
-	for(int i = 0; result[i]; i++) {
-		auto pc = result[i];
+void roll_inititative(creaturea& result) {
+	for(auto pc : result) {
 		int value = xrand(1, 10);
 		value += pc->getspeed();
 		pc->setinitiative(value);
 		pc->setmoved(true);
 	}
-	int count = zlen(result);
-	qsort(result, count, sizeof(result[0]), compare_parcipants);
+	qsort(result.data, result.count, sizeof(result[0]), compare_parcipants);
 }
 
 static creature* get_best_enemy(creature** quarter, int* indecies) {
@@ -138,9 +124,10 @@ static creature* get_best_enemy(creature** quarter, int* indecies) {
 	return 0;
 }
 
-void game::getheroes(creature** result, direction_s dr) {
+void gamei::getheroes(creature** result, direction_s dr) {
 	result[0] = result[1] = result[2] = result[3] = 0;
-	for(auto pc : game::party) {
+	for(auto v : party) {
+		auto pc = v.getcreature();
 		if(!pc || pc->gethits() <= 0)
 			continue;
 		int side = pc->getside();
@@ -150,14 +137,14 @@ void game::getheroes(creature** result, direction_s dr) {
 	}
 }
 
-creature* game::getdefender(short unsigned index, direction_s dr, creature* attacker) {
+creature* gamei::getdefender(short unsigned index, direction_s dr, creature* attacker) {
 	creature* defenders[4];
 	int attacker_side = attacker->getside();
 	if(!attacker->ishero())
-		attacker_side = game::getside(attacker_side, dr);
+		attacker_side = game.getside(attacker_side, dr);
 	if(!attacker->ishero()) {
 		static int sides[2][4] = {{0, 1, 2, 3}, {1, 0, 3, 2}, };
-		game::getheroes(defenders, dr);
+		game.getheroes(defenders, dr);
 		return get_best_enemy(defenders, sides[attacker_side % 2]);
 	} else {
 		static int sides[2][4] = {{2, 3, 0, 1}, {3, 2, 1, 0}};
@@ -166,16 +153,15 @@ creature* game::getdefender(short unsigned index, direction_s dr, creature* atta
 	}
 }
 
-void game::action::attack(short unsigned index_of_monsters, bool ranged) {
-	creature* parcipants[13];
+void gamei::attack(short unsigned index_of_monsters, bool ranged) {
+	creaturea parcipants;
 	auto dr = getdirection();
 	location.turnto(index_of_monsters, to(dr, Down));
 	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
-	select_parcipants(parcipants, index_of_monsters);
+	parcipants.select(index_of_monsters);
 	roll_inititative(parcipants);
-	for(int i = 0; parcipants[i]; i++) {
-		auto attacker = parcipants[i];
+	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
 		attacker->attack(index_of_monsters, dr, 0, ranged);
@@ -194,12 +180,12 @@ void game::action::attack(short unsigned index_of_monsters, bool ranged) {
 
 void read_message(dungeon* pd, dungeon::overlayi* po);
 
-bool game::action::manipulate(item* itm, direction_s dr) {
+bool gamei::manipulate(item* itm, direction_s dr) {
 	int index = getcamera();
 	auto po = location.getoverlay(index, dr);
 	if(!po)
 		return false;
-	auto pc = gethero(itm);
+	auto pc = getcreature(itm);
 	switch(location.gettype(po)) {
 	case CellSecrectButton:
 		// RULE: secret doors gain experience
@@ -257,7 +243,7 @@ bool game::action::manipulate(item* itm, direction_s dr) {
 	return true;
 }
 
-void game::action::thrown(item* itm) {
+void gamei::thrown(item* itm) {
 	static char place_sides[4][2] = {{3, 1},
 	{2, 3},
 	{0, 2},
@@ -265,7 +251,7 @@ void game::action::thrown(item* itm) {
 	};
 	if(!itm || !*itm)
 		return;
-	auto pc = gethero(itm);
+	auto pc = getcreature(itm);
 	auto side = pc->getside() % 2;
 	auto itmo = *itm;
 	itm->clear();
@@ -275,32 +261,58 @@ void game::action::thrown(item* itm) {
 	location.dropitem(index, itmo, place_sides[getdirection() - Left][side]);
 }
 
-creature* game::gethero(item* itm) {
-	for(auto e : party) {
-		if(!e)
+creature* gamei::getvalid(creature* pc, class_s type) const {
+	auto i = pc->getpartyindex();
+	if(i == -1)
+		i = 0;
+	auto stop = i;
+	while(true) {
+		auto p = party[i].getcreature();
+		if(p && p->iscast(type))
+			return p;
+		if(++i >= (int)(sizeof(party) / sizeof(party[0])))
+			i = 0;
+		if(i == stop)
+			return 0;
+	}
+}
+
+creature* gamei::getcreature(const item* itm) const {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
 			break;
-		auto p1 = e->getitem(FirstInvertory);
-		auto p2 = e->getitem(LastInvertory);
+		auto p1 = p->getitem(FirstInvertory);
+		auto p2 = p->getitem(LastInvertory);
 		if(itm >= p1 && itm <= p2)
-			return e;
+			return p;
 	}
 	return 0;
 }
 
-wear_s game::getitempart(item* itm) {
-	auto p = gethero(itm);
+bool gamei::isalive() {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(p && p->isready())
+			return true;
+	}
+	return false;
+}
+
+wear_s gamei::getwear(const item* itm) const {
+	auto p = getcreature(itm);
 	if(p)
 		return (wear_s)(FirstInvertory + (itm - p->getitem(FirstInvertory)));
 	return Head;
 }
 
-void game::passround() {
+void gamei::passround() {
 	// Походим за монстров
 	for(auto& e : location.monsters) {
 		if(!e || !e.isready() || e.ismoved())
 			continue;
-		auto party_index = game::getcamera();
-		auto party_direct = game::getdirection();
+		auto party_index = game.getcamera();
+		auto party_direct = game.getdirection();
 		auto monster_index = e.getindex();
 		auto monster_direct = e.getdirection();
 		if(monster_index == Blocked)
@@ -331,7 +343,8 @@ void game::passround() {
 		if(e)
 			e.update(false);
 	}
-	for(auto pc : game::party) {
+	for(auto v : party) {
+		auto pc = v.getcreature();
 		if(pc)
 			pc->update(true);
 	}
@@ -341,7 +354,8 @@ void game::passround() {
 			if(e)
 				e.update_turn(false);
 		}
-		for(auto pc : game::party) {
+		for(auto v : party) {
+			auto pc = v.getcreature();
 			if(pc)
 				pc->update_turn(true);
 		}
@@ -353,7 +367,8 @@ void game::passround() {
 			if(e)
 				e.update_hour(false);
 		}
-		for(auto pc : game::party) {
+		for(auto v : party) {
+			auto pc = v.getcreature();
 			if(pc)
 				pc->update_hour(true);
 		}
@@ -373,7 +388,7 @@ bool get_secret(short unsigned index, direction_s sight_dir, direction_s rotate_
 	return true;
 }
 
-void game::findsecrets() {
+void gamei::findsecrets() {
 	static const char* speech[] = {
 		"I see something on %1 wall",
 		"There is button to the %1",
@@ -384,7 +399,8 @@ void game::findsecrets() {
 	if(!get_secret(index, dir, Left, secret_dir)
 		&& !get_secret(index, dir, Right, secret_dir))
 		return;
-	for(auto pc : game::party) {
+	for(auto v : party) {
+		auto pc = v.getcreature();
 		if(!pc || !pc->isready())
 			continue;
 		if(pc->roll(DetectSecrets)) {
@@ -394,18 +410,18 @@ void game::findsecrets() {
 	}
 }
 
-void game::passtime(int minutes) {
+void gamei::passtime(int minutes) {
 	while(minutes > 0) {
 		passround();
 		auto count = 5;
 		if(count > minutes)
 			count = minutes;
 		minutes -= count;
-		game::rounds += count;
+		rounds += count;
 	}
 }
 
-void game::enter(unsigned short index, unsigned char level) {
+void gamei::enter(unsigned short index, unsigned char level) {
 	overland_index = index;
 	location_level = level;
 	location.clear();
@@ -416,17 +432,18 @@ void game::enter(unsigned short index, unsigned char level) {
 		location_above.read(overland_index, location_level - 1);
 	draw::settiles(location.head.type);
 	if(camera_index == Blocked)
-		game::setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 
 bool creature::set(skill_s skill, short unsigned index) {
+	variant owner = this;
 	for(auto& e : location.events) {
-		if(e.pc == this
+		if(e.owner == owner
 			&& e.skill == skill
 			&& e.index == index)
 			return false;
-		if(!e.pc) {
-			e.pc = this;
+		if(!e.owner) {
+			e.owner = owner;
 			e.skill = skill;
 			e.index = index;
 			return true;
@@ -439,21 +456,13 @@ static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
-	archive::dataset pointers[] = {bsdata<creature>::elements};
-	archive a(file, writemode, pointers);
+	archive a(file, writemode);
 	if(!a.signature("SAV"))
 		return false;
 	if(!a.version(0, 1))
 		return false;
-	a.set(overland_index);
-	a.set(location_level);
-	a.set(camera_index);
-	a.set(camera_direction);
-	a.set(game::rounds);
-	a.set(rounds_turn);
-	a.set(rounds_hour);
+	a.set(game);
 	a.set(bsdata<creature>::elements);
-	a.set(game::party);
 	return true;
 }
 
@@ -465,36 +474,12 @@ static char* fname(char* result, unsigned short index, int level) {
 	return result;
 }
 
-template<> void archive::set<dungeon::eventi>(dungeon::eventi& e) {
-	set(e.pc);
-	set(e.index);
-	set(e.skill);
-}
-template<> void archive::set<dungeon::overlayitem>(dungeon::overlayitem& e) {
-	set(*((item*)&e));
-	set(e.storage);
-}
-template<> void archive::set<dungeon>(dungeon& e) {
-	set(e.head);
-	set(e.overland_index);
-	set(e.level);
-	set(e.stat);
-	set(e.chance);
-	set(e.data);
-	set(e.items);
-	set(e.overlays);
-	set(e.monsters);
-	set(e.cellar_items);
-	set(e.events);
-}
-
 static bool serialize(dungeon& e, short unsigned overland_index, int level, bool write_mode) {
 	char temp[260];
 	io::file file(fname(temp, overland_index, level), write_mode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
-	archive::dataset pointers[] = {bsdata<creature>::elements, e.overlays};
-	archive a(file, write_mode, pointers);
+	archive a(file, write_mode);
 	a.set(e);
 	return true;
 }
@@ -507,16 +492,16 @@ bool dungeon::read(unsigned short overland_index, unsigned char level) {
 	return serialize(*this, overland_index, level, false);
 }
 
-void game::write() {
+void gamei::write() {
 	if(!serialize(true))
 		return;
 	if(location)
 		location.write();
 }
 
-bool game::read() {
+bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	game::enter(overland_index, location_level);
+	enter(overland_index, location_level);
 	return true;
 }

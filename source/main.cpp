@@ -104,34 +104,37 @@ static void test_dungeon2(resource_s type) {
 	location.finish(CellPassable);
 }
 
+static creature* add_hero(int n, gender_s gender, race_s race, class_s type, alignment_s alignment) {
+	auto p = bsdata<creature>::add();
+	p->create(gender, race, type, alignment);
+	game.party[n] = p;
+	return p;
+}
+
 static void random_heroes() {
-	game::party[0] = bsdata<creature>::add();
-	game::party[0]->create(Male, Human, Paladin, LawfulGood);
-	game::party[1] = bsdata<creature>::add();
-	game::party[1]->create(Male, Dwarf, Fighter, LawfulGood);
-	game::party[2] = bsdata<creature>::add();
-	game::party[2]->create(Female, Elf, MageTheif, ChaoticNeutral);
-	game::party[3] = bsdata<creature>::add();
-	game::party[3]->create(Male, Dwarf, Cleric, LawfulGood);
-	//
-	game::party[0]->equip(item(GreenRing, OfRegeneration));
-	game::party[1]->set(item(AxeBattle, OfDamage, 3), RightHand);
-	game::party[1]->equip(item(BlueRing, OfInvisibility));
-	game::party[2]->add(item(MagicWand, 20, 0, 0));
-	game::party[2]->add(Identify);
-	game::party[2]->equip(item(BlueRing, OfWizardy));
-	game::party[2]->equip(item(BlueRing, OfMagicResistance, 1));
-	game::party[2]->add(item(PotionGreen, OfKnowledge, 2));
-	game::party[2]->add(item(KeySilver, 20, 0, 0));
-	//game::party[2]->add(item(PotionGreen, OfPoison, 1));
-	game::party[3]->add(item(PotionGreen, OfAdvise, 3));
-	game::party[3]->add(item(PotionGreen, OfAdvise, 2));
-	//
+	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
+	p->equip(item(GreenRing, OfRegeneration));
 	item artifact(SwordLong, 100, 0, 100);
 	artifact.setidentified(1);
-	game::party[0]->set(artifact, RightHand);
+	p->set(artifact, RightHand);
+	//
+	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
+	p->set(item(AxeBattle, OfDamage, 3), RightHand);
+	p->equip(item(BlueRing, OfInvisibility));
+	//
+	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
+	p->add(item(MagicWand, 20, 0, 0));
+	p->add(Identify);
+	p->equip(item(BlueRing, OfWizardy));
+	p->equip(item(BlueRing, OfMagicResistance, 1));
+	p->add(item(PotionGreen, OfKnowledge, 2));
+	p->add(item(KeySilver, 20, 0, 0));
 	item super_staff(Staff, BurningHands, 3);
-	game::party[2]->set(super_staff, RightHand);
+	p->set(super_staff, RightHand);
+	//
+	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
+	p->add(item(PotionGreen, OfAdvise, 3));
+	p->add(item(PotionGreen, OfAdvise, 2));
 }
 
 void util_main();
@@ -218,12 +221,12 @@ static void test_monster(resource_s rs, int overlay[4]) {
 #endif // DEBUG
 
 static void newgame() {
-	game::setcamera(Blocked);
+	game.setcamera(Blocked);
 	creature::view_party();
 	draw::resetres();
 	dungeon::create(1, first_adventure);
-	game::write();
-	game::enter(1, 1);
+	game.write();
+	game.enter(1, 1);
 	setnext(adventure);
 }
 
@@ -238,15 +241,15 @@ static void option_new_game() {
 }
 
 static void memorize_spells() {
-	game::action::preparespells(Mage);
+	creature::preparespells(Mage);
 }
 
 static void pray_for_spells() {
-	game::action::preparespells(Cleric);
+	creature::preparespells(Cleric);
 }
 
 static void option_save_game() {
-	game::write();
+	game.write();
 	setnext(adventure);
 }
 
@@ -257,11 +260,11 @@ static void quit_game() {
 }
 
 static void debug_dungeon1() {
-	game::setcamera(Blocked);
+	game.setcamera(Blocked);
 	dungeon::create(1, first_adventure, false);
 	random_heroes();
-	game::write();
-	game::enter(1, 1);
+	game.write();
+	game.enter(1, 1);
 	setnext(adventure);
 }
 
@@ -271,7 +274,7 @@ static void debug_dungeon2() {
 	random_heroes();
 	test_dungeon(BRICK);
 	draw::settiles(location.head.type);
-	game::setcamera(location.getindex(16, 16), Up);
+	game.setcamera(location.getindex(16, 16), Up);
 	setnext(adventure);
 }
 
@@ -279,7 +282,7 @@ static void load_game() {
 	draw::resetres();
 	//debug_dungeon2();
 	//return;
-	if(game::read())
+	if(game.read())
 		setnext(adventure);
 	else {
 #ifdef _DEBUG

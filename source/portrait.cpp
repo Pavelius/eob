@@ -1,6 +1,6 @@
 #include "main.h"
 
-static struct portrait_info {
+static struct portraiti {
 	gender_s		gender;
 	race_s			races[8];
 	class_s			classes[8];
@@ -77,7 +77,7 @@ static bool isportrait(int id, gender_s value) {
 		|| portrait_data[id].gender == value;
 }
 
-static int select(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
+static int select_avatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
 	int* p = result;
 	for(auto& e : portrait_data) {
 		if(gender && e.gender != NoGender && e.gender != gender)
@@ -92,16 +92,16 @@ static int select(int* result, const int* result_maximum, race_s race, gender_s 
 	return p - result;
 }
 
-int game::getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
-	auto c = select(result, result_maximum, race, gender, cls);
+int gamei::getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
+	auto c = select_avatar(result, result_maximum, race, gender, cls);
 	if(!c)
-		c = select(result, result_maximum, race, gender, NoClass);
+		c = select_avatar(result, result_maximum, race, gender, NoClass);
 	if(!c)
-		c = select(result, result_maximum, NoRace, gender, NoClass);
+		c = select_avatar(result, result_maximum, NoRace, gender, NoClass);
 	return c;
 }
 
-int game::getavatar(race_s race, gender_s gender, class_s cls) {
+int gamei::getavatar(race_s race, gender_s gender, class_s cls) {
 	int result[64];
 	auto c = getavatar(result, zendof(result), race, gender, cls);
 	return result[rand() % c];

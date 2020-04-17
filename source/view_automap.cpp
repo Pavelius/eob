@@ -10,8 +10,8 @@ static void show_marker(int x, int y) {
 static void show_camera_pos() {
 	draw::state push;
 	draw::fore = colors::red;
-	auto direct = game::getdirection();
-	auto camera = game::getcamera();
+	auto direct = game.getdirection();
+	auto camera = game.getcamera();
 	auto x1 = gx(camera)*mpg;
 	auto y1 = gy(camera)*mpg;
 	auto x2 = x1 + mpg;
@@ -176,7 +176,7 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 	}
 }
 
-void game::action::pause() {
+void gamei::pause() {
 	while(draw::ismodal()) {
 		draw::domodal();
 		switch(hot::key) {
@@ -187,10 +187,10 @@ void game::action::pause() {
 	}
 }
 
-void game::action::automap(dungeon& location, bool fow) {
-	render_automap(location, fow);
+void dungeon::automap(bool fow) {
+	render_automap(*this, fow);
 	show_camera_pos();
-	pause();
+	game.pause();
 }
 
 void draw::animation::appear(dungeon& location, short unsigned index, int radius) {
@@ -212,5 +212,5 @@ void draw::animation::appear(dungeon& location, short unsigned index, int radius
 	show_camera_pos();
 	draw::screenshoot after;
 	before.blend(after, 2000);
-	game::action::pause();
+	game.pause();
 }

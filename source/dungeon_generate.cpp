@@ -817,7 +817,7 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 					corridor(&e, ev.index, ev.dir, ev.flags);
 					e.stat.elements++;
 					if(interactive)
-						game::action::automap(e, false);
+						e.automap(false);
 				}
 				e.finish(CellWall);
 				if(is_valid_dungeon(&e))

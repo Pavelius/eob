@@ -12,11 +12,11 @@ void creature::encounter(reaction_s id) {
 		return;
 	switch(id) {
 	case Cautious:
-		location.turnto(game::getcamera(), to(direction, Down));
+		location.turnto(game.getcamera(), to(direction, Down));
 		cautions_dialog->choose(false);
 		break;
 	case Friendly:
-		location.turnto(game::getcamera(), to(direction, Down));
+		location.turnto(game.getcamera(), to(direction, Down));
 		friendly_dialog->choose(false);
 		break;
 	}

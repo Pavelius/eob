@@ -23,9 +23,11 @@ static void new_game() {
 }
 
 static void delete_character() {
-	auto prec = (creature**)zchr(game::party, current_player);
-	if(prec)
-		*prec = 0;
+	for(auto& v : game.party) {
+		auto p = v.getcreature();
+		if(p == current_player)
+			v.clear();
+	}
 	current_player->clear();
 	breakmodal(0);
 }
@@ -93,7 +95,7 @@ static void genheader(callback proc = 0) {
 		genavatar(
 			16 + (i % 2) * 64,
 			64 + (i / 2) * 64,
-			cmd(proc, (int)&game::party[i], (int)&game::party[i]));
+			cmd(proc, (int)&game.party[i], (int)&game.party[i]));
 	}
 }
 
@@ -173,7 +175,7 @@ int creature::render_combat(int x, int y, int width, bool use_bold) const {
 
 void creature::view_ability() {
 	adat<int, 64> source;
-	source.count = game::getavatar(source.data, source.endof(), race, gender, type);
+	source.count = game.getavatar(source.data, source.endof(), race, gender, type);
 	const int width = 152;
 	char temp[64];
 	int x, y;
@@ -265,9 +267,10 @@ static class_s chooseclass(bool interactive, race_s race) {
 
 static bool is_party_created() {
 	for(int i = 0; i < 4; i++) {
-		if(!game::party[i])
+		auto p = game.party[i].getcreature();
+		if(!p)
 			return false;
-		if(!(*game::party[i]))
+		if(!*p)
 			return false;
 	}
 	return true;
@@ -307,16 +310,16 @@ static void apply_change_character() {
 }
 
 static void change_character() {
-	auto ptr_player = (creature**)hot::param;
-	if(ptr_player >= game::party
-		&& ptr_player <= game::party + sizeof(game::party) / sizeof(game::party[0])) {
-		if(*ptr_player) {
-			current_player = *ptr_player;
+	auto ptr_player = (variant*)hot::param;
+	if(ptr_player >= game.party
+		&& ptr_player <= game.party + sizeof(game.party) / sizeof(game.party[0])) {
+		if(*ptr_player && ptr_player->getcreature()) {
+			current_player = ptr_player->getcreature();
 			apply_change_character();
 		} else {
 			(*ptr_player) = bsdata<creature>::add();
-			current_player = *ptr_player;
-			(*ptr_player)->create(NoGender, NoRace, NoClass, LawfulGood, true);
+			current_player = ptr_player->getcreature();
+			current_player->create(NoGender, NoRace, NoClass, LawfulGood, true);
 		}
 		current_player = 0;
 	}
@@ -380,7 +383,7 @@ void creature::create(gender_s gender, race_s race, class_s type, alignment_s al
 	set(type);
 	set(alignment);
 	roll_ability();
-	setavatar(game::getavatar(race, gender, getclass(type, 0)));
+	setavatar(game.getavatar(race, gender, getclass(type, 0)));
 	if(interactive)
 		view_ability();
 	else

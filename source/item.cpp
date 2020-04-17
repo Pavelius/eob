@@ -273,8 +273,7 @@ void item::get(combati& result, const creature* enemy) const {
 	result.critical_multiplier += get(OfSmashing);
 }
 
-char* item::getname(char* result, const char* result_maximum) const {
-	stringbuilder sc(result, result_maximum);
+void item::getname(stringbuilder& sc) const {
 	if(isbroken()) {
 		if(type == RationIron || type == Ration)
 			sc.adds("rotten");
@@ -306,8 +305,6 @@ char* item::getname(char* result, const char* result_maximum) const {
 			}
 		}
 	}
-	szupper(result, 1);
-	return result;
 }
 
 void item::setspell(spell_s spell) {
@@ -337,7 +334,7 @@ void item::setcharges(int value) {
 }
 
 bool item::damage(const char* text_damage, const char* text_broke) {
-	char name[128];
+	char name[128]; 
 	if(broken) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || magic == 3)
@@ -345,13 +342,17 @@ bool item::damage(const char* text_damage, const char* text_broke) {
 		// Magical items more durable (cursed break every time)
 		if(getmagic() > 0 && (d100() < (getmagic() * 15)))
 			return false;
-		if(text_broke)
-			mslog(text_broke, getname(name, zendof(name)));
+		if(text_broke) {
+			stringbuilder sb(name); getname(sb);
+			mslog(text_broke, sb);
+		}
 		clear();
 		return true;
 	} else {
-		if(text_damage)
-			mslog(text_damage, getname(name, zendof(name)));
+		if(text_damage) {
+			stringbuilder sb(name); getname(sb);
+			mslog(text_damage, sb);
+		}
 		broken = 1;
 	}
 	return false;

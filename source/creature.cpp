@@ -261,12 +261,12 @@ void creature::add(item value) {
 }
 
 bool creature::is(state_s id) const {
-	return states[id] && states[id] > game::rounds;
+	return states[id] && states[id] > game.getrounds();
 }
 
 bool creature::set(state_s id, unsigned rounds) {
 	auto current_value = states[id];
-	auto newbe_value = game::rounds + rounds;
+	auto newbe_value = game.getrounds() + rounds;
 	if(newbe_value < current_value)
 		return false;
 	states[id] = newbe_value;
@@ -442,7 +442,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		magic_bonus = wi.weapon->getmagic();
 	if(ishero())
 		subenergy();
-	for(auto atn = (bsdata<attacki>::elements[wi.attack].attacks_p2r + (game::rounds % 2)) / 2; atn > 0; atn--) {
+	for(auto atn = (bsdata<attacki>::elements[wi.attack].attacks_p2r + (game.getrounds() % 2)) / 2; atn > 0; atn--) {
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 		auto rolls = xrand(1, 20);
 		auto hits = -1;
@@ -521,7 +521,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 }
 
 void creature::attack(short unsigned index, direction_s d, int bonus, bool ranged) {
-	auto defender = game::getdefender(index, d, this);
+	auto defender = game.getdefender(index, d, this);
 	if(!defender)
 		return;
 	auto wp1 = get(RightHand);
@@ -784,11 +784,11 @@ int	creature::get(ability_s id) const {
 int creature::getside() const {
 	if(kind)
 		return side;
-	if(game::party[0] == this)
+	if(game.party[0] == this)
 		return 0;
-	else if(game::party[1] == this)
+	else if(game.party[1] == this)
 		return 1;
-	else if(game::party[2] == this)
+	else if(game.party[2] == this)
 		return 2;
 	return 3;
 }
@@ -899,12 +899,12 @@ void creature::random_name() {
 	}
 	if(race == Dwarf)
 		need_correct = false;
-	auto fe = game::getrandom(0, race, gender, -1);
+	auto fe = game.getrandom(0, race, gender, -1);
 	if(!fe)
-		fe = game::getrandom(0, NoRace, gender, -1);
-	auto se = game::getrandom(1, race, gender, need_correct ? fe : -1);
+		fe = game.getrandom(0, NoRace, gender, -1);
+	auto se = game.getrandom(1, race, gender, need_correct ? fe : -1);
 	if(!se)
-		se = game::getrandom(1, NoRace, gender, need_correct ? fe : -1);
+		se = game.getrandom(1, NoRace, gender, need_correct ? fe : -1);
 	name[0] = fe;
 	name[1] = se;
 }
@@ -1044,13 +1044,13 @@ void creature::setframe(short* frames, short index) const {
 direction_s creature::getdirection() const {
 	if(kind)
 		return direction;
-	return game::getdirection();
+	return game.getdirection();
 }
 
 short unsigned creature::getindex() const {
 	if(kind)
 		return index;
-	return game::getcamera();
+	return game.getcamera();
 }
 
 bool creature::have(item_s v) const {
@@ -1077,7 +1077,7 @@ void creature::set(direction_s v) {
 	if(kind)
 		direction = v;
 	else
-		game::setcamera(getindex(), v);
+		game.setcamera(getindex(), v);
 }
 
 void creature::setside(int value) {
@@ -1195,13 +1195,15 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 
 void creature::addexp(int value, int killing_hit_dice) {
 	int count = 0;
-	for(auto pc : game::party) {
+	for(auto v : game.party) {
+		auto pc = v.getcreature();
 		if(pc && pc->isready())
 			count++;
 	}
 	if(count) {
 		int value_per_member = imax(1, value / count);
-		for(auto pc : game::party) {
+		for(auto v : game.party) {
+			auto pc = v.getcreature();
 			if(pc && pc->isready()) {
 				pc->addexp(value_per_member);
 				if(killing_hit_dice) {
@@ -1236,10 +1238,10 @@ bool creature::use(skill_s skill, short unsigned index, int bonus, bool* firstti
 
 bool creature::swap(item* itm1, item* itm2) {
 	static const char* dontwear[2] = {"I don't wear this", "I do not use this"};
-	auto p1 = game::gethero(itm1);
-	auto s1 = game::getitempart(itm1);
-	auto p2 = game::gethero(itm2);
-	auto s2 = game::getitempart(itm2);
+	auto p1 = game.getcreature(itm1);
+	auto s1 = game.getwear(itm1);
+	auto p2 = game.getcreature(itm2);
+	auto s2 = game.getwear(itm2);
 	auto interactive = p1->ishero() || p2->ishero();
 	if(!p1->isallowremove(*itm1, s1, interactive))
 		return false;
@@ -1329,7 +1331,8 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 
 void read_message(dungeon* pd, dungeon::overlayi* po) {
 	creature* pc = 0;
-	for(auto p : game::party) {
+	for(auto v : game.party) {
+		auto p = v.getcreature();
 		if(!p || !p->isready())
 			continue;
 		if(!pc)
@@ -1439,7 +1442,8 @@ bool creature::setweapon(item_s v, int charges) {
 creature* get_most_damaged() {
 	creature* result = 0;
 	int difference = 0;
-	for(auto e : game::party) {
+	for(auto v : game.party) {
+		auto e = v.getcreature();
 		if(!e)
 			continue;
 		int hp = e->gethits();
@@ -1468,19 +1472,21 @@ static void try_autocast(creature* pc) {
 }
 
 void creature::camp(item& it) {
-	for(auto e : game::party) {
+	for(auto v : game.party) {
+		auto e = v.getcreature();
 		if(!e)
 			continue;
 		if(!e->isready())
 			continue;
 		try_autocast(e);
 	}
-	game::passtime(60 * 8);
+	game.passtime(60 * 8);
 	auto food = it.gettype();
 	auto poisoned = it.iscursed();
 	if(poisoned)
 		mslog("Food was poisoned!");
-	for(auto pc : game::party) {
+	for(auto v : game.party) {
+		auto pc = v.getcreature();
 		if(!pc)
 			continue;
 		// RULE: Ring of healing get addition healing
@@ -1534,9 +1540,9 @@ void creature::camp(item& it) {
 					if(pi->isidentified())
 						break;
 					if(pc->roll(Intellegence)) {
-						char temp[128];
 						pi->setidentified(1);
-						pc->say("It's %1", pi->getname(temp, zendof(temp)));
+						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
+						pc->say("It's %1", sb);
 					}
 				}
 				break;
@@ -1547,9 +1553,9 @@ void creature::camp(item& it) {
 					break;
 				if(!pi->isidentified()) {
 					if(pc->roll(Intellegence)) {
-						char temp[128];
 						pi->setidentified(1);
-						pc->say("It's %1", pi->getname(temp, zendof(temp)));
+						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
+						pc->say("It's %1", sb);
 					}
 				}
 				break;
@@ -1561,11 +1567,11 @@ void creature::camp(item& it) {
 }
 
 bool creature::use(item* pi) {
-	unsigned short forward_index = to(game::getcamera(), game::getdirection());
-	auto pc = game::gethero(pi);
+	unsigned short forward_index = to(game.getcamera(), game.getdirection());
+	auto pc = game.getcreature(pi);
 	if(!pc || pc->gethits() <= 0)
 		return false;
-	auto slot = game::getitempart(pi);
+	auto slot = game.getwear(pi);
 	if(!pc->isuse(*pi)) {
 		pc->say("I don't know what to do with this");
 		return false;
@@ -1577,25 +1583,25 @@ bool creature::use(item* pi) {
 	// Weapon is special case
 	if((slot == RightHand || slot == LeftHand)) {
 		if((!(*pi) || pi->ismelee())) {
-			game::action::attack(forward_index, false);
+			game.attack(forward_index, false);
 			return true;
 		} else if(pi->isranged()) {
-			auto original = game::getcamera();
-			auto index = location.gettarget(game::getcamera(), game::getdirection());
+			auto original = game.getcamera();
+			auto index = location.gettarget(game.getcamera(), game.getdirection());
 			if(index != Blocked) {
 				auto ranged = rangeto(original, index) > 1;
-				game::action::attack(index, ranged);
+				game.attack(index, ranged);
 				if(ranged)
-					location.move(index, to(game::getdirection(), Down));
+					location.move(index, to(game.getdirection(), Down));
 			}
 			return true;
 		}
 	}
 	spell_s spell_element;
-	char name[128]; pi->getname(name, zendof(name));
+	char name[128]; stringbuilder sb(name); pi->getname(sb);
 	bool consume = true;
 	auto type = pi->gettype();
-	auto po = location.getoverlay(game::getcamera(), game::getdirection());
+	auto po = location.getoverlay(game.getcamera(), game.getdirection());
 	auto magic = pi->getmagic();
 	switch(type) {
 	case PotionBlue:
@@ -1784,13 +1790,14 @@ bool creature::use(item* pi) {
 }
 
 bool creature::identify(bool interactive) {
-	char temp[260];
 	static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
 	for(auto& e : wears) {
 		if(e.ismagical() && !e.isidentified()) {
 			e.setidentified(1);
-			if(interactive)
-				say("%1 It's %2.", maprnd(talk), e.getname(temp, zendof(temp)));
+			if(interactive) {
+				char temp[128]; stringbuilder sb(temp); e.getname(sb);
+				say("%1 It's %2.", maprnd(talk), sb);
+			}
 			return true;
 		}
 	}
@@ -1873,7 +1880,8 @@ reaction_s creature::rollreaction(int bonus) const {
 int	creature::getparty(ability_s v) {
 	auto total = 0;
 	auto count = 0;
-	for(auto p : game::party) {
+	for(auto ev : game.party) {
+		auto p = ev.getcreature();
 		if(!p || !(*p) || !p->isready())
 			continue;
 		total += p->get(v);
@@ -1887,7 +1895,8 @@ int	creature::getparty(ability_s v) {
 int	creature::getparty(skill_s v) {
 	auto total = 0;
 	auto count = 0;
-	for(auto p : game::party) {
+	for(auto ev : game.party) {
+		auto p = ev.getcreature();
 		if(!p || !(*p) || !p->isready())
 			continue;
 		total += p->get(v);
@@ -1907,8 +1916,8 @@ void creature::interract() {
 		location.set(index, new_reaction);
 		encounter(new_reaction);
 	}
-	auto party_index = game::getcamera();
-	auto party_direction = game::getdirection();
+	auto party_index = game.getcamera();
+	auto party_direction = game.getdirection();
 	switch(reaction) {
 	case Flight:
 		// Just run away
@@ -1917,20 +1926,22 @@ void creature::interract() {
 	default:
 		mslog("You are under attack!");
 		location.turnto(party_index, to(direction, Down));
-		game::action::attack(index, false);
+		game.attack(index, false);
 		break;
 	}
 }
 
 void creature::apply(apply_proc proc, bool interactive) {
-	for(auto p : game::party) {
+	for(auto ev : game.party) {
+		auto p = ev.getcreature();
 		if(p)
 			(p->*proc)(interactive);
 	}
 }
 
 void creature::addparty(item i) {
-	for(auto p : game::party) {
+	for(auto ev : game.party) {
+		auto p = ev.getcreature();
 		if(!p)
 			continue;
 		for(auto& e : p->wears) {
@@ -1940,7 +1951,7 @@ void creature::addparty(item i) {
 			return;
 		}
 	}
-	location.dropitem(game::getcamera(), i, game::getside(0, game::getdirection()));
+	location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
 }
 
 bool creature::usequick() {
@@ -1966,9 +1977,13 @@ bool creature::usequick() {
 void creature::uncurse() {
 	for(auto i = Head; i <= LastBelt; i = (wear_s)(i + 1)) {
 		if(wears[i].iscursed() && wears[i].isidentified()) {
-			char temp[260]; wears[i].getname(temp, zendof(temp));
-			mslog("%1 is turned to dust", temp);
+			char temp[260]; stringbuilder sb(temp); wears[i].getname(sb);
+			mslog("%1 is turned to dust", sb);
 			wears[i].clear();
 		}
 	}
+}
+
+int creature::getpartyindex() const {
+	return game.getindex(this);
 }

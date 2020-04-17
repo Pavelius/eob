@@ -236,6 +236,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
 };
+typedef short unsigned indext;
 typedef adatc<skill_s, char, DetectSecrets + 1> skilla;
 class creature;
 class item;
@@ -255,6 +256,7 @@ struct variant {
 	variant(const creature* v);
 	constexpr explicit operator bool() const { return type == NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	void				clear() { type = NoVariant; value = 0; }
 	creature*			getcreature() const;
 };
 struct spellprogi {
@@ -492,7 +494,7 @@ public:
 	int					getdeflect() const;
 	enchant_s			getenchant() const;
 	int					getmagic() const;
-	char*				getname(char* result, const char* result_maximum) const;
+	void				getname(stringbuilder& sb) const;
 	int					getportrait() const;
 	int					getspeed() const;
 	spell_s				getspell() const;
@@ -663,6 +665,7 @@ public:
 	bool				isuse(const item v) const;
 	bool				mending(bool interactive);
 	void				preparespells();
+	static void			preparespells(class_s type);
 	bool				raise(enchant_s v);
 	void				random_name();
 	void				remove(condition_s v) { condition.remove(v); }
@@ -717,6 +720,10 @@ public:
 	static void			view_party();
 	void				view_portrait(int x, int y) const;
 };
+class creaturea : public adat<creature*, 12> {
+public:
+	void				select(short unsigned index);
+};
 struct dungeon {
 	struct overlayi {
 		cell_s			type; // type of overlay
@@ -739,7 +746,7 @@ struct dungeon {
 		constexpr explicit operator bool() const { return value.operator bool(); }
 	};
 	struct overlayitem : item {
-		overlayi*		storage;
+		short unsigned	storage_index;
 	};
 	struct statei {
 		overlayi		up; // where is stairs up
@@ -759,10 +766,10 @@ struct dungeon {
 		short unsigned	monsters; // total count of monsters
 	};
 	struct eventi {
-		const creature*	pc;
+		variant			owner;
 		skill_s			skill;
 		short unsigned	index;
-		operator bool() const { return pc != 0; }
+		constexpr operator bool() const { return owner.operator bool(); }
 	};
 	unsigned short		overland_index;
 	unsigned char		level;
@@ -783,6 +790,7 @@ struct dungeon {
 	int					addmonster(monster_s type, short unsigned index, direction_s dir = Up);
 	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				attack(const combati& ci, creature* enemy) const;
+	void				automap(bool fow);
 	void				clear();
 	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
@@ -810,6 +818,7 @@ struct dungeon {
 	short unsigned		getsecret() const;
 	static size_s		getsize(creature** sides);
 	overlayi*			getoverlay(short unsigned index, direction_s dir);
+	overlayi*			getoverlay(const overlayitem& e) { return &overlays[e.storage_index]; }
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
 	bool				is(short unsigned index, cell_flag_s value) const;
@@ -877,6 +886,46 @@ struct dialogi {
 	void				choose(bool border = false) const;
 	const dialogi*		find(const char* id) const;
 };
+class gamei {
+	indext				camera_index;
+	direction_s			camera_direction;
+	unsigned			overland_index;
+	unsigned char		location_level;
+	unsigned			rounds;
+	unsigned			rounds_turn;
+	unsigned			rounds_hour;
+public:
+	static variant		party[6];
+	void				attack(short unsigned index, bool ranged);
+	bool				manipulate(item* itm, direction_s direction);
+	void				pause();
+	bool				question(item* current_item);
+	void				thrown(item* itm);
+	void				endround();
+	void				enter(unsigned short index, unsigned char level);
+	void				findsecrets();
+	int					getavatar(race_s race, gender_s gender, class_s cls);
+	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
+	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
+	void				getheroes(creature** result, direction_s dir);
+	int					getrandom(int type, race_s race, gender_s gender, int prev_name);
+	unsigned			getrounds() const { return rounds; }
+	int					getside(int side, direction_s dr);
+	int					getsideb(int side, direction_s dr);
+	void				passround();
+	void				passtime(int minutes);
+	indext				getcamera() const { return camera_index; }
+	creature*			getcreature(const item* itm) const;
+	creature*			getcreature(int n) const { return (n >=0 && n<6) ? party[n].getcreature() : 0; }
+	direction_s			getdirection() const { return camera_direction; }
+	int					getindex(const creature* p) const;
+	creature*			getvalid(creature* pc, class_s type) const;
+	wear_s				getwear(const item* itm) const;
+	static bool			isalive();
+	void				setcamera(short unsigned index, direction_s direction = Center);
+	bool				read();
+	void				write();
+};
 struct answers {
 	struct element {
 		int				id;
@@ -895,39 +944,6 @@ private:
 	char				buffer[512];
 	stringbuilder		sc;
 };
-namespace game {
-namespace action {
-void					attack(short unsigned index, bool ranged);
-void					automap(dungeon& area, bool fow);
-void					fly(item_s item, int side);
-bool					manipulate(item* itm, direction_s direction);
-void					pause();
-void					preparespells(class_s type);
-bool					question(item* current_item);
-void					thrown(item* itm);
-}
-void					endround();
-void					enter(unsigned short index, unsigned char level);
-void					findsecrets();
-int						getavatar(race_s race, gender_s gender, class_s cls);
-int						getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
-short unsigned			getcamera();
-creature*				getdefender(short unsigned index, direction_s dr, creature* attacker);
-direction_s				getdirection();
-wear_s					getitempart(item* itm);
-creature*				gethero(item* itm);
-void					getheroes(creature** result, direction_s dir);
-int						getrandom(int type, race_s race, gender_s gender, int prev_name);
-int						getside(int side, direction_s dr);
-int						getsideb(int side, direction_s dr);
-extern creature*		party[7];
-void					passround();
-void					passtime(int minutes);
-bool					read();
-extern unsigned			rounds;
-void					setcamera(short unsigned index, direction_s direction = Center);
-void					write();
-}
 namespace draw {
 struct menu {
 	void(*proc)();
@@ -952,6 +968,7 @@ void					options();
 void					setnext(void(*p)());
 bool					settiles(resource_s id);
 }
+extern gamei			game;
 extern dungeon			location_above;
 extern dungeon			location;
 inline int				gx(short unsigned index) { return index % mpx; }

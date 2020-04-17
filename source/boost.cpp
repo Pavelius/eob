@@ -39,16 +39,17 @@ bool creature::isaffect(variant id) const {
 void creature::addboost(variant source, variant id, char value, unsigned duration) const {
 	auto pb = find_boost(source, id, this);
 	pb->value = value;
-	pb->round = game::rounds + duration;
+	pb->round = game.getrounds() + duration;
 }
 
 void creature::update_boost() {
+	auto rounds = game.getrounds();
 	auto pb = bsdata<boosti>::elements;
 	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
 	for(auto& e : bsdata<boosti>::elements) {
 		if(!e)
 			break;
-		if(e.round < game::rounds)
+		if(e.round < rounds)
 			continue;
 		*pb = e;
 	}

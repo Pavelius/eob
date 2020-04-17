@@ -115,7 +115,7 @@ const char* get_name_part(short rec) {
 	return objects[rec].name[0];
 }
 
-int	game::getrandom(int type, race_s race, gender_s gender, int prev_name) {
+int	gamei::getrandom(int type, race_s race, gender_s gender, int prev_name) {
 	int data[sizeof(objects) / sizeof(objects[0]) + 1];
 	int* p = data;
 	bool wowal = false;

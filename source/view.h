@@ -9,6 +9,7 @@ struct palspr : pma {
 };
 typedef void(*infoproc)(item*);
 void					abilities(int x, int y, creature* pc);
+void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
 int						buttonm(int x, int y, int width, const cmd& ev, const char* name);

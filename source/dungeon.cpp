@@ -44,11 +44,14 @@ unsigned dungeon::getitems(item** result, item** result_maximum, short unsigned 
 }
 
 unsigned dungeon::getitems(item** result, item** result_maximum, overlayi* povr) {
+	if(!povr)
+		return 0;
+	auto storage_index = povr - overlays;
 	auto p = result;
 	for(auto& e : cellar_items) {
 		if(!e)
 			continue;
-		if(e.storage != povr)
+		if(e.storage_index != storage_index)
 			continue;
 		if(p < result_maximum)
 			*p++ = &e;
@@ -149,20 +152,26 @@ dungeon::overlayi* dungeon::add(short unsigned index, cell_s type, direction_s d
 }
 
 void dungeon::add(overlayi* po, item it) {
+	if(!po)
+		return;
+	auto storage_index = po - overlays;
 	for(auto& e : cellar_items) {
 		if(!e) {
 			*((item*)&e) = it;
-			e.storage = po;
+			e.storage_index = storage_index;
 			return;
 		}
 	}
 }
 
 void dungeon::remove(overlayi* po, item it) {
+	if(!po)
+		return;
+	auto storage_index = po - overlays;
 	for(auto& e : cellar_items) {
-		if(e == it && e.storage == po) {
+		if(e == it && e.storage_index == storage_index) {
 			e.clear();
-			e.storage = 0;
+			e.storage_index = 0xFF;
 			return;
 		}
 	}
@@ -383,10 +392,10 @@ bool dungeon::allaround(short unsigned index, cell_s t1, cell_s t2) {
 void dungeon::turnto(short unsigned index, direction_s dr) {
 	if(!dr)
 		return;
-	if(index == game::getcamera())
-		game::setcamera(index, dr);
+	if(index == game.getcamera())
+		game.setcamera(index, dr);
 	else {
-		creature* result[4]; getmonsters(result, index, game::getdirection());
+		creature* result[4]; getmonsters(result, index, game.getdirection());
 		for(auto pc : result) {
 			if(!pc)
 				continue;
@@ -408,7 +417,7 @@ void dungeon::getmonsters(creature** result, short unsigned index, direction_s d
 		if(e.getsize() == Large)
 			result[2] = &e;
 		else {
-			int side = game::getside(e.getside(), dr);
+			int side = game.getside(e.getside(), dr);
 			result[side] = &e;
 		}
 	}
@@ -533,7 +542,8 @@ void dungeon::traplaunch(short unsigned index, direction_s dir, item_s show, con
 				stop = true;
 			}
 		}
-		for(auto p : game::party) {
+		for(auto v : game.party) {
+			auto p = v.getcreature();
 			if(p && p->getindex() == index) {
 				attack(ci, p);
 				stop = true;
@@ -562,7 +572,8 @@ void dungeon::passround() {
 			continue;
 		map[i]++;
 	}
-	for(auto p : game::party) {
+	for(auto v : game.party) {
+		auto p = v.getcreature();
 		if(!p || !(*p))
 			continue;
 		auto i = p->getindex();
@@ -662,7 +673,7 @@ void dungeon::move(short unsigned index, direction_s dr) {
 		return;
 	if(get(dest) == CellPit)
 		return;
-	if(dest == game::getcamera())
+	if(dest == game.getcamera())
 		return;
 	if(index == dest) {
 		stop(index);
@@ -694,7 +705,8 @@ void dungeon::move(short unsigned index, direction_s dr) {
 }
 
 static void falling_damage() {
-	for(auto e : game::party) {
+	for(auto v : game.party) {
+		auto e = v.getcreature();
 		if(!e)
 			continue;
 		// RULE: Climb walls helps when you drop down in pits
@@ -706,8 +718,8 @@ static void falling_damage() {
 
 static void falling_landing() {
 	creature* monsters[4];
-	auto index = game::getcamera();
-	location.getmonsters(monsters, index, game::getdirection());
+	auto index = game.getcamera();
+	location.getmonsters(monsters, index, game.getdirection());
 	for(auto e : monsters) {
 		if(!e)
 			continue;
@@ -717,8 +729,8 @@ static void falling_landing() {
 
 static void hearnoises(dungeon& location) {
 	direction_s secret_dir = Center;
-	auto index = game::getcamera();
-	auto dir = game::getdirection();
+	auto index = game.getcamera();
+	auto dir = game.getdirection();
 	auto door_index = to(index, dir);
 	if(door_index == Blocked || location.get(door_index) != CellDoor)
 		return;
@@ -727,7 +739,8 @@ static void hearnoises(dungeon& location) {
 	door_index = to(door_index, dir);
 	if(door_index == Blocked)
 		return;
-	for(auto pc : game::party) {
+	for(auto v : game.party) {
+		auto pc = v.getcreature();
 		if(!pc || !pc->isready())
 			continue;
 		int exp = 0;
@@ -755,15 +768,15 @@ static void hearnoises(dungeon& location) {
 }
 
 void dungeon::rotate(direction_s direction) {
-	auto i = game::getcamera();
-	auto d = game::getdirection();
-	game::setcamera(i, to(d, direction));
+	auto i = game.getcamera();
+	auto d = game.getdirection();
+	game.setcamera(i, to(d, direction));
 	hearnoises(*this);
 }
 
 void dungeon::move(direction_s direction) {
-	int i = game::getcamera();
-	int i1 = to(i, to(game::getdirection(), direction));
+	int i = game.getcamera();
+	int i1 = to(i, to(game.getdirection(), direction));
 	auto t = get(i1);
 	if(isblocked(i1) || ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
@@ -779,45 +792,45 @@ void dungeon::move(direction_s direction) {
 			draw::setnext(draw::mainmenu);
 			return;
 		}
-		game::enter(overland_index, level - 1);
-		game::setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
+		game.enter(overland_index, level - 1);
+		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
 		break;
 	case CellStairsDown:
 		mslog("Going down");
 		write();
-		game::enter(overland_index, level + 1);
-		game::setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
+		game.enter(overland_index, level + 1);
+		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
 		break;
 	case CellPit:
 		mslog("You falling down!");
 		write();
-		game::setcamera(to(game::getcamera(), game::getdirection()));
+		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
 		falling_damage();
-		game::enter(overland_index, level + 1);
+		game.enter(overland_index, level + 1);
 		falling_landing();
 		break;
 	default:
 		mslog(0);
-		game::setcamera(i1);
+		game.setcamera(i1);
 		hearnoises(*this);
 		break;
 	}
-	game::endround();
+	game.endround();
 }
 
 static item* find_item_to_get(dungeon& location, short unsigned index, int side) {
 	item* result[2];
-	int count = location.getitems(result, zendof(result), game::getcamera(), side);
+	int count = location.getitems(result, zendof(result), game.getcamera(), side);
 	if(!count)
-		count = location.getitems(result, zendof(result), game::getcamera());
+		count = location.getitems(result, zendof(result), game.getcamera());
 	if(!count)
 		return 0;
 	return result[0];
 }
 
 static int autodetect_side(dungeon& location, item* itm) {
-	auto pc = game::gethero(itm);
+	auto pc = game.getcreature(itm);
 	if(!pc)
 		return 0;
 	int n = pc->getpartyindex();
@@ -825,36 +838,36 @@ static int autodetect_side(dungeon& location, item* itm) {
 }
 
 void dungeon::pickitem(item* itm, int side) {
-	char temp[260];
 	if(!itm || *itm)
 		return;
 	if(side == -1)
 		side = autodetect_side(*this, itm);
-	auto gitm = find_item_to_get(*this, game::getcamera(), game::getside(side, game::getdirection()));
+	auto gitm = find_item_to_get(*this, game.getcamera(), game.getside(side, game.getdirection()));
 	if(!gitm)
 		return;
-	auto slot = game::getitempart(itm);
-	auto pc = game::gethero(itm);
+	auto slot = game.getwear(itm);
+	auto pc = game.getcreature(itm);
 	if(!pc->isallow(*gitm, slot))
 		return;
 	iswap(*itm, *gitm);
-	mslog("%1 picked up", itm->getname(temp, zendof(temp)));
+	char temp[260]; stringbuilder sb(temp); itm->getname(sb);
+	mslog("%1 picked up", sb);
 }
 
 void dungeon::dropitem(item* pi, int side) {
-	auto pc = game::gethero(pi);
+	auto pc = game.getcreature(pi);
 	if(!pc)
 		return;
 	if(!pi || !(*pi))
 		return;
 	if(side == -1)
 		side = autodetect_side(*this, pi);
-	auto s1 = game::getitempart(pi);
+	auto s1 = game.getwear(pi);
 	if(!pc->isallowremove(*pi, s1, true))
 		return;
-	char temp[260]; ;
-	mslog("%1 dropped", pi->getname(temp, zendof(temp)));
-	dropitem(game::getcamera(), *pi, game::getside(side, game::getdirection()));
+	char temp[260]; stringbuilder sb(temp); pi->getname(sb);
+	mslog("%1 dropped", sb);
+	dropitem(game.getcamera(), *pi, game.getside(side, game.getdirection()));
 	pi->clear();
 }
 
@@ -878,7 +891,7 @@ void dungeon::passhour() {
 	for(auto index : source) {
 		if(index == Blocked)
 			continue;
-		auto distance = rangeto(index, game::getcamera());
+		auto distance = rangeto(index, game.getcamera());
 		if(distance <= 3)
 			continue;
 		addmonster(head.habbits[rand() % 2], index);
@@ -907,7 +920,7 @@ void dungeon::formation(short unsigned index, direction_s dr) {
 		auto pc = creatures[s2];
 		creatures[s2] = creatures[s1];
 		creatures[s1] = pc;
-		pc->setside(game::getsideb(s1, dr));
+		pc->setside(game.getsideb(s1, dr));
 	}
 }
 

@@ -33,7 +33,8 @@ static bool allow(const creature* p, const variant v) {
 }
 
 static bool allowparty(const variant v) {
-	for(auto p : game::party) {
+	for(auto e : game.party) {
+		auto p = e.getcreature();
 		if(!p)
 			continue;
 		if(allow(p, v))
@@ -43,7 +44,8 @@ static bool allowparty(const variant v) {
 }
 
 static bool allowpartyitem(const item_s v) {
-	for(auto p : game::party) {
+	for(auto e : game.party) {
+		auto p = e.getcreature();
 		if(!p)
 			continue;
 		if(p->find(v))
@@ -68,8 +70,8 @@ bool dialogi::actioni::isallow() const {
 }
 
 void dialogi::actioni::apply() {
-	auto party_index = game::getcamera();
-	auto party_direction = game::getdirection();
+	auto party_index = game.getcamera();
+	auto party_direction = game.getdirection();
 	auto monster_index = to(party_index, party_direction);
 	creature* creatures[4]; location.getmonsters(creatures, monster_index, party_direction);
 	switch(action) {
@@ -94,13 +96,15 @@ void dialogi::actioni::apply() {
 			creature::addparty((item_s)variant.value);
 			break;
 		case State:
-			for(auto p : game::party) {
+			for(auto e : game.party) {
+				auto p = e.getcreature();
 				if(p)
 					p->add((state_s)variant.value, xrand(3, 10) * 5);
 			}
 			break;
 		case Condition:
-			for(auto p : game::party) {
+			for(auto e : game.party) {
+				auto p = e.getcreature();
 				if(p)
 					p->add((condition_s)variant.value);
 			}

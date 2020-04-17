@@ -14,11 +14,18 @@ static unsigned get_hero_spells_flags(creature* pe, class_s type, creature* pse)
 	return flags;
 }
 
+static void spell_avatar(int x, int y, int i, class_s type, creature* pc) {
+	auto p = game.getcreature(i);
+	if(!p)
+		return;
+	draw::avatar(x, y, p, get_hero_spells_flags(p, type, pc), 0);
+}
+
 static void spells_portraits(int x, int y, class_s type, creature* pc) {
-	draw::avatar(x, y, game::party[0], get_hero_spells_flags(game::party[0], type, pc), 0);
-	draw::avatar(x + 72, y, game::party[1], get_hero_spells_flags(game::party[1], type, pc), 0);
-	draw::avatar(x, y + 52, game::party[2], get_hero_spells_flags(game::party[2], type, pc), 0);
-	draw::avatar(x + 72, y + 52, game::party[3], get_hero_spells_flags(game::party[3], type, pc), 0);
+	spell_avatar(x, y, 0, type, pc);
+	spell_avatar(x + 72, y, 1, type, pc);
+	spell_avatar(x, y + 52, 2, type, pc);
+	spell_avatar(x + 72, y + 52, 3, type, pc);
 }
 
 static int get_spells_prepared(creature* pc, aref<spell_s> spells) {
@@ -62,21 +69,6 @@ static void render_spell_window(aref<spell_s> source, creature* pc, class_s type
 	draw::button(60, 156, -1, clear_spells, "Clear");
 }
 
-static creature* get_valid_hero(creature* pc, class_s type) {
-	auto i = pc->getpartyindex();
-	if(i == -1)
-		i = 0;
-	auto stop = i;
-	while(true) {
-		if(game::party[i] && game::party[i]->iscast(type))
-			return game::party[i];
-		if(++i >= (int)(sizeof(game::party) / sizeof(game::party[0])))
-			i = 0;
-		if(i == stop)
-			return 0;
-	}
-}
-
 static unsigned select_spells(spell_s* result, spell_s* result_maximum, const creature* pc, class_s type, int level) {
 	auto p = result;
 	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
@@ -118,9 +110,11 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 creature* creature::choosehero() {
 	answers elements;
 	char temp[260];
-	for(auto p : game::party) {
-		if(p)
-			elements.add((int)p, p->getname(temp, zendof(temp)));
+	for(auto v : gamei::party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		elements.add((int)p, p->getname(temp, zendof(temp)));
 	}
 	return (creature*)elements.choosesm("On which hero?", true);
 }
@@ -201,9 +195,30 @@ spell_s creature::choosespell(class_s type) const {
 	return (spell_s)getresult();
 }
 
-void game::action::preparespells(class_s type) {
+static bool choose_creature(class_s type, creature** hero) {
+	creature* p;
+	switch(hot::key) {
+	case Alpha + '1':
+	case Alpha + '2':
+	case Alpha + '3':
+	case Alpha + '4':
+		if(true) {
+			auto id = hot::key - (Alpha + '1');
+			p = game.party[id].getcreature();
+			if(!p || !p->iscast(type))
+				break;
+			*hero = p;
+		}
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
+void creature::preparespells(class_s type) {
 	adat<spell_s, 32> result;
-	auto hero = get_valid_hero(0, type);
+	auto hero = game.getvalid(0, type);
 	openform();
 	while(ismodal()) {
 		result.count = 0;
@@ -222,17 +237,6 @@ void game::action::preparespells(class_s type) {
 		domodal();
 		auto current_index = result.indexof((spell_s*)getfocus());
 		switch(hot::key) {
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-			if(true) {
-				auto id = hot::key - (Alpha + '1');
-				if(!game::party[id] || !game::party[id]->iscast(type))
-					break;
-				hero = game::party[id];
-			}
-			break;
 		case Alpha + 'C':
 			for(auto e : result)
 				hero->set(e, 0);
@@ -252,6 +256,9 @@ void game::action::preparespells(class_s type) {
 					hero->setprepare(result.data[current_index], c - 1);
 				continue;
 			}
+			break;
+		default:
+			choose_creature(type, &hero);
 			break;
 		}
 		navigate(true);
@@ -283,7 +290,7 @@ void creature::scribe(item& it) {
 void creature::scriblescrolls() {
 	adat<item*, 32> source;
 	const auto caster_type = Mage;
-	current_hero = get_valid_hero(0, caster_type);
+	current_hero = game.getvalid(0, caster_type);
 	openform();
 	while(ismodal()) {
 		source.count = 0;
@@ -320,19 +327,7 @@ void creature::scriblescrolls() {
 		spells_portraits(184, 2, caster_type, current_hero);
 		domodal();
 		navigate(true);
-		switch(hot::key) {
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-			if(true) {
-				auto id = hot::key - (Alpha + '1');
-				if(!game::party[id] || !game::party[id]->iscast(caster_type))
-					break;
-				current_hero = game::party[id];
-			}
-			break;
-		}
+		choose_creature(caster_type, &current_hero);
 	}
 	closeform();
 }

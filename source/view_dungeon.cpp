@@ -249,7 +249,7 @@ static int get_compass_index(direction_s d) {
 static void compass() {
 	draw::state push;
 	draw::fore = colors::white;
-	auto d = game::getdirection();
+	auto d = game.getdirection();
 	auto i = get_compass_index(d);
 	draw::image(114, 132, draw::gres(COMPASS), i, 0);
 	draw::image(79, 158, draw::gres(COMPASS), 4 + i, 0);
@@ -339,6 +339,13 @@ static void handicn(int x, int y, creature* pc, wear_s id, void* current_item) {
 		render_player_attack(x, y + 2, p);
 }
 
+void draw::avatar(int x, int y, int party_index, unsigned flags, item* current_item) {
+	auto p = game.party[party_index].getcreature();
+	if(!p)
+		return;
+	avatar(x, y, p, flags, current_item);
+}
+
 void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item) {
 	char temp[260]; pc->getname(temp, zendof(temp));
 	image(x, y, gres(INVENT), 1, 0);
@@ -381,15 +388,18 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 		rectb({x, y, x + 62, y + 49}, colors::white.mix(colors::black, ciclic(63) * 4));
 }
 
-static unsigned get_hero_flags(creature* pc) {
-	return (pc->gethits() <= 0) ? Disabled : 0;
+static unsigned get_hero_flags(int party_index) {
+	auto p = game.party[party_index].getcreature();
+	if(!p)
+		return Disabled;
+	return (p->gethits() <= 0) ? Disabled : 0;
 }
 
 static void show_portraits(int x, int y, item* current_item) {
-	draw::avatar(x, y, game::party[0], get_hero_flags(game::party[0]), current_item);
-	draw::avatar(x + 72, y, game::party[1], get_hero_flags(game::party[1]), current_item);
-	draw::avatar(x, y + 52, game::party[2], get_hero_flags(game::party[2]), current_item);
-	draw::avatar(x + 72, y + 52, game::party[3], get_hero_flags(game::party[3]), current_item);
+	draw::avatar(x, y, 0, get_hero_flags(0), current_item);
+	draw::avatar(x + 72, y, 1, get_hero_flags(1), current_item);
+	draw::avatar(x, y + 52, 2, get_hero_flags(2), current_item);
+	draw::avatar(x + 72, y + 52, 3, get_hero_flags(3), current_item);
 }
 
 static void render_players_info(item* current_item) {
@@ -493,7 +503,7 @@ bool draw::settiles(resource_s type) {
 static dungeon::overlayi* add_wall_decor(render_disp* p, short unsigned index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
-	auto bd = to(game::getdirection(), dir);
+	auto bd = to(game.getdirection(), dir);
 	auto index_start = to(index, bd);
 	if(index_start == Blocked)
 		return 0;
@@ -674,7 +684,7 @@ static render_disp* create_wall(render_disp* p, int i, short unsigned index, int
 		4, -1, -1,
 	};
 	bool enable;
-	auto cd = game::getdirection();
+	auto cd = game.getdirection();
 	// Front
 	n = walls_front[i];
 	if(n) {
@@ -698,7 +708,7 @@ static render_disp* create_wall(render_disp* p, int i, short unsigned index, int
 			p->index = index;
 			auto e1 = map_tiles->get(door_offset + pos_levels[i] - 1);
 			auto e2 = map_tiles->get(door_offset + 6 + pos_levels[i] - 1);
-			auto po = location.getoverlay(to(indecies[i], to(game::getdirection(), Down)), game::getdirection());
+			auto po = location.getoverlay(to(indecies[i], to(game.getdirection(), Down)), game.getdirection());
 			switch(tiles[CellDoor].type) {
 			case 1: // Dwarven doors type
 				if(location.is(index, CellActive)) {
@@ -895,7 +905,7 @@ static render_disp* create_items(render_disp* p, int i, short unsigned index, di
 	int item_count = location.getitems(result, zendof(result), index);
 	for(int n = 0; n < item_count; n++) {
 		auto it = *result[n];
-		int ps = game::getside(location.getitemside(result[n]), dr);
+		int ps = game.getside(location.getitemside(result[n]), dr);
 		int d = pos_levels[i] * 2 + (1 - ps / 2);
 		p->clear();
 		p->x = item_position[i * 4 + ps].x;
@@ -1014,7 +1024,7 @@ static void prepare_draw(short unsigned index, direction_s dr) {
 	for(int i = 0; i < 18; i++) {
 		int x1 = x + offsets[i * 2 + 0];
 		int y1 = y + offsets[i * 2 + 1];
-		bool mr = ((x1 + y1 + game::getdirection()) & 1) != 0;
+		bool mr = ((x1 + y1 + game.getdirection()) & 1) != 0;
 		if(x1 < 0 || y1 < 0 || x1 >= mpx || y1 >= mpy) {
 			p = create_wall(p, i, Blocked, get_tile(CellWall, mr), CellWall, !mr);
 			continue;
@@ -1169,7 +1179,7 @@ static void render_screen() {
 	// 0 - 176x120 - background
 	draw::state push;
 	render_disp* zorder[512];
-	unsigned flags = flip_flags(game::getcamera(), game::getdirection());
+	unsigned flags = flip_flags(game.getcamera(), game.getdirection());
 	//draw::image(scrx/2((flags&ImageMirrorH) != 0) ? 22 * 8 : 0, 0, map_tiles, 0, flags);
 	draw::image(scrx / 2, scry / 2, map_tiles, 0, flags);
 	draw::setclip({0, 0, scrx, scry});
@@ -1189,7 +1199,7 @@ static void render_screen() {
 }
 
 void draw::animation::update() {
-	prepare_draw(game::getcamera(), game::getdirection());
+	prepare_draw(game.getcamera(), game.getdirection());
 }
 
 render_disp* get_last_disp() {

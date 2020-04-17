@@ -27,28 +27,3 @@ bool archive::version(short major, short minor) {
 	}
 	return true;
 }
-
-void archive::setpointer(void** value) {
-	unsigned pid;
-	if(writemode) {
-		pid = -1;
-		auto j = 0;
-		for(auto& e : pointers) {
-			auto i = e.indexof(*value);
-			if(i != -1) {
-				pid = (j << 24) | i;
-				break;
-			}
-			j++;
-		}
-		source.write(&pid, sizeof(pid));
-	} else {
-		*value = 0;
-		source.read(&pid, sizeof(pid));
-		if(pid != -1) {
-			auto bi = pid >> 24;
-			auto ii = pid & 0xFFFFFF;
-			*value = pointers[bi].get(ii);
-		}
-	}
-}
