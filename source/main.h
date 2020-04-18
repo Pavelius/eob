@@ -90,7 +90,8 @@ enum class_s : unsigned char {
 enum monster_s : unsigned char {
 	NoMonster,
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
-	Orc, Shadow, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie
+	Orc, Shadow, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie,
+	LastMonster = Zombie,
 };
 enum state_s : unsigned char {
 	NoState,
@@ -110,7 +111,9 @@ enum condition_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
-	MV, AC, Speed, Hits, ExeptionalStrenght
+	AC, Speed, Hits, HitsBoost, ExeptionalStrenght,
+	StrenghtBoost, DexterityBoost, ConstitutionBoost, IntellegenceBoost, WisdowBoost, CharismaBoost,
+	LastAbility = CharismaBoost
 };
 enum skill_s : unsigned char {
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
@@ -538,12 +541,12 @@ class creature {
 	direction_s			direction;
 	unsigned			states[LastState + 1];
 	cflags<feat_s>		feats;
-	cflags<usability_s>	usability;
+	usabilitya			usability;
 	cflags<condition_s> condition;
 	short				hits, hits_aid, hits_rolled;
 	char				initiative;
 	char				levels[3];
-	char				ability[Charisma + 1];
+	char				ability[LastAbility + 1];
 	item				wears[LastInvertory + 1];
 	char				spells[LastSpellAbility + 1];
 	char				prepared[LastSpellAbility + 1];
@@ -734,8 +737,8 @@ struct dungeon {
 	struct overlayi {
 		cell_s			type; // type of overlay
 		direction_s		dir; // overlay direction
-		short unsigned	index; // index
-		short unsigned	index_link; // linked to this location
+		indext			index; // index
+		indext			index_link; // linked to this location
 		short unsigned	subtype; // depends on value type
 		short unsigned	flags;
 		constexpr explicit operator bool() const { return type != CellUnknown; }
@@ -836,17 +839,17 @@ struct dungeon {
 	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
 	bool				ismonster(short unsigned index);
 	bool				isroom(short unsigned index, direction_s dir, int side, int height) const;
-	static bool			isvisible(short unsigned index);
-	dungeon::overlayi*	getlinked(short unsigned index);
+	static bool			isvisible(indext index);
+	dungeon::overlayi*	getlinked(indext index);
 	void				makewave(short unsigned start, short unsigned* pathmap);
-	void				move(short unsigned index, direction_s dr);
+	void				move(indext index, direction_s dr);
 	void				move(direction_s direction);
 	void				passhour();
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(short unsigned* indicies);
 	bool				read(indext overland_index, indext level);
-	void				remove(unsigned short index, cell_flag_s value);
+	void				remove(indext index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
 	void				rotate(direction_s direction);
@@ -900,7 +903,10 @@ class gamei {
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
+	unsigned			killed[LastMonster + 1];
+	unsigned			found_secrets;
 public:
+	void				add(monster_s id) { killed[id]++; }
 	void				attack(indext index, bool ranged);
 	void				endround();
 	void				enter(indext index, indext level);

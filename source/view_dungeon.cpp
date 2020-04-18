@@ -1060,7 +1060,7 @@ static void prepare_draw(short unsigned index, direction_s dr) {
 	p->rdata = 0;
 }
 
-bool dungeon::isvisible(short unsigned index) {
+bool dungeon::isvisible(indext index) {
 	for(auto i : indecies) {
 		if(i == index)
 			return true;

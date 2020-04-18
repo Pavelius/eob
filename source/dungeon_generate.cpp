@@ -384,7 +384,7 @@ static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsig
 }
 
 static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	if(pd->stat.portal.index!=Blocked)
+	if(pd->stat.portal.index != Blocked)
 		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
@@ -415,6 +415,28 @@ static bool ispassable(dungeon* pd, short unsigned index) {
 		return false;
 	auto t = pd->get(index);
 	return t == CellPassable || t == CellUnknown;
+}
+
+static void makeroom(dungeon* pd, indext index, int w, int h) {
+	rect rc;
+	rc.x1 = gx(index);
+	rc.y1 = gy(index);
+	rc.x2 = rc.x1 + w - 1;
+	rc.y2 = rc.y1 + h - 1;
+	// Floor
+	for(auto x = rc.x1; x <= rc.x2; x++) {
+		for(auto y = rc.y1; y <= rc.y2; y++)
+			pd->set(pd->getindex(x, y), CellPassable);
+	}
+	// Walls
+	for(auto x = rc.x1; x <= rc.x2; x++)
+		pd->set(pd->getindex(x, rc.y1), CellWall);
+	for(auto x = rc.x1; x <= rc.x2; x++)
+		pd->set(pd->getindex(x, rc.y2), CellWall);
+	for(auto y = rc.y1; y <= rc.y2; y++)
+		pd->set(pd->getindex(rc.x1, y), CellWall);
+	for(auto y = rc.y1; y <= rc.y2; y++)
+		pd->set(pd->getindex(rc.x2, y), CellWall);
 }
 
 static bool room(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
@@ -492,7 +514,7 @@ static void trap(dungeon* pd, short unsigned index, direction_s dir, unsigned fl
 	if(i1 == Blocked) {
 		dr = to(dir, Right);
 		i1 = find_index(pd, index, dr);
-		if(i1==Blocked)
+		if(i1 == Blocked)
 			return;
 	}
 	pd->set(index, CellButton);
@@ -759,7 +781,7 @@ static unsigned find_rooms(short unsigned* source, const short unsigned* pe, con
 			if(isroom(location, x, y, 1)) {
 				if(pb < pe) {
 					auto i = location.getindex(x, y);
-					if(i!=Blocked)
+					if(i != Blocked)
 						*pb++ = i;
 				}
 			}

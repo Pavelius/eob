@@ -1180,6 +1180,7 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 					location.dropitem(index, it, side);
 				}
 			}
+			game.add(kind);
 			clear();
 		}
 	}

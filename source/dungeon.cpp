@@ -124,7 +124,7 @@ void dungeon::set(short unsigned  index, cell_s value) {
 	data[index] = (data[index] & (~CellMask)) | value;
 }
 
-void dungeon::remove(short unsigned index, cell_flag_s value) {
+void dungeon::remove(indext index, cell_flag_s value) {
 	if(index == Blocked)
 		return;
 	data[index] &= ~(0x80 >> value);
@@ -177,7 +177,7 @@ void dungeon::remove(overlayi* po, item it) {
 	}
 }
 
-dungeon::overlayi* dungeon::getlinked(short unsigned index) {
+dungeon::overlayi* dungeon::getlinked(indext index) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
@@ -667,7 +667,7 @@ static bool is_valid_move_by_size(creature** s_side, creature** d_side) {
 	return true;
 }
 
-void dungeon::move(short unsigned index, direction_s dr) {
+void dungeon::move(indext index, direction_s dr) {
 	auto dest = to(index, dr);
 	if(isblocked(dest))
 		return;
