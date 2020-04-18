@@ -12,7 +12,7 @@ static boosti* find_boost(variant source, variant id, variant owner) {
 	for(; pb < pe; pb++) {
 		if(!*pb)
 			break;
-		if(pb->owner == owner && pb->source == source && pb->id==id)
+		if(pb->owner == owner && pb->source == source && pb->id == id)
 			return pb;
 	}
 	if(pb == pe)
@@ -42,6 +42,27 @@ void creature::addboost(variant source, variant id, char value, unsigned duratio
 	pb->round = game.getrounds() + duration;
 }
 
+void creature::clearboost() {
+	auto pb = bsdata<boosti>::elements;
+	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
+	for(auto& e : bsdata<boosti>::elements) {
+		if(!e)
+			break;
+		auto p = e.owner.getcreature();
+		if(!p)
+			continue;
+		if(p->ishero())
+			continue;
+		switch(e.id.type) {
+		case Ability: p->ability[e.id.value] += e.value; break;
+		default: break;
+		}
+		*pb++ = e;
+	}
+	if(pb != pe)
+		pb->clear();
+}
+
 void creature::update_boost() {
 	auto rounds = game.getrounds();
 	auto pb = bsdata<boosti>::elements;
@@ -49,25 +70,18 @@ void creature::update_boost() {
 	for(auto& e : bsdata<boosti>::elements) {
 		if(!e)
 			break;
-		if(e.round < rounds)
-			continue;
-		*pb = e;
+		if(e.round < rounds) {
+			// TODO: apply boost
+			auto p = e.owner.getcreature();
+			if(!p)
+				continue;
+			switch(e.id.type) {
+			case Ability: p->ability[e.id.value] += e.value; break;
+			default: break;
+			}
+		} else
+			*pb++ = e;
 	}
 	if(pb != pe)
 		pb->clear();
-}
-
-void creature::apply_boost(int m) {
-	for(auto& e : bsdata<boosti>::elements) {
-		if(!e)
-			break;
-		auto p = e.owner.getcreature();
-		if(!p)
-			continue;
-		// TODO: apply boost
-		switch(e.id.type) {
-		case Ability: p->ability[e.id.value] += e.value*m; break;
-		default: break;
-		}
-	}
 }

@@ -278,6 +278,7 @@ void dungeon::clear() {
 	stat.down.index = Blocked;
 	stat.up.index = Blocked;
 	stat.portal.index = Blocked;
+	stat.crypt.index = Blocked;
 	for(auto& e : stat.spawn)
 		e = Blocked;
 	for(auto& e : overlays)
@@ -943,7 +944,7 @@ bool dungeon::islineh(short unsigned index, direction_s dir, int count, cell_s t
 		return false;
 	auto i1 = index;
 	auto i2 = index;
-	while(count>0) {
+	while(count > 0) {
 		i1 = to(i1, to(dir, Left));
 		i2 = to(i2, to(dir, Right));
 		if(i1 == Blocked || i2 == Blocked)
@@ -964,4 +965,78 @@ bool dungeon::isroom(short unsigned index, direction_s dir, int side, int height
 		index = to(index, dir);
 	}
 	return true;
+}
+
+bool dungeon::is(const rect& rc, cell_s id) const {
+	for(auto x = rc.x1; x <= rc.x2; x++) {
+		for(auto y = rc.y1; y <= rc.y2; y++) {
+			if(get(x, y) != id)
+				return false;
+		}
+	}
+	return true;
+}
+
+bool dungeon::create(rect& result, int w, int h) const {
+	const int border = 1;
+	auto x2 = mpx - w - 1 - border;
+	auto y2 = mpy - h - 1 - border;
+	auto x1 = xrand(border, x2);
+	auto y1 = xrand(border, y2);
+	for(auto y = y1; y < y2; y++) {
+		for(auto x = x1; x < x2; x++) {
+			rect rc = {x, y, x + w - 1, y + h - 1};
+			if(is(rc, CellUnknown)) {
+				result = rc;
+				return true;
+			}
+		}
+	}
+	for(auto y = y1; y > border; y--) {
+		for(auto x = x1; x > border; x++) {
+			rect rc = {x, y, x + w - 1, y + h - 1};
+			if(is(rc, CellUnknown)) {
+				result = rc;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void dungeon::makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side) {
+	indext i = Blocked;
+	switch(dir) {
+	case Left: i = getindex(rc.x1, rc.y1 + rc.height() / 2); break;
+	case Right: i = getindex(rc.x2, rc.y1 + rc.height() / 2); break;
+	case Up: i = getindex(rc.x1 + rc.width() / 2, rc.y1); break;
+	case Down: i = getindex(rc.x1 + rc.width() / 2, rc.y2); break;
+	default: return;
+	}
+	door.index = i;
+	door.dir = dir;
+	set(i, CellDoor);
+	if(has_button_on_other_side)
+		add(to(i, to(dir, Down)), CellDoorButton, dir);
+	if(has_button)
+		add(to(i, dir), CellDoorButton, to(dir, Down));
+}
+
+void dungeon::makeroom(const rect& rc, overlayi& door) {
+	static direction_s dirs[] = {Left, Right, Up, Down};
+	// Floor
+	for(auto x = rc.x1; x <= rc.x2; x++) {
+		for(auto y = rc.y1; y <= rc.y2; y++)
+			set(getindex(x, y), CellPassable);
+	}
+	// Walls
+	for(auto x = rc.x1; x <= rc.x2; x++)
+		set(getindex(x, rc.y1), CellWall);
+	for(auto x = rc.x1; x <= rc.x2; x++)
+		set(getindex(x, rc.y2), CellWall);
+	for(auto y = rc.y1; y <= rc.y2; y++)
+		set(getindex(rc.x1, y), CellWall);
+	for(auto y = rc.y1; y <= rc.y2; y++)
+		set(getindex(rc.x2, y), CellWall);
+	makedoor(rc, door, maprnd(dirs), false, false);
 }

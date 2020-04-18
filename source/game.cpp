@@ -8,13 +8,13 @@ static const char place_sides[4][4] = {{1, 3, 0, 2},
 {2, 0, 3, 1},
 {3, 2, 1, 0},
 };
+static const char* name_direction[] = {"floor",
+"left", "forward", "right", "rear"};
+
 gamei					game;
 variant					party[6];
 dungeon					location_above;
 dungeon					location;
-
-static const char* name_direction[] = {"floor",
-"left", "forward", "right", "rear"};
 
 void gamei::setcamera(short unsigned index, direction_s direction) {
 	camera_index = index;
@@ -157,6 +157,7 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 		location.set(to(index, dr), CellPassable);
 		location.remove(po);
 		pc->say("This is secret door");
+		found_secrets++;
 		break;
 	case CellCellar:
 		if(*itm) {
@@ -205,6 +206,38 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 		return false;
 	}
 	return true;
+}
+
+static bool get_secret(short unsigned index, direction_s sight_dir, direction_s rotate_dir, direction_s& secret_dir) {
+	auto po = location.getoverlay(index, to(sight_dir, rotate_dir));
+	if(!po)
+		return false;
+	if(po->type != CellSecrectButton)
+		return false;
+	secret_dir = rotate_dir;
+	return true;
+}
+
+void gamei::findsecrets() {
+	static const char* speech[] = {
+		"I see something on %1 wall",
+		"There is button to the %1",
+	};
+	direction_s secret_dir = Center;
+	auto index = game.getcamera();
+	auto dir = game.getdirection();
+	if(!get_secret(index, dir, Left, secret_dir)
+		&& !get_secret(index, dir, Right, secret_dir))
+		return;
+	for(auto v : party) {
+		auto pc = v.getcreature();
+		if(!pc || !pc->isready())
+			continue;
+		if(pc->roll(DetectSecrets)) {
+			pc->say(maprnd(speech), name_direction[secret_dir]);
+			break;
+		}
+	}
 }
 
 void gamei::thrown(item* itm) {
@@ -342,38 +375,6 @@ void gamei::passround() {
 	location.passround();
 }
 
-bool get_secret(short unsigned index, direction_s sight_dir, direction_s rotate_dir, direction_s& secret_dir) {
-	auto po = location.getoverlay(index, to(sight_dir, rotate_dir));
-	if(!po)
-		return false;
-	if(po->type != CellSecrectButton)
-		return false;
-	secret_dir = rotate_dir;
-	return true;
-}
-
-void gamei::findsecrets() {
-	static const char* speech[] = {
-		"I see something on %1 wall",
-		"There is button to the %1",
-	};
-	direction_s secret_dir = Center;
-	auto index = getcamera();
-	auto dir = getdirection();
-	if(!get_secret(index, dir, Left, secret_dir)
-		&& !get_secret(index, dir, Right, secret_dir))
-		return;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc || !pc->isready())
-			continue;
-		if(pc->roll(DetectSecrets)) {
-			pc->say(maprnd(speech), name_direction[secret_dir]);
-			break;
-		}
-	}
-}
-
 void gamei::passtime(int minutes) {
 	while(minutes > 0) {
 		passround();
@@ -388,6 +389,7 @@ void gamei::passtime(int minutes) {
 void gamei::enter(indext index, indext level) {
 	location_index = index;
 	location_level = level;
+	creature::clearboost();
 	location.clear();
 	location_above.clear();
 	if(!location.read(location_index, location_level))

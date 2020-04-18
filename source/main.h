@@ -561,7 +561,6 @@ class creature {
 	reaction_s			reaction;
 	//
 	void				addboost(variant source, variant id, char value, unsigned duration) const;
-	static void			apply_boost(int m);
 	void				attack_drain(creature* defender, char& value, int& hits);
 	void				dress_wears(int m);
 	void				dressoff();
@@ -592,6 +591,7 @@ public:
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
+	static void			clearboost();
 	bool				canspeak(race_s language) const;
 	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
@@ -761,6 +761,7 @@ struct dungeon {
 		overlayi		up; // where is stairs up
 		overlayi		down; // where is stairs down
 		overlayi		portal; // where is portal
+		overlayi		crypt; // where is crypt located
 		short unsigned	spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
@@ -801,6 +802,7 @@ struct dungeon {
 	void				attack(const combati& ci, creature* enemy) const;
 	void				automap(bool fow);
 	void				clear();
+	bool				create(rect& rc, int w, int h) const;
 	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
 	void				dropitem(item* pi, int side = -1);
@@ -832,6 +834,7 @@ struct dungeon {
 	cell_s				gettype(overlayi* po);
 	bool				is(short unsigned index, cell_flag_s value) const;
 	bool				is(short unsigned index, int width, int height, cell_s v) const;
+	bool				is(const rect& rc, cell_s id) const;
 	bool				isactive(const overlayi* po);
 	bool				isblocked(short unsigned index) const;
 	bool				isblocked(short unsigned index, int side) const;
@@ -841,6 +844,8 @@ struct dungeon {
 	bool				isroom(short unsigned index, direction_s dir, int side, int height) const;
 	static bool			isvisible(indext index);
 	dungeon::overlayi*	getlinked(indext index);
+	void				makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side);
+	void				makeroom(const rect& rc, overlayi& door);
 	void				makewave(short unsigned start, short unsigned* pathmap);
 	void				move(indext index, direction_s dr);
 	void				move(direction_s direction);
@@ -852,6 +857,7 @@ struct dungeon {
 	void				remove(indext index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
+	void				makedoor(const rect& rc);
 	void				rotate(direction_s direction);
 	void				set(short unsigned index, cell_s value);
 	void				set(short unsigned index, cell_flag_s value);

@@ -417,28 +417,6 @@ static bool ispassable(dungeon* pd, short unsigned index) {
 	return t == CellPassable || t == CellUnknown;
 }
 
-static void makeroom(dungeon* pd, indext index, int w, int h) {
-	rect rc;
-	rc.x1 = gx(index);
-	rc.y1 = gy(index);
-	rc.x2 = rc.x1 + w - 1;
-	rc.y2 = rc.y1 + h - 1;
-	// Floor
-	for(auto x = rc.x1; x <= rc.x2; x++) {
-		for(auto y = rc.y1; y <= rc.y2; y++)
-			pd->set(pd->getindex(x, y), CellPassable);
-	}
-	// Walls
-	for(auto x = rc.x1; x <= rc.x2; x++)
-		pd->set(pd->getindex(x, rc.y1), CellWall);
-	for(auto x = rc.x1; x <= rc.x2; x++)
-		pd->set(pd->getindex(x, rc.y2), CellWall);
-	for(auto y = rc.y1; y <= rc.y2; y++)
-		pd->set(pd->getindex(rc.x1, y), CellWall);
-	for(auto y = rc.y1; y <= rc.y2; y++)
-		pd->set(pd->getindex(rc.x2, y), CellWall);
-}
-
 static bool room(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	int i1 = to(index, dir);
 	if(!isvalid(pd, index, Up, CellPassable) || !isvalid(pd, index, Right, CellPassable) || !isvalid(pd, index, Right, CellPassable)
@@ -805,6 +783,14 @@ static void den(dungeon* pd, short unsigned index, direction_s dir, unsigned fla
 		return;
 }
 
+static void create_main_room(dungeon& e) {
+	rect room;
+	if(e.create(room, 7, 7)) {
+		room.offset(1, 1);
+		e.makeroom(room, e.stat.crypt);
+	}
+}
+
 void dungeon::create(short unsigned overland_index, const sitei* site, bool interactive) {
 	auto count = site->getleveltotal();
 	if(!count)
@@ -832,8 +818,10 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 				e.chance.special = imax(0, imin(45, 4 + level));
 				if(!stairs(&e, start, last_level))
 					continue;
+				create_main_room(e);
 				putroom(&e, e.stat.up.index, e.stat.up.dir, EmpthyStartIndex, false);
 				putroom(&e, e.stat.down.index, e.stat.down.dir, EmpthyStartIndex, false);
+				putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 				while(hasrooms()) {
 					auto ev = getroom();
 					corridor(&e, ev.index, ev.dir, ev.flags);
