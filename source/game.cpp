@@ -151,8 +151,13 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 		return false;
 	auto pc = getcreature(itm);
 	switch(location.gettype(po)) {
+	case CellPortal:
+		if(pc->get(Mage))
+			pc->say("This is portal");
+		else
+			pc->say("This is strange magical device");
+		break;
 	case CellSecrectButton:
-		// RULE: secret doors gain experience
 		creature::addexp(500, 0);
 		location.set(to(index, dr), CellPassable);
 		location.remove(po);
@@ -389,7 +394,6 @@ void gamei::passtime(int minutes) {
 void gamei::enter(indext index, indext level) {
 	location_index = index;
 	location_level = level;
-	creature::clearboost();
 	location.clear();
 	location_above.clear();
 	if(!location.read(location_index, location_level))

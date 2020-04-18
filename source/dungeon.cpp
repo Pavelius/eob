@@ -787,6 +787,7 @@ void dungeon::move(direction_s direction) {
 	switch(t) {
 	case CellStairsUp:
 		mslog("Going up");
+		creature::clearboost();
 		write();
 		if(level <= 1) {
 			// Leave dungeon
@@ -798,12 +799,14 @@ void dungeon::move(direction_s direction) {
 		break;
 	case CellStairsDown:
 		mslog("Going down");
+		creature::clearboost();
 		write();
 		game.enter(overland_index, level + 1);
 		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
 		break;
 	case CellPit:
 		mslog("You falling down!");
+		creature::clearboost();
 		write();
 		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
