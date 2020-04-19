@@ -237,7 +237,19 @@ void dungeon::setactive(overlayi* po, bool value) {
 			po->remove(Active);
 		switch(po->type) {
 		case CellPuller:
-			setactive(po->index, value, 1);
+			if(po->index_link != Blocked) {
+				setactive(po->index_link, value);
+				switch(get(po->index_link)) {
+				case CellDoor:
+					if(value)
+						mslog("You hear door open nearby");
+					else
+						mslog("You hear door closed nearby");
+					break;
+				}
+			}
+			else
+				setactive(po->index, value, 1);
 			break;
 		case CellDoorButton:
 			setactive(to(po->index, po->dir), value);

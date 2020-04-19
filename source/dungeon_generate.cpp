@@ -847,7 +847,8 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 				create_main_room(e);
 				putroom(&e, e.stat.up.index, e.stat.up.dir, EmpthyStartIndex, false);
 				putroom(&e, e.stat.down.index, e.stat.down.dir, EmpthyStartIndex, false);
-				putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
+				if(e.stat.crypt.index!=Blocked)
+					putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 				while(hasrooms()) {
 					auto ev = getroom();
 					corridor(&e, ev.index, ev.dir, ev.flags);
