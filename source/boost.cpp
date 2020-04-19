@@ -59,6 +59,14 @@ void creature::removeboost(variant v) const {
 		pb->clear();
 }
 
+void creature::update(const boosti& e) {
+	switch(e.id.type) {
+	case Ability: ability[e.id.value] += e.value; break;
+	case Spell: active_spells.remove((spell_s)e.id.value); break;
+	default: break;
+	}
+}
+
 void creature::clearboost() {
 	auto pb = bsdata<boosti>::elements;
 	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
@@ -69,12 +77,9 @@ void creature::clearboost() {
 		if(!p)
 			continue;
 		if(p->ishero())
-			continue;
-		switch(e.id.type) {
-		case Ability: p->ability[e.id.value] += e.value; break;
-		default: break;
-		}
-		*pb++ = e;
+			*pb++ = e;
+		else
+			p->update(e);
 	}
 	if(pb != pe)
 		pb->clear();
@@ -92,10 +97,7 @@ void creature::update_boost() {
 			auto p = e.owner.getcreature();
 			if(!p)
 				continue;
-			switch(e.id.type) {
-			case Ability: p->ability[e.id.value] += e.value; break;
-			default: break;
-			}
+			p->update(e);
 		} else
 			*pb++ = e;
 	}

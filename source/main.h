@@ -72,19 +72,17 @@ enum spell_s : unsigned char {
 	ProtectionFromEvil, PurifyFood,
 	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
-	AcidArrow, Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
+	AcidArrow, Aid, Blindness, Blur, Deafness, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness, CureDisease, Haste, NegativePlanProtection,
+	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
 };
 enum condition_s : unsigned char {
-	Blinded, Deafned, Diseased,
-	Moved, ProtectedNegativeEnergy,
-	PoisonWeak, Poison, PoisonStrong, PoisonDeadly
+	Moved, PoisonWeak, Poison, PoisonStrong, PoisonDeadly
 };
 enum class_s : unsigned char {
 	NoClass,
@@ -406,7 +404,7 @@ struct effecti {
 		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
 		value(value) {}
 	constexpr effecti(callback proc, int value = 0) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
-	constexpr effecti(variant type, duration_s duration, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
+	constexpr effecti(variant type, duration_s duration = Instant, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
 	constexpr effecti(condition_s state, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, Instant, save, save_bonus, {}, {}, 0, 0, 0) {}
 	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :
@@ -682,6 +680,7 @@ public:
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
 	void				uncurse();
+	void				update(const boosti& e);
 	void				update(bool interactive);
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);

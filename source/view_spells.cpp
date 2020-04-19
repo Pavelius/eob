@@ -71,7 +71,7 @@ static void render_spell_window(aref<spell_s> source, creature* pc, class_s type
 
 static unsigned select_spells(spell_s* result, spell_s* result_maximum, const creature* pc, class_s type, int level) {
 	auto p = result;
-	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
+	for(auto i = spell_s(1); i <= LastSpellAbility; i = (spell_s)(i + 1)) {
 		if(creature::getlevel(i, type) != level)
 			continue;
 		int value = pc->get(i);
@@ -85,7 +85,7 @@ static unsigned select_spells(spell_s* result, spell_s* result_maximum, const cr
 
 static unsigned select_known_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
 	auto p = result;
-	for(auto i = NoSpell; i < LayOnHands; i = (spell_s)(i + 1)) {
+	for(auto i = spell_s(1); i < LayOnHands; i = (spell_s)(i + 1)) {
 		if(creature::getlevel(i, type) != level)
 			continue;
 		if(!pc->isknown(i))

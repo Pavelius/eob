@@ -74,16 +74,12 @@ static void create_food(creature* player, creature* target, const effecti& e, in
 }
 
 static void cure_deafness(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->remove(Blinded);
-	target->remove(Deafned);
+	target->remove(Blindness);
+	target->remove(Deafness);
 }
 
 static void cure_disease(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->remove(Diseased);
-}
-
-static void negative_plan_protection(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->set(ProtectedNegativeEnergy);
+	target->remove(Disease);
 }
 
 static void identify(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
@@ -121,7 +117,7 @@ static void acid_arrow(creature* player, creature* target, const effecti& e, int
 	auto rs = rand() % 20 + 1;
 	if(rs < (th - target->getac()))
 		return;
-	target->set(AcidArrow, 1 + level / 3);
+	target->add(AcidArrow, 1 + level / 3, NoSave);
 }
 
 spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
@@ -138,19 +134,20 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Mending", {1, 0}, TargetAllAlly, mending},
 {"Prot. from Evil", {1, 1}, TargetAlly, {ProtectionFromEvil, DurationTurn}},
 {"Purify food", {0, 1}, TargetAllAlly, purify_food},
-{"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationTurn}},
+{"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationHour}},
 {"Shield", {1, 0}, TargetSelf, {ShieldSpell, Duration5PerLevel}},
 {"Shoking grasp", {1, 0}, TargetSelf, ShokingHand},
 {"Sleep", {1, 0}, TargetAllClose, {Sleep, Duration5PerLevel, SaveNegate}},
 // 2 - level
 {"Acid arrow", {2}, TargetThrow, acid_arrow, Arrow},
 {"Aid", {0, 2}, TargetAlly, aid_spell},
-{"Blindness", {2}, TargetClose, {Blinded}},
+{"Blindness", {2}, TargetClose, {Blindness, Instant, SaveNegate}},
 {"Blur", {2}, TargetSelf, {Blur, Duration5PerLevel}},
+{"Deafness", {2}, TargetClose, {Deafness, Instant, SaveNegate}},
 {"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
 {"Flaming sphere", {2}, TargetAllThrow, {Fire, {2, 4}, {}, 0, 0, SaveNegate}, FireThrown},
 {"Goodberry", {0, 2}, TargetAllAlly, {Heal, {1, 4}, {0}, 0, 0, NoSave}},
-{"Hold Person", {0, 2}, TargetAllClose, {HoldPerson, Duration1PerLevel}, MagicThrown},
+{"Hold Person", {0, 2}, TargetAllClose, {HoldPerson, Duration1PerLevel, SaveNegate}, MagicThrown},
 {"Invisibility", {2}, TargetAlly, {Invisibility, Duration2Hours}},
 {"Knock", {2}, TargetSpecial, knock},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
@@ -158,9 +155,10 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 3 - level
 {"Create Food", {0, 3}, TargetSpecial, create_food},
 {"Cure Blindness", {0, 3}, TargetAlly, cure_deafness},
+{"Cause Disease", {0, 3}, TargetClose, {Disease, Instant, SaveNegate}},
 {"Cure Disease", {0, 3}, TargetAlly, cure_disease},
 {"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
-{"Protected negative", {0, 3}, TargetAlly, negative_plan_protection},
+{"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
 {"Remove curse", {0, 3}, TargetAlly, remove_curse},
 {"Remove paralizes", {0, 3}, TargetAllAlly, remove_parasizes},
 // Special ability
@@ -264,7 +262,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		level = (spell_level + wand_magic - 1) * 2 - 1;
 	if(!spell_level)
 		return false;
-	if(is(Deafned) && (d100() < 20)) {
+	if(is(Deafness) && (d100() < 20)) {
 		if(ishero())
 			mslog("Spell failed!");
 	}

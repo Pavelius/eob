@@ -140,8 +140,6 @@ void creature::update_poison(bool interactive) {
 bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus) {
 	if(is(type))
 		return true;
-	if(!duration)
-		duration = xrand(2, 8);
 	switch(type) {
 	case HoldPerson:
 	case Sleep:
@@ -253,7 +251,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.bonus += 1;
 	if(is(TurnUndead))
 		result.bonus -= 4;
-	if(is(Blinded))
+	if(is(Blindness))
 		result.bonus -= 4;
 	result.bonus -= drain_energy;
 	result.damage.b += maptbl(damage_adjustment, k);
@@ -304,14 +302,14 @@ bool creature::isready() const {
 }
 
 void creature::update_hour(bool interactive) {
-	if(is(Diseased)) {
+	if(is(Disease)) {
 		if(roll(SaveVsPoison))
 			disease_progress--;
 		else
 			disease_progress++;
 		if(disease_progress <= 0) {
 			disease_progress = 0;
-			remove(Diseased);
+			remove(Disease);
 		}
 	}
 }
@@ -409,10 +407,10 @@ void creature::subenergy() {
 }
 
 void creature::attack_drain(creature* defender, char& value, int& hits) {
-	if(is(ProtectedNegativeEnergy) && roll(SaveVsParalization)) {
+	if(is(NegativePlanProtection) && roll(SaveVsParalization)) {
 		hits = 0;
 		damage(Magic, dice::roll(2, 6));
-		defender->remove(ProtectedNegativeEnergy);
+		defender->remove(NegativePlanProtection);
 	} else
 		value++;
 	// Dead from draining
@@ -701,7 +699,7 @@ void creature::prepare_random_spells(class_s type, int level) {
 	adat<spell_s, 64> spells;
 	int maximum_spells = getspellsperlevel(type, level);
 	int prepared_spells = 0;
-	for(auto i = NoSpell; i < FirstSpellAbility; i = (spell_s)(i + 1)) {
+	for(auto i = spell_s(1); i < FirstSpellAbility; i = (spell_s)(i + 1)) {
 		if(!isknown(i))
 			continue;
 		if(getlevel(i, type) == level) {
@@ -806,9 +804,9 @@ int creature::getspeed() const {
 	r += getbonus(OfSpeed);
 	if(is(Haste))
 		r += 2;
-	if(is(Blinded))
+	if(is(Blindness))
 		r -= 2;
-	if(is(Deafned))
+	if(is(Deafness))
 		r -= 1;
 	return r;
 }
@@ -830,7 +828,7 @@ int creature::getac() const {
 		r += 4;
 	if(is(ShieldSpell))
 		r += 7;
-	if(is(Blinded))
+	if(is(Blindness))
 		r -= 4;
 	// One of this
 	if(isinvisible())
@@ -938,7 +936,7 @@ int creature::get_base_save_throw(skill_s st) const {
 }
 
 void creature::preparespells() {
-	for(auto i = NoSpell; i <= LastSpellAbility; i = (spell_s)(i + 1)) {
+	for(auto i = spell_s(1); i <= LastSpellAbility; i = (spell_s)(i + 1)) {
 		auto level = getlevel(i, Mage);
 		auto count = getprepare(i);
 		if((wears[LeftRing].get(OfWizardy) && wears[LeftRing].get(OfWizardy) == level)
