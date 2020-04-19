@@ -67,10 +67,10 @@ enum message_s : unsigned char {
 enum spell_s : unsigned char {
 	Moved,
 	// Spells (level 1)
-	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, FeatherFall,
+	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, Fear, FeatherFall,
 	Identify, MageArmor, MagicMissile, Mending,
 	ProtectionFromEvil, PurifyFood,
-	ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
+	ReadLanguagesSpell, ResistColdSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
 	AcidArrow, Aid, Blindness, Blur, Deafness, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
@@ -397,12 +397,14 @@ struct effecti {
 		dice damage, dice damage_per, char damage_increment, char damage_maximum, int value) : proc(proc),
 		type(type), duration(duration), save(save), save_bonus(save_bonus),
 		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
-		value(value) {}
+		value(value) {
+	}
 	constexpr effecti(callback proc) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(variant type, duration_s duration = Instant, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
 	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :
-		effecti(apply_damage, type, Instant, save, 0, damage, damage_per_level, increment, maximum, 0) {}
+		effecti(apply_damage, type, Instant, save, 0, damage, damage_per_level, increment, maximum, 0) {
+	}
 };
 struct spelli {
 	const char*			name;
@@ -419,6 +421,14 @@ struct sitei {
 		item_s			special[2]; // Two special items find on this level
 		race_s			language; // All messages in this language
 	};
+	struct monsteri {
+		monster_s		type;
+		unsigned char	count;
+	};
+	struct crypti {
+		monster_s		boss;
+		explicit operator bool() const { return boss != NoMonster; }
+	};
 	struct chancei {
 		char			magic;
 		char			curse;
@@ -427,6 +437,7 @@ struct sitei {
 	headi				head;
 	char				levels;
 	chancei				chance;
+	crypti				crypt;
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
 };
@@ -521,6 +532,7 @@ class creature {
 	void				dress_wears(int m);
 	void				dressoff();
 	void				dresson();
+	void				drink(spell_s effect, int magic);
 	int					get_base_save_throw(skill_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
@@ -541,6 +553,7 @@ public:
 	static void			addexp(int value, int killing_hit_dice);
 	static void			addparty(item i);
 	static void			apply(apply_proc proc, bool interactive = true);
+	void				apply(spell_s id, int magic, unsigned duration);
 	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	static void			camp(item& it);
@@ -627,6 +640,7 @@ public:
 	bool				isready() const;
 	bool				isuse(const item v) const;
 	bool				mending(bool interactive);
+	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
 	bool				raise(enchant_s v);

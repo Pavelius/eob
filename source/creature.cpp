@@ -235,7 +235,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.bonus += 2;
 	if(is(Bless))
 		result.bonus += 1;
-	if(is(TurnUndead))
+	if(is(Fear))
 		result.bonus -= 4;
 	if(is(Blindness))
 		result.bonus -= 4;
@@ -463,7 +463,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		}
 		// Fear attack (Not depend on attack result)
 		if(getbonus(OfFear, slot))
-			defender->add(TurnUndead, xrand(1, 3) * 10, SaveNegate);
+			defender->add(Fear, xrand(1, 3) * 10, SaveNegate);
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
@@ -1118,6 +1118,12 @@ static void remove_hits(short& bonus, int v) {
 	}
 }
 
+static int getresisted(int value, int percent) {
+	if(!percent)
+		return value;
+	return value * (100-percent) / 100;
+}
+
 void creature::damage(damage_s type, int hits, int magic_bonus) {
 	if(type == Heal)
 		hits = -hits;
@@ -1135,7 +1141,11 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 		hits = (hits + 1) / 2;
 	if(type == Pierce && is(ResistPierce))
 		hits /= 2;
-	if(is(ImmuneNormalWeapon) && magic_bonus == 0
+	if(type == Cold)
+		hits = getresisted(hits, get(ResistCold));
+	if(type == Fire)
+		hits = getresisted(hits, get(ResistFire));
+	if((magic_bonus == 0) && is(ImmuneNormalWeapon)
 		&& (type == Bludgeon || type == Slashing || type == Pierce))
 		hits = 0;
 	if(hits == 0)
@@ -1272,7 +1282,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 		break;
 	case MessageMagicWeapons:
 		if(!pd->stat.weapons)
-			pc->say("Dont't find any magic weapon here");
+			pc->say("You don't find any magic weapon here");
 		else
 			pc->say("Find here %1i magic weapons", pd->stat.weapons);
 		break;
@@ -1318,13 +1328,13 @@ void read_message(dungeon* pd, dungeon::overlayi* po) {
 		if(read_message(p, pd, po))
 			return;
 	}
+	if(!pc)
+		return;
 	auto language = pd->getlanguage();
-	if(!pc->canspeak(language)) {
-		switch(language) {
-		case Dwarf: pc->say("Some kind of dwarven runes"); break;
-		case Elf: pc->say("Some kind of elvish scripts"); break;
-		default: pc->say("Some unrecognised language"); break;
-		}
+	switch(language) {
+	case Dwarf: pc->say("Some kind of dwarven runes"); break;
+	case Elf: pc->say("Some kind of elvish scripts"); break;
+	default: pc->say("Some unrecognised language"); break;
 	}
 }
 
@@ -1544,6 +1554,37 @@ void creature::camp(item& it) {
 	}
 }
 
+void creature::apply(spell_s id, int magic, unsigned duration) {
+	dice dc;
+	switch(id) {
+	case CureLightWounds:
+		dc.create(1 + magic*2, 8, 4);
+		damage(Heal, dc.roll(), 0);
+		break;
+	case CureDisease:
+		remove(Disease);
+		break;
+	case CureBlindnessDeafness:
+		remove(Blindness);
+		remove(Deafness);
+		break;
+	case Identify:
+		for(auto i = 0; i < magic; i++)
+			identify(true);
+		break;
+	default:
+		duration += duration*magic;
+		add(id, duration, NoSave, 0);
+		break;
+	}
+}
+
+void creature::poison(save_s save, char save_bonus) {
+	if(save != NoSave && roll(SaveVsPoison, save_bonus))
+		return;
+	active_spells.set(Poison);
+}
+
 bool creature::use(item* pi) {
 	unsigned short forward_index = to(game.getcamera(), game.getdirection());
 	auto pc = game.getcreature(pi);
@@ -1586,9 +1627,9 @@ bool creature::use(item* pi) {
 	case PotionGreen:
 	case PotionRed:
 		if(pi->iscursed()) {
-			// RULE: Cursed potion always apply strong poison
-			pc->damage(Death, xrand(1, 6));
-			pc->add(Poison, Instant, NoSave);
+			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
+			pc->poison(NoSave);
+			pc->say(maprnd(text));
 		} else {
 			auto enchant = pi->getenchant();
 			switch(enchant) {
@@ -1597,15 +1638,6 @@ bool creature::use(item* pi) {
 					pc->addexp(10000);
 				else
 					pc->addexp(1000 * magic);
-				pc->say("I see insight!");
-				break;
-			case OfPoison:
-				switch(magic) {
-				case 1: pc->damage(Death, xrand(1, 6)); break;
-				case 2: pc->damage(Death, xrand(2, 12)); break;
-				default: pc->damage(Death, xrand(3, 18)); break;
-				}
-				pc->add(Poison, Instant, NoSave);
 				break;
 			case OfHealing:
 				pc->damage(Heal, dice::roll(1 + magic, 4) + 3);

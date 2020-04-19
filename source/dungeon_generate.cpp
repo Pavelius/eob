@@ -809,12 +809,16 @@ static void den(dungeon* pd, short unsigned index, direction_s dir, unsigned fla
 		return;
 }
 
-static void create_main_room(dungeon& e) {
+static void create_crypt(dungeon& e, const sitei& ps) {
+	if(!ps.crypt.boss)
+		return;
 	rect room;
-	if(e.create(room, 7, 7)) {
-		room.offset(1, 1);
-		e.makeroom(room, e.stat.crypt);
-	}
+	if(!e.create(room, 7, 7))
+		return;
+	room.offset(1, 1);
+	e.makeroom(room, e.stat.crypt);
+	auto index = location.get(room.x1 + room.width() / 2, room.y1 + room.height() / 2);
+	e.stat.monsters += e.addmonster(ps.crypt.boss, index);
 }
 
 void dungeon::create(short unsigned overland_index, const sitei* site, bool interactive) {
@@ -844,10 +848,10 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 				e.chance.special = imax(0, imin(45, 4 + level));
 				if(!stairs(&e, start, last_level))
 					continue;
-				create_main_room(e);
+				create_crypt(e, *p);
 				putroom(&e, e.stat.up.index, e.stat.up.dir, EmpthyStartIndex, false);
 				putroom(&e, e.stat.down.index, e.stat.down.dir, EmpthyStartIndex, false);
-				if(e.stat.crypt.index!=Blocked)
+				if(e.stat.crypt.index != Blocked)
 					putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 				while(hasrooms()) {
 					auto ev = getroom();

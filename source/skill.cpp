@@ -222,6 +222,10 @@ int	creature::get(skill_s id) const {
 			if(is(Undead))
 				result += 100;
 			break;
+		case ResistCold:
+			if(is(ResistColdSpell))
+				result += 50;
+			break;
 		}
 	}
 	if(result > 100)

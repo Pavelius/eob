@@ -324,7 +324,7 @@ void gamei::passround() {
 		auto monster_direct = e.getdirection();
 		if(monster_index == Blocked)
 			continue;
-		if(e.is(TurnUndead)) {
+		if(e.is(Fear)) {
 			direction_s free_directions[] = {to(party_direct, Up), to(party_direct, Left), to(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
 			if(monster_direct != free_direct)
