@@ -960,6 +960,13 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 	return b;
 }
 
+void creature::getname(stringbuilder& sb) const {
+	if(kind)
+		sb.add(bsdata<monsteri>::elements[kind].name);
+	else
+		sb.add("%1%2", get_name_part(name[0]), get_name_part(name[1]));
+}
+
 const char* creature::getname(char* result, const char* result_maximum) const {
 	if(kind)
 		return bsdata<monsteri>::elements[kind].name;

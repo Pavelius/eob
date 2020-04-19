@@ -592,6 +592,7 @@ public:
 	int					getinitiative() const { return initiative; }
 	item*				getitem(wear_s id) { return &wears[id - FirstInvertory]; }
 	static int			getlevel(spell_s id, class_s type);
+	void				getname(stringbuilder& sb) const;
 	const char*			getname(char* result, const char* result_maximum) const;
 	int					getpallette() const { return pallette; }
 	int					getpartyindex() const;
@@ -827,6 +828,16 @@ struct dungeon {
 	void				traplaunch(short unsigned index, direction_s dir, item_s show, const combati& e);
 	void				turnto(short unsigned index, direction_s dr);
 	void				write();
+};
+class string : public stringbuilder {
+	creature*			source_hero;
+	item*				source_item;
+public:
+	constexpr string(char* pb, const char* pe) : stringbuilder(pb, pe), source_hero(0), source_item(0) {}
+	template<unsigned N> constexpr string(char(&result)[N]) : string(result, result + N - 1) {}
+	void				set(creature* v) { source_hero = v; }
+	void				set(item* v) { source_item = v; }
+	virtual void		addidentifier(const char* identifier) override;
 };
 struct dialogi {
 	struct actioni {

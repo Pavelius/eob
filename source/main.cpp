@@ -332,8 +332,8 @@ int main(int argc, char* argv[]) {
 	static int ovr3[4] = {0, 2, 3};
 	//test_monster(ANT, 0);
 	//test_monster(GUARD1, ovr3);
-	//test_monster(CLERIC2, ovr3)
-	//test_monster(BLDRAGON, 0);;
+	//test_monster(CLERIC2, ovr13);
+	//test_monster(BLDRAGON, 0);
 #endif
 	next_proc = mainmenu;
 	while(next_proc) {
