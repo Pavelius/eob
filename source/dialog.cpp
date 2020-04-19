@@ -102,13 +102,6 @@ void dialogi::actioni::apply() {
 					p->add((spell_s)variant.value, xrand(3, 10) * 5, NoSave);
 			}
 			break;
-		case Condition:
-			for(auto e : party) {
-				auto p = e.getcreature();
-				if(p)
-					p->add((condition_s)variant.value);
-			}
-			break;
 		case Reaction:
 			location.set(monster_index, (reaction_s)variant.value);
 			break;

@@ -287,12 +287,9 @@ static unsigned char getalpha(unsigned f, unsigned range) {
 
 void creature::view_portrait(int x, int y) const {
 	static struct elementi {
-		variant		v;
+		spell_s		v;
 		color		c;
-	} variants[] = {{PoisonWeak, colors::green},
-	{Poison, colors::green},
-	{PoisonStrong, colors::green},
-	{PoisonDeadly, colors::green},
+	} variants[] = {{Poison, colors::green},
 	{Disease, colors::green.mix(colors::red)},
 	{HoldPerson, colors::red},
 	{Sleep, colors::blue}
@@ -303,16 +300,8 @@ void creature::view_portrait(int x, int y) const {
 		image(x, y, gres(PORTM), getavatar(), 0);
 	adat<elementi*, sizeof(variants) / sizeof(variants[0])> source;
 	for(auto& e : variants) {
-		switch(e.v.type) {
-		case Spell:
-			if(is((spell_s)e.v.value))
-				source.add(&e);
-			break;
-		case Condition:
-			if(is((condition_s)e.v.value))
-				source.add(&e);
-			break;
-		}
+		if(is(e.v))
+			source.add(&e);
 	}
 	auto variant_count = source.getcount();
 	if(variant_count > 0) {

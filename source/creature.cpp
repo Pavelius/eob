@@ -106,26 +106,15 @@ static int* get_experience_table(class_s cls) {
 
 // Make save vs posoin and/or get damage
 void creature::update_poison(bool interactive) {
-	static struct poisoni {
-		condition_s	state;
-		char		save;
-		dice		damage[2];
-	} poison_effects[] = {{PoisonWeak, 2, {{0}, {1, 3}}},
-	{Poison, 0, {{0}, {1, 6}}},
-	{PoisonStrong, -1, {{1, 3}, {1, 8}}},
-	{PoisonDeadly, -4, {{1, 3}, {3, 6}}},
-	};
 	auto hits = 0;
 	if(is(SlowPoison))
 		return;
-	for(auto& pe : poison_effects) {
-		if(is(pe.state)) {
-			if(roll(SaveVsPoison, pe.save)) {
-				hits += pe.damage[0].roll();
-				remove(pe.state);
-			} else
-				hits += pe.damage[1].roll();
-		}
+	if(is(Poison)) {
+		if(roll(SaveVsPoison, 0)) {
+			hits += xrand(1, 3);
+			remove(Poison);
+		} else
+			hits += xrand(1, 8);
 	}
 	if(hits > 0) {
 		if(interactive) {
@@ -154,6 +143,10 @@ bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus
 		case HoldPerson:
 			save_type = SaveVsParalization;
 			break;
+		case Poison:
+		case Disease:
+			save_type = SaveVsPoison;
+			break;
 		}
 		if(roll(save_type)) {
 			switch(save) {
@@ -169,13 +162,6 @@ bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus
 	}
 	active_spells.set(type);
 	addboost(type, type, -1, duration);
-	return true;
-}
-
-bool creature::add(condition_s type, save_s save, char save_bonus) {
-	if(save == SaveNegate && roll(SaveVsMagic, save_bonus))
-		return false;
-	set(type);
 	return true;
 }
 
@@ -485,9 +471,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			defender->remove(Sleep);
 			// Poison attack
 			if(getbonus(OfPoison))
-				defender->set(Poison);
-			if(getbonus(OfPoisonStrong))
-				defender->set(PoisonStrong);
+				defender->add(Poison, Instant, SaveNegate);
 			// Paralize attack
 			if(getbonus(OfParalize))
 				defender->add(HoldPerson, xrand(1, 3), SaveNegate);
@@ -495,7 +479,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			if(getbonus(OfEnergyDrain))
 				attack_drain(defender, defender->drain_energy, hits);
 			if(getbonus(OfStrenghtDrain))
-				attack_drain(defender, defender->drain_energy, hits);
+				attack_drain(defender, defender->drain_strenght, hits);
 			defender->damage(wi.type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
@@ -1480,7 +1464,7 @@ void creature::camp(item& it) {
 		auto healed = pc->getbonus(OfHealing) * 3;
 		if(poisoned) {
 			// RULE: Cursed food add weak poison
-			pc->set(PoisonWeak);
+			pc->add(Poison, Instant, NoSave);
 		} else {
 			switch(food) {
 			case Ration:
@@ -1596,7 +1580,8 @@ bool creature::use(item* pi) {
 	case PotionRed:
 		if(pi->iscursed()) {
 			// RULE: Cursed potion always apply strong poison
-			pc->set(PoisonStrong);
+			pc->damage(Death, xrand(1, 6));
+			pc->add(Poison, Instant, NoSave);
 		} else {
 			auto enchant = pi->getenchant();
 			switch(enchant) {
@@ -1609,11 +1594,11 @@ bool creature::use(item* pi) {
 				break;
 			case OfPoison:
 				switch(magic) {
-				case 1: pc->set(PoisonWeak); break;
-				case 2: pc->set(Poison); break;
-				case 3: pc->set(PoisonStrong); break;
-				default: pc->set(PoisonDeadly); break;
+				case 1: pc->damage(Death, xrand(1, 6)); break;
+				case 2: pc->damage(Death, xrand(2, 12)); break;
+				default: pc->damage(Death, xrand(3, 18)); break;
 				}
+				pc->add(Poison, Instant, NoSave);
 				break;
 			case OfHealing:
 				pc->damage(Heal, dice::roll(1 + magic, 4) + 3);
@@ -1622,10 +1607,7 @@ bool creature::use(item* pi) {
 				pc->damage(Heal, dice::roll(1 + magic, 8) + 6);
 				break;
 			case OfNeutralizePoison:
-				pc->remove(PoisonWeak);
 				pc->remove(Poison);
-				pc->remove(PoisonStrong);
-				pc->remove(PoisonDeadly);
 				break;
 			case OfKnowledge:
 				for(auto i = 0; i < magic; i++)
@@ -1820,7 +1802,7 @@ const spellprogi* creature::getprogress(class_s v) const {
 
 unsigned creature::select(spell_s* result, const spell_s* result_maximum, class_s type, int level) {
 	auto p = result;
-	for(auto rec = NoSpell; rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
+	for(auto rec = spell_s(1); rec < FirstSpellAbility; rec = (spell_s)(rec + 1)) {
 		if(getlevel(rec, type) != level)
 			continue;
 		*p++ = rec;
@@ -1848,14 +1830,16 @@ item* creature::find(item_s v) const {
 
 void creature::setmoved(bool value) {
 	if(value)
-		set(Moved);
+		active_spells.set(Moved);
 	else
-		remove(Moved);
+		active_spells.remove(Moved);
 }
 
 reaction_s creature::rollreaction(int bonus) const {
-	static reaction_s indifferent[19] = {Friendly, Friendly, Cautious, Cautious, Cautious, Cautious, Cautious, Cautious,
-		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening, Hostile, Hostile, Hostile, Hostile, Hostile};
+	static reaction_s indifferent[19] = {Friendly, Friendly,
+		Cautious, Cautious, Cautious, Cautious, Cautious, Cautious,
+		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening,
+		Hostile, Hostile, Hostile, Hostile, Hostile};
 	auto cha = getparty(Charisma);
 	bonus += maptbl(charisma_reaction_bonus, cha);
 	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
@@ -2000,7 +1984,12 @@ void creature::dress_wears(int m) {
 
 void creature::remove(spell_s v) {
 	if(active_spells.is(v)) {
-		removeboost(v);
 		active_spells.remove(v);
+		removeboost(v);
+		switch(v) {
+		case Disease:
+			disease_progress = 0;
+			break;
+		}
 	}
 }

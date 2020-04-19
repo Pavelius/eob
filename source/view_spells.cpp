@@ -154,7 +154,7 @@ spell_s creature::choosespell(class_s type) const {
 		domodal();
 		switch(hot::key) {
 		case KeyEscape:
-			return NoSpell;
+			return Moved;
 		case KeyEnter:
 		case Alpha + 'U':
 			breakmodal(result.data[current_element]);

@@ -161,6 +161,8 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
 {"Remove curse", {0, 3}, TargetAlly, remove_curse},
 {"Remove paralizes", {0, 3}, TargetAllAlly, remove_parasizes},
+// 4 - level
+{"Cause Poison", {0, 3}, TargetClose, {Poison, Instant, SaveNegate}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, lay_on_hands},
 {"Turn Undead", {0, 1}, TargetSpecial, turn_undead, MagicThrown},
@@ -176,14 +178,7 @@ int	creature::getlevel(spell_s id, class_s type) {
 
 void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	auto duration = getduration(e.duration, level);
-	switch(e.type.type) {
-	case Spell:
-		target->add((spell_s)e.type.value, duration, e.save, e.save_bonus);
-		break;
-	case Condition:
-		target->add((condition_s)e.type.value, e.save, e.save_bonus);
-		break;
-	}
+	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus);
 }
 
 static bool test_save(creature* target, int& value, skill_s skill, save_s type, int bonus) {

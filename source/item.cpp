@@ -238,7 +238,7 @@ int item::getportrait() const {
 
 spell_s item::getspell() const {
 	if(bsdata<itemi>::elements[type].spells.count == 0)
-		return NoSpell;
+		return Moved;
 	return (spell_s)subtype;
 }
 

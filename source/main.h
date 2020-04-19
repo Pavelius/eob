@@ -65,7 +65,7 @@ enum message_s : unsigned char {
 	MessageAtifacts,
 };
 enum spell_s : unsigned char {
-	NoSpell,
+	Moved,
 	// Spells (level 1)
 	Bless, BurningHands, CureLightWounds, DetectEvil, DetectMagic, FeatherFall,
 	Identify, MageArmor, MagicMissile, Mending,
@@ -77,12 +77,11 @@ enum spell_s : unsigned char {
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
+	// Spells (level 4)
+	Poison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
-};
-enum condition_s : unsigned char {
-	Moved, PoisonWeak, Poison, PoisonStrong, PoisonDeadly
 };
 enum class_s : unsigned char {
 	NoClass,
@@ -224,7 +223,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell,
+	Ability, Alignment, Class, Creature, Item, Number, Race, Reaction, Spell,
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
@@ -238,7 +237,6 @@ struct variant {
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
-	constexpr variant(const condition_s v) : type(Condition), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
@@ -403,9 +401,8 @@ struct effecti {
 		type(type), duration(duration), save(save), save_bonus(save_bonus),
 		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
 		value(value) {}
-	constexpr effecti(callback proc, int value = 0) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
+	constexpr effecti(callback proc) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(variant type, duration_s duration = Instant, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
-	constexpr effecti(condition_s state, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, Instant, save, save_bonus, {}, {}, 0, 0, 0) {}
 	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :
 		effecti(apply_damage, type, Instant, save, 0, damage, damage_per_level, increment, maximum, 0) {}
@@ -505,7 +502,6 @@ class creature {
 	direction_s			direction;
 	cflags<feat_s>		feats;
 	usabilitya			usability;
-	cflags<condition_s> condition;
 	short				hits, hits_aid, hits_rolled;
 	char				initiative;
 	char				levels[3];
@@ -513,7 +509,8 @@ class creature {
 	item				wears[LastInvertory + 1];
 	char				spells[LastSpellAbility + 1];
 	char				prepared[LastSpellAbility + 1];
-	spella				known_spells, active_spells;
+	spella				known_spells;
+	spella				active_spells;
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
@@ -542,7 +539,6 @@ public:
 	typedef void		(creature::*apply_proc)(bool);
 	void				activate(spell_s v) { active_spells.set(v); }
 	void				add(item i);
-	bool				add(condition_s type, save_s save = NoSave, char save_bonus = 0);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
@@ -617,7 +613,6 @@ public:
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				identify(bool interactive);
 	void				interract();
-	bool				is(condition_s v) const { return condition.is(v); }
 	bool				is(spell_s v) const { return active_spells.is(v); }
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
@@ -639,7 +634,6 @@ public:
 	static void			preparespells(class_s type);
 	bool				raise(enchant_s v);
 	void				random_name();
-	void				remove(condition_s v) { condition.remove(v); }
 	void				remove(spell_s v);
 	void				removeboost(variant v) const;
 	int					render_ability(int x, int y, int width, bool use_bold) const;
@@ -657,7 +651,6 @@ public:
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }
-	void				set(condition_s value) { condition.add(value); }
 	void				set(gender_s value) { gender = value; }
 	void				set(monster_s type);
 	void				set(race_s value) { race = value; }
