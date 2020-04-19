@@ -161,7 +161,7 @@ bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus
 		}
 	}
 	active_spells.set(type);
-	addboost(type, type, -1, duration);
+	addboost(type, duration);
 	return true;
 }
 

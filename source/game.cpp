@@ -355,6 +355,8 @@ void gamei::passround() {
 		if(pc)
 			pc->update(true);
 	}
+	// Every round update
+	creature::update_boost();
 	// Slow update
 	while(rounds_turn < rounds) {
 		for(auto& e : location.monsters) {

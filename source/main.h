@@ -97,10 +97,7 @@ enum monster_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	Attack, Damage, CriticalRange, CriticalMultiply, Deflection,
-	AC, Speed, Hits, HitsBoost, ExeptionalStrenght,
-	StrenghtBoost, DexterityBoost, ConstitutionBoost, IntellegenceBoost, WisdowBoost, CharismaBoost,
-	LastAbility = CharismaBoost
+	LastAbility = Charisma
 };
 enum skill_s : unsigned char {
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
@@ -485,8 +482,7 @@ public:
 	void				setspell(spell_s spell);
 };
 struct boosti {
-	variant				owner, id, source;
-	char				value;
+	variant				owner, id;
 	unsigned			round;
 	constexpr explicit operator bool() const { return id.type != NoVariant; }
 	void				clear();
@@ -520,7 +516,7 @@ class creature {
 	short				food;
 	reaction_s			reaction;
 	//
-	void				addboost(variant source, variant id, char value, unsigned duration) const;
+	void				addboost(variant id, unsigned duration) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
 	void				dress_wears(int m);
 	void				dressoff();
@@ -720,6 +716,7 @@ struct dungeon {
 		overlayi		down; // where is stairs down
 		overlayi		portal; // where is portal
 		overlayi		crypt; // where is crypt located
+		overlayi		crypt_button; // where is crypt located
 		short unsigned	spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms

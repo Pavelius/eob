@@ -289,6 +289,24 @@ static void items(dungeon* pd, short unsigned index, int bonus_chance_magic) {
 	items(pd, index, random_type(), bonus_chance_magic);
 }
 
+static void crypt_button(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	auto i1 = to(index, dir);
+	if(!pd->ismatch(i1, CellWall, CellUnknown))
+		return;
+	pd->set(i1, CellWall);
+	auto po = pd->add(index, CellPuller, dir);
+	po->index_link = pd->stat.crypt.index;
+	pd->stat.crypt_button = *po;
+}
+
+static bool need_crypt_button(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(pd->stat.crypt_button.index == Blocked && pd->stat.crypt.index != Blocked) {
+		crypt_button(pd, index, dir, flags);
+		return true;
+	}
+	return false;
+}
+
 static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
@@ -320,6 +338,8 @@ static void monster(dungeon* pd, short unsigned index, direction_s dir, unsigned
 }
 
 static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(need_crypt_button(pd, index, dir, flags))
+		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
@@ -344,6 +364,8 @@ static void prison(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 }
 
 static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(need_crypt_button(pd, index, dir, flags))
+		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
@@ -375,6 +397,8 @@ static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigne
 }
 
 static void decoration(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(need_crypt_button(pd, index, dir, flags))
+		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
@@ -511,6 +535,8 @@ static int random_cellar_count() {
 }
 
 static void cellar(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
+	if(need_crypt_button(pd, index, dir, flags))
+		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;

@@ -1,10 +1,5 @@
 #include "main.h"
 
-static variant var_magic_swords[] = {{}, Speed, Fire, Cold, CriticalRange, CriticalMultiply, Attack, AC};
-static variant var_magic_weapon[] = {{}, Speed, Fire, Attack, CriticalRange, Undead};
-static variant var_magic_bludgeon[] = {{}, Fire, CriticalMultiply, Damage, Undead};
-static variant var_ring_red[] = {ResistFire, ResistCold, AC, Undead};
-
 static enchant_s magic_swords[] = {OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
 static enchant_s magic_weapon[] = {OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
 static enchant_s magic_bludgeon[] = {OfFire, OfSmashing, OfDamage, OfHolyness};

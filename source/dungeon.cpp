@@ -279,6 +279,7 @@ void dungeon::clear() {
 	stat.up.index = Blocked;
 	stat.portal.index = Blocked;
 	stat.crypt.index = Blocked;
+	stat.crypt_button.index = Blocked;
 	for(auto& e : stat.spawn)
 		e = Blocked;
 	for(auto& e : overlays)

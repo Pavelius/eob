@@ -6,41 +6,39 @@ void boosti::clear() {
 	memset(this, 0, sizeof(*this));
 }
 
-static boosti* find_boost(variant source, variant id, variant owner) {
+static boosti* find_boost(variant id, variant owner) {
 	auto pb = bsdata<boosti>::elements;
 	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
 	for(; pb < pe; pb++) {
 		if(!*pb)
 			break;
-		if(pb->owner == owner && pb->source == source && pb->id == id)
+		if(pb->owner == owner && pb->id == id)
 			return pb;
 	}
 	if(pb == pe)
 		return 0;
-	pb->source = source;
 	pb->owner = owner;
 	pb->id = id;
+	if(pb + 1 != pe)
+		pb[1].clear();
 	return pb;
 }
 
 bool creature::isaffect(variant id) const {
 	variant owner = this;
-	auto pb = bsdata<boosti>::elements;
-	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
-	for(; pb < pe; pb++) {
-		if(!*pb)
+	for(auto& e : bsdata<boosti>()) {
+		if(!e)
 			break;
-		if(pb->owner == owner && pb->source == id)
+		if(e.owner == owner && e.id == id)
 			return true;
 	}
 	return false;
 }
 
-void creature::addboost(variant source, variant id, char value, unsigned duration) const {
+void creature::addboost(variant id, unsigned duration) const {
 	if(!duration)
 		return;
-	auto pb = find_boost(source, id, this);
-	pb->value = value;
+	auto pb = find_boost(id, this);
 	pb->round = game.getrounds() + duration;
 }
 
@@ -61,7 +59,6 @@ void creature::removeboost(variant v) const {
 
 void creature::update(const boosti& e) {
 	switch(e.id.type) {
-	case Ability: ability[e.id.value] += e.value; break;
 	case Spell: active_spells.remove((spell_s)e.id.value); break;
 	default: break;
 	}
