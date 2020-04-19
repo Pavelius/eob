@@ -44,7 +44,7 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 		if(result >= value)
 			value = 0;
 		if(value == 0)
-			target->set(Scared, xrand(2, 6) * 10);
+			target->add(TurnUndead, xrand(2, 6) * 10);
 	}
 }
 
@@ -66,11 +66,7 @@ static void lay_on_hands(creature* player, creature* target, const effecti& e, i
 static void aid_spell(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	target->addaid(xrand(1, 8));
 	auto duration = getduration(DurationHour, level);
-	target->add(Blessed, duration, NoSave);
-}
-
-static void slow_poison(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	player->set(PosionSlowed);
+	target->add(Bless, duration);
 }
 
 static void create_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
@@ -117,7 +113,7 @@ static void remove_curse(creature* player, creature* target, const effecti& e, i
 }
 
 static void remove_parasizes(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->remove(Paralized);
+	target->remove(HoldPerson);
 }
 
 static void acid_arrow(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
@@ -125,44 +121,45 @@ static void acid_arrow(creature* player, creature* target, const effecti& e, int
 	auto rs = rand() % 20 + 1;
 	if(rs < (th - target->getac()))
 		return;
-	target->set(AcidCorrosion, 1 + level / 3);
+	target->set(AcidArrow, 1 + level / 3);
 }
 
 spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
-{"Bless", {0, 1}, TargetAllAlly, {DurationHour, Blessed, NoSave}},
+{"Bless", {0, 1}, TargetAllAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, {1, 3}, {2}, 1, 10, SaveHalf}, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, {Heal, {1, 8}, {0}, 0, 0, NoSave}},
-{"Detect Evil", {2, 1}, TargetAllAlly, {DurationTurn, DetectedEvil, NoSave}},
-{"Detect Magic", {1, 1}, TargetAllAlly, {DurationTurn, DetectedMagic, NoSave}},
-{"Feather Fall", {1, 0}, TargetAlly, {DurationTurnPerLevel, Climbed, NoSave}},
+{"Detect Evil", {2, 1}, TargetAllAlly, {DetectEvil, DurationTurn}},
+{"Detect Magic", {1, 1}, TargetAllAlly, {DetectMagic, DurationTurn}},
+{"Feather Fall", {1, 0}, TargetAlly, {FeatherFall, DurationTurnPerLevel}},
 {"Identify", {1, 0}, TargetSelf, identify},
-{"Mage Armor", {1, 0}, TargetSelf, {Duration4Hours, Armored, NoSave}},
+{"Mage Armor", {1, 0}, TargetSelf, {MageArmor, Duration4Hours}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
 {"Mending", {1, 0}, TargetAllAlly, mending},
-{"Prot. from Evil", {1, 1}, TargetAlly, {DurationTurn, ProtectedFromEvil, NoSave}},
+{"Prot. from Evil", {1, 1}, TargetAlly, {ProtectionFromEvil, DurationTurn}},
 {"Purify food", {0, 1}, TargetAllAlly, purify_food},
-{"Read Languages", {1, 0}, TargetSelf, {DurationTurn, StateSpeakable, NoSave}},
-{"Shield", {1, 0}, TargetSelf, {Duration5PerLevel, Shielded, NoSave}},
+{"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationTurn}},
+{"Shield", {1, 0}, TargetSelf, {ShieldSpell, Duration5PerLevel}},
 {"Shoking grasp", {1, 0}, TargetSelf, ShokingHand},
-{"Sleep", {1, 0}, TargetAllClose, {Duration5PerLevel, Sleeped, NoSave}},
+{"Sleep", {1, 0}, TargetAllClose, {Sleep, Duration5PerLevel, SaveNegate}},
 // 2 - level
 {"Acid arrow", {2}, TargetThrow, acid_arrow, Arrow},
 {"Aid", {0, 2}, TargetAlly, aid_spell},
-{"Blindness", {2}, TargetClose, {Duration5PerLevel, Blured}},
-{"Blur", {2}, TargetSelf, {Duration5PerLevel, Blured}},
+{"Blindness", {2}, TargetClose, {Blinded}},
+{"Blur", {2}, TargetSelf, {Blur, Duration5PerLevel}},
 {"Flame Blade", {0, 2}, TargetSelf, FlameBladeHand},
 {"Flaming sphere", {2}, TargetAllThrow, {Fire, {2, 4}, {}, 0, 0, SaveNegate}, FireThrown},
 {"Goodberry", {0, 2}, TargetAllAlly, {Heal, {1, 4}, {0}, 0, 0, NoSave}},
-{"Hold Person", {0, 2}, TargetAllClose, {Duration1PerLevel, Paralized}, MagicThrown},
-{"Invisibility", {2}, TargetAlly, {Duration2Hours, Invisibled}},
+{"Hold Person", {0, 2}, TargetAllClose, {HoldPerson, Duration1PerLevel}, MagicThrown},
+{"Invisibility", {2}, TargetAlly, {Invisibility, Duration2Hours}},
 {"Knock", {2}, TargetSpecial, knock},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
-{"Slow Poison", {0, 2}, TargetAlly, slow_poison},
+{"Slow Poison", {0, 2}, TargetAlly, {SlowPoison, Duration8Hours}},
 // 3 - level
 {"Create Food", {0, 3}, TargetSpecial, create_food},
 {"Cure Blindness", {0, 3}, TargetAlly, cure_deafness},
 {"Cure Disease", {0, 3}, TargetAlly, cure_disease},
+{"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
 {"Protected negative", {0, 3}, TargetAlly, negative_plan_protection},
 {"Remove curse", {0, 3}, TargetAlly, remove_curse},
 {"Remove paralizes", {0, 3}, TargetAllAlly, remove_parasizes},
@@ -181,11 +178,14 @@ int	creature::getlevel(spell_s id, class_s type) {
 
 void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	auto duration = getduration(e.duration, level);
-	target->add(e.state, duration, e.save, e.save_bonus);
-}
-
-void effecti::apply_condition(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->add(e.condition, e.condition_save, e.condition_save_bonus);
+	switch(e.type.type) {
+	case Spell:
+		target->add((spell_s)e.type.value, duration, e.save, e.save_bonus);
+		break;
+	case Condition:
+		target->add((condition_s)e.type.value, e.save, e.save_bonus);
+		break;
+	}
 }
 
 static bool test_save(creature* target, int& value, skill_s skill, save_s type, int bonus) {
@@ -203,7 +203,11 @@ static bool test_save(creature* target, int& value, skill_s skill, save_s type, 
 }
 
 void effecti::apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
-	target->setweapon(e.item_weapon, xrand(1, 4) + level);
+	switch(e.type.type) {
+	case Item:
+		target->setweapon((item_s)e.type.value, xrand(1, 4) + level);
+		break;
+	}
 }
 
 void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
@@ -218,8 +222,8 @@ void effecti::apply_damage(creature* player, creature* target, const effecti& e,
 	auto save_skill = SaveVsMagic;
 	if(wand_magic)
 		save_skill = SaveVsTraps;
-	if(!test_save(target, value, save_skill, e.damage_save, 0))
-		target->damage(e.damage_type, value);
+	if(!test_save(target, value, save_skill, e.save, 0))
+		target->damage((damage_s)e.type.value, value);
 }
 
 short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s throw_effect) {

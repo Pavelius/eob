@@ -635,7 +635,7 @@ void dungeon::attack(const combati& wi, creature* defender) const {
 	// Show result
 	if(hits != -1) {
 		// RULE: when attacking sleeping creature she wake up!
-		defender->set(Sleeped, 0);
+		defender->remove(Sleep);
 		defender->damage(wi.type, hits);
 	}
 }
@@ -996,7 +996,7 @@ bool dungeon::create(rect& result, int w, int h) const {
 		}
 	}
 	for(auto y = y1; y > border; y--) {
-		for(auto x = x1; x > border; x++) {
+		for(auto x = x1; x > border; x--) {
 			rect rc = {x, y, x + w - 1, y + h - 1};
 			if(is(rc, CellUnknown)) {
 				result = rc;

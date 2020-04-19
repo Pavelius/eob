@@ -124,7 +124,7 @@ static void random_heroes() {
 	//
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
 	p->add(item(MagicWand, 20, 0, 0));
-	p->add(Identify);
+	p->setknown(Identify);
 	p->equip(item(BlueRing, OfWizardy));
 	p->equip(item(BlueRing, OfMagicResistance, 1));
 	p->add(item(PotionGreen, OfKnowledge, 2));

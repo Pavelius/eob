@@ -1,6 +1,6 @@
 #include "main.h"
 
-boosti bsdata<boosti>::elements[128];
+INSTDATAC(boosti, 256)
 
 void boosti::clear() {
 	memset(this, 0, sizeof(*this));
@@ -37,9 +37,26 @@ bool creature::isaffect(variant id) const {
 }
 
 void creature::addboost(variant source, variant id, char value, unsigned duration) const {
+	if(!duration)
+		return;
 	auto pb = find_boost(source, id, this);
 	pb->value = value;
 	pb->round = game.getrounds() + duration;
+}
+
+void creature::removeboost(variant v) const {
+	variant owner = this;
+	auto pb = bsdata<boosti>::elements;
+	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
+	for(auto& e : bsdata<boosti>::elements) {
+		if(!e)
+			break;
+		if(e.id == v && e.owner == owner)
+			continue;
+		*pb++ = e;
+	}
+	if(pb != pe)
+		pb->clear();
 }
 
 void creature::clearboost() {

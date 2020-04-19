@@ -1,6 +1,8 @@
 #include "main.h"
 #include "archive.h"
 
+INSTDATAC(creature, 32)
+
 const char* get_name_part(short rec);
 
 static const int monsters_thac0[] = {
@@ -104,7 +106,7 @@ static int* get_experience_table(class_s cls) {
 
 // Make save vs posoin and/or get damage
 void creature::update_poison(bool interactive) {
-	static struct poison_effect {
+	static struct poisoni {
 		condition_s	state;
 		char		save;
 		dice		damage[2];
@@ -114,7 +116,7 @@ void creature::update_poison(bool interactive) {
 	{PoisonDeadly, -4, {{1, 3}, {3, 6}}},
 	};
 	auto hits = 0;
-	if(is(PosionSlowed))
+	if(is(SlowPoison))
 		return;
 	for(auto& pe : poison_effects) {
 		if(is(pe.state)) {
@@ -135,20 +137,27 @@ void creature::update_poison(bool interactive) {
 	}
 }
 
-bool creature::add(state_s type, unsigned duration, save_s save, char save_bonus) {
+bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus) {
+	if(is(type))
+		return true;
 	if(!duration)
 		duration = xrand(2, 8);
 	switch(type) {
-	case Paralized:
-	case Sleeped:
+	case HoldPerson:
+	case Sleep:
 		// Elf has 90% immunity to paralization, sleep and charm
 		if(roll(ResistCharm))
 			return false;
 		break;
 	}
 	if(save != NoSave) {
-		auto& ei = bsdata<statei>::elements[type];
-		if(roll(ei.save)) {
+		auto save_type = SaveVsMagic;
+		switch(type) {
+		case HoldPerson:
+			save_type = SaveVsParalization;
+			break;
+		}
+		if(roll(save_type)) {
 			switch(save) {
 			case SaveNegate:
 				return false;
@@ -160,7 +169,8 @@ bool creature::add(state_s type, unsigned duration, save_s save, char save_bonus
 			}
 		}
 	}
-	set(type, duration);
+	active_spells.set(type);
+	addboost(type, type, -1, duration);
 	return true;
 }
 
@@ -237,11 +247,11 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 		result.attack = OneAndTwoAttacks;
 		result.bonus++;
 	}
-	if(is(Hasted))
+	if(is(Haste))
 		result.bonus += 2;
-	if(is(Blessed))
+	if(is(Bless))
 		result.bonus += 1;
-	if(is(Scared))
+	if(is(TurnUndead))
 		result.bonus -= 4;
 	if(is(Blinded))
 		result.bonus -= 4;
@@ -258,19 +268,6 @@ void creature::add(item value) {
 		*pi = value;
 		break;
 	}
-}
-
-bool creature::is(state_s id) const {
-	return states[id] && states[id] > game.getrounds();
-}
-
-bool creature::set(state_s id, unsigned rounds) {
-	auto current_value = states[id];
-	auto newbe_value = game.getrounds() + rounds;
-	if(newbe_value < current_value)
-		return false;
-	states[id] = newbe_value;
-	return true;
 }
 
 item creature::get(wear_s id) const {
@@ -297,13 +294,13 @@ bool creature::roll(skill_s id, int bonus) const {
 }
 
 bool creature::isinvisible() const {
-	return is(Invisibled) || getbonus(OfInvisibility);
+	return is(Invisibility) || getbonus(OfInvisibility);
 }
 
 bool creature::isready() const {
 	return gethits() > 0
-		&& !is(Paralized)
-		&& !is(Sleeped);
+		&& !is(HoldPerson)
+		&& !is(Sleep);
 }
 
 void creature::update_hour(bool interactive) {
@@ -340,7 +337,7 @@ void creature::update_turn(bool interactive) {
 }
 
 void creature::update(bool interactive) {
-	if(is(AcidCorrosion))
+	if(is(AcidArrow))
 		damage(Magic, dice::roll(2, 4), 5);
 	remove(Moved);
 	if(!kind)
@@ -364,7 +361,7 @@ void creature::sayv(const char* format, const char* vl) {
 bool creature::canspeak(race_s language) const {
 	if(language == Human)
 		return true;
-	if(is(StateSpeakable))
+	if(is(ReadLanguagesSpell))
 		return true;
 	auto race = getrace();
 	if(race == language)
@@ -482,12 +479,12 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		}
 		// Fear attack (Not depend on attack result)
 		if(getbonus(OfFear, slot))
-			defender->add(Scared, xrand(1, 3) * 10, SaveNegate);
+			defender->add(TurnUndead, xrand(1, 3) * 10, SaveNegate);
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
 			// When attacking sleeping creature she wake up!
-			defender->set(Sleeped, 0);
+			defender->remove(Sleep);
 			// Poison attack
 			if(getbonus(OfPoison))
 				defender->set(Poison);
@@ -495,7 +492,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				defender->set(PoisonStrong);
 			// Paralize attack
 			if(getbonus(OfParalize))
-				defender->add(Paralized, xrand(1, 3), SaveNegate);
+				defender->add(HoldPerson, xrand(1, 3), SaveNegate);
 			// Drain ability
 			if(getbonus(OfEnergyDrain))
 				attack_drain(defender, defender->drain_energy, hits);
@@ -577,13 +574,13 @@ void creature::finish() {
 	hits_rolled = 0;
 	memset(levels, 0, sizeof(levels));
 	memset(spells, 0, sizeof(spells));
-	memset(known, 0, sizeof(known));
-	memset(prepared, 0, sizeof(known));
+	memset(prepared, 0, sizeof(prepared));
+	known_spells.clear();
+	active_spells.clear();
 	feats.add(bsdata<racei>::elements[race].feats);
 	feats.add(bsdata<classi>::elements[type].feats);
 	usability.add(bsdata<racei>::elements[race].usability);
 	usability.add(bsdata<classi>::elements[type].usability);
-	states[0] = 1;
 	if(kind)
 		hits_rolled = gethitdice().roll();
 	else {
@@ -627,7 +624,7 @@ void creature::raise_level(class_s type) {
 	if(level == 0) {
 		hp = hd;
 		if(type == Mage) {
-			setknown(DetectMagic, 1);
+			setknown(DetectMagic);
 			random_spells(type, 1, 6);
 			prepare_random_spells(type, 1);
 			preparespells();
@@ -705,7 +702,7 @@ void creature::prepare_random_spells(class_s type, int level) {
 	int maximum_spells = getspellsperlevel(type, level);
 	int prepared_spells = 0;
 	for(auto i = NoSpell; i < FirstSpellAbility; i = (spell_s)(i + 1)) {
-		if(!getknown(i))
+		if(!isknown(i))
 			continue;
 		if(getlevel(i, type) == level) {
 			prepared_spells += get(i);
@@ -726,11 +723,11 @@ void creature::random_spells(class_s type, int level, int count) {
 	for(auto e : spells) {
 		if(count-- <= 0)
 			break;
-		if(getknown(e))
+		if(isknown(e))
 			continue;
 		if(type == Mage && !roll(LearnSpell))
 			continue;
-		setknown(e, 1);
+		setknown(e);
 	}
 }
 
@@ -807,7 +804,7 @@ int creature::getspeed() const {
 	r += wears[RightHand].getspeed();
 	r += wears[LeftHand].getspeed();
 	r += getbonus(OfSpeed);
-	if(is(Hasted))
+	if(is(Haste))
 		r += 2;
 	if(is(Blinded))
 		r -= 2;
@@ -827,20 +824,19 @@ int creature::getac() const {
 	r += getbonus(OfProtection);
 	if(kind)
 		r += (10 - bsdata<monsteri>::elements[kind].ac);
-	if(is(Hasted))
+	if(is(Haste))
 		r += 2;
-	if(is(Armored))
+	if(is(MageArmor))
 		r += 4;
-	if(is(Shielded))
+	if(is(ShieldSpell))
 		r += 7;
 	if(is(Blinded))
 		r -= 4;
-	auto m = 0;
-	if(isinvisible() && m < 4)
-		m = 4;
-	if(is(Blured) && m < 3)
-		m = 3;
-	r += m;
+	// One of this
+	if(isinvisible())
+		r += 4;
+	else if(is(Blur))
+		r += 3;
 	return r;
 }
 
@@ -936,7 +932,7 @@ int creature::get_base_save_throw(skill_s st) const {
 			break;
 		}
 	}
-	if(is(ProtectedFromEvil))
+	if(is(ProtectionFromEvil))
 		r--;
 	return (21 - r) * 5;
 }
@@ -1644,8 +1640,7 @@ bool creature::use(item* pi) {
 						consume = false;
 					} else
 						pc->say("I feel really better!");
-				} else if(bsdata<enchanti>::elements[enchant].effect)
-					pc->set(bsdata<enchanti>::elements[enchant].effect, 60 + (dice::roll(1, 6) + magic) * 10);
+				}
 				break;
 			}
 		}
@@ -2002,5 +1997,12 @@ void creature::dress_wears(int m) {
 			auto& ei = bsdata<abilityi>::elements[sp.value];
 			ability[sp.value] += (ei.base + ei.multiplier)*it.getmagic()*m;
 		}
+	}
+}
+
+void creature::remove(spell_s v) {
+	if(active_spells.is(v)) {
+		removeboost(v);
+		active_spells.remove(v);
 	}
 }

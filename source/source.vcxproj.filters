@@ -167,9 +167,6 @@
     <ClCompile Include="crt.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="state.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="geometry.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

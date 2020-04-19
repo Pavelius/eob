@@ -1,8 +1,6 @@
 #include "archive.h"
 #include "main.h"
 
-INSTDATAC(creature, 32)
-
 static const char place_sides[4][4] = {{1, 3, 0, 2},
 {0, 1, 2, 3},
 {2, 0, 3, 1},
@@ -135,7 +133,7 @@ void gamei::attack(indext index_of_monsters, bool ranged) {
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
-		if(attacker->is(Hasted)
+		if(attacker->is(Haste)
 			|| attacker->getbonus(OfSpeed, Legs)
 			|| attacker->getbonus(OfSpeed, Elbow))
 			attacker->attack(index_of_monsters, dr, 0, ranged);
@@ -326,7 +324,7 @@ void gamei::passround() {
 		auto monster_direct = e.getdirection();
 		if(monster_index == Blocked)
 			continue;
-		if(e.is(Scared)) {
+		if(e.is(TurnUndead)) {
 			direction_s free_directions[] = {to(party_direct, Up), to(party_direct, Left), to(party_direct, Left), Center};
 			auto free_direct = location.getpassable(monster_index, free_directions);
 			if(monster_direct != free_direct)
@@ -441,6 +439,7 @@ static bool serialize(bool writemode) {
 	a.set(game);
 	a.set(party);
 	a.set(bsdata<creature>::source);
+	a.set(bsdata<boosti>::source);
 	return true;
 }
 

@@ -75,11 +75,16 @@ enum spell_s : unsigned char {
 	AcidArrow, Aid, Blindness, Blur, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection,
+	CreateFood, CureBlindnessDeafness, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
+};
+enum condition_s : unsigned char {
+	Blinded, Deafned, Diseased,
+	Moved, ProtectedNegativeEnergy,
+	PoisonWeak, Poison, PoisonStrong, PoisonDeadly
 };
 enum class_s : unsigned char {
 	NoClass,
@@ -92,21 +97,6 @@ enum monster_s : unsigned char {
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
 	Orc, Shadow, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie,
 	LastMonster = Zombie,
-};
-enum state_s : unsigned char {
-	NoState,
-	AcidCorrosion, Armored, Blessed, Blured, Climbed, DetectedEvil, DetectedMagic,
-	FireResisted, Invisibled, Hasted,
-	ProtectedFromEvil, Shielded, Sleeped, StateSpeakable, Strenghted,
-	Scared, Paralized,
-	LastState = Paralized,
-};
-enum condition_s : unsigned char {
-	Blinded, Deafned, Diseased,
-	Moved, ProtectedNegativeEnergy,
-	PoisonWeak, Poison, PoisonStrong, PoisonDeadly,
-	PosionSlowed,
-	Surprised,
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
@@ -236,9 +226,10 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell, State,
+	Ability, Alignment, Class, Condition, Creature, Item, Number, Race, Reaction, Spell,
 };
 typedef short unsigned indext;
+typedef flagable<LastSpellAbility> spella;
 typedef adatc<skill_s, char, DetectSecrets + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 class creature;
@@ -254,7 +245,6 @@ struct variant {
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
-	constexpr variant(const state_s v) : type(State), value(v) {}
 	constexpr variant(const unsigned char v) : type(Number), value(v) {}
 	variant(const creature* v);
 	constexpr explicit operator bool() const { return type == NoVariant; }
@@ -304,7 +294,6 @@ struct durationi {
 };
 struct enchanti {
 	const char*			name;
-	state_s				effect;
 	const char**		names;
 };
 struct genderi {
@@ -399,48 +388,29 @@ struct spell_effect {
 struct effecti {
 	typedef void(*callback)(creature* player, creature* target, const effecti& e, int level, int wand_magic);
 	callback			proc;
-	union {
-		struct {
-			state_s		state;
-			duration_s	duration;
-			save_s		save;
-			char		save_bonus;
-		};
-		struct {
-			condition_s condition;
-			save_s		condition_save;
-			char		condition_save_bonus;
-		};
-		struct {
-			damage_s	damage_type;
-			dice		damage;
-			dice		damage_per;
-			char		damage_increment, damage_maximum;
-			save_s		damage_save;
-		};
-		struct {
-			item_s		item_weapon;
-		};
-		int				value;
-	};
-	static void			apply_condition(creature* player, creature* target, const effecti& e, int level, int wand_magic);
+	variant				type;
+	duration_s			duration;
+	save_s				save;
+	char				save_bonus;
+	dice				damage;
+	dice				damage_per;
+	char				damage_increment, damage_maximum;
+	int					value;
 	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_level);
 	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_level);
-	constexpr effecti(callback proc, int value = 0) : proc(proc), value(value) {}
-	constexpr effecti(duration_s duration, state_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
-		duration(duration), state(state), save(save), save_bonus(save_bonus) {
-	}
-	constexpr effecti(condition_s state, save_s save = SaveNegate, char save_bonus = 0) : proc(apply_effect),
-		condition(state), condition_save(save), condition_save_bonus(save_bonus) {
-	}
-	constexpr effecti(item_s item_weapon) : proc(apply_weapon),
-		item_weapon(item_weapon) {
-	}
-	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) : proc(apply_damage),
-		damage_type(type), damage(damage), damage_per(damage_per), damage_increment(increment), damage_maximum(maximum),
-		damage_save(save) {
-	}
+	constexpr effecti(callback proc,
+		variant type, duration_s duration, save_s save, char save_bonus,
+		dice damage, dice damage_per, char damage_increment, char damage_maximum, int value) : proc(proc),
+		type(type), duration(duration), save(save), save_bonus(save_bonus),
+		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
+		value(value) {}
+	constexpr effecti(callback proc, int value = 0) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
+	constexpr effecti(variant type, duration_s duration, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
+	constexpr effecti(condition_s state, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, Instant, save, save_bonus, {}, {}, 0, 0, 0) {}
+	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
+	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :
+		effecti(apply_damage, type, Instant, save, 0, damage, damage_per_level, increment, maximum, 0) {}
 };
 struct spelli {
 	const char*			name;
@@ -448,10 +418,6 @@ struct spelli {
 	target_s			range;
 	effecti				effect;
 	item_s				throw_effect;
-};
-struct statei {
-	const char*			name;
-	skill_s				save;
 };
 struct sitei {
 	struct headi {
@@ -539,7 +505,6 @@ class creature {
 	short unsigned		index;
 	unsigned char		side;
 	direction_s			direction;
-	unsigned			states[LastState + 1];
 	cflags<feat_s>		feats;
 	usabilitya			usability;
 	cflags<condition_s> condition;
@@ -550,7 +515,7 @@ class creature {
 	item				wears[LastInvertory + 1];
 	char				spells[LastSpellAbility + 1];
 	char				prepared[LastSpellAbility + 1];
-	char				known[LastSpellAbility + 1];
+	spella				known_spells, active_spells;
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
@@ -575,11 +540,12 @@ class creature {
 	void				update_levelup(bool interactive);
 	void				update_poison(bool interactive);
 public:
+	explicit operator bool() const { return race != NoRace; }
 	typedef void		(creature::*apply_proc)(bool);
-	explicit operator bool() const { return states[0] != 0; }
+	void				activate(spell_s v) { active_spells.set(v); }
 	void				add(item i);
 	bool				add(condition_s type, save_s save = NoSave, char save_bonus = 0);
-	bool				add(state_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
+	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
@@ -631,7 +597,6 @@ public:
 	short unsigned		getindex() const;
 	int					getinitiative() const { return initiative; }
 	item*				getitem(wear_s id) { return &wears[id - FirstInvertory]; }
-	int					getknown(spell_s id) const { return known[id]; }
 	static int			getlevel(spell_s id, class_s type);
 	const char*			getname(char* result, const char* result_maximum) const;
 	int					getpallette() const { return pallette; }
@@ -655,10 +620,9 @@ public:
 	bool				identify(bool interactive);
 	void				interract();
 	bool				is(condition_s v) const { return condition.is(v); }
-	bool				is(state_s v) const;
+	bool				is(spell_s v) const { return active_spells.is(v); }
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
-	bool				is(spell_s v) const { return known[v] != 0; }
 	bool				isaffect(variant v) const;
 	static bool			isallow(class_s id, race_s r);
 	static bool			isallow(alignment_s id, class_s c);
@@ -667,6 +631,7 @@ public:
 	bool				iscast(class_s v) const { return getprogress(v) != 0; }
 	bool				isenemy(creature* target) const;
 	bool				isinvisible() const;
+	bool				isknown(spell_s v) const { return known_spells.is(v); }
 	bool				ishero() const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
@@ -677,7 +642,8 @@ public:
 	bool				raise(enchant_s v);
 	void				random_name();
 	void				remove(condition_s v) { condition.remove(v); }
-	void				remove(state_s v) { states[v] = 0; }
+	void				remove(spell_s v);
+	void				removeboost(variant v) const;
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
@@ -700,7 +666,6 @@ public:
 	void				set(reaction_s v) { reaction = v; }
 	bool				set(skill_s skill, short unsigned index);
 	void				set(spell_s spell, char v) { spells[spell] = v; }
-	bool				set(state_s id, unsigned rounds);
 	void				set(direction_s value);
 	void				set(const item it, wear_s v) { wears[v] = it; }
 	void				setavatar(int value) { avatar = value; }
@@ -709,7 +674,7 @@ public:
 	void				sethitsroll(short v) { hits_rolled = v; }
 	void				setindex(short unsigned value) { index = value; }
 	void				setinitiative(char value) { initiative = value; }
-	void				setknown(spell_s id, char v) { known[id] = v; }
+	void				setknown(spell_s id, bool v = true) { known_spells.set(id, v); }
 	void				setmoved(bool value);
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);

@@ -19,7 +19,7 @@ static bool allow(const creature* p, const variant v) {
 			return true;
 		break;
 	case Spell:
-		if(p->getknown((spell_s)v.value)>0)
+		if(p->isknown((spell_s)v.value))
 			return true;
 		break;
 	case Reaction:
@@ -95,11 +95,11 @@ void dialogi::actioni::apply() {
 		case Item:
 			creature::addparty((item_s)variant.value);
 			break;
-		case State:
+		case Spell:
 			for(auto e : party) {
 				auto p = e.getcreature();
 				if(p)
-					p->add((state_s)variant.value, xrand(3, 10) * 5);
+					p->add((spell_s)variant.value, xrand(3, 10) * 5, NoSave);
 			}
 			break;
 		case Condition:

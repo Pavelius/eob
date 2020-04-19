@@ -287,25 +287,25 @@ static unsigned char getalpha(unsigned f, unsigned range) {
 
 void creature::view_portrait(int x, int y) const {
 	static struct elementi {
-		variant	v;
+		variant		v;
 		color		c;
 	} variants[] = {{PoisonWeak, colors::green},
 	{Poison, colors::green},
 	{PoisonStrong, colors::green},
 	{PoisonDeadly, colors::green},
 	{Diseased, colors::green.mix(colors::red)},
-	{Paralized, colors::red},
-	{Sleeped, colors::blue}
+	{HoldPerson, colors::red},
+	{Sleep, colors::blue}
 	};
-	if(isinvisible() || is(Blured))
+	if(isinvisible() || is(Blur))
 		image(x, y, gres(PORTM), getavatar(), 0, 128);
 	else
 		image(x, y, gres(PORTM), getavatar(), 0);
 	adat<elementi*, sizeof(variants) / sizeof(variants[0])> source;
 	for(auto& e : variants) {
 		switch(e.v.type) {
-		case State:
-			if(is((state_s)e.v.value))
+		case Spell:
+			if(is((spell_s)e.v.value))
 				source.add(&e);
 			break;
 		case Condition:
@@ -354,26 +354,28 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	pc->view_portrait(x + 1, y + 9);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
-	for(auto id = Armored; id <= Paralized; id = (state_s)(id + 1)) {
-		if(pc->is(id)) {
-			switch(id) {
-			case DetectedEvil:
-			case DetectedMagic:
-			case Invisibled:
-				continue;
-			case Paralized:
-				draw::rectb(rc, colors::red);
-				break;
-			case Blessed:
-			case ProtectedFromEvil:
-				draw::rectb(rc, colors::yellow);
-				break;
-			default:
-				draw::rectb(rc, colors::green);
-				break;
-			}
+	for(auto id = Bless; id <= LastSpellAbility; id = (spell_s)(id + 1)) {
+		if(!pc->is(id))
+			continue;
+		switch(id) {
+		case DetectEvil:
+		case DetectMagic:
+		case Invisibility:
+		case Blur:
+		case ReadLanguagesSpell:
+			continue;
+		case HoldPerson:
+			draw::rectb(rc, colors::red);
+			break;
+		case Bless:
+		case ProtectionFromEvil:
+			draw::rectb(rc, colors::yellow);
+			break;
+		default:
+			draw::rectb(rc, colors::green);
 			break;
 		}
+		break;
 	}
 	handicn(x + 32 + 16, y + 16, pc, RightHand, current_item);
 	handicn(x + 32 + 16, y + 16 + 16, pc, LeftHand, current_item);

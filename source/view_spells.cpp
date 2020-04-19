@@ -88,7 +88,7 @@ static unsigned select_known_spells(spell_s* result, spell_s* result_maximum, cr
 	for(auto i = NoSpell; i < LayOnHands; i = (spell_s)(i + 1)) {
 		if(creature::getlevel(i, type) != level)
 			continue;
-		if(!pc->getknown(i))
+		if(!pc->isknown(i))
 			continue;
 		if(result < result_maximum)
 			*p++ = i;
@@ -279,7 +279,7 @@ void creature::scribe(item& it) {
 		return;
 	}
 	if(roll(LearnSpell)) {
-		setknown(sp, 1);
+		setknown(sp);
 		mslog("%1 learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
 		addexp(100);
 	} else
@@ -302,7 +302,7 @@ void creature::scriblescrolls() {
 				auto sp = it.getspell();
 				if(!sp || !bsdata<spelli>::elements[sp].levels[0])
 					continue;
-				if(current_hero->is(sp))
+				if(current_hero->isknown(sp))
 					continue;
 				source.add(&it);
 			}

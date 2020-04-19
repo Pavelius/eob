@@ -189,7 +189,7 @@ int	creature::get(skill_s id) const {
 		auto value = get_theiv_skill(id, type, levels);
 		switch(id) {
 		case ClimbWalls:
-			if(is(Climbed))
+			if(is(FeatherFall))
 				result += 100;
 			result += getbonus(OfClimbing)*10;
 			break;
