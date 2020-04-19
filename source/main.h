@@ -54,7 +54,7 @@ enum duration_s : unsigned char {
 	DurationHour, Duration2Hours, Duration4Hours, Duration8Hours,
 };
 enum target_s : unsigned char {
-	TargetSelf,
+	TargetSelf, TargetItem,
 	TargetThrow, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,

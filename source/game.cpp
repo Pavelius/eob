@@ -146,17 +146,24 @@ void read_message(dungeon* pd, dungeon::overlayi* po);
 
 bool gamei::manipulate(item* itm, direction_s dr) {
 	int index = getcamera();
-	auto po = location.getoverlay(index, dr);
-	if(!po)
-		return false;
 	auto pc = getcreature(itm);
+	auto po = location.getoverlay(index, dr);
+	if(!po) {
+		auto i1 = to(index, dr);
+		auto cell = location.get(i1);
+		switch(cell) {
+		case CellPortal:
+			if(pc->get(Mage))
+				pc->say("This is portal");
+			else
+				pc->say("This is strange magical device");
+			break;
+		default:
+			return false;
+		}
+		return true;
+	}
 	switch(location.gettype(po)) {
-	case CellPortal:
-		if(pc->get(Mage))
-			pc->say("This is portal");
-		else
-			pc->say("This is strange magical device");
-		break;
 	case CellSecrectButton:
 		creature::addexp(500, 0);
 		location.set(to(index, dr), CellPassable);
