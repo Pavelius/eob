@@ -815,9 +815,10 @@ static void create_crypt(dungeon& e, const sitei& ps) {
 	rect room;
 	if(!e.create(room, 7, 7))
 		return;
-	room.offset(1, 1);
+	room.offset(1, 1); // Remove padding
 	e.makeroom(room, e.stat.crypt);
-	auto index = location.get(room.x1 + room.width() / 2, room.y1 + room.height() / 2);
+	room.offset(1, 1); // Remove walls
+	auto index = location.getindex(room.x1 + room.width() / 2, room.y1 + room.height() / 2);
 	e.stat.monsters += e.addmonster(ps.crypt.boss, index);
 }
 
