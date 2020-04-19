@@ -162,7 +162,7 @@ static item_s random_item_type(item_s* source, unsigned count) {
 
 static item_s random_subtype(item_s type) {
 	static item_s potions[] = {PotionRed, PotionBlue, PotionGreen, PotionBlue};
-	static item_s gems[] = {RedGem, BlueGem, GreenGem, PurpleGem, GreenGem, GreenGem};
+	static item_s gems[] = {RedGem, BlueGem, GreenGem, PurpleGem};
 	static item_s weapons[] = {AxeBattle, Axe, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff};
 	static item_s swords[] = {Dagger, SwordBastard, SwordLong, SwordShort, SwordTwoHanded};
 	static item_s armors[] = {Robe,

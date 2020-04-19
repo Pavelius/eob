@@ -2,6 +2,13 @@
 
 const int mpg = 8;
 
+static color cpass = color::create(196, 132, 72);
+static color cwall = color::create(156, 104, 54);
+static color bwall = color::create(100, 64, 24);
+static color bpass = color::create(176, 120, 64);
+static color bpits = bpass.darken();
+static color cdoor = color::create(140, 88, 48);
+
 static void show_marker(int x, int y) {
 	draw::line(x, y, x + mpg, y + mpg, colors::red);
 	draw::line(x + mpg, y, x, y + mpg, colors::red);
@@ -105,16 +112,38 @@ static void fill_border(int x, int y, int dx, color border, cell_s* nb, cell_s t
 	}
 }
 
+static void render_overlays(const dungeon& location, bool fog_of_war) {
+	draw::state push;
+	for(auto& e : location.overlays) {
+		if(!e)
+			continue;
+		auto index = e.index;
+		if(index == Blocked)
+			continue;
+		if(fog_of_war && !location.is(index, CellExplored))
+			continue;
+		auto x = gx(index), y = gy(index);
+		auto x1 = x * mpg, y1 = y * mpg;
+		switch(e.dir) {
+		case Left: y1 += mpg / 2; break;
+		case Right: y1 += mpg / 2; x1 += mpg; break;
+		case Down: y1 += mpg; x1 += mpg/2; break;
+		case Up: x1 += mpg / 2; break;
+		}
+		switch(e.type) {
+		case CellPuller: draw::rectf({x1 - 2, y1 - 2, x1 + 2, y1 + 2}, cwall); break;
+		case CellDoorButton: break;
+		case CellSecrectButton: break;
+		default: draw::rectf({x1 - 1, y1 - 1, x1 + 1, y1 + 1}, bwall); break;
+		}
+	}
+}
+
 static void render_automap(const dungeon& location, bool fog_of_war) {
 	draw::state push;
 	cell_s nb[8];
-	color cpass = color::create(196, 132, 72);
-	color cwall = color::create(156, 104, 54);
-	color bwall = color::create(100, 64, 24);
-	color bpass = color::create(176, 120, 64);
-	color bpits = bpass.darken();
-	color cdoor = color::create(140, 88, 48);
 	draw::rectf({0, 0, 320, 200}, cpass);
+	render_overlays(location, fog_of_war);
 	for(int y = 0; y < mpy; y++) {
 		for(int x = 0; x < mpx; x++) {
 			if(fog_of_war && !location.is(location.getindex(x, y), CellExplored))
