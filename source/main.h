@@ -97,16 +97,17 @@ enum monster_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	LastAbility = Charisma
-};
-enum skill_s : unsigned char {
+	LastAbility = Charisma,
+	// Saves
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
+	FirstSave = SaveVsParalization, LastSave = SaveVsMagic,
+	// Theif skills
 	ClimbWalls, HearNoise, MoveSilently, OpenLocks, RemoveTraps, ReadLanguages,
+	// Other skills
 	LearnSpell,
 	ResistCharm, ResistCold, ResistFire, ResistMagic,
 	CriticalDeflect,
 	DetectSecrets,
-	FirstSave = SaveVsParalization, LastSave = SaveVsMagic,
 	LastSkill = DetectSecrets
 };
 enum wear_s : unsigned char {
@@ -224,7 +225,7 @@ enum variant_s : unsigned char {
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
-typedef adatc<skill_s, char, DetectSecrets + 1> skilla;
+typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
 class creature;
 class item;
@@ -232,6 +233,7 @@ struct variant {
 	variant_s			type;
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
+	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
@@ -250,8 +252,8 @@ struct spellprogi {
 };
 struct abilityi {
 	const char*			name;
+	adat<class_s, 4>	allow;
 	enchant_s			enchant;
-	char				base;
 	char				multiplier;
 };
 struct alignmenti {
@@ -366,12 +368,6 @@ struct racei {
 	usabilitya			usability;
 	skilla				skills;
 };
-struct skilli {
-	const char*			name;
-	adat<class_s, 4>	allow;
-	enchant_s			enchant;
-	char				multiplier;
-};
 struct spell_effect {
 	dice				base;
 	int					level;
@@ -462,7 +458,7 @@ public:
 	int					get(enchant_s value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
-	int					getarmorpenalty(skill_s skill) const;
+	int					getarmorpenalty(ability_s skill) const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
 	enchant_s			getenchant() const;
@@ -533,7 +529,7 @@ class creature {
 	void				dressoff();
 	void				dresson();
 	void				drink(spell_s effect, int magic);
-	int					get_base_save_throw(skill_s st) const;
+	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
 	char				racial_bonus(char* data) const;
@@ -573,7 +569,6 @@ public:
 	int					get(ability_s id) const;
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
-	int					get(skill_s id) const;
 	void				get(combati& e, wear_s slot = RightHand, creature* enemy = 0) const;
 	item				get(wear_s id) const;
 	const spellprogi*	getprogress(class_s v) const;
@@ -609,7 +604,6 @@ public:
 	race_s				getrace() const { return race; }
 	reaction_s			getreaction() const { return reaction; }
 	static int			getparty(ability_s v);
-	static int			getparty(skill_s id);
 	resource_s			getres() const;
 	int					getside() const;
 	size_s				getsize() const;
@@ -650,7 +644,6 @@ public:
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
-	bool				roll(skill_s id, int bonus = 0) const;
 	void				roll_ability();
 	reaction_s			rollreaction(int bonus) const;
 	void				say(spell_s id) const;
@@ -666,7 +659,7 @@ public:
 	void				set(monster_s type);
 	void				set(race_s value) { race = value; }
 	void				set(reaction_s v) { reaction = v; }
-	bool				set(skill_s skill, short unsigned index);
+	bool				set(ability_s skill, short unsigned index);
 	void				set(spell_s spell, char v) { spells[spell] = v; }
 	void				set(direction_s value);
 	void				set(const item it, wear_s v) { wears[v] = it; }
@@ -689,7 +682,7 @@ public:
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);
 	static void			update_boost();
-	bool				use(skill_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
+	bool				use(ability_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	bool				usequick();
 	void				view_ability();
@@ -746,7 +739,7 @@ struct dungeon {
 	};
 	struct eventi {
 		variant			owner;
-		skill_s			skill;
+		ability_s		skill;
 		short unsigned	index;
 		constexpr operator bool() const { return owner.operator bool(); }
 	};
@@ -982,6 +975,5 @@ DECLENUM(class)
 DECLENUM(enchant)
 DECLENUM(monster)
 DECLENUM(race)
-DECLENUM(skill)
 DECLENUM(spell)
 DECLENUM(gender)

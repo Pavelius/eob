@@ -412,7 +412,7 @@ void gamei::enter(indext index, indext level) {
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 }
 
-bool creature::set(skill_s skill, short unsigned index) {
+bool creature::set(ability_s skill, short unsigned index) {
 	variant owner = this;
 	for(auto& e : location.events) {
 		if(e.owner == owner

@@ -262,15 +262,10 @@ item creature::get(wear_s id) const {
 }
 
 bool creature::roll(ability_s id, int bonus) const {
-	auto n = (get(id) + bonus) * 5;
-	if(n <= 0)
-		return false;
-	auto d = d100();
-	return d <= n;
-}
-
-bool creature::roll(skill_s id, int bonus) const {
-	auto n = get(id) + bonus * 5;
+	auto n = get(id);
+	if(id <= LastAbility)
+		n *= 5;
+	n += bonus * 5;
 	if(n <= 0)
 		return false;
 	auto d = d100();
@@ -722,36 +717,6 @@ int	creature::get(class_s type) const {
 	return 0;
 }
 
-int	creature::get(ability_s id) const {
-	auto r = ability[id];
-	switch(id) {
-	case Strenght:
-		r -= drain_strenght;
-		if(disease_progress > 2)
-			r -= disease_progress / 2;
-		break;
-	case Constitution:
-		if(disease_progress > 2)
-			r -= disease_progress - 2;
-		break;
-	}
-	// Зачарованные атрибуты имеют фиксированные значения
-	auto enchant = bsdata<abilityi>::elements[id].enchant;
-	if(enchant) {
-		auto b = getbonus(enchant);
-		if(b > 0) {
-			b += 16;
-			if(r < b)
-				r = b;
-		} else if(b < 0) {
-			b += 8;
-			if(r > b)
-				r = b;
-		}
-	}
-	return r;
-}
-
 int creature::getside() const {
 	if(kind)
 		return side;
@@ -879,7 +844,7 @@ void creature::random_name() {
 	name[1] = se;
 }
 
-int creature::get_base_save_throw(skill_s st) const {
+int creature::get_base_save_throw(ability_s st) const {
 	auto c = getclass();
 	auto rc = getrace();
 	auto b1 = getclass(c, 0);
@@ -1203,7 +1168,7 @@ void creature::addexp(int value, int killing_hit_dice) {
 	}
 }
 
-bool creature::use(skill_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive) {
+bool creature::use(ability_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive) {
 	if(firsttime)
 		*firsttime = false;
 	if(get(skill) <= 0)
@@ -1902,21 +1867,6 @@ int	creature::getparty(ability_s v) {
 	return total / count;
 }
 
-int	creature::getparty(skill_s v) {
-	auto total = 0;
-	auto count = 0;
-	for(auto ev : party) {
-		auto p = ev.getcreature();
-		if(!p || !(*p) || !p->isready())
-			continue;
-		total += p->get(v);
-		count++;
-	}
-	if(!count)
-		return 0;
-	return total / count;
-}
-
 void creature::interract() {
 	auto old_reaction = reaction;
 	auto new_reaction = reaction;
@@ -2016,7 +1966,7 @@ void creature::dress_wears(int m) {
 			continue;
 		if(sp.type == Ability) {
 			auto& ei = bsdata<abilityi>::elements[sp.value];
-			ability[sp.value] += (ei.base + ei.multiplier)*it.getmagic()*m;
+			ability[sp.value] += ei.multiplier*it.getmagic()*m;
 		}
 	}
 }

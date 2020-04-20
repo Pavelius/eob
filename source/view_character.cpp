@@ -130,7 +130,7 @@ void draw::skills(int x, int y, creature* pc) {
 	int x1 = x + 4;
 	int y1 = y + 54;
 	header(x1, y + 42, "Skills");
-	for(auto i = SaveVsParalization; i <= LastSkill; i = (skill_s)(i + 1)) {
+	for(auto i = SaveVsParalization; i <= LastSkill; i = (ability_s)(i + 1)) {
 		int value = pc->get(i);
 		if(value <= 0)
 			continue;

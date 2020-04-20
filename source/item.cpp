@@ -358,7 +358,7 @@ bool item::damage(const char* text_damage, const char* text_broke) {
 	return false;
 }
 
-int item::getarmorpenalty(skill_s skill) const {
+int item::getarmorpenalty(ability_s skill) const {
 	if(is(UseMetalArmor)) {
 		switch(skill) {
 		case OpenLocks: return 20;

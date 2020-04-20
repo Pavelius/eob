@@ -183,7 +183,7 @@ void effecti::apply_effect(creature* player, creature* target, const effecti& e,
 	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus);
 }
 
-static bool test_save(creature* target, int& value, skill_s skill, save_s type, int bonus) {
+static bool test_save(creature* target, int& value, ability_s skill, save_s type, int bonus) {
 	switch(type) {
 	case SaveHalf:
 		if(target->roll(skill, bonus))

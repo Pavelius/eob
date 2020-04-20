@@ -1,29 +1,5 @@
 #include "main.h"
 
-skilli bsdata<skilli>::elements[] = {{"Save vs Paralize"},
-{"Save vs Poison", {}, OfPoisonResistance, 10},
-{"Save vs Traps"},
-{"Save vs Magic"},
-//
-{"Climb Walls", {Theif}},
-{"Hear Noise", {Theif}},
-{"Move Silently", {Theif, Ranger}},
-{"Open Locks", {Theif}},
-{"Remove Traps", {Theif}},
-//
-{"Read Languages", {Theif}},
-{"Learn Spells", {Mage}},
-//
-{"Resist Charm"},
-{"Resist Cold"},
-{"Resist Fire", {}, OfFireResistance, 20},
-{"Resist Magic", {}, OfMagicResistance, 10},
-//
-{"Deflect critical"},
-{"Detect secrets"},
-};
-assert_enum(skill, LastSkill);
-
 static char savevs_data[4][5][22] = {
 	// Warriors - 0
 	{{16, 14, 14, 13, 13, 11, 11, 10, 10, 8, 8, 7, 7, 5, 5, 4, 4, 3, 3, 2, 2, 2},
@@ -80,7 +56,7 @@ static char save_index[] = {
 	1,
 	3,
 };
-static_assert(sizeof(save_index) / sizeof(save_index[0]) == SaveVsMagic + 1, "Invalid count of save index elements");
+static_assert(sizeof(save_index) / sizeof(save_index[0]) == (SaveVsMagic-FirstSave) + 1, "Invalid count of save index elements");
 static char open_doors[] = {
 	18, 20, 22, 26, 28, 30, 32, 34, 36, 38,
 	40, 42, 44, 46, 48, 50, 54, 58, 62,
@@ -111,8 +87,8 @@ static int get_save_group(class_s value) {
 	}
 }
 
-static int get_save_thrown(skill_s id, class_s type, const char* levels) {
-	auto index = save_index[id];
+static int get_save_thrown(ability_s id, class_s type, const char* levels) {
+	auto index = save_index[id - FirstSave];
 	auto result = 20;
 	for(unsigned i = 0; i < bsdata<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
@@ -129,7 +105,7 @@ static int get_save_thrown(skill_s id, class_s type, const char* levels) {
 	return (21 - result) * 5;
 }
 
-static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
+static int get_theiv_skill(ability_s id, class_s type, const char* levels) {
 	auto result = 0;
 	for(unsigned i = 0; i < bsdata<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];
@@ -137,7 +113,7 @@ static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 			continue;
 		auto e = bsdata<classi>::elements[type].classes.data[i];
 		auto m = 0;
-		if(bsdata<skilli>::elements[id].allow && !bsdata<skilli>::elements[id].allow.is(e))
+		if(bsdata<abilityi>::elements[id].allow && !bsdata<abilityi>::elements[id].allow.is(e))
 			m = default_theive_skills[id - ClimbWalls][0];
 		else {
 			if(n > 17)
@@ -150,20 +126,50 @@ static int get_theiv_skill(skill_s id, class_s type, const char* levels) {
 	return result;
 }
 
-static bool allow_skill(skill_s id, class_s type) {
-	if(!bsdata<skilli>::elements[id].allow)
+static bool allow_skill(ability_s id, class_s type) {
+	auto& si = bsdata<abilityi>::elements[id];
+	if(!si.allow)
 		return true;
 	for(auto e : bsdata<classi>::elements[type].classes) {
-		if(bsdata<skilli>::elements[id].allow.is(e))
+		if(si.allow.is(e))
 			return true;
 	}
 	return false;
 }
 
-int	creature::get(skill_s id) const {
+int	creature::get(ability_s id) const {
+	if(id <= LastAbility) {
+		auto r = ability[id];
+		switch(id) {
+		case Strenght:
+			r -= drain_strenght;
+			if(disease_progress > 2)
+				r -= disease_progress / 2;
+			break;
+		case Constitution:
+			if(disease_progress > 2)
+				r -= disease_progress - 2;
+			break;
+		}
+		// Зачарованные атрибуты имеют фиксированные значения
+		auto enchant = bsdata<abilityi>::elements[id].enchant;
+		if(enchant) {
+			auto b = getbonus(enchant);
+			if(b > 0) {
+				b += 16;
+				if(r < b)
+					r = b;
+			} else if(b < 0) {
+				b += 8;
+				if(r > b)
+					r = b;
+			}
+		}
+		return r;
+	}
 	int result = bsdata<racei>::elements[race].skills[id];
-	if(bsdata<skilli>::elements[id].multiplier)
-		result += getbonus(bsdata<skilli>::elements[id].enchant) * bsdata<skilli>::elements[id].multiplier;
+	if(bsdata<abilityi>::elements[id].multiplier)
+		result += getbonus(bsdata<abilityi>::elements[id].enchant) * bsdata<abilityi>::elements[id].multiplier;
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);
