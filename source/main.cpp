@@ -121,7 +121,7 @@ static void random_heroes() {
 	item rg3; rg3.create(RedRing, OfWizardy);
 	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
 	item wp2; wp2.create(Staff, BurningHands, 3);
-	item wp3; wp3.create(SwordLong, 100, 0, 100); wp3.setidentified(1);
+	item wp3; wp3.create(SwordLong, OfFire, 3); wp3.setidentified(1);
 	item pt1; pt1.create(PotionGreen, OfAdvise, 1);
 	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);

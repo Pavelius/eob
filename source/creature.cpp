@@ -402,6 +402,12 @@ void creature::attack_drain(creature* defender, char& value, int& hits) {
 		hits = defender->gethits() + 10;
 }
 
+static int getresisted(int value, int percent) {
+	if(!percent)
+		return value;
+	return value * (100 - percent) / 100;
+}
+
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	auto ac = defender->getac();
@@ -461,23 +467,32 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		// Fear attack (Not depend on attack result)
 		if(getbonus(OfFear, slot))
 			defender->add(Fear, xrand(1, 3) * 10, SaveNegate);
+		// When attacking sleeping creature she wake up!
+		defender->remove(Sleep);
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
-			// When attacking sleeping creature she wake up!
-			defender->remove(Sleep);
+			auto damage_type = wi.type;
 			// Poison attack
-			if(getbonus(OfPoison))
+			if(getbonus(OfPoison, slot))
 				defender->add(Poison, Instant, SaveNegate);
 			// Paralize attack
-			if(getbonus(OfParalize))
+			if(getbonus(OfParalize, slot))
 				defender->add(HoldPerson, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(getbonus(OfEnergyDrain))
+			if(getbonus(OfEnergyDrain, slot))
 				attack_drain(defender, defender->drain_energy, hits);
-			if(getbonus(OfStrenghtDrain))
+			if(getbonus(OfStrenghtDrain, slot))
 				attack_drain(defender, defender->drain_strenght, hits);
-			defender->damage(wi.type, hits, magic_bonus);
+			if(getbonus(OfFire, slot)) {
+				damage_type = Fire;
+				hits += xrand(1, 6);
+			}
+			if(getbonus(OfCold, slot)) {
+				damage_type = Cold;
+				hits += xrand(1, 4) + 1;
+			}
+			defender->damage(damage_type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
 				if(wi.weapon->is(Charged))
@@ -1083,12 +1098,6 @@ static void remove_hits(short& bonus, int v) {
 			bonus = 0;
 		}
 	}
-}
-
-static int getresisted(int value, int percent) {
-	if(!percent)
-		return value;
-	return value * (100 - percent) / 100;
 }
 
 void creature::damage(damage_s type, int hits, int magic_bonus) {
