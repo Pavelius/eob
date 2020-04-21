@@ -1653,14 +1653,9 @@ bool creature::use(item* pi) {
 	case TheifTools:
 		consume = false;
 		if(location.get(forward_index) == CellPit) {
-			if(pc->use(RemoveTraps, forward_index, 15 + magic * 2, 0, 100, true)) {
+			if(pc->use(RemoveTraps, forward_index, 10 + magic * 2, 0, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove pit");
-			}
-		} else if(location.get(forward_index) == CellButton) {
-			if(pc->use(RemoveTraps, forward_index, magic * 2, 0, 100, true)) {
-				location.set(forward_index, CellPassable);
-				mslog("You remove trap");
 			}
 		} else if(po && po->type == CellTrapLauncher) {
 			if(location.isactive(po))
@@ -1670,6 +1665,9 @@ bool creature::use(item* pi) {
 				mslog("You disable trap");
 			}
 		} else if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
+			auto bonus = 0;
+			if(po->type == CellKeyHole2)
+				bonus -= 10;
 			if(location.isactive(po))
 				pc->say("This lock already open");
 			else if(pc->use(OpenLocks, forward_index, magic * 3, 0, 100, true)) {
@@ -1684,7 +1682,7 @@ bool creature::use(item* pi) {
 			mslog("Lockpicks bite your finger and turn to dust");
 			pc->damage(Pierce, dice::roll(1, 3));
 			consume = true;
-		} else if(d100() < 15)
+		} else if(d100() < 15 - magic)
 			pi->damage("Your %1 is damaged", "You broke %1");
 		break;
 	case MagicWand:
