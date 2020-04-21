@@ -106,8 +106,7 @@ enum ability_s : unsigned char {
 	// Other skills
 	LearnSpell,
 	ResistCharm, ResistCold, ResistFire, ResistMagic,
-	CriticalDeflect,
-	DetectSecrets,
+	CriticalDeflect, DetectSecrets,
 	LastSkill = DetectSecrets
 };
 enum wear_s : unsigned char {
@@ -200,7 +199,7 @@ enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
 	Natural, Charged,
-	Unique, Wonderful, Magical,
+	Unique
 };
 enum attack_s : unsigned char {
 	AutoHit,
@@ -221,7 +220,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Creature, Item, Number, Race, Reaction, Spell,
+	Ability, Alignment, Class, Creature, Enchant, Item, Number, Race, Reaction, Spell,
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
@@ -236,6 +235,7 @@ struct variant {
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
+	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
@@ -332,8 +332,7 @@ struct itemi {
 	cflags<item_feat_s>	feats;
 	weaponi				weapon;
 	armori				armor;
-	aref<enchant_s>		enchantments;
-	aref<spell_s>		spells;
+	aref<variant>		enchantments;
 };
 struct feati {
 	const char*			name;
@@ -443,17 +442,15 @@ class item {
 	unsigned char		cursed : 1; // -1 to quality and not remove
 	unsigned char		broken : 1; // sometime -1 to quality and next breaking destroy item
 	unsigned char		magic : 2; // 0, 1, 2, 3 this is plus item
-	enchant_s			subtype; // spell scroll or spell of wand
+	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
 public:
 	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(NoEnchant), charges(0) {}
-	constexpr item(item_s type, enchant_s enchant, int magic = 0) : type(type), identified(1), cursed(0), broken(0), magic(magic), subtype(enchant), charges(0) {}
-	constexpr item(item_s type, spell_s spell, int magic = 0) : type(type), identified(1), cursed(0), broken(0), magic(magic), subtype((enchant_s)spell), charges(0) {}
-	item(spell_s type);
-	item(item_s type, int chance_magic, int chance_cursed, int chance_special);
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();
+	void				create(item_s type, int chance_magic, int chance_cursed, int chance_special);
+	void				create(item_s type, variant power, int magic = -1);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	int					get(enchant_s value) const;
 	void				get(combati& result, const creature* enemy) const;
@@ -461,13 +458,11 @@ public:
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
-	enchant_s			getenchant() const;
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
 	int					getportrait() const;
+	variant				getpower() const;
 	int					getspeed() const;
-	variant				getspecial() const { return variant(); }
-	spell_s				getspell() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
 	bool				is(usability_s v) const { return bsdata<itemi>::elements[type].usability.is(v); }
@@ -486,7 +481,7 @@ public:
 	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
 	void				setidentified(int value) { identified = value; }
-	void				setspell(spell_s spell);
+	void				setpower(variant v);
 };
 struct boosti {
 	variant				owner, id;

@@ -247,7 +247,8 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 	auto chance_magic = pd->chance.magic + bonus_chance_magic;
 	auto chance_cursed = pd->chance.curse;
 	auto chance_special = pd->chance.special + bonus_chance_magic;
-	item it(type, chance_magic, chance_cursed, chance_special);
+	item it;
+	it.create(type, chance_magic, chance_cursed, chance_special);
 	it.setidentified(0);
 	switch(type) {
 	case Ration:
@@ -696,16 +697,32 @@ static void validate_special_items(dungeon& location) {
 		auto index = location.stat.special;
 		if(!location.head.special[index])
 			break;
-		adat<creature*, 512> source;
-		for(auto& e : location.monsters) {
-			if(!e || !e.isready())
-				continue;
-			source.add(&e);
+		item it;
+		it.create(location.head.special[index], 50, 10, 25);
+		if(it) {
+			adat<dungeon::overlayi*, 512> source;
+			for(auto& e : location.overlays) {
+				if(!e || e.type != CellCellar)
+					continue;
+				source.add(&e);
+			}
+			if(source) {
+				auto p = source.data[rand() % source.count];
+				location.add(p, it);
+				it.clear();
+			}
 		}
-		if(source) {
-			auto p = source.data[rand() % source.count];
-			item it(location.head.special[index], 40, 10, 20);
-			p->add(it);
+		if(it) {
+			adat<indext, 512> source;
+			for(auto& e : location.items) {
+				if(!e || (e.value.gettype() != Ration && e.value.gettype() != RationIron))
+					continue;
+				source.add(e.index);
+			}
+			if(source) {
+				auto i = source.data[rand() % source.count];
+				location.dropitem(i, it, 0);
+			}
 		}
 		location.stat.special++;
 	}

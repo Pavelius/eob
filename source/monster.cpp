@@ -138,8 +138,7 @@ creature* dungeon::addmonster(monster_s type, short unsigned index, char side, d
 		auto chance_cursed = 5;
 		if(pc->is(Undead))
 			chance_cursed += 5;
-		item it(i, chance_magic, chance_cursed, 20);
-		pc->equip(it);
+		pc->equip(i);
 	}
 	return pc;
 }

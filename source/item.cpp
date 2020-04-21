@@ -1,28 +1,28 @@
 #include "main.h"
 
-static enchant_s magic_swords[] = {OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
-static enchant_s magic_weapon[] = {OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
-static enchant_s magic_bludgeon[] = {OfFire, OfSmashing, OfDamage, OfHolyness};
-static enchant_s ring_red[] = {OfWizardy, OfFireResistance, OfProtection, OfAdvise};
-static enchant_s ring_green[] = {OfRegeneration, OfHealing, OfPoisonResistance, OfProtection};
-static enchant_s ring_blue[] = {OfClimbing, OfSpeed, OfProtection, OfLuck, OfInvisibility};
-static enchant_s potion_red[] = {OfSpeed, OfFireResistance, OfKnowledge};
-static enchant_s potion_green[] = {OfNeutralizePoison, OfClimbing, OfStrenght};
-static enchant_s potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfRegeneration, OfAdvise};
-static enchant_s magic_boots[] = {OfSpeed, OfClimbing};
-static enchant_s magic_bracers[] = {OfSpeed, OfProtection};
-static enchant_s magic_amulets[] = {OfSpeed, OfProtection};
-static enchant_s magic_shield[] = {OfFireResistance, OfMagicResistance};
-static enchant_s magic_helm[] = {OfIntellegence, OfCharisma};
-static enchant_s magic_armor[] = {OfFireResistance, OfPoisonResistance, OfMagicResistance, OfClimbing};
-static enchant_s magic_robe[] = {OfProtection, OfSpeed, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
+static variant magic_swords[] = {{}, OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
+static variant magic_weapon[] = {{}, OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
+static variant magic_bludgeon[] = {{}, OfFire, OfSmashing, OfDamage, OfHolyness};
+static variant ring_red[] = {{}, OfWizardy, OfFireResistance, OfProtection, OfAdvise};
+static variant ring_green[] = {{}, OfRegeneration, OfHealing, OfPoisonResistance, OfProtection};
+static variant ring_blue[] = {{}, OfClimbing, OfSpeed, OfProtection, OfLuck, OfInvisibility};
+static variant potion_red[] = {OfSpeed, OfFireResistance, OfKnowledge};
+static variant potion_green[] = {OfNeutralizePoison, OfClimbing, OfStrenght};
+static variant potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfRegeneration, OfAdvise};
+static variant magic_boots[] = {{}, OfSpeed, OfClimbing};
+static variant magic_bracers[] = {{}, OfSpeed, OfProtection};
+static variant magic_amulets[] = {{}, OfSpeed, OfProtection};
+static variant magic_shield[] = {{}, OfFireResistance, OfMagicResistance};
+static variant magic_helm[] = {{}, OfIntellegence, OfCharisma};
+static variant magic_armor[] = {{}, OfFireResistance, OfPoisonResistance, OfMagicResistance};
+static variant magic_robe[] = {{}, OfProtection, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
 
-static spell_s wand_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
-static spell_s staff_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
-static spell_s wizard_spells[] = {BurningHands, DetectMagic, FeatherFall, MageArmor, MagicMissile, Mending,
+static variant wand_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
+static variant staff_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
+static variant wizard_spells[] = {BurningHands, DetectMagic, FeatherFall, MageArmor, MagicMissile, Mending,
 ReadLanguagesSpell, ShieldSpell, ShokingGrasp, Sleep,
 Blur, Invisibility, Knock, ProduceFlame};
-static spell_s priest_spells[] = {Bless, CureLightWounds, DetectEvil, ProtectionFromEvil, PurifyFood,
+static variant priest_spells[] = {Bless, CureLightWounds, DetectEvil, ProtectionFromEvil, PurifyFood,
 Aid, FlameBlade, Goodberry, HoldPerson, SlowPoison,
 CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection};
 
@@ -36,7 +36,7 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Warhammer", {99, 10, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
 {"Mace", {4, 1, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
 {"Spear", {6, 3, 1}, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
-{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, {}, staff_spells},
+{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, staff_spells},
 {"Bastard sword", {45, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_weapon},
 {"Longsword", {1, 0, 1}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 {"Short sword", {2, 0, 1}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
@@ -45,7 +45,7 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Bow", {10, 6, 1, Arrow}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}},
 {"Sling", {18, 4, 0, Stone}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
 //
-{"Robe", {32, 8, 1}, Body, {UseArcane}, {Wonderful}, {}, {}, magic_robe},
+{"Robe", {32, 8, 1}, Body, {UseArcane}, {}, {}, {}, magic_robe},
 {"Leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
 {"Studded leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
 {"Scale mail", {30, 9, 1}, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
@@ -53,14 +53,14 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
 {"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 4}, magic_armor},
 //
-{"Helm", {20, 6}, Head, {UseShield}, {Wonderful}, {}, {0, 2}, magic_helm},
+{"Helm", {20, 6}, Head, {UseShield}, {}, {}, {0, 2}, magic_helm},
 {"Shield", {23, 7, 1}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
-{"Boots", {21, 9}, Legs, {}, {Wonderful}, {}, {0, 1}, magic_boots},
+{"Boots", {21, 9}, Legs, {}, {}, {}, {0, 1}, magic_boots},
 //
-{"Bracers", {25, 16}, Elbow, {}, {Wonderful}, {}, {}, magic_bracers},
-{"Necklage", {33, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
-{"Necklage", {34, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
-{"Jewelry", {108, 13}, Neck, {}, {Wonderful}, {}, {}, magic_amulets},
+{"Bracers", {25, 16}, Elbow, {}, {}, {}, {}, magic_bracers},
+{"Necklage", {33, 13}, Neck, {}, {}, {}, {}, magic_amulets},
+{"Necklage", {34, 13}, Neck, {}, {}, {}, {}, magic_amulets},
+{"Jewelry", {108, 13}, Neck, {}, {}, {}, {}, magic_amulets},
 //
 {"Arrow", {16, 5}},
 {"Dart", {14, 0}, RightHand},
@@ -74,9 +74,9 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, {}, {UseTheif}},
 //
-{"Wand", {52, 10}, {}, {UseArcane}, {Magical, Wonderful, UseInHand, Charged}, {}, {}, {}, wand_spells},
-{"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}, {Magical, Wonderful}, {}, {}, {}, wizard_spells},
-{"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}, {Magical, Wonderful}, {}, {}, {}, priest_spells},
+{"Wand", {52, 10}, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, wand_spells},
+{"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}, {}, {}, {}, wizard_spells},
+{"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}, {}, {}, {}, priest_spells},
 // Keys
 {"Shelf key", {46, 8}},
 {"Silver key", {47, 8}},
@@ -87,13 +87,13 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
 // Rings
-{"Ring", {55, 15}, RightRing, {UseArcane}, {Wonderful}, {}, {}, ring_red},
-{"Ring", {78, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_blue},
-{"Ring", {79, 15}, RightRing, {}, {Wonderful}, {}, {}, ring_green},
+{"Ring", {55, 15}, RightRing, {UseArcane}, {}, {}, {}, ring_red},
+{"Ring", {78, 15}, RightRing, {}, {}, {}, {}, ring_blue},
+{"Ring", {79, 15}, RightRing, {}, {}, {}, {}, ring_green},
 // Potions
-{"Potion", {39, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_red},
-{"Potion", {40, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_blue},
-{"Potion", {41, 19}, {}, {}, {Wonderful, Magical}, {}, {}, potion_green},
+{"Potion", {39, 19}, {}, {}, {}, {}, {}, potion_red},
+{"Potion", {40, 19}, {}, {}, {}, {}, {}, potion_blue},
+{"Potion", {41, 19}, {}, {}, {}, {}, {}, potion_green},
 // Gems
 {"Red gem", {93, 22}},
 {"Blue gem", {94, 22}},
@@ -106,7 +106,7 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Dust of Ages", {97, 25}, {}, {UseArcane}, {Unique}},
 {"Horn", {59, 23}, {}, {}, {Unique}},
 {"Mantist Head", {51, 18}, {}, {}, {Unique}},
-{"Scepeter", {66, 17}, RightHand, {}, {Unique, Wonderful}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
+{"Scepeter", {66, 17}, RightHand, {}, {Unique}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
 {"Silver sword", {65, 0}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 {"Stone amulet", {64, 13}, Neck, {}, {Unique}},
 {"Stone dagger", {60, 3}, {}, {}, {Unique}},
@@ -181,30 +181,48 @@ static int standart_magic_bonus() {
 		return 3;
 }
 
-item::item(item_s type, int chance_magic, int chance_cursed, int chance_special) : item(type) {
-	if(is(Magical))
-		chance_magic = 100;
-	if(is(Wonderful))
-		chance_special = 100;
+static unsigned char find_power(const aref<variant>& source, variant v) {
+	for(auto& e : source) {
+		if(e == v)
+			return source.indexof(&e);
+	}
+	return 0xFF;
+}
+
+void item::create(item_s type, variant power, int magic) {
+	clear();
+	auto pi = find_power(bsdata<itemi>::elements[type].enchantments, power);
+	if(pi == 0xFF)
+		return;
+	if(magic == -1)
+		magic = special_magic_bonus();
+	this->type = type;
+	this->subtype = pi;
+	this->magic = magic;
 	if(is(Charged))
 		setcharges(dice::roll(3, 6));
-	if(d100() < chance_magic) {
-		if(bsdata<itemi>::elements[type].enchantments.count && (d100() < chance_special)) {
-			subtype = bsdata<itemi>::elements[type].enchantments.data[rand() % bsdata<itemi>::elements[type].enchantments.count];
+}
+
+void item::create(item_s type, int chance_magic, int chance_cursed, int chance_special) {
+	clear();
+	this->type = type;
+	if(is(Charged))
+		setcharges(dice::roll(3, 6));
+	auto& ei = bsdata<itemi>::elements[type];
+	auto isspecial = (ei.enchantments.count > 0);
+	if(isspecial && ei.enchantments[0]) {
+		subtype = rand() % ei.enchantments.count;
+		if(d100() < chance_magic)
 			magic = special_magic_bonus();
-		} else if(bsdata<itemi>::elements[type].spells.count && (d100() < chance_special)) {
-			subtype = (enchant_s)bsdata<itemi>::elements[type].spells.data[rand() % bsdata<itemi>::elements[type].spells.count];
+	} else if(d100() < chance_magic) {
+		if(isspecial && chance_special < d100()) {
+			subtype = 1 + (rand() % ei.enchantments.count - 1);
 			magic = special_magic_bonus();
 		} else
 			magic = standart_magic_bonus();
 	}
 	if(d100() < chance_cursed)
 		setcursed(1);
-}
-
-item::item(spell_s spell) : item(getscroll(spell)) {
-	setspell(spell);
-	setidentified(1);
 }
 
 void item::clear() {
@@ -231,21 +249,9 @@ int item::getportrait() const {
 	return bsdata<itemi>::elements[type].image.avatar;
 }
 
-spell_s item::getspell() const {
-	if(bsdata<itemi>::elements[type].spells.count == 0)
-		return Moved;
-	return (spell_s)subtype;
-}
-
-enchant_s item::getenchant() const {
-	if(bsdata<itemi>::elements[type].enchantments.count == 0)
-		return NoEnchant;
-	return subtype;
-}
-
 int	item::get(enchant_s value) const {
-	if(bsdata<itemi>::elements[type].enchantments.count != 0
-		&& subtype == value)
+	auto power = getpower();
+	if(power.type==Enchant && power.value==value)
 		return getmagic();
 	return 0;
 }
@@ -284,32 +290,21 @@ void item::getname(stringbuilder& sc) const {
 		sc.adds("cursed");
 	sc.adds(bsdata<itemi>::elements[type].name);
 	if(isidentified()) {
-		if(type == MagicWand || type == MageScroll || type == PriestScroll) {
-			auto spell = getspell();
-			sc.adds("of %1", getstr(spell));
-		} else {
-			auto enchant = getenchant();
-			auto spell = getspell();
-			if(enchant)
-				sc.adds("of %1", getstr(enchant));
-			else if(spell)
-				sc.adds("of %1", getstr(spell));
-			if(type != PotionBlue && type != PotionGreen && type != PotionRed) {
-				auto magic = getmagic();
-				if(magic) {
-					if(bsdata<enchanti>::elements[enchant].names)
-						sc.adds(bsdata<enchanti>::elements[enchant].names[imin(5, iabs(magic)) - 1]);
-					else
-						sc.adds("%+1i", magic);
-				}
+		auto power = getpower();
+		switch(power.type) {
+		case Spell: sc.adds("of %1", getstr((spell_s)power.value)); break;
+		case Enchant: sc.adds("of %1", getstr((enchant_s)power.value)); break;
+		}
+		if(type != PotionBlue && type != PotionGreen && type != PotionRed) {
+			auto magic = getmagic();
+			if(magic) {
+				if(magic >= 0 && power.type == Enchant && bsdata<enchanti>::elements[power.value].names)
+					sc.adds(bsdata<enchanti>::elements[power.value].names[imin(5, iabs(magic))]);
+				else
+					sc.adds("%+1i", magic);
 			}
 		}
 	}
-}
-
-void item::setspell(spell_s spell) {
-	if(bsdata<itemi>::elements[type].spells.count != 0)
-		subtype = (enchant_s)spell;
 }
 
 bool item::ismelee() const {
@@ -319,10 +314,16 @@ bool item::ismelee() const {
 
 int	item::getmagic() const {
 	auto r = magic;
-	if(subtype)
-		r++;
 	if(cursed != 0)
-		return - (r + 1);
+		return -(r + 1);
+	auto& ei = bsdata<itemi>::elements[type];
+	if(ei.enchantments.count > 0) {
+		if(ei.enchantments.data[0]) {
+			if(subtype)
+				r++;
+		} else
+			r++;
+	}
 	return r;
 }
 
@@ -334,7 +335,7 @@ void item::setcharges(int value) {
 }
 
 bool item::damage(const char* text_damage, const char* text_broke) {
-	char name[128]; 
+	char name[128];
 	if(broken) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || magic == 3)
@@ -375,4 +376,11 @@ int item::getarmorpenalty(ability_s skill) const {
 		}
 	}
 	return 0;
+}
+
+variant item::getpower() const {
+	auto& ei = bsdata<itemi>::elements[type];
+	if(!ei.enchantments.count)
+		return variant();
+	return ei.enchantments.data[subtype];
 }

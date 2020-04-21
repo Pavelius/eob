@@ -273,11 +273,12 @@ static void scribe_scroll() {
 
 void creature::scribe(item& it) {
 	char temp[260];
-	auto sp = it.getspell();
-	if(!sp) {
+	auto sv = it.getpower();
+	if(!sv || sv.type!=Spell) {
 		say("This is not magic scroll");
 		return;
 	}
+	auto sp = (spell_s)sv.value;
 	if(roll(LearnSpell)) {
 		setknown(sp);
 		mslog("%1 learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
@@ -299,8 +300,11 @@ void creature::scriblescrolls() {
 				auto& it = current_hero->wears[i];
 				if(!it || !it.isidentified())
 					continue;
-				auto sp = it.getspell();
-				if(!sp || !bsdata<spelli>::elements[sp].levels[0])
+				auto sv = it.getpower();
+				if(!sv || sv.type != Spell)
+					continue;
+				auto sp = (spell_s)sv.value;
+				if(!bsdata<spelli>::elements[sp].levels[0])
 					continue;
 				if(current_hero->isknown(sp))
 					continue;
@@ -318,7 +322,8 @@ void creature::scriblescrolls() {
 			fore = colors::white;
 			int count = imin(source.count, (unsigned)13);
 			for(int i = 0; i < count; i++) {
-				auto sp = source.data[i]->getspell();
+				auto sv = source.data[i]->getpower();
+				auto sp = (spell_s)sv.value;
 				y += buttont(x, y, 168, cmd(scribe_scroll, (int)source.data[i], (int)source.data[i]),
 					getstr(sp));
 			}

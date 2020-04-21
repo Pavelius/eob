@@ -302,11 +302,12 @@ void creature::update_turn(bool interactive) {
 	for(auto slot = Head; slot <= Legs; slot = (wear_s)(slot + 1)) {
 		auto pi = getitem(slot);
 		if(pi && *pi) {
-			auto magic = pi->getmagic();
-			switch(pi->getenchant()) {
-			case OfRegeneration:
-				damage(Heal, magic);
-				break;
+			auto power = pi->getpower();
+			if(power.type == Enchant) {
+				auto magic = pi->getmagic();
+				switch(power.value) {
+				case OfRegeneration: damage(Heal, magic); break;
+				}
 			}
 		}
 	}
@@ -438,8 +439,9 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				}
 				if(wi.weapon) {
 					// RULE: Staff and rods magic use this
-					auto spell = wi.weapon->getspell();
-					if(spell) {
+					auto power = wi.weapon->getpower();
+					if(power.type == Spell) {
+						auto spell = (spell_s)power.value;
 						if(bsdata<spelli>::elements[spell].effect.proc == effecti::apply_damage)
 							cast(spell, Mage, wi.weapon->getmagic(), defender);
 						else
@@ -1086,7 +1088,7 @@ static void remove_hits(short& bonus, int v) {
 static int getresisted(int value, int percent) {
 	if(!percent)
 		return value;
-	return value * (100-percent) / 100;
+	return value * (100 - percent) / 100;
 }
 
 void creature::damage(damage_s type, int hits, int magic_bonus) {
@@ -1523,7 +1525,7 @@ void creature::apply(spell_s id, int magic, unsigned duration) {
 	dice dc;
 	switch(id) {
 	case CureLightWounds:
-		dc.create(1 + magic*2, 8, 4);
+		dc.create(1 + magic * 2, 8, 4);
 		damage(Heal, dc.roll(), 0);
 		break;
 	case CureDisease:
@@ -1587,6 +1589,7 @@ bool creature::use(item* pi) {
 	auto type = pi->gettype();
 	auto po = location.getoverlay(game.getcamera(), game.getdirection());
 	auto magic = pi->getmagic();
+	auto power = pi->getpower();
 	switch(type) {
 	case PotionBlue:
 	case PotionGreen:
@@ -1595,9 +1598,8 @@ bool creature::use(item* pi) {
 			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
 			pc->poison(NoSave);
 			pc->say(maprnd(text));
-		} else {
-			auto enchant = pi->getenchant();
-			switch(enchant) {
+		} else if(power.type == Enchant) {
+			switch(power.value) {
 			case OfAdvise:
 				if(pi->isartifact())
 					pc->addexp(10000);
@@ -1619,11 +1621,11 @@ bool creature::use(item* pi) {
 				break;
 			default:
 				if(pi->isartifact()) {
-					if(!pc->raise(enchant)) {
-						pc->say("Not drinkable!");
-						consume = false;
-					} else
-						pc->say("I feel really better!");
+					//if(!pc->raise(enchant)) {
+					//	pc->say("Not drinkable!");
+					//	consume = false;
+					//} else
+					//	pc->say("I feel really better!");
 				}
 				break;
 			}
@@ -1687,9 +1689,9 @@ bool creature::use(item* pi) {
 		break;
 	case MagicWand:
 		consume = false;
-		spell_element = pi->getspell();
-		if(!spell_element)
+		if(power.type != Spell)
 			return false;
+		spell_element = (spell_s)power.value;
 		if(pi->getcharges()) {
 			if(magic <= 0)
 				magic = 1;
@@ -1725,10 +1727,8 @@ bool creature::use(item* pi) {
 			pc->say("When camping try to identify this");
 			return false;
 		}
-		spell_element = pi->getspell();
-		if(!spell_element)
-			return false;
-		else {
+		if(power.type == Spell) {
+			spell_element = (spell_s)power.value;
 			auto cls = (type == MageScroll) ? Mage : Cleric;
 			if(pc->cast(spell_element, cls, iabs(magic)))
 				consume = true;
@@ -1961,7 +1961,7 @@ void creature::dress_wears(int m) {
 		auto it = wears[id];
 		if(!it)
 			continue;
-		auto sp = it.getspecial();
+		auto sp = it.getpower();
 		if(!sp)
 			continue;
 		if(sp.type == Ability) {

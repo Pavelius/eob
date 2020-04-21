@@ -14,8 +14,10 @@ static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCoope
 static void test_room2(int x, int y) {
 	location.set(location.getindex(x, y - 2), CellWall);
 	auto po = location.add(location.getindex(x, y - 1), CellCellar, Up);
-	location.add(po, Bless);
-	location.add(po, item(Dagger, 50, 0, 10));
+	item it; it.create(Dagger, 50, 0, 10);
+	item sp; sp.create(PriestScroll, Bless);
+	location.add(po, sp);
+	location.add(po, it);
 }
 
 static void test_dungeon(resource_s type) {
@@ -55,8 +57,10 @@ static void test_room(int x, int y) {
 	location.add(location.getindex(x + 3, y + 1), CellKeyHole1, Up);
 	location.add(location.getindex(x + 3, y + 1), CellMessage, Right);
 	auto po = location.add(location.getindex(x + 3, y + 2), CellCellar, Right);
-	location.add(po, Bless);
-	location.add(po, item(Dagger, 50, 0, 10));
+	item it; it.create(Dagger, 50, 0, 10);
+	item sp; sp.create(PriestScroll, Bless);
+	location.add(po, sp);
+	location.add(po, it);
 	location.add(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
 	location.set(location.getindex(x + 2, y - 2), CellButton);
@@ -112,29 +116,30 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 }
 
 static void random_heroes() {
+	item rg1; rg1.create(GreenRing, OfRegeneration);
+	item rg2; rg2.create(BlueRing, OfInvisibility);
+	item rg3; rg3.create(RedRing, OfWizardy);
+	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
+	item wp2; wp2.create(Staff, BurningHands, 3);
+	item wp3; wp3.create(SwordLong, 100, 0, 100); wp3.setidentified(1);
+	item pt1; pt1.create(PotionGreen, OfAdvise, 1);
+	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
-	p->equip(item(GreenRing, OfRegeneration));
-	item artifact(SwordLong, 100, 0, 100);
-	artifact.setidentified(1);
-	p->set(artifact, RightHand);
+	p->set(wp3, RightHand);
+	p->equip(rg1);
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
-	p->set(item(AxeBattle, OfDamage, 3), RightHand);
-	p->equip(item(BlueRing, OfInvisibility));
+	p->set(wp1, RightHand);
+	p->equip(rg2);
 	//
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
-	p->add(item(MagicWand, 20, 0, 0));
 	p->setknown(Identify);
-	p->equip(item(BlueRing, OfWizardy));
-	p->equip(item(BlueRing, OfMagicResistance, 1));
-	p->add(item(PotionGreen, OfKnowledge, 2));
-	p->add(item(KeySilver, 20, 0, 0));
-	item super_staff(Staff, BurningHands, 3);
-	p->set(super_staff, RightHand);
+	p->equip(rg3);
+	p->set(wp2, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add(item(PotionGreen, OfAdvise, 3));
-	p->add(item(PotionGreen, OfAdvise, 2));
+	p->add(pt1);
+	p->add(pt1);
 }
 
 void util_main();
