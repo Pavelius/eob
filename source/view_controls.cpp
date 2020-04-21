@@ -466,7 +466,7 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 		auto state = Bless;
 		if(pc->is(DetectEvil) && pitm->iscursed())
 			state = DetectEvil;
-		else if(pc->is(DetectMagic) && pitm->getmagic())
+		else if(pc->is(DetectMagic) && pitm->ismagical())
 			state = DetectMagic;
 		itemicn(x, y, *pitm, alpha, state);
 	}

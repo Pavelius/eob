@@ -242,7 +242,7 @@ struct variant {
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
 	constexpr variant(const unsigned char v) : type(Number), value(v) {}
 	variant(const creature* v);
-	constexpr explicit operator bool() const { return type == NoVariant; }
+	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
 	creature*			getcreature() const;
@@ -538,7 +538,7 @@ public:
 	typedef void		(creature::*apply_proc)(bool);
 	void				activate(spell_s v) { active_spells.set(v); }
 	void				add(item i);
-	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char svae_bonus = 0);
+	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
@@ -556,7 +556,6 @@ public:
 	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
-	int					damaged(const creature* defender, wear_s slot) const;
 	void				encounter(reaction_s id);
 	void				equip(item it);
 	item*				find(item_s v) const;

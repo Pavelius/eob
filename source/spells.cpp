@@ -180,7 +180,7 @@ int	creature::getlevel(spell_s id, class_s type) {
 
 void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
 	auto duration = getduration(e.duration, level);
-	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus);
+	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus, wand_magic ? SaveVsTraps : SaveVsMagic);
 }
 
 static bool test_save(creature* target, int& value, ability_s skill, save_s type, int bonus) {

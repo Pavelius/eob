@@ -230,7 +230,7 @@ void item::clear() {
 }
 
 bool item::ismagical() const {
-	return cursed || magic || subtype;
+	return getmagic()!=0;
 }
 
 int	item::getac() const {
@@ -318,7 +318,7 @@ int	item::getmagic() const {
 		return -(r + 1);
 	auto& ei = bsdata<itemi>::elements[type];
 	if(ei.enchantments.count > 0) {
-		if(ei.enchantments.data[0]) {
+		if(!ei.enchantments.data[0]) {
 			if(subtype)
 				r++;
 		} else

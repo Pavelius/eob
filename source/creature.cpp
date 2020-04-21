@@ -126,7 +126,7 @@ void creature::update_poison(bool interactive) {
 	}
 }
 
-bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus) {
+bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus, ability_s save_type) {
 	if(is(type))
 		return true;
 	switch(type) {
@@ -138,7 +138,6 @@ bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus
 		break;
 	}
 	if(save != NoSave) {
-		auto save_type = SaveVsMagic;
 		switch(type) {
 		case HoldPerson:
 			save_type = SaveVsParalization;
@@ -215,7 +214,7 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 			if(enemy->is(Undead)) {
 				auto b = wears[weapon].get(OfHolyness);
 				result.bonus += b;
-				result.damage.b += b;
+				result.damage.b += b * 2;
 			}
 		}
 		result.weapon = const_cast<item*>(&wears[weapon]);
@@ -430,11 +429,19 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		auto rolls = xrand(1, 20);
 		auto hits = -1;
 		auto crhit = 20 - wi.critical_range;
+		auto damage_type = wi.type;
 		tohit = imax(2, imin(20, tohit));
 		if(rolls >= tohit || rolls >= crhit) {
 			auto damage = wi.damage;
 			hits = damage.roll();
-			hits += damaged(defender, slot);
+			if(getbonus(OfFire, slot)) {
+				damage_type = Fire;
+				hits += xrand(1, 6);
+			}
+			if(getbonus(OfCold, slot)) {
+				damage_type = Cold;
+				hits += xrand(1, 4) + 1;
+			}
 			// RULE: crtitical hit can deflected
 			if(rolls >= crhit) {
 				// RULE: critical damage depends on weapon and count in dices
@@ -472,7 +479,6 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		// Show result
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
-			auto damage_type = wi.type;
 			// Poison attack
 			if(getbonus(OfPoison, slot))
 				defender->add(Poison, Instant, SaveNegate);
@@ -484,14 +490,6 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				attack_drain(defender, defender->drain_energy, hits);
 			if(getbonus(OfStrenghtDrain, slot))
 				attack_drain(defender, defender->drain_strenght, hits);
-			if(getbonus(OfFire, slot)) {
-				damage_type = Fire;
-				hits += xrand(1, 6);
-			}
-			if(getbonus(OfCold, slot)) {
-				damage_type = Cold;
-				hits += xrand(1, 4) + 1;
-			}
 			defender->damage(damage_type, hits, magic_bonus);
 			// If weapon have charges waste it
 			if(wi.weapon) {
@@ -547,17 +545,6 @@ void creature::addexp(int value) {
 	if(get(pa) >= 16)
 		value += value / 10;
 	experience += value;
-}
-
-int	creature::damaged(const creature* defender, wear_s slot) const {
-	auto r = 0, b = 0;
-	b = wears[slot].get(OfFire);
-	if(b)
-		r += xrand(1, 6) + b;
-	b = wears[slot].get(OfCold);
-	if(b)
-		r += xrand(1, 4) + b;
-	return r;
 }
 
 void creature::clear() {
