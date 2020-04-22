@@ -28,7 +28,7 @@ monsteri bsdata<monsteri>::elements[] = {{"No monster"},
 };
 assert_enum(monster, Zombie);
 
-bool monsteri::is(enchant_s id) const {
+bool monsteri::is(variant id) const {
 	return enchantments[0] == id
 		|| enchantments[1] == id;
 }

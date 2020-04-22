@@ -116,7 +116,6 @@ enum wear_s : unsigned char {
 	FirstInvertory = Backpack, LastInvertory = LastBelt
 };
 enum enchant_s : unsigned char {
-	NoEnchant,
 	OfAccuracy, OfAdvise, OfCold, OfDamage,
 	OfEnergyDrain,
 	OfFear, OfFire, OfHealing, OfHolyness,
@@ -289,8 +288,8 @@ struct durationi {
 	int					get(int v) const;
 };
 struct enchanti {
-	const char*			name;
-	const char**		names;
+	const char*			names[5];
+	char				multiplier;
 };
 struct genderi {
 	const char*			name;
@@ -351,12 +350,12 @@ struct monsteri {
 	char				hd[2];
 	char				ac;
 	item_s				attacks[4];
-	enchant_s			enchantments[2];
+	variant				enchantments[2];
 	skilla				skills;
 	//
 	int					getexperience() const;
 	char				getpallette() const;
-	bool				is(enchant_s id) const;
+	bool				is(variant id) const;
 	bool				is(feat_s id) const;
 };
 struct racei {
@@ -446,7 +445,7 @@ class item {
 	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
 public:
-	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(NoEnchant), charges(0) {}
+	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(0), charges(0) {}
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	void				clear();

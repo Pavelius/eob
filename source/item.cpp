@@ -194,8 +194,12 @@ void item::create(item_s type, variant power, int magic) {
 	auto pi = find_power(bsdata<itemi>::elements[type].enchantments, power);
 	if(pi == 0xFF)
 		return;
-	if(magic == -1)
-		magic = special_magic_bonus();
+	if(magic == -1) {
+		if(power.type == Ability && !bsdata<abilityi>::elements[power.value].multiplier) {
+			// Nothing to do
+		} else
+			magic = special_magic_bonus();
+	}
 	this->type = type;
 	this->subtype = pi;
 	this->magic = magic;
@@ -276,7 +280,7 @@ void item::get(combati& result, const creature* enemy) const {
 	result.critical_multiplier += get(OfSmashing);
 }
 
-static void add_power(stringbuilder& sb, const char** names, int bonus, const char* name) {
+static void add_power(stringbuilder& sb, const char* name, const char** names, int bonus, int multiplier) {
 	const char* p = 0;
 	auto need_plus = true;
 	if(names && bonus >= 0 && bonus <= 4 && names[bonus]) {
@@ -289,7 +293,7 @@ static void add_power(stringbuilder& sb, const char** names, int bonus, const ch
 	if(!p)
 		return;
 	sb.add(" of %1", p);
-	if(need_plus && bonus)
+	if(need_plus && bonus && multiplier)
 		sb.adds("%+1i", bonus);
 }
 
@@ -308,19 +312,19 @@ void item::getname(stringbuilder& sc) const {
 		auto power = getpower();
 		switch(power.type) {
 		case Spell:
-			add_power(sc, 0, 0, bsdata<spelli>::elements[power.value].name);
+			add_power(sc, bsdata<spelli>::elements[power.value].name,
+				0, 0,
+				0);
 			break;
 		case Enchant:
-			add_power(sc, 0, magic, bsdata<enchanti>::elements[power.value].name);
+			add_power(sc, 0,
+				bsdata<enchanti>::elements[power.value].names, magic,
+				bsdata<enchanti>::elements[power.value].multiplier);
 			break;
 		case Ability:
-			if(bsdata<abilityi>::elements[power.value].multiplier) {
-				add_power(sc, bsdata<abilityi>::elements[power.value].nameof, magic,
-					bsdata<abilityi>::elements[power.value].name);
-			} else {
-				add_power(sc, bsdata<abilityi>::elements[power.value].nameof, 0,
-					bsdata<abilityi>::elements[power.value].name);
-			}
+			add_power(sc, bsdata<abilityi>::elements[power.value].name,
+				bsdata<abilityi>::elements[power.value].nameof, magic,
+				bsdata<abilityi>::elements[power.value].multiplier);
 			break;
 		default:
 			if(magic)
