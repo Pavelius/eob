@@ -944,9 +944,11 @@ const char* creature::getname(char* result, const char* result_maximum) const {
 	return result;
 }
 
-int creature::getbonus(enchant_s id) const {
-	if(bsdata<monsteri>::elements[kind].is(id))
-		return 2; // All monsters have enchantment of 2
+int creature::getbonus(variant id) const {
+	if(id.type == Enchant) {
+		if(bsdata<monsteri>::elements[kind].is((enchant_s)id.value))
+			return 2; // All monsters have enchantment of 2
+	}
 	// All bonuses no stack each other
 	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
 	auto r = 0;
@@ -1368,17 +1370,6 @@ int creature::getstrex() const {
 	return result;
 }
 
-bool creature::raise(enchant_s v) {
-	switch(v) {
-	case OfStrenght: ability[Strenght]++; break;
-	case OfDexterity: ability[Dexterity]++; break;
-	case OfIntellegence: ability[Intellegence]++; break;
-	case OfCharisma: ability[Charisma]++; break;
-	default: return false;
-	}
-	return true;
-}
-
 bool creature::setweapon(item_s v, int charges) {
 	if(wears[RightHand]) {
 		say("No, my hand is busy!");
@@ -1754,6 +1745,11 @@ bool creature::use(item* pi) {
 	if(consume)
 		pi->clear();
 	return true;
+}
+
+void creature::identifyall() {
+	for(auto& e : wears)
+		e.setidentified(1);
 }
 
 bool creature::identify(bool interactive) {

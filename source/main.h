@@ -117,12 +117,12 @@ enum wear_s : unsigned char {
 };
 enum enchant_s : unsigned char {
 	NoEnchant,
-	OfAccuracy, OfAdvise, OfCharisma, OfClimbing, OfCold, OfDamage, OfDexterity,
+	OfAccuracy, OfAdvise, OfCold, OfDamage,
 	OfEnergyDrain,
-	OfFear, OfFire, OfFireResistance, OfHealing, OfHolyness,
-	OfIntellegence, OfInvisibility, OfKnowledge, OfLuck, OfMagicResistance, OfNeutralizePoison,
-	OfParalize, OfPoison, OfPoisonStrong, OfPoisonResistance, OfProtection, OfRegeneration,
-	OfSharpness, OfSmashing, OfSpeed, OfStrenght, OfStrenghtDrain,
+	OfFear, OfFire, OfHealing, OfHolyness,
+	OfInvisibility, OfKnowledge, OfLuck, OfNeutralizePoison,
+	OfParalize, OfPoison, OfPoisonStrong, OfProtection, OfRegeneration,
+	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
 };
 enum item_s : unsigned char {
@@ -253,8 +253,9 @@ struct spellprogi {
 struct abilityi {
 	const char*			name;
 	adat<class_s, 4>	allow;
-	enchant_s			enchant;
+	const char*			nameof[5];
 	char				multiplier;
+	char				base;
 };
 struct alignmenti {
 	const char*			name;
@@ -452,7 +453,7 @@ public:
 	void				create(item_s type, int chance_magic, int chance_cursed, int chance_special);
 	void				create(item_s type, variant power, int magic = -1);
 	bool				damage(const char* text_damage, const char* text_brokes);
-	int					get(enchant_s value) const;
+	int					get(variant value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
 	int					getarmorpenalty(ability_s skill) const;
@@ -570,7 +571,7 @@ public:
 	int					getac() const;
 	int					getavatar() const { return avatar; }
 	int					getawards() const;
-	int					getbonus(enchant_s id) const;
+	int					getbonus(variant id) const;
 	int					getbonus(enchant_s id, wear_s slot) const;
 	int					getcasterlevel(class_s id) const;
 	class_s				getclass() const { return type; }
@@ -610,6 +611,7 @@ public:
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				identify(bool interactive);
+	void				identifyall();
 	void				interract();
 	bool				is(spell_s v) const { return active_spells.is(v); }
 	bool				is(feat_s v) const { return feats.is(v); }
@@ -631,7 +633,6 @@ public:
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
-	bool				raise(enchant_s v);
 	void				random_name();
 	void				remove(spell_s v);
 	void				removeboost(variant v) const;
@@ -836,6 +837,28 @@ public:
 	void				set(creature* v) { source_hero = v; }
 	void				set(item* v) { source_item = v; }
 	virtual void		addidentifier(const char* identifier) override;
+};
+struct speechi {
+	struct imagei {
+		resource_s		res;
+		short			id;
+		unsigned		flags;
+		constexpr explicit operator bool() const { return res != 0; }
+	};
+	struct elementi {
+		const char*		text;
+		short			next;
+		action_s		action;
+		variant			variant;
+		short			fail;
+		constexpr explicit operator bool() const { return text != 0; }
+		bool			isallow() const;
+		void			apply();
+	};
+	int					id;
+	imagei				overlay[4];
+	const char*			text;
+	elementi			variants[5];
 };
 struct dialogi {
 	struct actioni {

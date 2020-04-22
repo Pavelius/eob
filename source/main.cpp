@@ -115,18 +115,30 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 	return p;
 }
 
+static void identify_all_party() {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		p->identifyall();
+	}
+}
+
 static void random_heroes() {
 	item rg1; rg1.create(GreenRing, OfRegeneration);
 	item rg2; rg2.create(BlueRing, OfInvisibility);
 	item rg3; rg3.create(RedRing, OfWizardy);
+	item rg4; rg4.create(RedRing, ResistFire);
 	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
 	item wp2; wp2.create(Staff, BurningHands, 3);
-	item wp3; wp3.create(SwordLong, OfFire, 3); wp3.setidentified(1);
+	item wp3; wp3.create(SwordLong, OfFire, 3);
 	item pt1; pt1.create(PotionGreen, OfAdvise, 1);
+	item it1; it1.create(Bracers, Strenght, 0);
 	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set(wp3, RightHand);
 	p->equip(rg1);
+	p->equip(it1);
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
 	p->set(wp1, RightHand);
@@ -135,11 +147,14 @@ static void random_heroes() {
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
 	p->setknown(Identify);
 	p->equip(rg3);
+	p->equip(rg4);
 	p->set(wp2, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
 	p->add(pt1);
 	p->add(pt1);
+	//
+	identify_all_party();
 }
 
 void util_main();

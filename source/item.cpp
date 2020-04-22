@@ -3,19 +3,19 @@
 static variant magic_swords[] = {{}, OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
 static variant magic_weapon[] = {{}, OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
 static variant magic_bludgeon[] = {{}, OfFire, OfSmashing, OfDamage, OfHolyness};
-static variant ring_red[] = {{}, OfWizardy, OfFireResistance, OfProtection, OfAdvise};
-static variant ring_green[] = {{}, OfRegeneration, OfHealing, OfPoisonResistance, OfProtection};
-static variant ring_blue[] = {{}, OfClimbing, OfSpeed, OfProtection, OfLuck, OfInvisibility};
-static variant potion_red[] = {OfSpeed, OfFireResistance, OfKnowledge};
-static variant potion_green[] = {OfNeutralizePoison, OfClimbing, OfStrenght};
-static variant potion_blue[] = {OfClimbing, OfHealing, OfHealing, OfRegeneration, OfAdvise};
-static variant magic_boots[] = {{}, OfSpeed, OfClimbing};
-static variant magic_bracers[] = {{}, OfSpeed, OfProtection};
+static variant ring_red[] = {{}, OfWizardy, ResistFire, ResistCold, OfProtection, OfAdvise};
+static variant ring_green[] = {{}, OfRegeneration, OfHealing, SaveVsPoison, OfProtection};
+static variant ring_blue[] = {{}, ClimbWalls, OfSpeed, OfProtection, OfLuck, OfInvisibility};
+static variant potion_red[] = {OfSpeed, ResistCold, ResistFire, OfKnowledge};
+static variant potion_green[] = {OfNeutralizePoison, ClimbWalls, Strenght};
+static variant potion_blue[] = {ClimbWalls, OfHealing, OfHealing, OfRegeneration, OfAdvise};
+static variant magic_boots[] = {{}, OfSpeed, ClimbWalls};
+static variant magic_bracers[] = {{}, OfSpeed, OfProtection, Strenght, Dexterity, OpenLocks};
 static variant magic_amulets[] = {{}, OfSpeed, OfProtection};
-static variant magic_shield[] = {{}, OfFireResistance, OfMagicResistance};
-static variant magic_helm[] = {{}, OfIntellegence, OfCharisma};
-static variant magic_armor[] = {{}, OfFireResistance, OfPoisonResistance, OfMagicResistance};
-static variant magic_robe[] = {{}, OfProtection, OfMagicResistance, OfFireResistance, OfPoisonResistance, OfMagicResistance};
+static variant magic_shield[] = {{}, ResistFire, ResistMagic};
+static variant magic_helm[] = {{}, Intellegence};
+static variant magic_armor[] = {{}, ResistCold, ResistFire, SaveVsPoison, ResistMagic};
+static variant magic_robe[] = {{}, OfProtection, ResistCold, ResistMagic, ResistFire, SaveVsPoison};
 
 static variant wand_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
 static variant staff_spells[] = {MagicMissile, BurningHands, DetectMagic, Sleep, Mending};
@@ -230,7 +230,7 @@ void item::clear() {
 }
 
 bool item::ismagical() const {
-	return getmagic()!=0;
+	return getmagic() != 0;
 }
 
 int	item::getac() const {
@@ -249,11 +249,8 @@ int item::getportrait() const {
 	return bsdata<itemi>::elements[type].image.avatar;
 }
 
-int	item::get(enchant_s value) const {
-	auto power = getpower();
-	if(power.type==Enchant && power.value==value)
-		return getmagic();
-	return 0;
+int	item::get(variant value) const {
+	return (getpower() == value) ? getmagic() : 0;
 }
 
 void item::get(combati& result, const creature* enemy) const {
@@ -279,6 +276,23 @@ void item::get(combati& result, const creature* enemy) const {
 	result.critical_multiplier += get(OfSmashing);
 }
 
+static void add_power(stringbuilder& sb, const char** names, int bonus, const char* name) {
+	const char* p = 0;
+	auto need_plus = true;
+	if(names && bonus >= 0 && bonus <= 4 && names[bonus]) {
+		need_plus = false;
+		p = names[bonus];
+	} else if(names && names[0])
+		p = names[0];
+	else
+		p = name;
+	if(!p)
+		return;
+	sb.add(" of %1", p);
+	if(need_plus && bonus)
+		sb.adds("%+1i", bonus);
+}
+
 void item::getname(stringbuilder& sc) const {
 	if(isbroken()) {
 		if(type == RationIron || type == Ration)
@@ -290,19 +304,28 @@ void item::getname(stringbuilder& sc) const {
 		sc.adds("cursed");
 	sc.adds(bsdata<itemi>::elements[type].name);
 	if(isidentified()) {
+		auto magic = getmagic();
 		auto power = getpower();
 		switch(power.type) {
-		case Spell: sc.adds("of %1", getstr((spell_s)power.value)); break;
-		case Enchant: sc.adds("of %1", getstr((enchant_s)power.value)); break;
-		}
-		if(type != PotionBlue && type != PotionGreen && type != PotionRed) {
-			auto magic = getmagic();
-			if(magic) {
-				if(magic >= 0 && power.type == Enchant && bsdata<enchanti>::elements[power.value].names)
-					sc.adds(bsdata<enchanti>::elements[power.value].names[imin(5, iabs(magic))]);
-				else
-					sc.adds("%+1i", magic);
+		case Spell:
+			add_power(sc, 0, 0, bsdata<spelli>::elements[power.value].name);
+			break;
+		case Enchant:
+			add_power(sc, 0, magic, bsdata<enchanti>::elements[power.value].name);
+			break;
+		case Ability:
+			if(bsdata<abilityi>::elements[power.value].multiplier) {
+				add_power(sc, bsdata<abilityi>::elements[power.value].nameof, magic,
+					bsdata<abilityi>::elements[power.value].name);
+			} else {
+				add_power(sc, bsdata<abilityi>::elements[power.value].nameof, 0,
+					bsdata<abilityi>::elements[power.value].name);
 			}
+			break;
+		default:
+			if(magic)
+				sc.adds("%+1i", magic);
+			break;
 		}
 	}
 }
