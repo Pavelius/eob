@@ -1972,3 +1972,11 @@ void creature::remove(spell_s v) {
 		}
 	}
 }
+
+void creature::select(itema& result) {
+	for(auto& e : wears) {
+		if(!e)
+			continue;
+		result.add(&e);
+	}
+}

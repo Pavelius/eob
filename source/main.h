@@ -54,10 +54,11 @@ enum duration_s : unsigned char {
 	DurationHour, Duration2Hours, Duration4Hours, Duration8Hours,
 };
 enum target_s : unsigned char {
-	TargetSelf, TargetItem,
+	TargetSelf,
 	TargetThrow, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
+	TargetItem, TargetAllPartyItems,
 	TargetSpecial,
 };
 enum message_s : unsigned char {
@@ -221,12 +222,13 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Class, Creature, Enchant, Item, Number, Race, Reaction, Spell,
 };
+class creature;
+class item;
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
-class creature;
-class item;
+typedef adat<item*, 48> itema;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -448,6 +450,7 @@ public:
 	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(0), charges(0) {}
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
+	bool				cast(creature* caster, spell_s id, int level, bool interactive, bool run);
 	void				clear();
 	void				create(item_s type, int chance_magic, int chance_cursed, int chance_special);
 	void				create(item_s type, variant power, int magic = -1);
@@ -646,6 +649,7 @@ public:
 	void				scribe(item& it);
 	static void			scriblescrolls();
 	static unsigned		select(spell_s* result, const spell_s* result_maximum, class_s type, int level);
+	void				select(itema& result);
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }

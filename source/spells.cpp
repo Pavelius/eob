@@ -241,6 +241,32 @@ void creature::say(spell_s id) const {
 	mslog("%1 cast %2", getname(temp, zendof(temp)), getstr(id));
 }
 
+static void cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count) {
+	itema result;
+	if(whole_party) {
+		for(auto v : party) {
+			auto p = v.getcreature();
+			if(!p)
+				continue;
+			p->select(result);
+		}
+	} else
+		caster->select(result);
+	auto pb = result.data;
+	for(auto p : result) {
+		if(!p->cast(caster, id, level, false, false))
+			continue;
+		*pb++ = p;
+	}
+	result.count = pb - result.data;
+	zshuffle(result.data, result.count);
+	for(auto p : result) {
+		if(count-- <= 0)
+			break;
+		p->cast(caster, id, level, true, true);
+	}
+}
+
 bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {
 	creature* targets[4];
 	auto& si = bsdata<spelli>::elements[id];
@@ -267,6 +293,12 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 	case TargetSelf:
 		say(id);
 		si.effect.proc(this, this, si.effect, level, wand_magic);
+		break;
+	case TargetItem:
+		cast_on_items(id, level, this, false, 1);
+		break;
+	case TargetAllPartyItems:
+		cast_on_items(id, level, this, true, 100);
 		break;
 	case TargetAllAlly:
 		say(id);

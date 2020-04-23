@@ -411,3 +411,37 @@ variant item::getpower() const {
 		return variant();
 	return ei.enchantments.data[subtype];
 }
+
+bool item::cast(creature* caster, spell_s id, int level, bool interactive, bool run) {
+	switch(id) {
+	case DetectMagic:
+		if(!ismagical())
+			return false;
+		break;
+	case DetectEvil:
+		if(!iscursed())
+			return false;
+		break;
+	case Identify:
+		if(isidentified() || !ismagical())
+			return false;
+		if(run)
+			identified = true;
+		break;
+	case Mending:
+		if(!isbroken() || type==Ration || type==RationIron)
+			return false;
+		if(run)
+			broken = false;
+		break;
+	case PurifyFood:
+		if(!isbroken() || (type != Ration && type != RationIron))
+			return false;
+		if(run)
+			broken = false;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
