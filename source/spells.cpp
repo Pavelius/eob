@@ -17,7 +17,7 @@ static int getduration(duration_s duration, int level) {
 	return bsdata<durationi>::elements[duration].get(level);
 }
 
-static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, int wand_magic) {
+static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, ability_s save_skill) {
 	auto ti = maptbl(turn_undead_index, level);
 	auto result = rand() % 20 + 1;
 	auto index = caster->getindex();
@@ -44,11 +44,11 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 		if(result >= value)
 			value = 0;
 		if(value == 0)
-			target->add(TurnUndead, xrand(2, 6) * 10);
+			target->add(Fear, xrand(2, 6) * 10);
 	}
 }
 
-static void purify_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void purify_food(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
 		auto pi = target->getitem(i);
 		if(!pi)
@@ -59,38 +59,71 @@ static void purify_food(creature* player, creature* target, const effecti& e, in
 	}
 }
 
-static void lay_on_hands(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void lay_on_hands(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->damage(Heal, 2 * player->get(Paladin));
 }
 
-static void aid_spell(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void aid_spell(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->addaid(xrand(1, 8));
 	auto duration = getduration(DurationHour, level);
 	target->add(Bless, duration);
 }
 
-static void create_food(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void create_food(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	player->add(RationIron);
 }
 
-static void cure_deafness(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void cure_deafness(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->remove(Blindness);
 	target->remove(Deafness);
 }
 
-static void cure_disease(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void cure_disease(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->remove(Disease);
 }
 
-static void identify(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+//static void cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count) {
+//	itema result;
+//	if(whole_party) {
+//		for(auto v : party) {
+//			auto p = v.getcreature();
+//			if(!p)
+//				continue;
+//			p->select(result);
+//		}
+//	} else
+//		caster->select(result);
+//	auto pb = result.data;
+//	for(auto p : result) {
+//		if(!p->cast(caster, id, level, false, false))
+//			continue;
+//		*pb++ = p;
+//	}
+//	result.count = pb - result.data;
+//	zshuffle(result.data, result.count);
+//	if(!result)
+//		return;
+//	caster->say(id);
+//	for(auto p : result) {
+//		if(count-- <= 0)
+//			break;
+//		p->cast(caster, id, level, true, true);
+//	}
+//}
+
+static bool identify_item(creature* player, item& target, const effecti& e, int level, ability_s save_skill, bool run) {
+	return true;
+}
+
+static void identify(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->identify(true);
 }
 
-static void mending(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void mending(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->mending(true);
 }
 
-static void knock(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void knock(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	auto index = game.getcamera();
 	auto direction = game.getdirection();
 	auto pe = location.getoverlay(index, direction);
@@ -104,15 +137,15 @@ static void knock(creature* player, creature* target, const effecti& e, int leve
 	}
 }
 
-static void remove_curse(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void remove_curse(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->uncurse();
 }
 
-static void remove_parasizes(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void remove_parasizes(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	target->remove(HoldPerson);
 }
 
-static void acid_arrow(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+static void acid_arrow(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	auto th = player->getthac0(Fighter, level);
 	auto rs = rand() % 20 + 1;
 	if(rs < (th - target->getac()))
@@ -178,9 +211,9 @@ int	creature::getlevel(spell_s id, class_s type) {
 	}
 }
 
-void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+void effecti::apply_effect(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	auto duration = getduration(e.duration, level);
-	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus, wand_magic ? SaveVsTraps : SaveVsMagic);
+	target->add((spell_s)e.type.value, duration, e.save, e.save_bonus, save_skill);
 }
 
 static bool test_save(creature* target, int& value, ability_s skill, save_s type, int bonus) {
@@ -197,7 +230,7 @@ static bool test_save(creature* target, int& value, ability_s skill, save_s type
 	return false;
 }
 
-void effecti::apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+void effecti::apply_weapon(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	switch(e.type.type) {
 	case Item:
 		target->setweapon((item_s)e.type.value, xrand(1, 4) + level);
@@ -205,7 +238,7 @@ void effecti::apply_weapon(creature* player, creature* target, const effecti& e,
 	}
 }
 
-void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_magic) {
+void effecti::apply_damage(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
 	auto value = e.damage.roll();
 	if(e.damage_increment) {
 		auto mi = level / e.damage_increment;
@@ -214,9 +247,6 @@ void effecti::apply_damage(creature* player, creature* target, const effecti& e,
 		for(int i = 0; i < mi; i++)
 			value += e.damage_per.roll();
 	}
-	auto save_skill = SaveVsMagic;
-	if(wand_magic)
-		save_skill = SaveVsTraps;
 	if(!test_save(target, value, save_skill, e.save, 0))
 		target->damage((damage_s)e.type.value, value);
 }
@@ -241,32 +271,6 @@ void creature::say(spell_s id) const {
 	mslog("%1 cast %2", getname(temp, zendof(temp)), getstr(id));
 }
 
-static void cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count) {
-	itema result;
-	if(whole_party) {
-		for(auto v : party) {
-			auto p = v.getcreature();
-			if(!p)
-				continue;
-			p->select(result);
-		}
-	} else
-		caster->select(result);
-	auto pb = result.data;
-	for(auto p : result) {
-		if(!p->cast(caster, id, level, false, false))
-			continue;
-		*pb++ = p;
-	}
-	result.count = pb - result.data;
-	zshuffle(result.data, result.count);
-	for(auto p : result) {
-		if(count-- <= 0)
-			break;
-		p->cast(caster, id, level, true, true);
-	}
-}
-
 bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {
 	creature* targets[4];
 	auto& si = bsdata<spelli>::elements[id];
@@ -289,16 +293,13 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(ishero())
 			mslog("Spell failed!");
 	}
+	auto save_skill = SaveVsMagic;
+	if(wand_magic)
+		save_skill = SaveVsTraps;
 	switch(range) {
 	case TargetSelf:
 		say(id);
-		si.effect.proc(this, this, si.effect, level, wand_magic);
-		break;
-	case TargetItem:
-		cast_on_items(id, level, this, false, 1);
-		break;
-	case TargetAllPartyItems:
-		cast_on_items(id, level, this, true, 100);
+		si.effect.proc(this, this, si.effect, level, save_skill);
 		break;
 	case TargetAllAlly:
 		say(id);
@@ -306,7 +307,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 			auto p = v.getcreature();
 			if(!p)
 				continue;
-			si.effect.proc(this, p, si.effect, level, wand_magic);
+			si.effect.proc(this, p, si.effect, level, save_skill);
 		}
 		break;
 	case TargetAlly:
@@ -315,7 +316,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(!target)
 			return false;
 		say(id);
-		si.effect.proc(this, target, si.effect, level, wand_magic);
+		si.effect.proc(this, target, si.effect, level, save_skill);
 		break;
 	case TargetAllThrow:
 		index = get_enemy_distance(index, dir, si.throw_effect);
@@ -331,7 +332,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		for(auto e : targets) {
 			if(!e)
 				continue;
-			si.effect.proc(this, e, si.effect, level, wand_magic);
+			si.effect.proc(this, e, si.effect, level, save_skill);
 		}
 		break;
 	case TargetThrow:
@@ -345,11 +346,11 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(!target)
 			return false;
 		say(id);
-		si.effect.proc(this, target, si.effect, level, wand_magic);
+		si.effect.proc(this, target, si.effect, level, save_skill);
 		break;
 	case TargetSpecial:
 		say(id);
-		si.effect.proc(this, target, si.effect, level, wand_magic);
+		si.effect.proc(this, target, si.effect, level, save_skill);
 		break;
 	}
 	if(wand_magic == 0) {

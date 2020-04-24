@@ -376,8 +376,8 @@ struct spell_effect {
 	int					maximum_per_level;
 };
 struct effecti {
-	typedef void(*callback)(creature* player, creature* target, const effecti& e, int level, int wand_magic);
-	callback			proc;
+	typedef void(*pcre)(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
+	pcre				proc;
 	variant				type;
 	duration_s			duration;
 	save_s				save;
@@ -386,17 +386,17 @@ struct effecti {
 	dice				damage_per;
 	char				damage_increment, damage_maximum;
 	int					value;
-	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, int wand_level);
-	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, int wand_level);
-	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, int wand_level);
-	constexpr effecti(callback proc,
+	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
+	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
+	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
+	constexpr effecti(pcre proc,
 		variant type, duration_s duration, save_s save, char save_bonus,
 		dice damage, dice damage_per, char damage_increment, char damage_maximum, int value) : proc(proc),
 		type(type), duration(duration), save(save), save_bonus(save_bonus),
 		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
 		value(value) {
 	}
-	constexpr effecti(callback proc) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
+	constexpr effecti(pcre proc) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(variant type, duration_s duration = Instant, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
 	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
 	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :

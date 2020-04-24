@@ -425,8 +425,14 @@ bool item::cast(creature* caster, spell_s id, int level, bool interactive, bool 
 	case Identify:
 		if(isidentified() || !ismagical())
 			return false;
-		if(run)
+		if(run) {
 			identified = true;
+			if(interactive) {
+				static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
+				char temp[128]; stringbuilder sb(temp); getname(sb);
+				caster->say("%1 It's %2.", maprnd(talk), temp);
+			}
+		}
 		break;
 	case Mending:
 		if(!isbroken() || type==Ration || type==RationIron)
@@ -435,10 +441,16 @@ bool item::cast(creature* caster, spell_s id, int level, bool interactive, bool 
 			broken = false;
 		break;
 	case PurifyFood:
-		if(!isbroken() || (type != Ration && type != RationIron))
+		if(!isbroken() || !(type == Ration && type == RationIron))
 			return false;
-		if(run)
+		if(run) {
 			broken = false;
+			if(interactive) {
+				static const char* talk[] = {"%1 is safe", "%1 is desecrated!", "%1 is ready to taste"};
+				char temp[128]; stringbuilder sb(temp); getname(sb);
+				caster->say(maprnd(talk), temp);
+			}
+		}
 		break;
 	default:
 		return false;
