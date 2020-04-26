@@ -1,8 +1,8 @@
 #include "main.h"
 
-static variant magic_swords[] = {{}, OfSpeed, OfFire, OfCold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
-static variant magic_weapon[] = {{}, OfSpeed, OfFire, OfAccuracy, OfSharpness, OfHolyness};
-static variant magic_bludgeon[] = {{}, OfFire, OfSmashing, OfDamage, OfHolyness};
+static variant magic_swords[] = {{}, OfSpeed, Fire, Cold, OfSharpness, OfAccuracy, OfProtection, OfVampirism, OfLuck, OfHolyness, OfStrenghtDrain};
+static variant magic_weapon[] = {{}, OfSpeed, Fire, OfAccuracy, OfSharpness, OfHolyness};
+static variant magic_bludgeon[] = {{}, Fire, OfSmashing, Bludgeon, OfHolyness};
 static variant ring_red[] = {{}, OfWizardy, ResistFire, ResistCold, OfProtection, OfAdvise};
 static variant ring_green[] = {{}, OfRegeneration, OfHealing, SaveVsPoison, OfProtection};
 static variant ring_blue[] = {{}, ClimbWalls, OfSpeed, OfProtection, OfLuck, OfInvisibility};
@@ -267,7 +267,7 @@ void item::get(combati& result, const creature* enemy) const {
 	result.type = wi.type;
 	result.attack = wi.attack;
 	result.bonus += wi.bonus + get(OfAccuracy) + getmagic();
-	result.damage.b += get(OfDamage) + getmagic();
+	result.damage.b += get(Bludgeon) + getmagic();
 	if(is(Deadly))
 		result.critical_multiplier++;
 	if(is(Quick))

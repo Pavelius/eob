@@ -2,11 +2,8 @@
 
 enchanti bsdata<enchanti>::elements[] = {{{"accuracy"}, 1},
 {{"advise"}},
-{{"cold"}, 1},
-{{"damage"}, 1},
 {{"energy drain"}, 1},
 {{"fear"}, 1},
-{{"fire"}, 1},
 {{"healing"}},
 {{"holyness"}, 1},
 {{"invisibility"}},

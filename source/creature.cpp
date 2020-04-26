@@ -362,7 +362,7 @@ void creature::equip(item it) {
 	add(it);
 }
 
-int	creature::getbonus(enchant_s id, wear_s slot) const {
+int	creature::getbonus(variant id, wear_s slot) const {
 	if(kind) {
 		if(slot == RightHand && bsdata<monsteri>::elements[type].is(id))
 			return 2;
@@ -434,11 +434,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		if(rolls >= tohit || rolls >= crhit) {
 			auto damage = wi.damage;
 			hits = damage.roll();
-			if(getbonus(OfFire, slot)) {
+			if(getbonus(Fire, slot)) {
 				damage_type = Fire;
 				hits += xrand(1, 6);
 			}
-			if(getbonus(OfCold, slot)) {
+			if(getbonus(Cold, slot)) {
 				damage_type = Cold;
 				hits += xrand(1, 4) + 1;
 			}

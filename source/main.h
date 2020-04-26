@@ -117,9 +117,9 @@ enum wear_s : unsigned char {
 	FirstInvertory = Backpack, LastInvertory = LastBelt
 };
 enum enchant_s : unsigned char {
-	OfAccuracy, OfAdvise, OfCold, OfDamage,
+	OfAccuracy, OfAdvise,
 	OfEnergyDrain,
-	OfFear, OfFire, OfHealing, OfHolyness,
+	OfFear, OfHealing, OfHolyness,
 	OfInvisibility, OfKnowledge, OfLuck, OfNeutralizePoison,
 	OfParalize, OfPoison, OfPoisonStrong, OfProtection, OfRegeneration,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
@@ -220,7 +220,7 @@ enum action_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Creature, Enchant, Item, Number, Race, Reaction, Spell,
+	Ability, Alignment, Class, Creature, Damage, Enchant, Item, Number, Race, Reaction, Spell,
 };
 class creature;
 class item;
@@ -236,12 +236,12 @@ struct variant {
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
+	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
-	constexpr variant(const unsigned char v) : type(Number), value(v) {}
 	variant(const creature* v);
 	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
@@ -574,7 +574,7 @@ public:
 	int					getavatar() const { return avatar; }
 	int					getawards() const;
 	int					getbonus(variant id) const;
-	int					getbonus(enchant_s id, wear_s slot) const;
+	int					getbonus(variant id, wear_s slot) const;
 	int					getcasterlevel(class_s id) const;
 	class_s				getclass() const { return type; }
 	static class_s		getclass(class_s id, int index);

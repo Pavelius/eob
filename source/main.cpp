@@ -131,7 +131,7 @@ static void random_heroes() {
 	item rg4; rg4.create(RedRing, ResistFire);
 	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
 	item wp2; wp2.create(Staff, BurningHands, 3);
-	item wp3; wp3.create(SwordLong, OfFire, 3);
+	item wp3; wp3.create(SwordLong, Fire, 3);
 	item pt1; pt1.create(PotionGreen, OfAdvise, 1);
 	item it1; it1.create(Bracers, Strenght, 0);
 	//

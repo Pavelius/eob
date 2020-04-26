@@ -14,8 +14,8 @@ INSTDATA(abilityi) = {{"Str", {}, {"strenght", "ogre strenght", "hill giant", "f
 //
 {"Climb Walls", {Theif}, {"feather falling"}, 0, 100},
 {"Hear Noise", {Theif}},
-{"Move Silently", {Theif, Ranger}},
-{"Open Locks", {Theif}, {"bulgary"}, 0, 50},
+{"Move Silently", {Theif, Ranger}, {"elvenkind"}, 0, 90},
+{"Open Locks", {Theif}, {"bulgary"}, 0, 40},
 
 {"Remove Traps", {Theif}},
 //
