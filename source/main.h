@@ -213,14 +213,13 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
-	NoAction,
 	HealParty, RessurectBones,
-	StartCombat, WinCombat, GainExperience,
-	AddVariant, HaveVariant, RemoveVariant,
+	StartCombat, WinCombat, GainExperience, Trading,
+	Add, Remove,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Creature, Damage, Enchant, Item, Number, Race, Reaction, Spell,
+	Ability, Action, Alignment, Class, Creature, Damage, Enchant, Gender, Item, Number, Race, Reaction, Spell,
 };
 class creature;
 class item;
@@ -234,10 +233,12 @@ struct variant {
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
+	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
+	constexpr variant(const gender_s v) : type(Gender), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
@@ -841,36 +842,22 @@ public:
 	void				set(item* v) { source_item = v; }
 	virtual void		addidentifier(const char* identifier) override;
 };
-struct speechi {
+struct messagei {
 	struct imagei {
 		resource_s		res;
 		short			id;
 		unsigned		flags;
 		constexpr explicit operator bool() const { return res != 0; }
 	};
-	struct elementi {
-		const char*		text;
-		short			next;
-		action_s		action;
-		variant			variant;
-		short			fail;
-		constexpr explicit operator bool() const { return text != 0; }
-		bool			isallow() const;
-		void			apply();
-	};
 	int					id;
-	imagei				overlay[4];
+	variant				variants[5];
 	const char*			text;
-	elementi			variants[5];
+	short				next[2];
+	imagei				overlay[4];
+	constexpr explicit operator bool() const { return id != 0; }
+	bool				isallow() const;
 };
 struct dialogi {
-	struct actioni {
-		action_s		action;
-		variant			variant;
-		void			apply();
-		bool			isallow() const;
-		constexpr explicit operator bool() const { return action != NoAction; }
-	};
 	struct imagei {
 		resource_s		res;
 		short			id;
@@ -880,16 +867,15 @@ struct dialogi {
 	struct elementi {
 		const char*		text;
 		const char*		next[2];
-		actioni			actions[4];
+		variant			actions[4];
 		constexpr explicit operator bool() const { return text != 0; }
-		bool			isallow() const;
-		void			apply();
 	};
 	constexpr explicit operator bool() const { return id != 0; }
 	imagei				overlay[4];
 	const char*			id;
 	const char*			text;
 	elementi			variants[5];
+	void				apply();
 	void				choose(bool border = false) const;
 	const dialogi*		find(const char* id) const;
 };

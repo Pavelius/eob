@@ -54,81 +54,70 @@ static bool allowpartyitem(const item_s v) {
 	return false;
 }
 
-bool dialogi::actioni::isallow() const {
-	switch(action) {
-	case HaveVariant:
-	case RemoveVariant:
-		if(!allowparty(variant))
-			return false;
-		break;
-	case RessurectBones:
-		if(!allowpartyitem(Bones))
-			return false;
-		break;
-	}
-	return true;
-}
-
-void dialogi::actioni::apply() {
+static void apply_variant(variant id) {
 	auto party_index = game.getcamera();
 	auto party_direction = game.getdirection();
 	auto monster_index = to(party_index, party_direction);
 	creature* creatures[4]; location.getmonsters(creatures, monster_index, party_direction);
-	switch(action) {
-	case WinCombat:
-		for(auto p : creatures) {
-			if(p && p->gethits() > 0)
-				p->damage(Magic, p->gethits(), 5);
-		}
-		break;
-	case StartCombat:
-		location.set(monster_index, Hostile);
-		break;
-	case GainExperience:
-		creature::addexp(variant.value, 0);
-		break;
-	case HealParty:
-		creature::apply(&creature::heal);
-		break;
-	case AddVariant:
-		switch(variant.type) {
-		case Item:
-			creature::addparty((item_s)variant.value);
-			break;
-		case Spell:
-			for(auto e : party) {
-				auto p = e.getcreature();
-				if(p)
-					p->add((spell_s)variant.value, xrand(3, 10) * 5, NoSave);
-			}
-			break;
-		case Reaction:
-			location.set(monster_index, (reaction_s)variant.value);
-			break;
-		}
-		break;
-	}
+	auto action = id.value;
+	//switch(action) {
+	//case WinCombat:
+	//	for(auto p : creatures) {
+	//		if(p && p->gethits() > 0)
+	//			p->damage(Magic, p->gethits(), 5);
+	//	}
+	//	break;
+	//case StartCombat:
+	//	location.set(monster_index, Hostile);
+	//	break;
+	//case GainExperience:
+	//	creature::addexp(variant.value, 0);
+	//	break;
+	//case HealParty:
+	//	creature::apply(&creature::heal);
+	//	break;
+	//case AddVariant:
+	//	switch(variant.type) {
+	//	case Item:
+	//		creature::addparty((item_s)variant.value);
+	//		break;
+	//	case Spell:
+	//		for(auto e : party) {
+	//			auto p = e.getcreature();
+	//			if(p)
+	//				p->add((spell_s)variant.value, xrand(3, 10) * 5, NoSave);
+	//		}
+	//		break;
+	//	case Reaction:
+	//		location.set(monster_index, (reaction_s)variant.value);
+	//		break;
+	//	}
+	//	break;
+	//}
 }
 
-bool dialogi::elementi::isallow() const {
-	if(!text)
-		return false;
-	for(auto& e : actions) {
-		if(!e)
-			break;
-		if(!e.isallow())
-			return false;
-	}
-	return true;
+void dialogi::apply() {
 }
 
-void dialogi::elementi::apply() {
-	for(auto& e : actions) {
-		if(!e)
-			break;
-		e.apply();
-	}
-}
+//bool dialogi::elementi::isallow() const {
+//	if(!text)
+//		return false;
+//	for(auto& e : actions) {
+//		if(!e)
+//			break;
+//		if(!e.isallow())
+//			return false;
+//	}
+//	return true;
+//}
+//
+//void dialogi::elementi::apply() {
+//	for(auto& e : actions) {
+//		if(!e)
+//			break;
+//		e.apply();
+//	}
+//}
 
 void dialogi::choose(bool border) const {
 	draw::animation::update();
@@ -136,8 +125,8 @@ void dialogi::choose(bool border) const {
 	while(p) {
 		answers aw;
 		for(auto& e : p->variants) {
-			if(!e.isallow())
-				continue;
+			//if(!e.isallow())
+			//	continue;
 			aw.add((int)&e, e.text);
 		}
 		auto horizontal = true;
@@ -148,7 +137,7 @@ void dialogi::choose(bool border) const {
 		auto pe = (elementi*)aw.choosebg(p->text, border, p->overlay, horizontal);
 		if(!pe || !pe->next[0])
 			break;
-		pe->apply();
+		//pe->apply();
 		p = find(pe->next[0]);
 	}
 }
