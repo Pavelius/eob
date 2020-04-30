@@ -20,7 +20,7 @@ const int				mpy = 22;
 
 enum resource_s : unsigned char {
 	NONE,
-	BORDER, SCENES,
+	BORDER, SCENES, OUTTAKE,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
@@ -214,7 +214,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	HealParty, RessurectBones,
-	StartCombat, LeaveAway, WinCombat, GainExperience, Trading,
+	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
 	Add, Remove,
 };
 enum speech_s : unsigned char {

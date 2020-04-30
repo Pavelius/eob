@@ -9,6 +9,7 @@ static struct resource_info {
 } objects[] = {{"NONE"},
 {"BORDER", "art/interface"},
 {"SCENES", "art/interface"},
+{"OUTTAKE", "art/misc"},
 {"CHARGEN", "art/interface"},
 {"CHARGENB", "art/interface"},
 {"COMPASS", "art/interface"},
@@ -635,11 +636,12 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static messagei first_dialog[] = {{Say, 1, {}, "You see strange door from blue stone", {}, {{SHADOW}}},
-				{Ask, 1, {OpenLocks}, "Pick", {0,2}},
-				{Ask, 1, {Strenght}, "Crash"},
+				static messagei first_dialog[] = {{Say, 1, {}, "You meet old dwarven cleric. He want to help our party. What help you need?", {}, {{OUTTAKE, 3}}},
+				{Ask, 1, {HealParty}, "Heal"},
+				{Ask, 1, {RessurectBones}, "Ressurect"},
+				{Ask, 1, {}, "Leave"},
 				{}};
-				first_dialog->choose(true);
+				first_dialog->choose(false);
 			}
 			break;
 		case Alpha + '1':
@@ -1056,7 +1058,7 @@ int answers::choosebg(const char* title, bool border, const messagei::imagei* pi
 		if(pi) {
 			for(int i = 0; i < 4; i++) {
 				if(pi[i].res)
-					image(100, 110, gres(pi[i].res), pi[i].id, pi[i].flags);
+					image(100, 102, gres(pi[i].res), pi[i].id, pi[i].flags);
 			}
 		}
 		if(border)

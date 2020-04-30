@@ -343,7 +343,7 @@ int main(int argc, char* argv[]) {
 	//return 0;
 	//srand(2112);
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG

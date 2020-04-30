@@ -148,7 +148,6 @@
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="creature_chating.cpp" />
     <ClCompile Include="crt.cpp" />
-    <ClCompile Include="dialog.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -156,12 +155,8 @@
     <ClCompile Include="dungeon_generate.cpp" />
     <ClCompile Include="duration.cpp" />
     <ClCompile Include="enchant.cpp" />
-    <ClCompile Include="eob3_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="eob_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="eob3_util.cpp" />
+    <ClCompile Include="eob_util.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="geometry.cpp" />
@@ -179,15 +174,11 @@
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="spells.cpp" />
-    <ClCompile Include="sprite_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="sprite_util.cpp" />
     <ClCompile Include="string.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="string_value.cpp" />
-    <ClCompile Include="surface_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="view_automap.cpp" />

@@ -1,15 +1,5 @@
 #include "main.h"
 
-static messagei dragon_text[] = {{Say, 1, {Indifferent}, " - Are you from master?"},
-{Say, 1, {Indifferent}, " - Wait a minute! How you can dig so deep?"},
-{Ask, 1, {StartCombat}, "Attack"},
-{Ask, 1, {Charisma}, "Lie", {12, 13}},
-{Say, 3, {}, " - Who is you? You are not from this place."},
-{Say, 12, {}, " - Hello, friends. Glad to see you. What can we do for you?"},
-{Ask, 12, {Trading}, "Trade"},
-{Say, 13, {}, " - You liers! Prepare to die!", StartCombat},
-{}};
-
 static void apply_variant(variant id) {
 	creaturea party, opponents;
 	auto party_index = game.getcamera();
@@ -32,7 +22,7 @@ static void apply_variant(variant id) {
 				p->set(Hostile);
 			break;
 		case GainExperience:
-			creature::addexp(1000, 0);
+			creature::addexp(500, 0);
 			break;
 		case HealParty:
 			creature::apply(&creature::heal);
@@ -64,11 +54,10 @@ static bool allowed(indext index, const variant& v) {
 }
 
 bool messagei::isallow() const {
-	for(auto v : variants) {
-		if(!v)
-			break;
-	}
-	return true;
+	creaturea parcipants;
+	parcipants.select(game.getcamera());
+	parcipants.match(*this, false);
+	return parcipants.getcount() > 0;
 }
 
 const messagei* messagei::find(int id) const {
@@ -116,6 +105,7 @@ void messagei::choose(bool border) const {
 	draw::animation::update();
 	auto p = find(1);
 	while(p) {
+		p->apply();
 		answers aw;
 		for(auto pe = p; *pe; pe++) {
 			if(pe->type != Ask || pe->id != p->id)

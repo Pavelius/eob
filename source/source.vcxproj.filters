@@ -194,9 +194,6 @@
     <ClCompile Include="duration.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="dialog.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="creature_chating.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

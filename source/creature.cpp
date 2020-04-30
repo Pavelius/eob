@@ -1984,6 +1984,13 @@ void creature::select(itema& result) {
 bool creature::ismatch(const variant v) const {
 	switch(v.type) {
 	case Alignment: return getalignment() == v.value;
+	case Ability: return get((ability_s)v.value) > 0;
+	case Action:
+		switch(v.value) {
+		case HealParty: return gethits() < gethitsmaximum();
+		case RessurectBones: return have(Bones);
+		default: return true;
+		}
 	case Class: return get((class_s)v.value) > 0;
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
@@ -1998,14 +2005,8 @@ bool creature::ismatch(const messagei& v) const {
 	for(auto e : v.variants) {
 		if(!e)
 			break;
-		switch(v.id) {
-		case Action:
-			break;
-		default:
-			if(!ismatch(v))
-				return false;
-			break;
-		}
+		if(!ismatch(e))
+			return false;
 	}
 	return true;
 }

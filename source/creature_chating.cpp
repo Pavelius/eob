@@ -6,7 +6,7 @@ static messagei cautions_dialog[] = {{Say, 1, {}, "\"Who is there? How you dig s
 {}};
 static messagei friendly_dialog[] = {{Say, 1, {}, "\"Welcome friends! Do you want something?\""},
 {Ask, 1, {Charisma}, "Talk"},
-{Ask, 1, {Trading}, "Trade"},
+{Ask, 1, {Trade}, "Trade"},
 {Ask, 1, {StartCombat}, "Attack"},
 {Ask, 1, {LeaveAway}, "Leave"},
 {}};
