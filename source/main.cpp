@@ -127,7 +127,7 @@ static void identify_all_party() {
 static void random_heroes() {
 	item rg1; rg1.create(GreenRing, OfRegeneration);
 	item rg2; rg2.create(BlueRing, OfInvisibility);
-	item rg3; rg3.create(RedRing, OfWizardy);
+	item rg3; rg3.create(RedRing, OfWizardy, 0);
 	item rg4; rg4.create(RedRing, ResistFire);
 	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
 	item wp2; wp2.create(Staff, BurningHands, 3);

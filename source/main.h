@@ -214,8 +214,11 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	HealParty, RessurectBones,
-	StartCombat, WinCombat, GainExperience, Trading,
+	StartCombat, LeaveAway, WinCombat, GainExperience, Trading,
 	Add, Remove,
+};
+enum speech_s : unsigned char {
+	Say, Ask,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -493,6 +496,25 @@ struct boosti {
 	constexpr explicit operator bool() const { return id.type != NoVariant; }
 	void				clear();
 };
+struct messagei {
+	struct imagei {
+		resource_s		res;
+		short			id;
+		unsigned		flags;
+		constexpr explicit operator bool() const { return res != 0; }
+	};
+	speech_s			type;
+	int					id;
+	variant				variants[5];
+	const char*			text;
+	short				next[2];
+	imagei				overlay[4];
+	constexpr explicit operator bool() const { return id != 0; }
+	void				apply() const;
+	bool				isallow() const;
+	void				choose(bool border) const;
+	const messagei*		find(int id) const;
+};
 class creature {
 	alignment_s			alignment;
 	race_s				race;
@@ -629,6 +651,8 @@ public:
 	bool				isinvisible() const;
 	bool				isknown(spell_s v) const { return known_spells.is(v); }
 	bool				ishero() const;
+	bool				ismatch(const variant id) const;
+	bool				ismatch(const messagei& v) const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
 	bool				isuse(const item v) const;
@@ -690,8 +714,11 @@ public:
 };
 class creaturea : public adat<creature*, 12> {
 public:
+	creature*			getbest(ability_s v);
+	void				match(variant v, bool remove);
+	void				match(const messagei& id, bool remove);
 	void				rollinitiative();
-	void				select(short unsigned index);
+	void				select(indext index);
 };
 struct dungeon {
 	struct overlayi {
@@ -842,43 +869,6 @@ public:
 	void				set(item* v) { source_item = v; }
 	virtual void		addidentifier(const char* identifier) override;
 };
-struct messagei {
-	struct imagei {
-		resource_s		res;
-		short			id;
-		unsigned		flags;
-		constexpr explicit operator bool() const { return res != 0; }
-	};
-	int					id;
-	variant				variants[5];
-	const char*			text;
-	short				next[2];
-	imagei				overlay[4];
-	constexpr explicit operator bool() const { return id != 0; }
-	bool				isallow() const;
-};
-struct dialogi {
-	struct imagei {
-		resource_s		res;
-		short			id;
-		unsigned		flags;
-		constexpr explicit operator bool() const { return res != 0; }
-	};
-	struct elementi {
-		const char*		text;
-		const char*		next[2];
-		variant			actions[4];
-		constexpr explicit operator bool() const { return text != 0; }
-	};
-	constexpr explicit operator bool() const { return id != 0; }
-	imagei				overlay[4];
-	const char*			id;
-	const char*			text;
-	elementi			variants[5];
-	void				apply();
-	void				choose(bool border = false) const;
-	const dialogi*		find(const char* id) const;
-};
 class gamei {
 	indext				camera_index;
 	direction_s			camera_direction;
@@ -930,7 +920,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, bool border = false, const dialogi::imagei* pi = 0, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, bool border = false, const messagei::imagei* pi = 0, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();

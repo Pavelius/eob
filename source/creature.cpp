@@ -1980,3 +1980,32 @@ void creature::select(itema& result) {
 		result.add(&e);
 	}
 }
+
+bool creature::ismatch(const variant v) const {
+	switch(v.type) {
+	case Alignment: return getalignment() == v.value;
+	case Class: return get((class_s)v.value) > 0;
+	case Gender: return getgender() == v.value;
+	case Race: return getrace() == v.value;
+	case Item: return have((item_s)v.value);
+	case Spell: return isknown((spell_s)v.value);
+	case Reaction: return getreaction() == v.value;
+	}
+	return false;
+}
+
+bool creature::ismatch(const messagei& v) const {
+	for(auto e : v.variants) {
+		if(!e)
+			break;
+		switch(v.id) {
+		case Action:
+			break;
+		default:
+			if(!ismatch(v))
+				return false;
+			break;
+		}
+	}
+	return true;
+}

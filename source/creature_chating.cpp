@@ -1,9 +1,14 @@
 #include "main.h"
 
-static dialogi cautions_dialog[] = {{{}, "main", "\"Who is there? How you dig so deep? Are you from Master?\"",
-{{"Lie", {}}, {"Attack", {}, {StartCombat}}}},
+static messagei cautions_dialog[] = {{Say, 1, {}, "\"Who is there? How you dig so deep? Are you from Master?\""},
+{Ask, 1, {Charisma}, "Lie"},
+{Ask, 1, {StartCombat}, "Attack"},
 {}};
-static dialogi friendly_dialog[] = {{{}, "main", "\"Welcome friends! Do you want something?\"", {{"Talk"}, {"Trade"}, {"Attack"}, {"Leave"}}},
+static messagei friendly_dialog[] = {{Say, 1, {}, "\"Welcome friends! Do you want something?\""},
+{Ask, 1, {Charisma}, "Talk"},
+{Ask, 1, {Trading}, "Trade"},
+{Ask, 1, {StartCombat}, "Attack"},
+{Ask, 1, {LeaveAway}, "Leave"},
 {}};
 
 void creature::encounter(reaction_s id) {

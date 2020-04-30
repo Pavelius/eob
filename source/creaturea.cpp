@@ -1,6 +1,41 @@
 #include "main.h"
 
-void creaturea::select(short unsigned index) {
+void creaturea::match(variant id, bool remove) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->ismatch(id) == remove)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
+creature* creaturea::getbest(ability_s v) {
+	auto pc = (creature*)0;
+	auto v2 = -1;
+	for(auto p : *this) {
+		auto v1 = p->get(v);
+		if(v1 <= 0)
+			continue;
+		if(v2 == -1 || v1 > v2) {
+			v2 = v1;
+			pc = p;
+		}
+	}
+	return pc;
+}
+
+void creaturea::match(const messagei& id, bool remove) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->ismatch(id) == remove)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
+void creaturea::select(indext index) {
 	if(game.getcamera() == index) {
 		for(auto v : party) {
 			auto p = v.getcreature();

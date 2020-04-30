@@ -635,8 +635,9 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static dialogi first_dialog[] = {{{{ZOMBIE, 0}}, "main", "You see strange door from blue stone",
-				{{"Bribe", "bribe"}, {"Attack", "attack"}, {"Use key", "open_key"}}},
+				static messagei first_dialog[] = {{Say, 1, {}, "You see strange door from blue stone", {}, {{SHADOW}}},
+				{Ask, 1, {OpenLocks}, "Pick", {0,2}},
+				{Ask, 1, {Strenght}, "Crash"},
 				{}};
 				first_dialog->choose(true);
 			}
@@ -1043,7 +1044,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, bool border, const dialogi::imagei* pi, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, bool border, const messagei::imagei* pi, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
