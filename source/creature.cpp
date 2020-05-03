@@ -1981,6 +1981,13 @@ void creature::select(itema& result) {
 	}
 }
 
+bool creature::haveforsale() const {
+	itema items;
+	const_cast<creature*>(this)->select(items);
+	items.forsale(false);
+	return items.getcount() > 0;
+}
+
 bool creature::ismatch(const variant v) const {
 	switch(v.type) {
 	case Alignment: return getalignment() == v.value;
@@ -1989,6 +1996,7 @@ bool creature::ismatch(const variant v) const {
 		switch(v.value) {
 		case HealParty: return gethits() < gethitsmaximum();
 		case RessurectBones: return have(Bones);
+		case Trade: return haveforsale();
 		default: return true;
 		}
 	case Class: return get((class_s)v.value) > 0;

@@ -1,5 +1,29 @@
 #include "main.h"
 
+static selli sell_low[] = {{BlueRing, 3}, {{PotionBlue, OfHealing, 0}, 2}, {RationIron, 1}, {}};
+
+static void trade_creatures(selli* goods) {
+	itema items;
+	items.select();
+	items.forsale(false);
+	auto pi = items.choose("Sell which item?", true);
+	auto cost = pi->getcost();
+	auto pg = goods;
+	while(cost > 0) {
+		if(!pg->cost)
+			pg = goods;
+		if(pg->cost > cost) {
+			if(pg->cost > 1)
+				break;
+			pg++;
+			continue;
+		}
+		//creature::add(pg->object);
+		cost -= pg->cost;
+	}
+	pi->clear();
+}
+
 static void apply_variant(variant id) {
 	creaturea party, opponents;
 	auto party_index = game.getcamera();
@@ -26,6 +50,9 @@ static void apply_variant(variant id) {
 			break;
 		case HealParty:
 			creature::apply(&creature::heal);
+			break;
+		case Trade:
+			trade_creatures(sell_low);
 			break;
 		}
 	}

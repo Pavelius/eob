@@ -215,7 +215,6 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
-	Add, Remove,
 };
 enum speech_s : unsigned char {
 	Say, Ask,
@@ -452,6 +451,7 @@ class item {
 	unsigned char		charges; // uses of item
 public:
 	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(0), charges(0) {}
+	item(item_s type, variant power, int magic) { create(type, power, magic); }
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
 	bool				cast(creature* caster, spell_s id, int level, bool interactive, bool run);
@@ -489,7 +489,6 @@ public:
 	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
 	void				setidentified(int value) { identified = value; }
-	void				setpower(variant v);
 };
 struct boosti {
 	variant				owner, id;
@@ -515,6 +514,10 @@ struct messagei {
 	bool				isallow() const;
 	void				choose(bool border) const;
 	const messagei*		find(int id) const;
+};
+struct selli {
+	item				object;
+	char				cost, chance;
 };
 class itema : public adat<item*, 48> {
 public:
@@ -642,6 +645,7 @@ public:
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethits()); }
+	bool				haveforsale() const;
 	bool				identify(bool interactive);
 	void				identifyall();
 	void				interract();
