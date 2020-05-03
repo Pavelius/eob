@@ -215,6 +215,8 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
+	AddItem1, AddItem2, AddItem3, AddItemS1, AddItemS2,
+	RemoveItem1, RemoveItem2, RemoveItem3, RemoveItemS1, RemoveItemS2,
 };
 enum speech_s : unsigned char {
 	Say, Ask,
@@ -881,7 +883,13 @@ public:
 	void				set(item* v) { source_item = v; }
 	virtual void		addidentifier(const char* identifier) override;
 };
-class gamei {
+struct adventurei {
+	char				name[32];
+	item_s				items[5];
+	int					reward;
+	sitei				levels[8];
+};
+class gamei : public adventurei {
 	indext				camera_index;
 	direction_s			camera_direction;
 	indext				location_index;

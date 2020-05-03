@@ -1997,6 +1997,8 @@ bool creature::ismatch(const variant v) const {
 		case HealParty: return gethits() < gethitsmaximum();
 		case RessurectBones: return have(Bones);
 		case Trade: return haveforsale();
+		case RemoveItem1: case RemoveItem2: case RemoveItem3:
+		case RemoveItemS1: case RemoveItemS2: return have(game.items[v.value - RemoveItem1]);
 		default: return true;
 		}
 	case Class: return get((class_s)v.value) > 0;

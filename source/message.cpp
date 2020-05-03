@@ -130,10 +130,17 @@ void messagei::apply() const {
 
 void messagei::choose(bool border) const {
 	draw::animation::update();
-	auto p = find(1);
-	while(p) {
-		p->apply();
+	auto next_id = 1;
+	while(next_id) {
+		auto p = find(next_id);
+		if(!p)
+			break;
 		answers aw;
+		p->apply();
+		if(p->next[0]) {
+			next_id = p->next[0];
+			continue;
+		}
 		for(auto pe = p; *pe; pe++) {
 			if(pe->type != Ask || pe->id != p->id)
 				continue;
@@ -147,9 +154,8 @@ void messagei::choose(bool border) const {
 		if(!pe)
 			break;
 		pe->apply();
-		auto next_id = pe->next[0];
+		next_id = pe->next[0];
 		if(pe->next[1] && make_test(pe, false))
 			next_id = pe->next[1];
-		p = find(next_id);
 	}
 }
