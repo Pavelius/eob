@@ -641,7 +641,11 @@ void draw::adventure() {
 				{Ask, 1, {RessurectBones}, "Ressurect"},
 				{Ask, 1, {}, "Leave"},
 				{}};
-				first_dialog->choose(false);
+				//first_dialog->choose(false);
+				itema items;
+				items.select();
+				items.forsale(false);
+				items.choose("Sell which item?", true);
 			}
 			break;
 		case Alpha + '1':
@@ -1029,7 +1033,7 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static int buttonw(int x, int y, const char* title, const void* id, unsigned key = 0) {
+static int buttonw(int x, int y, const char* title, const void* id, unsigned key = 0, callback proc = 0) {
 	auto w = textw(title);
 	rect r1 = {x, y, x + w + 6, y + texth() + 3};
 	focusing(r1, (int)id);
@@ -1039,9 +1043,11 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 		focus_pressed = (int)id;
 	else if(hot::key == InputKeyUp && focus_pressed == (int)id) {
 		focus_pressed = 0;
+		if(!proc)
+			proc = buttonparam;
 		execute(buttonparam, (int)id);
 	}
-	form(r1, 1, isfocused, focus_pressed==(int)id);
+	form(r1, 1, isfocused, focus_pressed == (int)id);
 	text(r1.x1 + 4, r1.y1 + 2, title);
 	return w + 8;
 }
@@ -1086,4 +1092,36 @@ int answers::choosebg(const char* title, bool border, const messagei::imagei* pi
 	if(!p)
 		return 0;
 	return p->id;
+}
+
+item* itema::choose(const char* title, bool cancel_button) {
+	char temp[260]; stringbuilder sb(temp);
+	draw::animation::render(0);
+	draw::screenshoot screen;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
+	openform();
+	while(ismodal()) {
+		screen.restore();
+		rect rc = {0, 0, 180, 176};
+		form(rc);
+		rc.offset(6, 4);
+		rc.y1 += text(rc, title, AlignLeft) + 2;
+		auto x = rc.x1 - 2, y = rc.y1;
+		for(unsigned i = 0; i < count; i++) {
+			sb.clear();
+			data[i]->getname(sb);
+			buttonw(x, y, temp, &data[i], Alpha + '1' + i);
+			y += texth() + 4;
+		}
+		if(cancel_button) {
+			if(hot::key == KeyEscape)
+				breakmodal(0);
+		}
+		domodal();
+		navigate();
+	}
+	closeform();
+	return (item*)getresult();
 }

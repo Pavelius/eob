@@ -163,6 +163,7 @@
     <ClCompile Include="intellegence.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="itema.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="names.cpp" />

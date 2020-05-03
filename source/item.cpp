@@ -27,56 +27,56 @@ Aid, FlameBlade, Goodberry, HoldPerson, SlowPoison,
 CreateFood, CureBlindnessDeafness, CureDisease, NegativePlanProtection};
 
 itemi bsdata<itemi>::elements[] = {{"No item"},
-{"Battle axe", {7, 4, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
-{"Axe", {7, 4, 1}, RightHand, {UseMartialWeapon}, {Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
-{"Club", {76, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
-{"Dagger", {15, 3}, RightHand, {}, {Quick}, {OneAttack, Pierce, -2, {1, 4}, {1, 3}}, {}, magic_weapon},
-{"Flail", {5, 2, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -7, {1, 6, 1}, {1, 6}}, {}, magic_weapon},
-{"Halberd", {3, 5, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, Deadly, Quick}, {OneAttack, Slashing, -9, {1, 10}, {2, 6}}, {}, magic_weapon},
-{"Warhammer", {99, 10, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
-{"Mace", {4, 1, 1}, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
-{"Spear", {6, 3, 1}, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
-{"Staff", {8, 3, 1}, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, staff_spells},
-{"Bastard sword", {45, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_weapon},
-{"Longsword", {1, 0, 1}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
-{"Short sword", {2, 0, 1}, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
-{"Two-handed sword", {42, 0, 1}, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_weapon},
+{"Battle axe", {7, 4, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
+{"Axe", {7, 4, 1}, 0, RightHand, {UseMartialWeapon}, {Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
+{"Club", {76, 1}, 0, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
+{"Dagger", {15, 3}, 0, RightHand, {}, {Quick}, {OneAttack, Pierce, -2, {1, 4}, {1, 3}}, {}, magic_weapon},
+{"Flail", {5, 2, 1}, 0, RightHand, {}, {}, {OneAttack, Bludgeon, -7, {1, 6, 1}, {1, 6}}, {}, magic_weapon},
+{"Halberd", {3, 5, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, Deadly, Quick}, {OneAttack, Slashing, -9, {1, 10}, {2, 6}}, {}, magic_weapon},
+{"Warhammer", {99, 10, 1}, 0, RightHand, {}, {}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
+{"Mace", {4, 1, 1}, 0, RightHand, {}, {}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
+{"Spear", {6, 3, 1}, 0, RightHand, {UseLargeWeapon}, {Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
+{"Staff", {8, 3, 1}, 0, RightHand, {}, {TwoHanded}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, staff_spells},
+{"Bastard sword", {45, 0, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_weapon},
+{"Longsword", {1, 0, 1}, 0, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
+{"Short sword", {2, 0, 1}, 0, RightHand, {UseTheifWeapon}, {Quick}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_weapon},
+{"Two-handed sword", {42, 0, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_weapon},
 //
-{"Bow", {10, 6, 1, Arrow}, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}},
-{"Sling", {18, 4, 0, Stone}, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
+{"Bow", {10, 6, 1, Arrow}, 0, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}},
+{"Sling", {18, 4, 0, Stone}, 0, RightHand, {}, {Ranged}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
 //
-{"Robe", {32, 8, 1}, Body, {UseArcane}, {}, {}, {}, magic_robe},
-{"Leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
-{"Studded leather armor", {31, 8, 1}, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
-{"Scale mail", {30, 9, 1}, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
-{"Chain mail", {29, 9, 1}, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
-{"Banded mail", {28, 9, 1}, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
-{"Plate mail", {26, 9, 1}, Body, {UseMetalArmor}, {}, {}, {8, 4}, magic_armor},
+{"Robe", {32, 8, 1}, 0, Body, {UseArcane}, {}, {}, {}, magic_robe},
+{"Leather armor", {31, 8, 1}, 0, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
+{"Studded leather armor", {31, 8, 1}, 0, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
+{"Scale mail", {30, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
+{"Chain mail", {29, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
+{"Banded mail", {28, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
+{"Plate mail", {26, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {8, 4}, magic_armor},
 //
-{"Helm", {20, 6}, Head, {UseShield}, {}, {}, {0, 2}, magic_helm},
-{"Shield", {23, 7, 1}, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
-{"Boots", {21, 9}, Legs, {}, {}, {}, {0, 1}, magic_boots},
+{"Helm", {20, 6}, 0, Head, {UseShield}, {}, {}, {0, 2}, magic_helm},
+{"Shield", {23, 7, 1}, 0, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
+{"Boots", {21, 9}, 0, Legs, {}, {}, {}, {0, 1}, magic_boots},
 //
-{"Bracers", {25, 16}, Elbow, {}, {}, {}, {}, magic_bracers},
-{"Necklage", {33, 13}, Neck, {}, {}, {}, {}, magic_amulets},
-{"Necklage", {34, 13}, Neck, {}, {}, {}, {}, magic_amulets},
-{"Jewelry", {108, 13}, Neck, {}, {}, {}, {}, magic_amulets},
+{"Bracers", {25, 16}, 0, Elbow, {}, {}, {}, {}, magic_bracers},
+{"Necklage", {33, 13}, 1, Neck, {}, {}, {}, {}, magic_amulets},
+{"Necklage", {34, 13}, 2, Neck, {}, {}, {}, {}, magic_amulets},
+{"Jewelry", {108, 13}, 3, Neck, {}, {}, {}, {}, magic_amulets},
 //
 {"Arrow", {16, 5}},
-{"Dart", {14, 0}, RightHand},
-{"Stone", {19, 2}, RightHand},
+{"Dart", {14, 0}, 0, RightHand},
+{"Stone", {19, 2}, 0, RightHand},
 //
-{"Bones", {43, 7}, {}, {}, {}},
-{"Map", {86, 12}, {}, {}, {}},
+{"Bones", {43, 7}, 0, {}, {}, {}},
+{"Map", {86, 12}, 0, {}, {}, {}},
 //
-{"Holy Symbol", {53, 20}, {}, {UseDivine}, {UseInHand}},
-{"Holy Symbol", {27, 20}, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
-{"Spell book", {35, 11}, {}, {UseArcane}, {UseInHand}},
-{"Lockpicks", {54, 1}, {}, {UseTheif}},
+{"Holy Symbol", {53, 20}, 0, {}, {UseDivine}, {UseInHand}},
+{"Holy Symbol", {27, 20}, 0, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
+{"Spell book", {35, 11}, 0, {}, {UseArcane}, {UseInHand}},
+{"Lockpicks", {54, 1}, 0, {}, {UseTheif}},
 //
-{"Wand", {52, 10}, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, wand_spells},
-{"Scroll", {36, 12}, {}, {UseScrolls, UseArcane}, {}, {}, {}, wizard_spells},
-{"Scroll", {85, 12}, {}, {UseScrolls, UseDivine}, {}, {}, {}, priest_spells},
+{"Wand", {52, 10}, 0, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, wand_spells},
+{"Scroll", {36, 12}, 0, {}, {UseScrolls, UseArcane}, {}, {}, {}, wizard_spells},
+{"Scroll", {85, 12}, 0, {}, {UseScrolls, UseDivine}, {}, {}, {}, priest_spells},
 // Keys
 {"Shelf key", {46, 8}},
 {"Silver key", {47, 8}},
@@ -87,42 +87,42 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
 // Rings
-{"Ring", {55, 15}, RightRing, {UseArcane}, {}, {}, {}, ring_red},
-{"Ring", {78, 15}, RightRing, {}, {}, {}, {}, ring_blue},
-{"Ring", {79, 15}, RightRing, {}, {}, {}, {}, ring_green},
+{"Ring", {55, 15}, 1, RightRing, {UseArcane}, {}, {}, {}, ring_red},
+{"Ring", {78, 15}, 1, RightRing, {}, {}, {}, {}, ring_blue},
+{"Ring", {79, 15}, 1, RightRing, {}, {}, {}, {}, ring_green},
 // Potions
-{"Potion", {39, 19}, {}, {}, {}, {}, {}, potion_red},
-{"Potion", {40, 19}, {}, {}, {}, {}, {}, potion_blue},
-{"Potion", {41, 19}, {}, {}, {}, {}, {}, potion_green},
+{"Potion", {39, 19}, 0, {}, {}, {}, {}, {}, potion_red},
+{"Potion", {40, 19}, 0, {}, {}, {}, {}, {}, potion_blue},
+{"Potion", {41, 19}, 0, {}, {}, {}, {}, {}, potion_green},
 // Gems
-{"Red gem", {93, 22}},
-{"Blue gem", {94, 22}},
-{"Green gem", {95, 22}},
-{"Purple gem", {96, 22}},
+{"Red gem", {93, 22}, 5},
+{"Blue gem", {94, 22}, 6},
+{"Green gem", {95, 22}, 8},
+{"Purple gem", {96, 22}, 10},
 // Food
 {"Ration", {38, 14}},
 {"Iron ration", {37, 14}},
 // Unique/Special items
-{"Dust of Ages", {97, 25}, {}, {UseArcane}, {Unique}},
-{"Horn", {59, 23}, {}, {}, {Unique}},
-{"Mantist Head", {51, 18}, {}, {}, {Unique}},
-{"Scepeter", {66, 17}, RightHand, {}, {Unique}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
-{"Silver sword", {65, 0}, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
-{"Stone amulet", {64, 13}, Neck, {}, {Unique}},
-{"Stone dagger", {60, 3}, {}, {}, {Unique}},
-{"Stone gem", {57, 22}, {}, {}, {Unique}},
-{"Stone holy symbol", {63, 20}, {}, {UseDivine}, {Unique}},
-{"Stone orb", {61, 18}, {}, {}, {Unique}},
+{"Dust of Ages", {97, 25}, 0, {}, {UseArcane}, {Unique}},
+{"Horn", {59, 23}, 0, {}, {}, {Unique}},
+{"Mantist Head", {51, 18}, 0, {}, {}, {Unique}},
+{"Scepeter", {66, 17}, 0, RightHand, {}, {Unique}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
+{"Silver sword", {65, 0}, 0, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
+{"Stone amulet", {64, 13}, 0, Neck, {}, {Unique}},
+{"Stone dagger", {60, 3}, 0, {}, {}, {Unique}},
+{"Stone gem", {57, 22}, 0, {}, {}, {Unique}},
+{"Stone holy symbol", {63, 20}, 0, {}, {UseDivine}, {Unique}},
+{"Stone orb", {61, 18}, 0, {}, {}, {Unique}},
 // Natural weapon
-{"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
-{"Slam", {}, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
-{"Claws", {}, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
-{"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
-{"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 4, 1}, {}}},
-{"Bite", {}, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
-{"Shoking hang", {80}, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
-{"Flame blade", {82}, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
-{"Flame hand", {81}, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
+{"Slam", {}, 0, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
+{"Slam", {}, 0, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
+{"Claws", {}, 0, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
+{"Bite", {}, 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
+{"Bite", {}, 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 4, 1}, {}}},
+{"Bite", {}, 0, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
+{"Shoking hang", {80}, 0, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {0, 0, 1}}},
+{"Flame blade", {82}, 0, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
+{"Flame hand", {81}, 0, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
 };
 assert_enum(item, LastItem);
 static_assert(sizeof(item) == 4, "Not valid items count");
@@ -456,4 +456,17 @@ bool item::cast(creature* caster, spell_s id, int level, bool interactive, bool 
 		return false;
 	}
 	return true;
+}
+
+int	item::getcost() const {
+	auto r = bsdata<itemi>::elements[type].cost;
+	if(!r)
+		return 0;
+	if(isidentified()) {
+		if(iscursed())
+			return 0;
+		if(getpower())
+			r += 1 + magic;
+	}
+	return r;
 }

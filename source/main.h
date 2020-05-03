@@ -230,7 +230,6 @@ typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
-typedef adat<item*, 48> itema;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -333,6 +332,7 @@ struct itemi {
 	};
 	const char*			name;
 	portraiti			image;
+	char				cost;
 	wear_s				equipment;
 	usabilitya			usability;
 	cflags<item_feat_s>	feats;
@@ -463,6 +463,7 @@ public:
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
 	int					getarmorpenalty(ability_s skill) const;
+	int					getcost() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
 	int					getmagic() const;
@@ -514,6 +515,12 @@ struct messagei {
 	bool				isallow() const;
 	void				choose(bool border) const;
 	const messagei*		find(int id) const;
+};
+class itema : public adat<item*, 48> {
+public:
+	item*				choose(const char* format, bool cancel_button);
+	void				forsale(bool remove);
+	void				select();
 };
 class creature {
 	alignment_s			alignment;
