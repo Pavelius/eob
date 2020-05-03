@@ -496,6 +496,10 @@ struct boosti {
 	constexpr explicit operator bool() const { return id.type != NoVariant; }
 	void				clear();
 };
+struct selli {
+	item				object;
+	char				cost, chance;
+};
 struct messagei {
 	struct imagei {
 		resource_s		res;
@@ -509,15 +513,12 @@ struct messagei {
 	const char*			text;
 	short				next[2];
 	imagei				overlay[4];
+	selli*				trade;
 	constexpr explicit operator bool() const { return id != 0; }
 	void				apply() const;
 	bool				isallow() const;
 	void				choose(bool border) const;
 	const messagei*		find(int id) const;
-};
-struct selli {
-	item				object;
-	char				cost, chance;
 };
 class itema : public adat<item*, 48> {
 public:

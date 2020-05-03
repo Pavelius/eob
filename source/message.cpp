@@ -24,7 +24,7 @@ static void trade_creatures(selli* goods) {
 	pi->clear();
 }
 
-static void apply_variant(variant id) {
+static void apply_variant(variant id, const messagei& em) {
 	creaturea party, opponents;
 	auto party_index = game.getcamera();
 	auto party_direction = game.getdirection();
@@ -52,7 +52,7 @@ static void apply_variant(variant id) {
 			creature::apply(&creature::heal);
 			break;
 		case Trade:
-			trade_creatures(sell_low);
+			trade_creatures(em.trade);
 			break;
 		}
 	}
@@ -124,7 +124,7 @@ void messagei::apply() const {
 	for(auto v : variants) {
 		if(!v)
 			break;
-		apply_variant(v);
+		apply_variant(v, *this);
 	}
 }
 
