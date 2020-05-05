@@ -1120,30 +1120,32 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 	auto c = this->hits - h;
 	sethits(c);
 	draw::animation::damage(this, hits);
-	if(!ishero()) {
-		int hp = gethits();
-		// If we kill enemy monster
-		if(hp <= 0) {
-			// Add experience
-			auto hitd = gethd();
-			auto value = getawards();
-			addexp(value, hitd);
-			// Drop items
-			auto index = getindex();
-			auto side = getside();
-			for(auto par = FirstInvertory; par <= LastInvertory; par = (wear_s)(par + 1)) {
-				auto it = wears[par];
-				if(!it || it.is(Natural))
-					continue;
-				if(it.is(Unique) || (d100() < 15)) {
-					it.setidentified(0);
-					location.dropitem(index, it, side);
-				}
-			}
-			game.add(kind);
-			clear();
+	// If we kill enemy monster
+	if(gethits() <= 0)
+		kill();
+}
+
+void creature::kill() {
+	if(ishero())
+		return;
+	// Add experience
+	auto hitd = gethd();
+	auto value = getawards();
+	addexp(value, hitd);
+	// Drop items
+	auto index = getindex();
+	auto side = getside();
+	for(auto par = FirstInvertory; par <= LastInvertory; par = (wear_s)(par + 1)) {
+		auto it = wears[par];
+		if(!it || it.is(Natural))
+			continue;
+		if(it.is(Unique) || (d100() < 15)) {
+			it.setidentified(0);
+			location.dropitem(index, it, side);
 		}
 	}
+	game.add(kind);
+	clear();
 }
 
 void creature::addexp(int value, int killing_hit_dice) {
@@ -1865,6 +1867,8 @@ void creature::interract() {
 	if(old_reaction != new_reaction) {
 		location.set(index, new_reaction);
 		encounter(new_reaction);
+		if(!*this)
+			return;
 	}
 	auto party_index = game.getcamera();
 	auto party_direction = game.getdirection();
@@ -1889,7 +1893,7 @@ void creature::apply(apply_proc proc, bool interactive) {
 	}
 }
 
-void creature::addparty(item i) {
+void creature::addparty(item i, bool interactive) {
 	for(auto ev : party) {
 		auto p = ev.getcreature();
 		if(!p)
@@ -1898,6 +1902,11 @@ void creature::addparty(item i) {
 			if(e)
 				continue;
 			e = i;
+			if(interactive) {
+				char t1[260]; stringbuilder s1(t1); i.getname(s1);
+				char t2[260]; stringbuilder s2(t2); p->getname(s2);
+				mslog("%1 gain %2", t2, t1);
+			}
 			return;
 		}
 	}

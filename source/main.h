@@ -581,7 +581,7 @@ public:
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
 	static void			addexp(int value, int killing_hit_dice);
-	static void			addparty(item i);
+	static void			addparty(item i, bool interactive = false);
 	static void			apply(apply_proc proc, bool interactive = true);
 	void				apply(spell_s id, int magic, unsigned duration);
 	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
@@ -670,6 +670,7 @@ public:
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
 	bool				isuse(const item v) const;
+	void				kill();
 	bool				mending(bool interactive);
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();

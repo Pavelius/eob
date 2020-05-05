@@ -11,12 +11,12 @@ static void trade_creatures(selli* goods) {
 		if(!pg->cost)
 			pg = goods;
 		if(pg->cost > cost) {
-			if(pg->cost > 1)
+			if(pg->cost <= 1)
 				break;
 			pg++;
 			continue;
 		}
-		//creature::add(pg->object);
+		creature::addparty(pg->object, true);
 		cost -= pg->cost;
 	}
 	pi->clear();
@@ -33,7 +33,7 @@ static void apply_variant(variant id, const messagei& em) {
 		switch(id.value) {
 		case WinCombat:
 			for(auto p : opponents)
-				p->damage(Magic, p->gethits(), 5);
+				p->kill();
 			break;
 		case LeaveAway:
 			for(auto p : opponents)

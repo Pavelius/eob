@@ -1112,7 +1112,7 @@ item* itema::choose(const char* title, bool cancel_button) {
 		for(unsigned i = 0; i < count; i++) {
 			sb.clear();
 			data[i]->getname(sb);
-			buttonw(x, y, temp, &data[i], Alpha + '1' + i);
+			buttonw(x, y, temp, data[i], Alpha + '1' + i);
 			y += texth() + 4;
 		}
 		if(cancel_button) {
