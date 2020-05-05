@@ -200,9 +200,6 @@
     <ClCompile Include="archive.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="surface_util.cpp">
-      <Filter>Утилиты</Filter>
-    </ClCompile>
     <ClCompile Include="stringbuilder.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
@@ -220,6 +217,9 @@
     </ClCompile>
     <ClCompile Include="itema.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="surface_serial.cpp">
+      <Filter>Интерфейс</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

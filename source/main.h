@@ -20,7 +20,7 @@ const int				mpy = 23;
 
 enum resource_s : unsigned char {
 	NONE,
-	BORDER, SCENES, OUTTAKE,
+	BORDER, OUTTAKE,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
@@ -215,6 +215,7 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
+	DeathSave, TrapDamage,
 	AddItem1, AddItem2, AddItem3, AddItemS1, AddItemS2,
 	RemoveItem1, RemoveItem2, RemoveItem3, RemoveItemS1, RemoveItemS2,
 };
@@ -507,6 +508,10 @@ struct messagei {
 		resource_s		res;
 		short			id;
 		unsigned		flags;
+		const char*		custom;
+		constexpr imagei() : res(NONE), id(0), flags(0), custom(0) {}
+		constexpr imagei(resource_s res, short id = 0, unsigned flags = 0) : res(res), id(id), flags(flags), custom(0) {}
+		constexpr imagei(const char* custom) : res(OUTTAKE), id(0), custom(custom), flags(0) {}
 		constexpr explicit operator bool() const { return res != 0; }
 	};
 	speech_s			type;
@@ -941,7 +946,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, bool border = false, const messagei::imagei* pi = 0, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, const char* footer, const messagei::imagei* pi = 0, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();

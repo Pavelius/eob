@@ -136,7 +136,7 @@ struct surface {
 		//
 		plugin(const char* name, const char* filter);
 		//
-		virtual int		decode(unsigned char* output, const unsigned char* input, unsigned size, int& output_scanline) = 0;
+		virtual bool	decode(unsigned char* output, int output_bpp, const unsigned char* input, unsigned input_size) = 0;
 		virtual bool	inspect(int& w, int& h, int& bpp, const unsigned char* input, unsigned size) = 0;
 	};
 	int					width;
@@ -146,14 +146,17 @@ struct surface {
 	unsigned char*		bits;
 	surface();
 	surface(int width, int height, int bpp);
-	surface(const char* url, const char* pal = 0);
+	surface(const char* url, color* pallette = 0);
 	~surface();
 	operator bool() const { return bits != 0; }
+	static unsigned char* allocator(unsigned char* bits, unsigned size);
+	void				clear() { resize(0, 0, 0, true); }
 	void				convert(int bpp, color* pallette);
+	void				flipv();
 	unsigned char*		ptr(int x, int y) { return bits + y * scanline + x * (bpp / 8); }
-	int					read(const char* url, color* pallette, int need_bpp = 0);
+	bool				read(const char* url, color* pallette = 0, int need_bpp = 0);
 	void				resize(int width, int height, int bpp, bool alloc_memory);
-	void				write(const char* url);
+	void				write(const char* url, color* pallette);
 };
 struct screenshoot : point, surface {
 	screenshoot(bool fade = false);

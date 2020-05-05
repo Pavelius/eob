@@ -8,7 +8,6 @@ static struct resource_info {
 	sprite*				data;
 } objects[] = {{"NONE"},
 {"BORDER", "art/interface"},
-{"SCENES", "art/interface"},
 {"OUTTAKE", "art/misc"},
 {"CHARGEN", "art/interface"},
 {"CHARGENB", "art/interface"},
@@ -65,6 +64,11 @@ static struct resource_info {
 static_assert((sizeof(objects) / sizeof(objects[0])) == Count, "Need resource update");
 
 namespace draw {
+class picstore : arem<pair<const char*, surface>> {
+public:
+	surface&			get(const char* id);
+	void				clear();
+};
 struct render_control {
 	int					id;
 	rect				rc;
@@ -116,6 +120,7 @@ extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 void					view_dungeon_reset();
 callback				draw::domodal;
+static picstore			bitmaps;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -636,16 +641,15 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static messagei first_dialog[] = {{Say, 1, {}, "You meet old dwarven cleric. He want to help our party. What help you need?", {}, {{OUTTAKE, 3}}},
-				{Ask, 1, {HealParty}, "Heal"},
-				{Ask, 1, {RessurectBones}, "Ressurect"},
+				static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"tavern2"}}},
+				{Ask, 1, {}, "Enter", {2}},
 				{Ask, 1, {}, "Leave"},
+				{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
+				{Ask, 2, {}, "Accept"},
+				{Ask, 2, {}, "Talk", {3}},
+				{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask question.\"", {2}, {"rogue"}},
 				{}};
-				//first_dialog->choose(false);
-				itema items;
-				items.select();
-				items.forsale(false);
-				items.choose("Sell which item?", true);
+				first_dialog->choose(true);
 			}
 			break;
 		case Alpha + '1':
@@ -1052,7 +1056,7 @@ static int buttonw(int x, int y, const char* title, const void* id, unsigned key
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, bool border, const messagei::imagei* pi, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, const char* footer, const messagei::imagei* pi, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
@@ -1062,18 +1066,48 @@ int answers::choosebg(const char* title, bool border, const messagei::imagei* pi
 	while(ismodal()) {
 		screen.restore();
 		if(pi) {
+			auto need_border = false;
 			for(int i = 0; i < 4; i++) {
-				if(pi[i].res)
-					image(100, 102, gres(pi[i].res), pi[i].id, pi[i].flags);
+				if(pi[i].res) {
+					if(pi[i].custom) {
+						need_border = true;
+						auto& sf = bitmaps.get(pi[i].custom);
+						blit(*draw::canvas, 8, 8, sf.width, sf.height, pi[i].flags, sf, 0, 0);
+					} else {
+						auto sp = gres(pi[i].res);
+						auto& fr = sp->get(pi[i].id);
+						if(fr.encode == sprite::RAW) {
+							if(fr.sx <= 160 && fr.sy <= 96) {
+								need_border = true;
+								image(8, 8, sp, pi[i].id, pi[i].flags);
+							} else
+								image(0, 0, sp, pi[i].id, pi[i].flags);
+						} else
+							image(100, 102, sp, pi[i].id, pi[i].flags);
+					}
+				}
+			}
+			if(need_border) {
+				image(0, 0, gres(BORDER), 0, 0);
+				auto push_color = fore;
+				fore = color::create(120, 120, 120);
+				line(8, 7, 167, 7);
+				fore = push_color;
 			}
 		}
-		if(border)
-			image(0, 0, gres(BORDER), 0, 0);
 		rect rc = {0, 121, 319, 199};
 		form(rc);
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
-		auto x = rc.x1 - 2, y = rc.y1;
+		//rc = {0, 177, 319, 199};
+		//form(rc);
+		auto x = rc.x1, y = rc.y1;
+		//if(footer) {
+		//	auto push_color = fore;
+		//	fore = colors::yellow;
+		//	text(x + 2, y + 3, footer);
+		//	fore = push_color;
+		//}
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
@@ -1092,6 +1126,29 @@ int answers::choosebg(const char* title, bool border, const messagei::imagei* pi
 	if(!p)
 		return 0;
 	return p->id;
+}
+
+surface& picstore::get(const char* id) {
+	id = szdup(id);
+	// Find existing;
+	for(auto& e : *this) {
+		if(e.key == id)
+			return e.value;
+	}
+	char temp[260];
+	auto p = add();
+	memset(p, 0, sizeof(*p));
+	p->key = szdup(id);
+	p->value.read(szurl(temp, "art/custom", id, "bmp"));
+	if(!p->value)
+		p->value.read(szurl(temp, "art/quest", id, "bmp"));
+	return p->value;
+}
+
+void picstore::clear() {
+	for(auto& e : *this)
+		e.value.clear();
+	arem::clear();
 }
 
 item* itema::choose(const char* title, bool cancel_button) {

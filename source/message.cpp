@@ -1,6 +1,6 @@
 #include "main.h"
 
-static void trade_creatures(selli* goods) {
+static void trade_creatures(const selli* goods) {
 	itema items;
 	items.select();
 	items.forsale(false);
@@ -22,7 +22,7 @@ static void trade_creatures(selli* goods) {
 	pi->clear();
 }
 
-static void apply_variant(variant id, const messagei& em) {
+static void apply_variant(variant id, const selli* trade) {
 	creaturea party, opponents;
 	auto party_index = game.getcamera();
 	auto party_direction = game.getdirection();
@@ -50,7 +50,19 @@ static void apply_variant(variant id, const messagei& em) {
 			creature::apply(&creature::heal);
 			break;
 		case Trade:
-			trade_creatures(em.trade);
+			trade_creatures(trade);
+			break;
+		case DeathSave:
+			for(auto p : party) {
+				if(!p->roll(SaveVsParalization))
+					p->damage(Magic, p->gethits()+10, 5);
+			}
+			break;
+		case TrapDamage:
+			for(auto p : party) {
+				if(!p->roll(SaveVsTraps))
+					p->damage(Pierce, dice::roll(2, 6), 5);
+			}
 			break;
 		}
 	}
@@ -122,7 +134,7 @@ void messagei::apply() const {
 	for(auto v : variants) {
 		if(!v)
 			break;
-		apply_variant(v, *this);
+		apply_variant(v, trade);
 	}
 }
 
@@ -135,10 +147,6 @@ void messagei::choose(bool border) const {
 			break;
 		answers aw;
 		p->apply();
-		if(p->next[0]) {
-			next_id = p->next[0];
-			continue;
-		}
 		for(auto pe = p; *pe; pe++) {
 			if(pe->type != Ask || pe->id != p->id)
 				continue;
@@ -146,12 +154,16 @@ void messagei::choose(bool border) const {
 				continue;
 			aw.add((int)pe, pe->text);
 		}
-		if(!aw.elements)
-			aw.add(0, "Next");
-		auto pe = (messagei*)aw.choosebg(p->text, border, p->overlay, true);
+		auto need_apply = true;
+		if(!aw.elements) {
+			need_apply = false;
+			aw.add((int)p, "Next");
+		}
+		auto pe = (messagei*)aw.choosebg(p->text, need_apply ? "What do you do?" : 0, p->overlay, true);
 		if(!pe)
 			break;
-		pe->apply();
+		if(need_apply)
+			pe->apply();
 		next_id = pe->next[0];
 		if(pe->next[1] && make_test(pe, false))
 			next_id = pe->next[1];
