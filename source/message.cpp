@@ -1,7 +1,5 @@
 #include "main.h"
 
-static selli sell_low[] = {{BlueRing, 3}, {{PotionBlue, OfHealing, 0}, 2}, {RationIron, 1}, {}};
-
 static void trade_creatures(selli* goods) {
 	itema items;
 	items.select();

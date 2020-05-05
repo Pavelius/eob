@@ -9,6 +9,14 @@ static color bpass = color::create(176, 120, 64);
 static color bpits = bpass.darken();
 static color cdoor = color::create(140, 88, 48);
 
+static int gsx(int x) {
+	return x * mpg + mpg;
+}
+
+static int gsy(int y) {
+	return y * mpg + mpg;
+}
+
 static void show_marker(int x, int y) {
 	draw::line(x, y, x + mpg, y + mpg, colors::red);
 	draw::line(x + mpg, y, x, y + mpg, colors::red);
@@ -19,8 +27,8 @@ static void show_camera_pos() {
 	draw::fore = colors::red;
 	auto direct = game.getdirection();
 	auto camera = game.getcamera();
-	auto x1 = gx(camera)*mpg;
-	auto y1 = gy(camera)*mpg;
+	auto x1 = gsx(gx(camera));
+	auto y1 = gsy(gy(camera));
 	auto x2 = x1 + mpg;
 	auto y2 = y1 + mpg;
 	auto cx = x1 + mpg / 2;
@@ -144,13 +152,22 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 	cell_s nb[8];
 	draw::rectf({0, 0, 320, 200}, cpass);
 	render_overlays(location, fog_of_war);
-	for(int y = 0; y < mpy; y++) {
-		for(int x = 0; x < mpx; x++) {
-			if(fog_of_war && !location.is(location.getindex(x, y), CellExplored))
-				continue;
-			auto x1 = x * mpg;
-			auto y1 = y * mpg;
+	for(int y = -1; y < mpy+1; y++) {
+		for(int x = -1; x < mpx+1; x++) {
 			auto index = location.getindex(x, y);
+			if(fog_of_war) {
+				if(index == Blocked) {
+					auto x1 = imax(0, imin(x, mpx-1));
+					auto y1 = imax(0, imin(y, mpy-1));
+					if(!location.is(location.getindex(x1, y1), CellExplored))
+						continue;
+				} else {
+					if(!location.is(index, CellExplored))
+						continue;
+				}
+			}
+			auto x1 = gsx(x);
+			auto y1 = gsy(y);
 			fill_neighboard(location, x, y, nb);
 			switch(location.get(x, y)) {
 			case CellUnknown:
@@ -237,7 +254,7 @@ void draw::animation::appear(dungeon& location, short unsigned index, int radius
 		}
 	}
 	render_automap(location, true);
-	show_marker(x0*mpg, y0*mpg);
+	show_marker(gsx(x0), gsx(y0));
 	show_camera_pos();
 	draw::screenshoot after;
 	before.blend(after, 2000);
