@@ -34,7 +34,7 @@ public:
 	void				clear() { pb[0] = 0; p = pb; }
 	const char*			end() const { return pe; }
 	char*				get() const { return p; }
-	static bool			ischa(unsigned char sym) { return (sym >= 'A' && sym <= 'Z') || (sym >= 'a' && sym <= 'z') || sym>=0xC0; }
+	static bool			ischa(unsigned char sym) { return (sym >= 'A' && sym <= 'Z') || (sym >= 'a' && sym <= 'z') || sym >= 0xC0; }
 	static bool			isnum(unsigned char sym) { return sym >= '0' && sym <= '9'; }
 	bool				ispos(const char* v) const { return p == v; }
 	static unsigned char lower(unsigned char sym);

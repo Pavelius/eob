@@ -1,4 +1,4 @@
-#include "command.h"
+//#include "command.h"
 #include "crt.h"
 #include "draw.h"
 
@@ -864,7 +864,7 @@ char* key2str(char* result, int key) {
 	return result;
 }
 
-command* command_hot_clear;
+//command* command_hot_clear;
 
 const pma* pma::getheader(const char* id) const {
 	auto p = this;

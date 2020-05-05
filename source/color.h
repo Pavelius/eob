@@ -14,8 +14,7 @@
 
 #pragma once
 
-struct color
-{
+struct color {
 	unsigned char			b;
 	unsigned char			g;
 	unsigned char			r;
@@ -30,20 +29,19 @@ struct color
 	int						find(const void* pallette, int count) const;
 	color					gray() const;
 	color					lighten() const;
-	color					mix(const color c1, unsigned char s=128) const;
+	color					mix(const color c1, unsigned char s = 128) const;
 	color					negative() const;
 	void					read(const void* scanline, int x, int bpp, const void* pallette = 0);
 	static void				rgb2bgr(color* source, int count);
 	static int				scanline(int width, int bpp);
 	void					write(void* scanline, int x, int bpp, const void* pallette = 0, int color_count = 0) const;
 };
-namespace colors
-{
-	extern color			black;
-	extern color			blue;
-	extern color			gray;
-	extern color			green;
-	extern color			red;
-	extern color			yellow;
-	extern color			white;
+namespace colors {
+extern color				black;
+extern color				blue;
+extern color				gray;
+extern color				green;
+extern color				red;
+extern color				yellow;
+extern color				white;
 }

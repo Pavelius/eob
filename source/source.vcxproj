@@ -122,7 +122,6 @@
   <ItemGroup>
     <ClInclude Include="archive.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="command.h" />
     <ClInclude Include="crt.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
@@ -143,7 +142,6 @@
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="command.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="creature_chating.cpp" />

@@ -39,9 +39,6 @@
     <ClInclude Include="color.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="command.h">
-      <Filter>Поддержка</Filter>
-    </ClInclude>
     <ClInclude Include="crt.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>Интерфейс</Filter>
     </ClCompile>
     <ClCompile Include="color.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="command.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="crt.cpp">

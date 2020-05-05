@@ -110,7 +110,7 @@ template<class T> inline T			imin(T a, T b) { return a < b ? a : b; }
 template<class T> inline T			iabs(T a) { return a > 0 ? a : -a; }
 template<class T> inline void		iswap(T& a, T& b) { T i = a; a = b; b = i; }
 // Inline sequence functions
-template<class T> inline void		seqclear(T* p) { T* z = p->next; while(z) { T* n = z->next; z->next = 0; delete z; z = n; } p->next = 0; } // Use to clean up sequenced resources if destructor. Use it like 'clear(this)'.
+template<class T> inline void		seqclear(T* p) { auto z = p->next; while(z) { auto n = z->next; z->next = 0; delete z; z = n; } p->next = 0; } // Use to clean up sequenced resources if destructor. Use it like 'clear(this)'.
 template<class T> inline T*			seqlast(T* p) { while(p->next) p = p->next; return p; } // Return last element in sequence.
 template<class T> inline void		seqlink(T* p) { p->next = 0; if(!T::first) T::first = p; else seqlast(T::first)->next = p; }
 // Inline strings functions
