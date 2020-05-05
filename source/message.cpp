@@ -6,18 +6,15 @@ static void trade_creatures(const selli* goods) {
 	items.forsale(false);
 	auto pi = items.choose("Sell which item?", true);
 	auto cost = pi->getcost();
-	auto pg = goods;
-	while(cost > 0) {
-		if(!pg->cost)
-			pg = goods;
-		if(pg->cost > cost) {
-			if(pg->cost <= 1)
-				break;
-			pg++;
+	for(int i = 3; cost > 0; i--) {
+		if(i == 0)
+			i = 3;
+		if(i > cost)
 			continue;
-		}
-		creature::addparty(pg->object, true);
-		cost -= pg->cost;
+		item it(goods[i].object);
+		it.setpower(goods[i].rarity);
+		creature::addparty(it, true);
+		cost -= i;
 	}
 	pi->clear();
 }
@@ -55,7 +52,7 @@ static void apply_variant(variant id, const selli* trade) {
 		case DeathSave:
 			for(auto p : party) {
 				if(!p->roll(SaveVsParalization))
-					p->damage(Magic, p->gethits()+10, 5);
+					p->damage(Magic, p->gethits() + 10, 5);
 			}
 			break;
 		case TrapDamage:

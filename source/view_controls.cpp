@@ -647,7 +647,7 @@ void draw::adventure() {
 				{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
 				{Ask, 2, {}, "Accept"},
 				{Ask, 2, {}, "Talk", {3}},
-				{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask question.\"", {2}, {"rogue"}},
+				{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
 				{}};
 				first_dialog->choose(true);
 			}

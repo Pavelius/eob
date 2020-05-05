@@ -93,16 +93,9 @@ void creature::set(monster_s value) {
 	else
 		ability[Intellegence] = 0;
 	switch(getsize()) {
-	case Large:
-		ability[Strenght] += 4;
-		break;
-	case Tall:
-		ability[Strenght] += 1;
-		break;
-	case Small:
-		ability[Strenght] -= 1;
-		ability[Dexterity] += 2;
-		break;
+	case Large: ability[Strenght] += 4; break;
+	case Tall: ability[Strenght] += 1; break;
+	case Small: ability[Strenght] -= 1; ability[Dexterity] += 2; break;
 	}
 	alignment = mi.alignment;
 	race = mi.race;

@@ -186,6 +186,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Invisibility", {2}, TargetAlly, {Invisibility, Duration2Hours}},
 {"Knock", {2}, TargetSpecial, knock},
 {"Produce Flame", {0, 2}, TargetSelf, FlameHand},
+{"Resist fire", {0, 2}, TargetAlly, {ResistFireSpell, DurationTurnPerLevel}},
 {"Slow Poison", {0, 2}, TargetAlly, {SlowPoison, Duration8Hours}},
 // 3 - level
 {"Create Food", {0, 3}, TargetSpecial, create_food},

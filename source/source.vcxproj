@@ -152,7 +152,6 @@
     <ClCompile Include="dungeon.cpp" />
     <ClCompile Include="dungeon_generate.cpp" />
     <ClCompile Include="duration.cpp" />
-    <ClCompile Include="enchant.cpp" />
     <ClCompile Include="eob3_util.cpp" />
     <ClCompile Include="eob_util.cpp" />
     <ClCompile Include="game.cpp" />

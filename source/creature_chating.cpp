@@ -1,7 +1,7 @@
 #include "main.h"
 
-static selli dirty_sell[] = {{BlueRing, 3}, {{PotionBlue, OfHealing, 0}, 2}, {RationIron, 1}, {}};
-static selli weapon_sell[] = {{ArmorPlate, 3}, {{SwordLong}, 2}, {PotionBlue, 1}, {}};
+static selli dirty_sell[3] = {BlueRing, BluePotion, RationIron};
+static selli weapon_sell[3] = {{ArmorPlate, Uncommon}, {SwordLong, Rare}, BluePotion};
 
 static messagei cautions_dialog[] = {{Say, 1, {}, "\"Who is there? How you dig so deep? Are you from Master?\""},
 {Ask, 1, {Charisma}, "Lie", {2, 3}},

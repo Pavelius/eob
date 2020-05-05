@@ -4,9 +4,9 @@ using namespace draw;
 
 callback	next_proc;
 
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5, 0}, {Wight}},
-{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {0, 10}},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {0, 10}},
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}, {Wight}},
+{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}},
 {}};
 
 #ifdef _DEBUG
@@ -14,8 +14,8 @@ static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCoope
 static void test_room2(int x, int y) {
 	location.set(location.getindex(x, y - 2), CellWall);
 	auto po = location.add(location.getindex(x, y - 1), CellCellar, Up);
-	item it; it.create(Dagger, 50, 0, 10);
-	item sp; sp.create(PriestScroll, Bless);
+	item it(Dagger); it.setpower(Rare);
+	item sp(PriestScroll); sp.setpower(Bless);
 	location.add(po, sp);
 	location.add(po, it);
 }
@@ -57,8 +57,8 @@ static void test_room(int x, int y) {
 	location.add(location.getindex(x + 3, y + 1), CellKeyHole1, Up);
 	location.add(location.getindex(x + 3, y + 1), CellMessage, Right);
 	auto po = location.add(location.getindex(x + 3, y + 2), CellCellar, Right);
-	item it; it.create(Dagger, 50, 0, 10);
-	item sp; sp.create(PriestScroll, Bless);
+	item it(Dagger); it.setpower(Rare);
+	item sp(PriestScroll); sp.setpower(Bless);
 	location.add(po, sp);
 	location.add(po, it);
 	location.add(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
@@ -125,15 +125,15 @@ static void identify_all_party() {
 }
 
 static void random_heroes() {
-	item rg1; rg1.create(GreenRing, OfRegeneration);
-	item rg2; rg2.create(BlueRing, OfInvisibility);
-	item rg3; rg3.create(RedRing, OfWizardy, 0);
-	item rg4; rg4.create(RedRing, ResistFire);
-	item wp1; wp1.create(AxeBattle, OfSharpness, 3);
-	item wp2; wp2.create(Staff, BurningHands, 3);
-	item wp3; wp3.create(SwordLong, Fire, 3);
-	item pt1; pt1.create(PotionGreen, OfAdvise, 1);
-	item it1; it1.create(Bracers, Strenght, 0);
+	item wp3(SwordLong); wp3.setpower(Fire);
+	item rg1(GreenRing); rg1.setpower(OfRegeneration);
+	item rg2(BlueRing); rg2.setpower(Invisibility);
+	item rg3(RedRing); rg3.setpower(OfWizardy);
+	item rg4(RedRing); rg4.setpower(ResistFire);
+	item wp1(AxeBattle); wp1.setpower(OfSharpness);
+	item wp2(Staff); wp2.setpower(BurningHands);
+	item pt1(GreenPotion); pt1.setpower(OfAdvise);
+	item it1(Bracers); it1.setpower(Strenght);
 	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set(wp3, RightHand);

@@ -22,3 +22,11 @@ creature* variant::getcreature() const {
 		return bsdata<creature>::elements + (value - creature_players_base);
 	return location.monsters + value;
 }
+
+const char* variant::getname() const {
+	switch(type) {
+	case Ability: return bsdata<abilityi>::elements[value].name;
+	case Spell: return bsdata<spelli>::elements[value].name;
+	default: return "None";
+	}
+}

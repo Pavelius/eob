@@ -161,8 +161,8 @@ static item_s random_item_type(item_s* source, unsigned count) {
 }
 
 static item_s random_subtype(item_s type) {
-	static item_s potions[] = {PotionRed, PotionBlue, PotionGreen, PotionBlue};
-	static item_s gems[] = {RedGem, BlueGem, GreenGem, PurpleGem};
+	static item_s potions[] = {RedPotion, BluePotion, GreenPotion};
+	static item_s gems[] = {GreenGem, GreenGem, GreenGem, GreenGem, BlueGem, BlueGem, BlueGem, RedGem, RedGem, PurpleGem};
 	static item_s weapons[] = {AxeBattle, Axe, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff};
 	static item_s swords[] = {Dagger, SwordBastard, SwordLong, SwordShort, SwordTwoHanded};
 	static item_s armors[] = {Robe,
@@ -174,32 +174,25 @@ static item_s random_subtype(item_s type) {
 	static item_s rings[] = {RedRing, BlueRing, GreenRing};
 	static item_s necklages[] = {Necklage, Necklage, Necklage, Necklage, NecklageRich, NecklageRich, Jewelry};
 	static item_s scrolls[] = {PriestScroll, MageScroll, MageScroll, MageScroll};
-	static item_s tools[] = {HolySymbol, MagicBook, TheifTools, TheifTools};
+	static item_s tools[] = {HolySymbol, MagicBook, TheifTools, TheifTools, TheifTools};
 	switch(type) {
-	case PotionRed:
-		return maprnd(potions);
-	case RedGem:
-		return maprnd(gems);
+	case RedPotion: return maprnd(potions);
+	case RedGem: return maprnd(gems);
+	case RedRing: return maprnd(rings);
 	case SwordLong:
 		if(d100() < 40)
 			return maprnd(swords);
 		return maprnd(weapons);
-	case Necklage:
-		return maprnd(necklages);
-	case ArmorLeather:
-		return maprnd(armors);
-	case RedRing:
-		return maprnd(rings);
-	case PriestScroll:
-		return maprnd(scrolls);
-	default:
-		return type;
+	case Necklage: return maprnd(necklages);
+	case ArmorLeather: return maprnd(armors);
+	case PriestScroll: return maprnd(scrolls);
+	case TheifTools: return maprnd(tools);
+	default: return type;
 	}
 }
 
 static item_s random_type(bool small_size = false) {
-	static item_s standart_item_types[] = {PotionRed, PotionRed, PotionRed,
-		RedGem,
+	static item_s standart_item_types[] = {RedPotion, RedPotion, RedPotion,
 		SwordLong, SwordLong, SwordLong, SwordLong, SwordLong,
 		Helm, Helm,
 		Shield,
@@ -214,7 +207,7 @@ static item_s random_type(bool small_size = false) {
 		DungeonMap,
 		PriestScroll, PriestScroll
 	};
-	static item_s small_item_types[] = {PotionRed, PotionRed, PotionRed,
+	static item_s small_item_types[] = {RedPotion, RedPotion, RedPotion,
 		RedGem,
 		RedRing,
 		KeyCooper, KeyCooper, KeyCooper,
@@ -244,12 +237,13 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 		if(d100() < 30)
 			type = RationIron;
 	}
-	auto chance_magic = pd->chance.magic + bonus_chance_magic;
-	auto chance_cursed = pd->chance.curse;
-	auto chance_special = pd->chance.special + bonus_chance_magic;
-	item it;
-	it.create(type, chance_magic, chance_cursed, chance_special);
+	auto r0 = bonus_chance_magic + (rand() % 85);
+	auto rarity = item::getrandomrarity(pd->level);
+	item it(type);
+	it.setpower(rarity);
 	it.setidentified(0);
+	if(pd->chance.curse && (d100()<pd->chance.curse))
+		it.setcursed(1);
 	switch(type) {
 	case Ration:
 	case RationIron:
@@ -264,7 +258,7 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 			pd->stat.rings++;
 		break;
 	default:
-		if(it.getmagic() >= 4)
+		if(it.isartifact())
 			pd->stat.artifacts++;
 		break;
 	}
@@ -326,7 +320,7 @@ static void secret(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 	if(d100() < 25)
 		count = 2;
 	for(int i = 0; i < count; i++)
-		items(pd, i2, 20);
+		items(pd, i2, 5);
 	pd->set(to(i2, to(dir, Left)), CellWall);
 	pd->set(to(i2, to(dir, Right)), CellWall);
 	pd->set(to(i2, to(dir, Up)), CellWall);
@@ -380,10 +374,10 @@ static void treasure(dungeon* pd, short unsigned index, direction_s dir, unsigne
 	if(!isaround(pd, i2, dir, CellWall))
 		return;
 	pd->set(i1, CellDoor);
-	auto magic_bonus = 10;
+	auto magic_bonus = 2;
 	auto key_type = CellKeyHole1;
 	if(d100() < 30) {
-		magic_bonus += 5;
+		magic_bonus += 2;
 		key_type = CellKeyHole2;
 	}
 	pd->add(to(index, to(dir, Right)), key_type, dir);
@@ -697,8 +691,11 @@ static void validate_special_items(dungeon& location) {
 		auto index = location.stat.special;
 		if(!location.head.special[index])
 			break;
-		item it;
-		it.create(location.head.special[index], 50, 10, 25);
+		item it(location.head.special[index]);
+		if(d100() < 50)
+			it.setpower(VeryRare);
+		if(d100() < 10)
+			it.setcursed(1);
 		if(it) {
 			adat<dungeon::overlayi*, 512> source;
 			for(auto& e : location.overlays) {
@@ -861,9 +858,7 @@ void dungeon::create(short unsigned overland_index, const sitei* site, bool inte
 				e.overland_index = overland_index;
 				e.head = p->head;
 				e.level = level;
-				e.chance.magic = imax(0, imin(75, 12 + level * 3) + p->chance.magic);
 				e.chance.curse = 5 + p->chance.curse;
-				e.chance.special = imax(0, imin(45, 4 + level));
 				if(!stairs(&e, start, last_level))
 					continue;
 				create_crypt(e, *p);

@@ -74,7 +74,7 @@ enum spell_s : unsigned char {
 	ReadLanguagesSpell, ResistColdSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
 	AcidArrow, Aid, Blindness, Blur, Deafness, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
-	Invisibility, Knock, ProduceFlame, SlowPoison,
+	Invisibility, Knock, ProduceFlame, ResistFireSpell, SlowPoison,
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
@@ -108,7 +108,14 @@ enum ability_s : unsigned char {
 	LearnSpell,
 	ResistCharm, ResistCold, ResistFire, ResistMagic,
 	CriticalDeflect, DetectSecrets,
-	LastSkill = DetectSecrets
+	LastSkill = DetectSecrets,
+	// Other bonus
+	//AttackBonus, MeleeAttackBonus, RangedAttackBonus,
+	//DamageBonus, MeleeDamageBonus, RangedDamageBonus,
+	//CriticalRange, CriticalMultiplayer,
+	//ArmorClass, ArmorClassVsMelee, ArmorClassVsRanged,
+	//ArmorThreshold, ArmorThresholdVsMelee, ArmorThresholdVsRanged,
+	//AllSaves,
 };
 enum wear_s : unsigned char {
 	Backpack, LastBackpack = Backpack + 13,
@@ -119,11 +126,13 @@ enum wear_s : unsigned char {
 enum enchant_s : unsigned char {
 	OfAccuracy, OfAdvise,
 	OfEnergyDrain,
-	OfFear, OfHealing, OfHolyness,
-	OfInvisibility, OfKnowledge, OfLuck, OfNeutralizePoison,
+	OfFear, OfHolyness, OfLuck,
 	OfParalize, OfPoison, OfPoisonStrong, OfProtection, OfRegeneration,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
+};
+enum rarity_s : unsigned char {
+	Common, Uncommon, Rare, VeryRare, Artifact
 };
 enum item_s : unsigned char {
 	NoItem,
@@ -140,7 +149,7 @@ enum item_s : unsigned char {
 	HolySymbol, HolyWarriorSymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
 	KeyShelf, KeySilver, KeyCooper, KeySkull, KeySpider, KeyMoon, KeyDiamond, KeyGreen,
 	RedRing, BlueRing, GreenRing,
-	PotionRed, PotionBlue, PotionGreen,
+	RedPotion, BluePotion, GreenPotion,
 	RedGem, BlueGem, GreenGem, PurpleGem,
 	Ration, RationIron,
 	// Special items
@@ -252,6 +261,7 @@ struct variant {
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
 	creature*			getcreature() const;
+	const char*			getname() const;
 };
 struct spellprogi {
 	char				elements[21][10];
@@ -294,10 +304,6 @@ struct durationi {
 	unsigned			multiplier, divider, addiction;
 	int					get(int v) const;
 };
-struct enchanti {
-	const char*			names[5];
-	char				multiplier;
-};
 struct genderi {
 	const char*			name;
 };
@@ -312,6 +318,12 @@ struct combati {
 	dice				damage;
 	char				bonus, critical_multiplier, critical_range;
 	item*				weapon;
+};
+struct enchantmenti {
+	rarity_s			rarity;
+	const char*			name;
+	variant				power;
+	char				magic;
 };
 struct itemi {
 	struct weaponi : combati {
@@ -340,7 +352,7 @@ struct itemi {
 	cflags<item_feat_s>	feats;
 	weaponi				weapon;
 	armori				armor;
-	aref<variant>		enchantments;
+	aref<enchantmenti>	enchantments;
 };
 struct feati {
 	const char*			name;
@@ -374,12 +386,6 @@ struct racei {
 	cflags<feat_s>		feats;
 	usabilitya			usability;
 	skilla				skills;
-};
-struct spell_effect {
-	dice				base;
-	int					level;
-	dice				perlevel;
-	int					maximum_per_level;
 };
 struct effecti {
 	typedef void(*pcre)(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
@@ -433,9 +439,7 @@ struct sitei {
 		explicit operator bool() const { return boss != NoMonster; }
 	};
 	struct chancei {
-		char			magic;
 		char			curse;
-		char			special;
 	};
 	headi				head;
 	char				levels;
@@ -449,18 +453,17 @@ class item {
 	unsigned char		identified : 1;
 	unsigned char		cursed : 1; // -1 to quality and not remove
 	unsigned char		broken : 1; // sometime -1 to quality and next breaking destroy item
-	unsigned char		magic : 2; // 0, 1, 2, 3 this is plus item
 	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
+	void				finish();
 public:
-	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), magic(0), subtype(0), charges(0) {}
-	item(item_s type, variant power, int magic) { create(type, power, magic); }
+	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), subtype(0), charges(0) {}
+	item(item_s type, rarity_s rarity);
+	item(item_s type, variant power);
 	constexpr explicit operator bool() const { return type != NoItem; }
-	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.magic == magic && i.charges == charges; }
+	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.charges == charges; }
 	bool				cast(creature* caster, spell_s id, int level, bool interactive, bool run);
 	void				clear();
-	void				create(item_s type, int chance_magic, int chance_cursed, int chance_special);
-	void				create(item_s type, variant power, int magic = -1);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	int					get(variant value) const;
 	void				get(combati& result, const creature* enemy) const;
@@ -469,16 +472,18 @@ public:
 	int					getcost() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
+	const enchantmenti* getenchantment() const;
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
 	int					getportrait() const;
 	variant				getpower() const;
+	static rarity_s		getrandomrarity(int level);
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
 	bool				is(usability_s v) const { return bsdata<itemi>::elements[type].usability.is(v); }
 	bool				is(item_feat_s v) const { return bsdata<itemi>::elements[type].feats.is(v); }
-	bool				isartifact() const { return magic == 3; }
+	bool				isartifact() const;
 	bool				isbroken() const { return broken != 0; }
 	bool				ischarged() const { return is(Charged); }
 	bool				iscursed() const { return cursed != 0; }
@@ -492,6 +497,8 @@ public:
 	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
 	void				setidentified(int value) { identified = value; }
+	item&				setpower(rarity_s rarity);
+	void				setpower(variant power);
 };
 struct boosti {
 	variant				owner, id;
@@ -500,8 +507,10 @@ struct boosti {
 	void				clear();
 };
 struct selli {
-	item				object;
-	char				cost, chance;
+	item_s				object;
+	rarity_s			rarity;
+	constexpr selli(item_s object) : object(object), rarity(Common) {}
+	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
 };
 struct messagei {
 	struct imagei {
@@ -621,6 +630,7 @@ public:
 	static class_s		getclass(class_s id, int index);
 	int					getclasscount() const;
 	direction_s			getdirection() const;
+	int					getenchant(variant id, int bonus) const;
 	int					getexperience() const { return experience; }
 	int					getfood() const { return food; }
 	int					getfoodmax() const;
@@ -994,7 +1004,6 @@ inline int				d100() { return rand() % 100; }
 DECLENUM(ability)
 DECLENUM(alignment)
 DECLENUM(class)
-DECLENUM(enchant)
 DECLENUM(monster)
 DECLENUM(race)
 DECLENUM(spell)

@@ -86,9 +86,6 @@
     <ClCompile Include="dungeon_generate.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="enchant.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

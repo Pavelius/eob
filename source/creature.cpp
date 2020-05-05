@@ -272,7 +272,7 @@ bool creature::roll(ability_s id, int bonus) const {
 }
 
 bool creature::isinvisible() const {
-	return is(Invisibility) || getbonus(OfInvisibility);
+	return is(Invisibility) || getenchant(Invisibility, 1);
 }
 
 bool creature::isready() const {
@@ -944,6 +944,26 @@ const char* creature::getname(char* result, const char* result_maximum) const {
 	return result;
 }
 
+int creature::getenchant(variant id, int bonus) const {
+	if(id.type == Enchant) {
+		if(bsdata<monsteri>::elements[kind].is((enchant_s)id.value))
+			return bonus;
+	}
+	// All bonuses no stack each other
+	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
+	for(auto s : slots) {
+		if(!wears[s])
+			continue;
+		auto pe = wears[s].getenchantment();
+		if(pe->power == id) {
+			if(wears[s].iscursed())
+				return -bonus;
+			return bonus;
+		}
+	}
+	return 0;
+}
+
 int creature::getbonus(variant id) const {
 	if(id.type == Enchant) {
 		if(bsdata<monsteri>::elements[kind].is((enchant_s)id.value))
@@ -1434,7 +1454,7 @@ void creature::camp(item& it) {
 		if(!pc)
 			continue;
 		// RULE: Ring of healing get addition healing
-		auto healed = pc->getbonus(OfHealing) * 3;
+		auto healed = pc->getenchant(CureLightWounds, 10);
 		if(poisoned) {
 			// RULE: Cursed food add weak poison
 			pc->add(Poison, Instant, NoSave);
@@ -1490,9 +1510,9 @@ void creature::camp(item& it) {
 					}
 				}
 				break;
-			case PotionRed:
-			case PotionGreen:
-			case PotionBlue:
+			case RedPotion:
+			case GreenPotion:
+			case BluePotion:
 				if(!pc->get(Mage))
 					break;
 				if(!pi->isidentified()) {
@@ -1580,44 +1600,37 @@ bool creature::use(item* pi) {
 	auto magic = pi->getmagic();
 	auto power = pi->getpower();
 	switch(type) {
-	case PotionBlue:
-	case PotionGreen:
-	case PotionRed:
-		if(pi->iscursed()) {
+	case BluePotion:
+	case GreenPotion:
+	case RedPotion:
+		if(power.type == Ability) {
+			if(pi->iscursed()) {
+				if(pc->ability[power.value]>0)
+					pc->ability[power.value]--;
+				pc->say("I feel really bad!");
+			} else {
+				pc->ability[power.value]++;
+				pc->say("I feel greater power!");
+			}
+		} else if(pi->iscursed()) {
 			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
 			pc->poison(NoSave);
 			pc->say(maprnd(text));
+		} else if(power.type == Spell) {
+			auto& si = bsdata<spelli>::elements[power.value];
+			si.effect.proc(pc, pc, si.effect, 10, SaveVsMagic);
 		} else if(power.type == Enchant) {
 			switch(power.value) {
 			case OfAdvise:
 				if(pi->isartifact())
-					pc->addexp(10000);
+					pc->addexp(50000);
 				else
-					pc->addexp(1000 * magic);
-				break;
-			case OfHealing:
-				pc->damage(Heal, dice::roll(1 + magic, 4) + 3);
-				break;
-			case OfRegeneration:
-				pc->damage(Heal, dice::roll(1 + magic, 8) + 6);
-				break;
-			case OfNeutralizePoison:
-				pc->remove(Poison);
-				break;
-			case OfKnowledge:
-				for(auto i = 0; i < magic; i++)
-					pc->identify(true);
-				break;
-			default:
-				if(pi->isartifact()) {
-					//if(!pc->raise(enchant)) {
-					//	pc->say("Not drinkable!");
-					//	consume = false;
-					//} else
-					//	pc->say("I feel really better!");
-				}
+					pc->addexp(5000);
 				break;
 			}
+		} else if(power.type == Ability) {
+			pc->ability[power.value]++;
+			pc->say("I feel greater power!");
 		}
 		break;
 	case Ration:
