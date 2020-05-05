@@ -15,8 +15,8 @@ const int				decor_count = 19;
 const int				decor_frames = 10;
 const int				scrx = 22 * 8;
 const int				scry = 15 * 8;
-const int				mpx = 30;
-const int				mpy = 22;
+const int				mpx = 38;
+const int				mpy = 23;
 
 enum resource_s : unsigned char {
 	NONE,
