@@ -218,5 +218,8 @@
     <ClCompile Include="surface_serial.cpp">
       <Filter>Интерфейс</Filter>
     </ClCompile>
+    <ClCompile Include="effect.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

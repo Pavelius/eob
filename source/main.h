@@ -59,7 +59,6 @@ enum target_s : unsigned char {
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
 	TargetItem, TargetAllPartyItems,
-	TargetSpecial,
 };
 enum message_s : unsigned char {
 	MessageHabbits, MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
@@ -388,8 +387,6 @@ struct racei {
 	skilla				skills;
 };
 struct effecti {
-	typedef void(*pcre)(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
-	pcre				proc;
 	variant				type;
 	duration_s			duration;
 	save_s				save;
@@ -397,27 +394,11 @@ struct effecti {
 	dice				damage;
 	dice				damage_per;
 	char				damage_increment, damage_maximum;
-	int					value;
-	static void			apply_effect(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
-	static void			apply_damage(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
-	static void			apply_weapon(creature* player, creature* target, const effecti& e, int level, ability_s save_skill);
-	constexpr effecti(pcre proc,
-		variant type, duration_s duration, save_s save, char save_bonus,
-		dice damage, dice damage_per, char damage_increment, char damage_maximum, int value) : proc(proc),
-		type(type), duration(duration), save(save), save_bonus(save_bonus),
-		damage(damage), damage_per(damage_per), damage_increment(damage_increment), damage_maximum(damage_maximum),
-		value(value) {
-	}
-	constexpr effecti(pcre proc) : effecti(proc, {}, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
-	constexpr effecti(variant type, duration_s duration = Instant, save_s save = NoSave, char save_bonus = 0) : effecti(apply_effect, type, duration, save, save_bonus, {}, {}, 0, 0, 0) {}
-	constexpr effecti(item_s item_weapon) : effecti(apply_weapon, item_weapon, Instant, NoSave, 0, {}, {}, 0, 0, 0) {}
-	constexpr effecti(damage_s type, dice damage, dice damage_per_level, char increment = 1, char maximum = 0, save_s save = SaveNegate) :
-		effecti(apply_damage, type, Instant, save, 0, damage, damage_per_level, increment, maximum, 0) {
-	}
+	void				apply(creature* target, int level) const;
 };
 struct spelli {
 	const char*			name;
-	int					levels[2]; // mage, cleric
+	char				levels[4]; // mage, cleric, paladin, ranger
 	target_s			range;
 	effecti				effect;
 	item_s				throw_effect;
@@ -597,7 +578,7 @@ public:
 	static void			addexp(int value, int killing_hit_dice);
 	static void			addparty(item i, bool interactive = false);
 	static void			apply(apply_proc proc, bool interactive = true);
-	void				apply(spell_s id, int magic, unsigned duration);
+	void				apply(spell_s id, int level, unsigned duration);
 	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
 	void				attack(creature* defender, wear_s slot, int bonus);
 	static void			camp(item& it);
@@ -690,6 +671,7 @@ public:
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
+	bool				puryfyfood(bool interactive);
 	void				random_name();
 	void				remove(spell_s v);
 	void				removeboost(variant v) const;
@@ -701,6 +683,7 @@ public:
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
 	void				sayv(const char* format, const char* vl);
+	bool				save(int& value, ability_s skill, save_s type, int bonus);
 	void				scribe(item& it);
 	static void			scriblescrolls();
 	static unsigned		select(spell_s* result, const spell_s* result_maximum, class_s type, int level);
@@ -729,7 +712,7 @@ public:
 	bool				setweapon(item_s v, int charges);
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
-	void				uncurse();
+	void				uncurse(bool interactive);
 	void				update(const boosti& e);
 	void				update(bool interactive);
 	void				update_turn(bool interactive);

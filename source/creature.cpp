@@ -455,7 +455,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 					auto power = wi.weapon->getpower();
 					if(power.type == Spell) {
 						auto spell = (spell_s)power.value;
-						if(bsdata<spelli>::elements[spell].effect.proc == effecti::apply_damage)
+						if(bsdata<spelli>::elements[spell].effect.type.type = Damage)
 							cast(spell, Mage, wi.weapon->getmagic(), defender);
 						else
 							cast(spell, Mage, wi.weapon->getmagic(), this);
@@ -1530,10 +1530,26 @@ void creature::camp(item& it) {
 	}
 }
 
+bool creature::save(int& value, ability_s skill, save_s type, int bonus) {
+	switch(type) {
+	case SaveHalf:
+		if(roll(skill, bonus))
+			value = value / 2;
+		break;
+	case SaveNegate:
+		if(roll(skill, bonus))
+			return true;
+		break;
+	}
+	return false;
+}
+
 void creature::apply(spell_s id, int level, unsigned duration) {
+	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
-	case CureLightWounds:
-		damage(Heal, dice::roll(1, 8), 0);
+	case Aid:
+		addaid(xrand(1, 8));
+		add(Bless, 60);
 		break;
 	case CureDisease:
 		remove(Disease);
@@ -1542,14 +1558,29 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 		remove(Blindness);
 		remove(Deafness);
 		break;
+	case CreateFood:
+		add(RationIron);
+		break;
 	case Identify:
 		identify(true);
+		break;
+	case LayOnHands:
+		damage(Heal, 2 * level);
 		break;
 	case Mending:
 		mending(true);
 		break;
+	case PurifyFood:
+		puryfyfood(true);
+		break;
+	case RemoveCurse:
+		uncurse(true);
+		break;
+	case RemoveParalizes:
+		remove(HoldPerson);
+		break;
 	default:
-		add(id, duration, NoSave, 0);
+		ei.effect.apply(this, level);
 		break;
 	}
 }
@@ -1604,7 +1635,7 @@ bool creature::use(item* pi) {
 	case RedPotion:
 		if(power.type == Ability) {
 			if(pi->iscursed()) {
-				if(pc->ability[power.value]>0)
+				if(pc->ability[power.value] > 0)
 					pc->ability[power.value]--;
 				pc->say("I feel really bad!");
 			} else {
@@ -1615,10 +1646,9 @@ bool creature::use(item* pi) {
 			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
 			pc->poison(NoSave);
 			pc->say(maprnd(text));
-		} else if(power.type == Spell) {
-			auto& si = bsdata<spelli>::elements[power.value];
-			si.effect.proc(pc, pc, si.effect, 10, SaveVsMagic);
-		} else if(power.type == Enchant) {
+		} else if(power.type == Spell)
+			pc->apply((spell_s)power.value, 10, 2 * 60);
+		else if(power.type == Enchant) {
 			switch(power.value) {
 			case OfAdvise:
 				if(pi->isartifact())
@@ -1764,6 +1794,23 @@ bool creature::use(item* pi) {
 void creature::identifyall() {
 	for(auto& e : wears)
 		e.setidentified(1);
+}
+
+bool creature::puryfyfood(bool interactive) {
+	static const char* talk[] = {"%1 is desecrated!", "I clean %1 from poison.", "%1 is ready to eat."};
+	for(auto& e : wears) {
+		if(e.isbroken() && (e.gettype()==RationIron || e.gettype()==Ration)) {
+			e.setbroken(0);
+			if(interactive) {
+				char temp[128]; stringbuilder sb(temp); e.getname(sb);
+				say(maprnd(talk), temp);
+			}
+			return true;
+		}
+	}
+	if(interactive)
+		say("I don't see any rotted foods.");
+	return false;
 }
 
 bool creature::identify(bool interactive) {
@@ -1947,11 +1994,13 @@ bool creature::usequick() {
 	return swap(pi, ps);
 }
 
-void creature::uncurse() {
+void creature::uncurse(bool interactive) {
 	for(auto i = Head; i <= LastBelt; i = (wear_s)(i + 1)) {
 		if(wears[i].iscursed() && wears[i].isidentified()) {
-			char temp[260]; stringbuilder sb(temp); wears[i].getname(sb);
-			mslog("%1 is turned to dust", temp);
+			if(interactive) {
+				char temp[260]; stringbuilder sb(temp); wears[i].getname(sb);
+				mslog("%1 is turned to dust", temp);
+			}
 			wears[i].clear();
 		}
 	}
