@@ -122,7 +122,7 @@ void creature::update_poison(bool interactive) {
 			mslog("%1 feel poison", getname(temp, zendof(temp)));
 		}
 		draw::animation::update();
-		damage(Death, hits);
+		damage(Magic, hits);
 	}
 }
 
@@ -1530,12 +1530,10 @@ void creature::camp(item& it) {
 	}
 }
 
-void creature::apply(spell_s id, int magic, unsigned duration) {
-	dice dc;
+void creature::apply(spell_s id, int level, unsigned duration) {
 	switch(id) {
 	case CureLightWounds:
-		dc.create(1 + magic * 2, 8, 4);
-		damage(Heal, dc.roll(), 0);
+		damage(Heal, dice::roll(1, 8), 0);
 		break;
 	case CureDisease:
 		remove(Disease);
@@ -1545,11 +1543,12 @@ void creature::apply(spell_s id, int magic, unsigned duration) {
 		remove(Deafness);
 		break;
 	case Identify:
-		for(auto i = 0; i < magic; i++)
-			identify(true);
+		identify(true);
+		break;
+	case Mending:
+		mending(true);
 		break;
 	default:
-		duration += duration*magic;
 		add(id, duration, NoSave, 0);
 		break;
 	}
@@ -1787,7 +1786,9 @@ bool creature::identify(bool interactive) {
 bool creature::mending(bool interactive) {
 	auto result = 0;
 	for(auto& e : wears) {
-		if(e.isbroken() && e.gettype() != Ration && e.gettype() != RationIron) {
+		if(e.isbroken()
+			&& e.gettype() != Ration
+			&& e.gettype() != RationIron) {
 			e.setbroken(0);
 			result++;
 		}

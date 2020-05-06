@@ -198,6 +198,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Remove curse", {0, 3}, TargetAlly, remove_curse},
 {"Remove paralizes", {0, 3}, TargetAllAlly, remove_parasizes},
 // 4 - level
+{"Cure Serious Wounds", {0, 4}, TargetAlly, {Heal, {2, 8, 1}, {}, 0, 0, NoSave}},
 {"Cause Poison", {0, 3}, TargetClose, {Poison, Instant, SaveNegate}},
 // Special ability
 {"Lay on Hands", {0, 1}, TargetAlly, lay_on_hands},

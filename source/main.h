@@ -79,7 +79,7 @@ enum spell_s : unsigned char {
 	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
 	// Spells (level 4)
-	Poison,
+	CureSeriousWounds, Poison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -462,7 +462,7 @@ public:
 	item(item_s type, variant power);
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.charges == charges; }
-	bool				cast(creature* caster, spell_s id, int level, bool interactive, bool run);
+	bool				cast(spell_s id, int level, bool run);
 	void				clear();
 	bool				damage(const char* text_damage, const char* text_brokes);
 	int					get(variant value) const;
