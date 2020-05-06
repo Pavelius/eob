@@ -1547,6 +1547,9 @@ bool creature::save(int& value, ability_s skill, save_s type, int bonus) {
 void creature::apply(spell_s id, int level, unsigned duration) {
 	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
+	case AcidArrow:
+		add(AcidArrow, 1 + level / 3, NoSave);
+		break;
 	case Aid:
 		addaid(xrand(1, 8));
 		add(Bless, 60);

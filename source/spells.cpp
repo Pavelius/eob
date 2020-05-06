@@ -87,14 +87,6 @@ static void knock(creature* player, creature* target, const effecti& e, int leve
 	}
 }
 
-static void acid_arrow(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
-	auto th = player->getthac0(Fighter, level);
-	auto rs = rand() % 20 + 1;
-	if(rs < (th - target->getac()))
-		return;
-	target->add(AcidArrow, 1 + level / 3, NoSave);
-}
-
 spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAllAlly, {Bless, DurationHour}},
@@ -116,7 +108,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Shoking grasp", {1, 0}, TargetSelf, {ShokingHand}},
 {"Sleep", {1, 0}, TargetAllClose, {Sleep, Duration5PerLevel, SaveNegate}},
 // 2 - level
-{"Acid arrow", {2}, TargetThrow, {}, Arrow},
+{"Acid arrow", {2}, TargetThrowHitFighter, {Pierce, Instant, NoSave, 0, {1, 4, 1}}, Arrow},
 {"Aid", {0, 2}, TargetAlly, {Aid}},
 {"Blindness", {2}, TargetClose, {Blindness, Instant, SaveNegate}},
 {"Blur", {2}, TargetSelf, {Blur, Duration5PerLevel}},
@@ -252,6 +244,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		}
 		break;
 	case TargetThrow:
+	case TargetThrowHitFighter:
 		index = get_enemy_distance(index, dir, si.throw_effect);
 		if(index == Blocked)
 			return false;
@@ -262,6 +255,12 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(!target)
 			return false;
 		say(id);
+		if(range == TargetThrowHitFighter) {
+			auto th = getthac0(Fighter, level);
+			auto rs = rand() % 20 + 1;
+			if(rs < (th - target->getac()))
+				return false;
+		}
 		target->apply(id, level, 0);
 		break;
 	}

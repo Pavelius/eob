@@ -55,7 +55,7 @@ enum duration_s : unsigned char {
 };
 enum target_s : unsigned char {
 	TargetSelf,
-	TargetThrow, TargetAllThrow,
+	TargetThrow, TargetThrowHitFighter, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
 	TargetItem, TargetAllPartyItems,
