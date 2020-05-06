@@ -1544,50 +1544,6 @@ bool creature::save(int& value, ability_s skill, save_s type, int bonus) {
 	return false;
 }
 
-void creature::apply(spell_s id, int level, unsigned duration) {
-	auto& ei = bsdata<spelli>::elements[id];
-	switch(id) {
-	case AcidArrow:
-		add(AcidArrow, 1 + level / 3, NoSave);
-		break;
-	case Aid:
-		addaid(xrand(1, 8));
-		add(Bless, 60);
-		break;
-	case CureDisease:
-		remove(Disease);
-		break;
-	case CureBlindnessDeafness:
-		remove(Blindness);
-		remove(Deafness);
-		break;
-	case CreateFood:
-		add(RationIron);
-		break;
-	case Identify:
-		identify(true);
-		break;
-	case LayOnHands:
-		damage(Heal, 2 * level);
-		break;
-	case Mending:
-		mending(true);
-		break;
-	case PurifyFood:
-		puryfyfood(true);
-		break;
-	case RemoveCurse:
-		uncurse(true);
-		break;
-	case RemoveParalizes:
-		remove(HoldPerson);
-		break;
-	default:
-		ei.effect.apply(this, level);
-		break;
-	}
-}
-
 void creature::poison(save_s save, char save_bonus) {
 	if(save != NoSave && roll(SaveVsPoison, save_bonus))
 		return;
@@ -1811,45 +1767,35 @@ bool creature::puryfyfood(bool interactive) {
 			return true;
 		}
 	}
-	if(interactive)
-		say("I don't see any rotted foods.");
 	return false;
 }
 
-bool creature::identify(bool interactive) {
-	static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
+void creature::identify(bool interactive) {
 	for(auto& e : wears) {
 		if(e.ismagical() && !e.isidentified()) {
 			e.setidentified(1);
 			if(interactive) {
+				static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
 				char temp[128]; stringbuilder sb(temp); e.getname(sb);
 				say("%1 It's %2.", maprnd(talk), temp);
 			}
-			return true;
+			return;
 		}
 	}
-	if(interactive)
-		say("I don't see any magical items.");
-	return false;
 }
 
-bool creature::mending(bool interactive) {
-	auto result = 0;
+void creature::mending(bool interactive) {
 	for(auto& e : wears) {
 		if(e.isbroken()
 			&& e.gettype() != Ration
 			&& e.gettype() != RationIron) {
 			e.setbroken(0);
-			result++;
+			if(interactive) {
+				char temp[128]; stringbuilder sb(temp); e.getname(sb);
+				say("%1 is repaired", temp);
+			}
 		}
 	}
-	if(interactive) {
-		if(result > 0)
-			say("I fix %1i items.", result);
-		else
-			say("There is no damaged items.");
-	}
-	return result != 0;
 }
 
 int	creature::getfoodmax() const {

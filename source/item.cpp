@@ -543,46 +543,6 @@ const enchantmenti* item::getenchantment() const {
 	return ei.data + subtype;
 }
 
-bool item::cast(spell_s id, int level, bool run) {
-	switch(id) {
-	case DetectMagic:
-		if(!ismagical())
-			return false;
-		break;
-	case DetectEvil:
-		if(!iscursed())
-			return false;
-		break;
-	case Identify:
-		if(isidentified() || !ismagical())
-			return false;
-		if(run)
-			identified = true;
-		break;
-	case Mending:
-		if(!isbroken() || type == Ration || type == RationIron)
-			return false;
-		if(run)
-			broken = false;
-		break;
-	case PurifyFood:
-		if(!isbroken() || !(type == Ration && type == RationIron))
-			return false;
-		if(run)
-			broken = false;
-		break;
-	case RemoveCurse:
-		if(!iscursed())
-			return false;
-		if(run)
-			cursed = false;
-		break;
-	default:
-		return false;
-	}
-	return true;
-}
-
 int	item::getcost() const {
 	auto r = bsdata<itemi>::elements[type].cost;
 	if(!r)

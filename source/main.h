@@ -48,17 +48,16 @@ enum size_s : unsigned char {
 };
 enum duration_s : unsigned char {
 	Instant,
-	Duration1PerLevel,
+	Duration1PerLevel, Duration1d4P1PerLevel,
 	Duration5PerLevel,
 	DurationTurn, DurationTurnPerLevel,
-	DurationHour, Duration2Hours, Duration4Hours, Duration8Hours,
+	DurationHour, Duration1HourPerLevel, Duration2Hours, Duration4Hours, Duration8Hours,
 };
 enum target_s : unsigned char {
 	TargetSelf,
 	TargetThrow, TargetThrowHitFighter, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
-	TargetItem, TargetAllPartyItems,
 };
 enum message_s : unsigned char {
 	MessageHabbits, MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
@@ -73,7 +72,7 @@ enum spell_s : unsigned char {
 	ReadLanguagesSpell, ResistColdSpell, ShieldSpell, ShokingGrasp, Sleep,
 	// Spells (level 2)
 	AcidArrow, Aid, Blindness, Blur, Deafness, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
-	Invisibility, Knock, ProduceFlame, ResistFireSpell, SlowPoison,
+	Invisibility, Knock, ProduceFlame, ResistFireSpell, Scare, SlowPoison,
 	// Spells (level 3)
 	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
@@ -301,6 +300,7 @@ struct directioni {
 struct durationi {
 	const char*			name;
 	unsigned			multiplier, divider, addiction;
+	dice				base;
 	int					get(int v) const;
 };
 struct genderi {
@@ -402,6 +402,8 @@ struct spelli {
 	target_s			range;
 	effecti				effect;
 	item_s				throw_effect;
+	const char*			say_success[3];
+	const char*			say_fail;
 };
 struct sitei {
 	struct headi {
@@ -645,7 +647,7 @@ public:
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				haveforsale() const;
-	bool				identify(bool interactive);
+	void				identify(bool interactive);
 	void				identifyall();
 	void				interract();
 	bool				is(spell_s v) const { return active_spells.is(v); }
@@ -667,7 +669,7 @@ public:
 	bool				isready() const;
 	bool				isuse(const item v) const;
 	void				kill();
-	bool				mending(bool interactive);
+	void				mending(bool interactive);
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);

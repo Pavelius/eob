@@ -13,38 +13,7 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
-static void turn_undead(creature* caster, creature* want_target, const effecti& e, int level, ability_s save_skill) {
-	auto ti = maptbl(turn_undead_index, level);
-	auto result = rand() % 20 + 1;
-	auto index = caster->getindex();
-	auto dir = caster->getdirection();
-	creature* targets[4];
-	location.getmonsters(targets, to(index, dir), dir);
-	for(int i = 0; i < 4; i++) {
-		auto target = targets[i];
-		if(!target)
-			continue;
-		if(!target->is(Undead))
-			continue;
-		auto hd = target->gethd();
-		if(hd > 0)
-			hd -= 1;
-		auto tt = maptbl(turn_undead_chance, hd);
-		auto value = tt[ti];
-		if(value > 20)
-			continue;
-		if(value < 0) {
-			target->kill();
-			continue;
-		}
-		if(result >= value)
-			value = 0;
-		if(value == 0)
-			target->add(Fear, xrand(2, 6) * 10);
-	}
-}
-
-//static void cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count) {
+//static bool cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count, const char* say_success[3], const char* say_fail) {
 //	itema result;
 //	if(whole_party) {
 //		for(auto v : party) {
@@ -57,39 +26,34 @@ static void turn_undead(creature* caster, creature* want_target, const effecti& 
 //		caster->select(result);
 //	auto pb = result.data;
 //	for(auto p : result) {
-//		if(!p->cast(caster, id, level, false, false))
+//		if(!p->cast(id, level, false))
 //			continue;
 //		*pb++ = p;
 //	}
 //	result.count = pb - result.data;
 //	zshuffle(result.data, result.count);
-//	if(!result)
-//		return;
+//	if(!result) {
+//		if(say_fail)
+//			caster->say(say_fail);
+//		return false;
+//	}
 //	caster->say(id);
 //	for(auto p : result) {
 //		if(count-- <= 0)
 //			break;
-//		p->cast(caster, id, level, true, true);
+//		p->cast(id, level, true);
+//		if(say_success) {
+//			char temp[260]; stringbuilder sb(temp); p->getname(sb);
+//			auto pt = say_success[rand() % 3];
+//			caster->say(pt, temp);
+//		}
 //	}
+//	return true;
 //}
-
-static void knock(creature* player, creature* target, const effecti& e, int level, ability_s save_skill) {
-	auto index = game.getcamera();
-	auto direction = game.getdirection();
-	auto pe = location.getoverlay(index, direction);
-	if(!pe)
-		return;
-	if(pe->type == CellKeyHole1 || pe->type == CellKeyHole2) {
-		if(pe->is(Active))
-			return;
-		pe->set(Active);
-		mslog("Lock is magically open");
-	}
-}
 
 spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
-{"Bless", {0, 1}, TargetAllAlly, {Bless, DurationHour}},
+{"Bless", {0, 1}, TargetAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, Instant, SaveHalf, 0, {1, 3}, {2}, 1, 10}, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {1, 8}}},
 {"Detect Evil", {2, 1}, TargetAllAlly, {DetectEvil, DurationTurn}},
@@ -99,7 +63,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Identify", {1, 0}, TargetSelf, {Identify}},
 {"Mage Armor", {1, 0}, TargetSelf, {MageArmor, Duration4Hours}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, Instant, NoSave, 0, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
-{"Mending", {1, 0}, TargetAllAlly, {Mending}},
+{"Mending", {1, 0}, TargetSelf, {Mending}},
 {"Prot. from Evil", {1, 1}, TargetAlly, {ProtectionFromEvil, DurationTurn}},
 {"Purify food", {0, 1}, TargetAllAlly, {PurifyFood}},
 {"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationHour}},
@@ -108,7 +72,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Shoking grasp", {1, 0}, TargetSelf, {ShokingHand}},
 {"Sleep", {1, 0}, TargetAllClose, {Sleep, Duration5PerLevel, SaveNegate}},
 // 2 - level
-{"Acid arrow", {2}, TargetThrowHitFighter, {Pierce, Instant, NoSave, 0, {1, 4, 1}}, Arrow},
+{"Acid arrow", {2}, TargetThrowHitFighter, {Pierce, Instant, NoSave, 0, {2, 4}}, Arrow},
 {"Aid", {0, 2}, TargetAlly, {Aid}},
 {"Blindness", {2}, TargetClose, {Blindness, Instant, SaveNegate}},
 {"Blur", {2}, TargetSelf, {Blur, Duration5PerLevel}},
@@ -122,6 +86,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Produce Flame", {0, 2}, TargetSelf, {FlameHand}},
 {"Resist fire", {0, 2}, TargetAlly, {ResistFireSpell, DurationTurnPerLevel}},
 {"Slow Poison", {0, 2}, TargetAlly, {SlowPoison, Duration8Hours}},
+{"Scare", {2}, TargetAllClose, {Fear, Duration1d4P1PerLevel, NoSave}},
 // 3 - level
 {"Create Food", {0, 3}, TargetSelf, {CreateFood}},
 {"Cure Blindness", {0, 3}, TargetAlly, {CureBlindnessDeafness}},
@@ -145,20 +110,6 @@ int	creature::getlevel(spell_s id, class_s type) {
 	case Cleric: return bsdata<spelli>::elements[id].levels[1];
 	default: return bsdata<spelli>::elements[id].levels[0];
 	}
-}
-
-static bool test_save(creature* target, int& value, ability_s skill, save_s type, int bonus) {
-	switch(type) {
-	case SaveHalf:
-		if(target->roll(skill, bonus))
-			value = value / 2;
-		break;
-	case SaveNegate:
-		if(target->roll(skill, bonus))
-			return true;
-		break;
-	}
-	return false;
 }
 
 short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s throw_effect) {
@@ -275,5 +226,133 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 	else if(type == Mage)
 		exp *= 3;
 	addexp(exp);
+	return true;
+}
+
+void creature::apply(spell_s id, int level, unsigned duration) {
+	auto& ei = bsdata<spelli>::elements[id];
+	switch(id) {
+	case AcidArrow:
+		add(AcidArrow, 1 + level / 3, NoSave);
+		break;
+	case Aid:
+		addaid(xrand(1, 8));
+		add(Bless, 60);
+		break;
+	case CureDisease:
+		remove(Disease);
+		break;
+	case CureBlindnessDeafness:
+		remove(Blindness);
+		remove(Deafness);
+		break;
+	case CreateFood:
+		add(RationIron);
+		break;
+	case Fear:
+	case Scare:
+		if(is(Undead) || gethd() >= 6)
+			return;
+		ei.effect.apply(this, level);
+		break;
+	case Identify:
+		identify(true);
+		break;
+	case Knock:
+		if(true) {
+			auto index = getindex();
+			auto dir = getdirection();
+			auto pe = location.getoverlay(index, direction);
+			if(!pe)
+				return;
+			if(pe->type == CellKeyHole1 || pe->type == CellKeyHole2) {
+				if(pe->is(Active))
+					return;
+				pe->set(Active);
+				say("Lock is open now!");
+			}
+		}
+		break;
+	case LayOnHands:
+		damage(Heal, 2 * level);
+		break;
+	case Mending:
+		mending(true);
+		break;
+	case PurifyFood:
+		puryfyfood(true);
+		break;
+	case RemoveCurse:
+		uncurse(true);
+		break;
+	case RemoveParalizes:
+		remove(HoldPerson);
+		break;
+	case TurnUndead:
+		if(true) {
+			if(!is(Undead))
+				return;
+			auto hd = gethd();
+			if(hd > 0)
+				hd -= 1;
+			auto tt = maptbl(turn_undead_chance, hd);
+			auto ti = maptbl(turn_undead_index, level);
+			auto value = tt[ti];
+			if(value > 20)
+				return;
+			if(value < 0) {
+				kill();
+				return;
+			}
+			auto result = rand() % 20 + 1;
+			if(result >= value)
+				value = 0;
+			if(value == 0)
+				add(Fear, xrand(2, 6) * 10);
+		}
+		break;
+	default:
+		ei.effect.apply(this, level);
+		break;
+	}
+}
+
+bool item::cast(spell_s id, int level, bool run) {
+	switch(id) {
+	case DetectMagic:
+		if(!ismagical())
+			return false;
+		break;
+	case DetectEvil:
+		if(!iscursed())
+			return false;
+		break;
+	case Identify:
+		if(isidentified() || !ismagical())
+			return false;
+		if(run)
+			identified = true;
+		break;
+	case Mending:
+		if(!isbroken() || type == Ration || type == RationIron)
+			return false;
+		if(run)
+			broken = false;
+		break;
+	case PurifyFood:
+		if(!isbroken() || !(type == Ration && type == RationIron))
+			return false;
+		if(run)
+			broken = false;
+		break;
+	case RemoveCurse:
+		if(!iscursed())
+			return false;
+		if(run)
+			cursed = false;
+		break;
+	default:
+		return false;
+	}
 	return true;
 }
