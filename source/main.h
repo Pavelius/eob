@@ -60,8 +60,8 @@ enum target_s : unsigned char {
 	TargetAlly, TargetAllAlly,
 };
 enum message_s : unsigned char {
-	MessageHabbits, MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
-	MessageAtifacts,
+	MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
+	MessageAtifacts, MessageHabbits,
 };
 enum spell_s : unsigned char {
 	Moved,
@@ -486,6 +486,7 @@ public:
 struct boosti {
 	variant				owner, id;
 	unsigned			round;
+	char				value;
 	constexpr explicit operator bool() const { return id.type != NoVariant; }
 	void				clear();
 };
@@ -554,12 +555,11 @@ class creature {
 	short				food;
 	reaction_s			reaction;
 	//
-	void				addboost(variant id, unsigned duration) const;
+	void				addboost(variant id, unsigned duration, char value = 0) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
 	void				dress_wears(int m);
 	void				dressoff();
 	void				dresson();
-	void				drink(spell_s effect, int magic);
 	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
@@ -673,10 +673,10 @@ public:
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
-	bool				puryfyfood(bool interactive);
+	void				puryfyfood(bool interactive);
 	void				random_name();
 	void				remove(spell_s v);
-	void				removeboost(variant v) const;
+	void				removeboost(variant v);
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;

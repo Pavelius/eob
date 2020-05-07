@@ -1298,7 +1298,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 			pc->say("There is %1i mighty artifacts nearby", pd->stat.artifacts);
 		break;
 	default:
-		pc->say("%1 eat his friend", getstr(pd->head.habbits[0]));
+		pc->say("%1 eat his friends", getstr(pd->head.habbits[0]));
 		break;
 	}
 	return true;
@@ -1424,7 +1424,7 @@ creature* get_most_damaged() {
 }
 
 static void try_autocast(creature* pc) {
-	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry};
+	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry, CureSeriousWounds};
 	for(auto e : healing_spells) {
 		while(pc->get(e) > 0) {
 			auto target = get_most_damaged();
@@ -1492,7 +1492,7 @@ void creature::camp(item& it) {
 				// RULE: Only mages can recharge spells
 				if(pc->get(Mage) < 5)
 					break;
-				if(pi->getcharges() < 50)
+				if(pi->getcharges() < 40)
 					pi->setcharges(pi->getcharges() + 1);
 				break;
 			case MageScroll:
@@ -1755,7 +1755,7 @@ void creature::identifyall() {
 		e.setidentified(1);
 }
 
-bool creature::puryfyfood(bool interactive) {
+void creature::puryfyfood(bool interactive) {
 	static const char* talk[] = {"%1 is desecrated!", "I clean %1 from poison.", "%1 is ready to eat."};
 	for(auto& e : wears) {
 		if(e.isbroken() && (e.gettype()==RationIron || e.gettype()==Ration)) {
@@ -1764,10 +1764,9 @@ bool creature::puryfyfood(bool interactive) {
 				char temp[128]; stringbuilder sb(temp); e.getname(sb);
 				say(maprnd(talk), temp);
 			}
-			return true;
+			//return;
 		}
 	}
-	return false;
 }
 
 void creature::identify(bool interactive) {
@@ -1794,6 +1793,7 @@ void creature::mending(bool interactive) {
 				char temp[128]; stringbuilder sb(temp); e.getname(sb);
 				say("%1 is repaired", temp);
 			}
+			//return;
 		}
 	}
 }

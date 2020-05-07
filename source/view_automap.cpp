@@ -131,7 +131,7 @@ static void render_overlays(const dungeon& location, bool fog_of_war) {
 		if(fog_of_war && !location.is(index, CellExplored))
 			continue;
 		auto x = gx(index), y = gy(index);
-		auto x1 = x * mpg, y1 = y * mpg;
+		auto x1 = gsx(x), y1 = gsy(y);
 		switch(e.dir) {
 		case Left: y1 += mpg / 2; break;
 		case Right: y1 += mpg / 2; x1 += mpg; break;

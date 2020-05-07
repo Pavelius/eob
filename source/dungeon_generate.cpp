@@ -418,7 +418,7 @@ static void portal(dungeon* pd, short unsigned index, direction_s dir, unsigned 
 }
 
 static void message(dungeon* pd, short unsigned index, direction_s dir, unsigned flags) {
-	if(pd->stat.messages > MessageAtifacts)
+	if(pd->stat.messages > MessageHabbits)
 		return;
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
