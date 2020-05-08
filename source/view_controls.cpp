@@ -394,6 +394,17 @@ void draw::itemicn(int x, int y, item i, unsigned char alpha, int spell) {
 		image(x, y, rs, pt, ImagePallette, alpha);
 	} else
 		image(x, y, rs, pt, 0, alpha);
+	if(i.is(Countable)) {
+		auto count = i.getcount();
+		if(count > 1) {
+			state push;
+			setsmallfont();
+			fore = colors::white;
+			char temp[16]; stringbuilder sb(temp);
+			sb.add("%1i", count);
+			text(x + 1 - textw(temp) / 2, y + 1, temp);
+		}
+	}
 }
 
 static void log_delete_line() {

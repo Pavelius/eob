@@ -47,16 +47,6 @@ static void blanksheet(int x, int y, creature* pc) {
 	line(300, 166, 318, 166, color::create(88, 88, 116));
 }
 
-static void show_quiver(int x, int y, creature* pc) {
-	draw::state push;
-	draw::fore = colors::white;
-	auto pi = pc->getitem(Quiver);
-	if(pi && *pi) {
-		char temp[32];
-		draw::text(x + 50, y + 65, sznum(temp, pi->getcharges()));
-	}
-}
-
 void draw::invertory(int x, int y, creature* pc, item* current_item) {
 	const int dx = 18;
 	const int dy = 18;
@@ -79,7 +69,6 @@ void draw::invertory(int x, int y, creature* pc, item* current_item) {
 	itemicn(x + 66, y + 140, pc->getitem(LeftRing), true, 0, current_item);
 	itemicn(x + 108, y + 124, pc->getitem(LeftHand), true, 0, current_item);
 	itemicn(x + 107, y + 145, pc->getitem(Legs), true, 0, current_item);
-	show_quiver(x, y, pc);
 }
 
 void draw::abilities(int x, int y, creature* pc) {

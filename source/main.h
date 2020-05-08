@@ -205,7 +205,7 @@ enum usability_s : unsigned char {
 enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
-	Natural, Charged,
+	Natural, Charged, Countable,
 	Unique
 };
 enum attack_s : unsigned char {
@@ -440,11 +440,11 @@ class item {
 	unsigned char		charges; // uses of item
 	void				finish();
 public:
-	constexpr item(item_s type = NoItem) : type(type), identified(0), cursed(0), broken(0), subtype(0), charges(0) {}
+	item(item_s type = NoItem);
 	item(item_s type, rarity_s rarity);
 	item(item_s type, variant power);
-	constexpr explicit operator bool() const { return type != NoItem; }
-	constexpr bool operator==(const item i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.charges == charges; }
+	explicit operator bool() const { return type != NoItem; }
+	bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.charges == charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
 	bool				damage(const char* text_damage, const char* text_brokes);
@@ -453,6 +453,7 @@ public:
 	int					getac() const;
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcost() const;
+	int					getcount() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
 	const enchantmenti* getenchantment() const;
@@ -476,7 +477,8 @@ public:
 	bool				isnatural() const { return is(Natural); }
 	bool				isranged() const { return is(Ranged); }
 	bool				istwohanded() const { return is(TwoHanded); }
-	void				setcharges(int value);
+	void				setcharges(int v);
+	void				setcount(int v);
 	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
 	void				setidentified(int value) { identified = value; }
@@ -754,7 +756,7 @@ struct dungeon {
 		short unsigned	index;
 		unsigned char	side;
 		unsigned char	flags;
-		constexpr explicit operator bool() const { return value.operator bool(); }
+		explicit operator bool() const { return value.operator bool(); }
 	};
 	struct overlayitem : item {
 		short unsigned	storage_index;

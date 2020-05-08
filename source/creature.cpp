@@ -349,7 +349,7 @@ bool creature::canspeak(race_s language) const {
 }
 
 void creature::equip(item it) {
-	static const wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs, Quiver, RightHand, LeftHand};
+	static const wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs, RightHand, LeftHand};
 	for(auto slot : slots) {
 		auto pi = getitem(slot);
 		if(!pi || *pi)

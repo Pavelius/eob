@@ -125,21 +125,20 @@ static void identify_all_party() {
 }
 
 static void random_heroes() {
-	item wp3(SwordLong); wp3.setpower(Fire);
-	item wp4(Bow);
-	item rg1(GreenRing); rg1.setpower(OfRegeneration);
-	item rg2(BlueRing); rg2.setpower(Invisibility);
-	item rg3(RedRing); rg3.setpower(OfWizardy);
-	item rg4(RedRing); rg4.setpower(ResistFire);
-	item wp1(AxeBattle); wp1.setpower(OfSharpness);
-	item wp2(Staff); wp2.setpower(BurningHands);
-	item pt1(GreenPotion); pt1.setpower(OfAdvise);
-	item it1(Bracers); it1.setpower(Strenght);
+	item rg1(GreenRing, OfRegeneration);
+	item rg2(BlueRing, Invisibility);
+	item rg3(RedRing, OfWizardy);
+	item rg4(RedRing, ResistFire);
+	item wp1(AxeBattle, OfSharpness);
+	item wp2(Staff, BurningHands);
+	item pt1(GreenPotion, OfAdvise);
+	item it1(Bracers, Strenght);
 	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
-	p->set(wp3, RightHand);
+	p->set({SwordLong, Fire}, RightHand);
 	p->equip(rg1);
-	p->equip(wp4);
+	p->equip(Bow);
+	p->equip(Arrow);
 	p->equip(it1);
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);

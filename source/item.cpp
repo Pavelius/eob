@@ -230,7 +230,7 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Necklage", {34, 13}, 2, Neck, {}, {}, {}, {}, magic_amulets},
 {"Jewelry", {108, 13}, 3, Neck, {}, {}, {}, {}, magic_amulets},
 //
-{"Arrow", {16, 5}},
+{"Arrow", {16, 5}, 0, Quiver, {}, {Countable}},
 {"Dart", {14, 0}, 0, RightHand},
 {"Stone", {19, 2}, 0, RightHand},
 //
@@ -342,6 +342,12 @@ rarity_s item::getrandomrarity(int level) {
 	return Artifact;
 }
 
+item::item(item_s type) {
+	clear();
+	this->type = type;
+	finish();
+}
+
 item::item(item_s type, variant power) {
 	clear();
 	this->type = type;
@@ -357,6 +363,8 @@ item::item(item_s type, rarity_s power) {
 void item::finish() {
 	if(is(Charged))
 		setcharges(dice::roll(3, 6));
+	else if(is(Countable))
+		setcount(dice::roll(1, 6));
 }
 
 void item::setpower(variant power) {
@@ -381,6 +389,7 @@ static unsigned char getpowerindex(item_s type, rarity_s rarity) {
 
 item& item::setpower(rarity_s rarity) {
 	subtype = getpowerindex(type, rarity);
+	finish();
 	return *this;
 }
 
@@ -554,4 +563,17 @@ int	item::getcost() const {
 			r += 1;
 	}
 	return r;
+}
+
+int item::getcount() const {
+	if(is(Countable))
+		return charges + 1;
+	return 1;
+}
+
+void item::setcount(int v) {
+	if(!v)
+		clear();
+	else if(is(Countable))
+		charges = v - 1;
 }
