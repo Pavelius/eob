@@ -30,14 +30,14 @@ int dungeon::getitemside(item* pi) {
 unsigned dungeon::getitems(item** result, item** result_maximum, short unsigned index, int side) {
 	auto p = result;
 	for(auto& e : items) {
-		if(!e.value)
+		if(!e)
 			continue;
 		if(e.index != index)
 			continue;
 		if(side != -1 && e.side != side)
 			continue;
 		if(p < result_maximum)
-			*p++ = &e.value;
+			*p++ = &e;
 	}
 	*p = 0;
 	return p - result;
@@ -61,7 +61,7 @@ unsigned dungeon::getitems(item** result, item** result_maximum, overlayi* povr)
 
 static dungeon::groundi& new_item(dungeon* pe) {
 	for(auto& e : pe->items) {
-		if(!e.value)
+		if(!e)
 			return e;
 	}
 	return pe->items[0];
@@ -69,7 +69,7 @@ static dungeon::groundi& new_item(dungeon* pe) {
 
 void dungeon::dropitem(short unsigned index, item rec, int side) {
 	groundi& e = new_item(this);
-	e.value = rec;
+	*static_cast<item*>(&e) = rec;
 	e.index = index;
 	e.side = side;
 	e.flags = 0;
@@ -866,7 +866,8 @@ void dungeon::pickitem(item* itm, int side) {
 	auto pc = game.getcreature(itm);
 	if(!pc->isallow(*gitm, slot))
 		return;
-	iswap(*itm, *gitm);
+	if(!itm->stack(*gitm))
+		iswap(*itm, *gitm);
 	char temp[260]; stringbuilder sb(temp); itm->getname(sb);
 	mslog("%1 picked up", temp);
 }

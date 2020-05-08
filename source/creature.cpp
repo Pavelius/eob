@@ -243,14 +243,17 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.damage.b -= drain_energy;
 }
 
-void creature::add(item value) {
+bool creature::add(item value) {
 	for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i + 1)) {
-		auto pi = getitem(i);
-		if(!pi || *pi)
+		if(wears[i]) {
+			if(wears[i].stack(value))
+				return true;
 			continue;
-		*pi = value;
-		break;
+		}
+		wears[i] = value;
+		return true;
 	}
+	return false;
 }
 
 item creature::get(wear_s id) const {
@@ -349,12 +352,17 @@ bool creature::canspeak(race_s language) const {
 }
 
 void creature::equip(item it) {
-	static const wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs, RightHand, LeftHand};
+	static const wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Quiver, Legs, RightHand, LeftHand};
 	for(auto slot : slots) {
 		auto pi = getitem(slot);
-		if(!pi || *pi)
+		if(!pi)
 			continue;
-		if(isallow(it, slot)) {
+		if(!isallow(it, slot))
+			continue;
+		if(*pi) {
+			if(pi->stack(it))
+				return;
+		} else {
 			*pi = it;
 			return;
 		}
@@ -409,6 +417,26 @@ static int getresisted(int value, int percent) {
 
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
+	item_s ammo = NoItem;
+	if(wi.weapon)
+		ammo = wi.weapon->getammo();
+	if(ammo) {
+		if(wears[Quiver].is(ammo)) {
+			auto& awi = wears[Quiver].gete().weapon;
+			auto amb = wears[Quiver].getmagic();
+			wi.bonus += awi.bonus + amb;
+			wi.damage.b += awi.damage.b + amb;
+			wi.critical_multiplier += awi.critical_multiplier;
+			wi.critical_range += awi.critical_range;
+			wears[Quiver].use();
+		} else {
+			if(ishero())
+				say("No ammunitions!");
+			if(remove(slot, false))
+				usequick();
+			return;
+		}
+	}
 	auto ac = defender->getac();
 	// RULE: invisible characters hard to hit and more likely to hit
 	if(isinvisible())
@@ -1239,7 +1267,8 @@ bool creature::swap(item* itm1, item* itm2) {
 			p2->say(dontwear[0]);
 		return false;
 	}
-	iswap(*itm1, *itm2);
+	if(!itm2->stack(*itm1))
+		iswap(*itm1, *itm2);
 	return true;
 }
 
@@ -1765,7 +1794,7 @@ void creature::identifyall() {
 void creature::puryfyfood(bool interactive) {
 	static const char* talk[] = {"%1 is desecrated!", "I clean %1 from poison.", "%1 is ready to eat."};
 	for(auto& e : wears) {
-		if(e.isbroken() && (e.gettype()==RationIron || e.gettype()==Ration)) {
+		if(e.isbroken() && (e.gettype() == RationIron || e.gettype() == Ration)) {
 			e.setbroken(0);
 			if(interactive) {
 				char temp[128]; stringbuilder sb(temp); e.getname(sb);
@@ -2046,5 +2075,14 @@ bool creature::ismatch(const messagei& v) const {
 		if(!ismatch(e))
 			return false;
 	}
+	return true;
+}
+
+bool creature::remove(wear_s slot, bool interactive) {
+	if(!isallowremove(wears[slot], slot, interactive))
+		return false;
+	if(!add(wears[slot]))
+		return false;
+	wears[slot].clear();
 	return true;
 }

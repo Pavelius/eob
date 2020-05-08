@@ -712,7 +712,7 @@ static void validate_special_items(dungeon& location) {
 		if(it) {
 			adat<indext, 512> source;
 			for(auto& e : location.items) {
-				if(!e || (e.value.gettype() != Ration && e.value.gettype() != RationIron))
+				if(!e || (e.gettype() != Ration && e.gettype() != RationIron))
 					continue;
 				source.add(e.index);
 			}

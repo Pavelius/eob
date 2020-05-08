@@ -125,7 +125,6 @@ static void identify_all_party() {
 }
 
 static void random_heroes() {
-	item rg1(GreenRing, OfRegeneration);
 	item rg2(BlueRing, Invisibility);
 	item rg3(RedRing, OfWizardy);
 	item rg4(RedRing, ResistFire);
@@ -133,12 +132,13 @@ static void random_heroes() {
 	item wp2(Staff, BurningHands);
 	item pt1(GreenPotion, OfAdvise);
 	item it1(Bracers, Strenght);
+	item it2(Arrow); it2.finish();
 	//
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set({SwordLong, Fire}, RightHand);
-	p->equip(rg1);
+	p->equip({GreenRing, OfRegeneration});
 	p->equip(Bow);
-	p->equip(Arrow);
+	p->equip(it2);
 	p->equip(it1);
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);

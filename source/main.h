@@ -352,6 +352,7 @@ struct itemi {
 	weaponi				weapon;
 	armori				armor;
 	aref<enchantmenti>	enchantments;
+	item_s				ammo;
 };
 struct feati {
 	const char*			name;
@@ -433,29 +434,36 @@ struct sitei {
 };
 class item {
 	item_s				type;
-	unsigned char		identified : 1;
-	unsigned char		cursed : 1; // -1 to quality and not remove
-	unsigned char		broken : 1; // sometime -1 to quality and next breaking destroy item
+	union {
+		unsigned char	flags;
+		struct {
+			unsigned char identified : 1;
+			unsigned char cursed : 1; // -1 to quality and not remove
+			unsigned char broken : 1; // sometime -1 to quality and next breaking destroy item
+		};
+	};
 	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
-	void				finish();
 public:
-	item(item_s type = NoItem);
+	constexpr item(item_s type = NoItem) : type(type), flags(0), subtype(0), charges(0) {}
 	item(item_s type, rarity_s rarity);
 	item(item_s type, variant power);
-	explicit operator bool() const { return type != NoItem; }
-	bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.identified == identified && i.cursed == cursed && i.broken == broken && i.charges == charges; }
+	constexpr explicit operator bool() const { return type != NoItem; }
+	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges==charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
 	bool				damage(const char* text_damage, const char* text_brokes);
+	void				finish();
 	int					get(variant value) const;
 	void				get(combati& result, const creature* enemy) const;
 	int					getac() const;
+	item_s				getammo() const { return gete().ammo; }
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcost() const;
 	int					getcount() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
+	constexpr const itemi& gete() const { return bsdata<itemi>::elements[type]; }
 	const enchantmenti* getenchantment() const;
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
@@ -464,18 +472,19 @@ public:
 	static rarity_s		getrandomrarity(int level);
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
-	wear_s				getwear() const { return bsdata<itemi>::elements[type].equipment; }
-	bool				is(usability_s v) const { return bsdata<itemi>::elements[type].usability.is(v); }
-	bool				is(item_feat_s v) const { return bsdata<itemi>::elements[type].feats.is(v); }
+	wear_s				getwear() const { return gete().equipment; }
+	constexpr bool		is(usability_s v) const { return gete().usability.is(v); }
+	constexpr bool		is(item_feat_s v) const { return gete().feats.is(v); }
+	constexpr bool		is(item_s v) const { return type == v; }
 	bool				isartifact() const;
-	bool				isbroken() const { return broken != 0; }
-	bool				ischarged() const { return is(Charged); }
-	bool				iscursed() const { return cursed != 0; }
-	bool				isidentified() const { return identified != 0; }
+	constexpr bool		isbroken() const { return broken != 0; }
+	constexpr bool		ischarged() const { return is(Charged); }
+	constexpr bool		iscursed() const { return cursed != 0; }
+	constexpr bool		isidentified() const { return identified != 0; }
 	bool				ismagical() const;
 	bool				ismelee() const;
-	bool				isnatural() const { return is(Natural); }
-	bool				isranged() const { return is(Ranged); }
+	constexpr bool		isnatural() const { return is(Natural); }
+	constexpr bool		isranged() const { return is(Ranged); }
 	bool				istwohanded() const { return is(TwoHanded); }
 	void				setcharges(int v);
 	void				setcount(int v);
@@ -484,6 +493,8 @@ public:
 	void				setidentified(int value) { identified = value; }
 	item&				setpower(rarity_s rarity);
 	void				setpower(variant power);
+	bool				stack(item& v);
+	void				use() { setcount(getcount() - 1); }
 };
 struct boosti {
 	variant				owner, id;
@@ -575,7 +586,7 @@ public:
 	explicit operator bool() const { return race != NoRace; }
 	typedef void		(creature::*apply_proc)(bool);
 	void				activate(spell_s v) { active_spells.set(v); }
-	void				add(item i);
+	bool				add(item i);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
@@ -678,6 +689,7 @@ public:
 	void				puryfyfood(bool interactive);
 	void				random_name();
 	void				remove(spell_s v);
+	bool				remove(wear_s slot, bool interactive);
 	void				removeboost(variant v);
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
@@ -751,12 +763,12 @@ struct dungeon {
 		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
 		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
-	struct groundi {
-		item			value;
+	struct groundi : item {
+		//item			value;
 		short unsigned	index;
 		unsigned char	side;
 		unsigned char	flags;
-		explicit operator bool() const { return value.operator bool(); }
+		//constexpr explicit operator bool() const { return value.operator bool(); }
 	};
 	struct overlayitem : item {
 		short unsigned	storage_index;

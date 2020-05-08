@@ -210,8 +210,8 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Short sword", {2, 0, 1}, 0, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
 {"Two-handed sword", {42, 0, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
 //
-{"Bow", {10, 6, 1, Arrow}, 0, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}},
-{"Sling", {18, 4, 0, Stone}, 0, RightHand, {}, {Ranged, UseInHand}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}},
+{"Bow", {10, 6, 1, Arrow}, 0, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
+{"Sling", {18, 4, 0, Stone}, 0, RightHand, {}, {Ranged, UseInHand}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
 //
 {"Robe", {32, 8, 1}, 0, Body, {UseArcane}, {}, {}, {}, magic_robe},
 {"Leather armor", {31, 8, 1}, 0, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
@@ -231,8 +231,8 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Jewelry", {108, 13}, 3, Neck, {}, {}, {}, {}, magic_amulets},
 //
 {"Arrow", {16, 5}, 0, Quiver, {}, {Countable}},
-{"Dart", {14, 0}, 0, RightHand},
-{"Stone", {19, 2}, 0, RightHand},
+{"Dart", {14, 0}, 0, RightHand, {}, {Countable}},
+{"Stone", {19, 2}, 0, Quiver, {}, {Countable}},
 //
 {"Bones", {43, 7}, 0, {}, {}, {}},
 {"Map", {86, 12}, 0, {}, {}, {}},
@@ -342,12 +342,6 @@ rarity_s item::getrandomrarity(int level) {
 	return Artifact;
 }
 
-item::item(item_s type) {
-	clear();
-	this->type = type;
-	finish();
-}
-
 item::item(item_s type, variant power) {
 	clear();
 	this->type = type;
@@ -364,7 +358,7 @@ void item::finish() {
 	if(is(Charged))
 		setcharges(dice::roll(3, 6));
 	else if(is(Countable))
-		setcount(dice::roll(1, 6));
+		setcount(dice::roll(3, 4));
 }
 
 void item::setpower(variant power) {
@@ -514,6 +508,10 @@ bool item::damage(const char* text_damage, const char* text_broke) {
 			stringbuilder sb(name); getname(sb);
 			mslog(text_damage, name);
 		}
+		if(is(Countable)) {
+			use();
+			return !(*this);
+		}
 		broken = 1;
 	}
 	return false;
@@ -576,4 +574,22 @@ void item::setcount(int v) {
 		clear();
 	else if(is(Countable))
 		charges = v - 1;
+}
+
+bool item::stack(item& v) {
+	if(!is(Countable) || type != v.type || subtype != v.subtype || flags != v.flags)
+		return false;
+	int c1 = charges;
+	int c2 = v.charges;
+	auto result = false;
+	c1 += c2 + 1;
+	if(c1 <= 0xFF) {
+		charges = c1;
+		v.clear();
+		result = true;
+	} else {
+		charges = 0xFF;
+		v.charges = c1 - 0xFF - 1;
+	}
+	return result;
 }
