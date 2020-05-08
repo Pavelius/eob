@@ -126,6 +126,7 @@ static void identify_all_party() {
 
 static void random_heroes() {
 	item wp3(SwordLong); wp3.setpower(Fire);
+	item wp4(Bow);
 	item rg1(GreenRing); rg1.setpower(OfRegeneration);
 	item rg2(BlueRing); rg2.setpower(Invisibility);
 	item rg3(RedRing); rg3.setpower(OfWizardy);
@@ -138,6 +139,7 @@ static void random_heroes() {
 	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set(wp3, RightHand);
 	p->equip(rg1);
+	p->equip(wp4);
 	p->equip(it1);
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);

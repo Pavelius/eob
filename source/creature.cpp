@@ -511,8 +511,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 
 void creature::attack(short unsigned index, direction_s d, int bonus, bool ranged) {
 	auto defender = game.getdefender(index, d, this);
-	if(!defender)
+	if(!defender) {
+		// Monster can't respond to ranged attack
+		if(ishero())
+			return;
+		if(is(Moved))
+			return;
+		location.move(getindex(), d);
 		return;
+	}
 	auto wp1 = get(RightHand);
 	auto wp2 = get(LeftHand);
 	auto wp3 = get(Head);

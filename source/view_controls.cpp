@@ -641,7 +641,7 @@ void draw::adventure() {
 			break;
 		case Alpha + 'H':
 			if(true) {
-				static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"city3"}}},
+				static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"adventure3"}}},
 				{Ask, 1, {}, "Enter", {2}},
 				{Ask, 1, {}, "Leave"},
 				{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
