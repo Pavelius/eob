@@ -594,3 +594,15 @@ bool item::stack(item& v) {
 	}
 	return result;
 }
+
+creature* item::getowner() const {
+	if(!this)
+		return 0;
+	if((void*)this >= location.monsters
+		&& (void*)this < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
+		return location.monsters + ((creature*)this - location.monsters);
+	if((void*)this >= bsdata<creature>::elements
+		&& (void*)this < bsdata<creature>::source.end())
+		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
+	return 0;
+}

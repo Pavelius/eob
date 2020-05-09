@@ -461,7 +461,7 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 		return;
 	rect rc;
 	auto pid = game.getwear(pitm);
-	auto pc = game.getcreature(pitm);
+	auto pc = pitm->getowner();
 	unsigned char alpha = 0xFF;
 	if(invlist) {
 		if(pid == LeftRing || pid == RightRing)
@@ -529,15 +529,15 @@ direction_s map_key_to_dir(int e) {
 }
 
 static void show_invertory(item* current_item) {
-	draw::invertory(178, 0, game.getcreature(current_item), current_item);
+	draw::invertory(178, 0, current_item->getowner(), current_item);
 }
 
 static void show_abilities(item* current_item) {
-	draw::abilities(178, 0, game.getcreature(current_item));
+	draw::abilities(178, 0, current_item->getowner());
 }
 
 static void show_skills(item* current_item) {
-	draw::skills(178, 0, game.getcreature(current_item));
+	draw::skills(178, 0, current_item->getowner());
 }
 
 void gamei::endround() {
@@ -561,7 +561,7 @@ void draw::adventure() {
 		case KeyEscape:
 			if(true) {
 				setmode(0);
-				auto pc = game.getcreature(current_item);
+				auto pc = current_item->getowner();
 				auto pid = game.getwear(current_item);
 				if(pid != RightHand && pid != LeftHand)
 					current_item = pc->getitem(RightHand);
@@ -573,7 +573,7 @@ void draw::adventure() {
 		case Alpha + 'I':
 			if(getmode() == show_invertory) {
 				setmode(0);
-				auto pc = game.getcreature(current_item);
+				auto pc = current_item->getowner();
 				auto pid = game.getwear(current_item);
 				if(pid != RightHand && pid != LeftHand)
 					current_item = pc->getitem(RightHand);
@@ -672,7 +672,7 @@ void draw::adventure() {
 			pc = party[hot::key - (Alpha + '1')].getcreature();
 			if(!pc)
 				break;
-			if(game.getcreature(current_item) != pc)
+			if(current_item->getowner() != pc)
 				current_item = pc->getitem(RightHand);
 			break;
 		}

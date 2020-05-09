@@ -1248,9 +1248,9 @@ bool creature::use(ability_s skill, short unsigned index, int bonus, bool* first
 
 bool creature::swap(item* itm1, item* itm2) {
 	static const char* dontwear[2] = {"I don't wear this", "I do not use this"};
-	auto p1 = game.getcreature(itm1);
+	auto p1 = itm1->getowner();
 	auto s1 = game.getwear(itm1);
-	auto p2 = game.getcreature(itm2);
+	auto p2 = itm2->getowner();
 	auto s2 = game.getwear(itm2);
 	auto interactive = p1->ishero() || p2->ishero();
 	if(!p1->isallowremove(*itm1, s1, interactive))
@@ -1588,7 +1588,7 @@ void creature::poison(save_s save, char save_bonus) {
 
 bool creature::use(item* pi) {
 	unsigned short forward_index = to(game.getcamera(), game.getdirection());
-	auto pc = game.getcreature(pi);
+	auto pc = pi->getowner();
 	if(!pc || pc->gethits() <= 0)
 		return false;
 	auto slot = game.getwear(pi);
@@ -1786,51 +1786,10 @@ bool creature::use(item* pi) {
 	return true;
 }
 
-void creature::identifyall() {
-	for(auto& e : wears)
-		e.setidentified(1);
-}
-
-void creature::puryfyfood(bool interactive) {
-	static const char* talk[] = {"%1 is desecrated!", "I clean %1 from poison.", "%1 is ready to eat."};
+void creature::enchant(spell_s id, int level) {
 	for(auto& e : wears) {
-		if(e.isbroken() && (e.gettype() == RationIron || e.gettype() == Ration)) {
-			e.setbroken(0);
-			if(interactive) {
-				char temp[128]; stringbuilder sb(temp); e.getname(sb);
-				say(maprnd(talk), temp);
-			}
-			//return;
-		}
-	}
-}
-
-void creature::identify(bool interactive) {
-	for(auto& e : wears) {
-		if(e.ismagical() && !e.isidentified()) {
-			e.setidentified(1);
-			if(interactive) {
-				static const char* talk[] = {"Look!", "I know this!", "Wait a minute."};
-				char temp[128]; stringbuilder sb(temp); e.getname(sb);
-				say("%1 It's %2.", maprnd(talk), temp);
-			}
-			return;
-		}
-	}
-}
-
-void creature::mending(bool interactive) {
-	for(auto& e : wears) {
-		if(e.isbroken()
-			&& e.gettype() != Ration
-			&& e.gettype() != RationIron) {
-			e.setbroken(0);
-			if(interactive) {
-				char temp[128]; stringbuilder sb(temp); e.getname(sb);
-				say("%1 is repaired", temp);
-			}
-			//return;
-		}
+		if(e)
+			e.cast(id, level, true);
 	}
 }
 

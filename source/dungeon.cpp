@@ -864,7 +864,7 @@ static item* find_item_to_get(dungeon& location, short unsigned index, int side)
 }
 
 static int autodetect_side(dungeon& location, item* itm) {
-	auto pc = game.getcreature(itm);
+	auto pc = itm->getowner();
 	if(!pc)
 		return 0;
 	int n = pc->getpartyindex();
@@ -880,7 +880,7 @@ void dungeon::pickitem(item* itm, int side) {
 	if(!gitm)
 		return;
 	auto slot = game.getwear(itm);
-	auto pc = game.getcreature(itm);
+	auto pc = itm->getowner();
 	if(!pc->isallow(*gitm, slot))
 		return;
 	if(!itm->stack(*gitm))
@@ -890,7 +890,7 @@ void dungeon::pickitem(item* itm, int side) {
 }
 
 void dungeon::dropitem(item* pi, int side) {
-	auto pc = game.getcreature(pi);
+	auto pc = pi->getowner();
 	if(!pc)
 		return;
 	if(!pi || !(*pi))

@@ -58,6 +58,7 @@ enum target_s : unsigned char {
 	TargetThrow, TargetThrowHitFighter, TargetAllThrow,
 	TargetClose, TargetAllClose,
 	TargetAlly, TargetAllAlly,
+	TargetItems, TargetAllyItems, TargetAllAllyItems,
 };
 enum message_s : unsigned char {
 	MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
@@ -403,8 +404,7 @@ struct spelli {
 	target_s			range;
 	effecti				effect;
 	item_s				throw_effect;
-	const char*			say_success[3];
-	const char*			say_fail;
+	const char*			talk[3];
 };
 struct sitei {
 	struct headi {
@@ -467,6 +467,7 @@ public:
 	const enchantmenti* getenchantment() const;
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
+	creature*			getowner() const;
 	int					getportrait() const;
 	variant				getpower() const;
 	static rarity_s		getrandomrarity(int level);
@@ -604,6 +605,7 @@ public:
 	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
+	void				enchant(spell_s id, int level);
 	void				encounter(reaction_s id);
 	void				equip(item it);
 	item*				find(item_s v) const;
@@ -659,8 +661,6 @@ public:
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				haveforsale() const;
-	void				identify(bool interactive);
-	void				identifyall();
 	void				interract();
 	bool				is(spell_s v) const { return active_spells.is(v); }
 	bool				is(feat_s v) const { return feats.is(v); }
@@ -681,11 +681,9 @@ public:
 	bool				isready() const;
 	bool				isuse(const item v) const;
 	void				kill();
-	void				mending(bool interactive);
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
-	void				puryfyfood(bool interactive);
 	void				random_name();
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
@@ -923,7 +921,6 @@ public:
 	int					getavatar(race_s race, gender_s gender, class_s cls);
 	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
-	creature*			getcreature(const item* itm) const;
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);
 	int					getrandom(int type, race_s race, gender_s gender, int prev_name);

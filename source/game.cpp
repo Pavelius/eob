@@ -52,7 +52,7 @@ static int find_index(int** items, int* itm) {
 }
 
 bool gamei::question(item* current_item) {
-	auto pc = getcreature(current_item);
+	auto pc = current_item->getowner();
 	if(!pc || pc->gethits() <= 0)
 		return false;
 	char name[128]; stringbuilder sb(name); current_item->getname(sb);
@@ -144,7 +144,7 @@ void read_message(dungeon* pd, dungeon::overlayi* po);
 
 bool gamei::manipulate(item* itm, direction_s dr) {
 	int index = getcamera();
-	auto pc = getcreature(itm);
+	auto pc = itm->getowner();
 	auto po = location.getoverlay(index, dr);
 	if(!po) {
 		auto i1 = to(index, dr);
@@ -258,7 +258,7 @@ void gamei::thrown(item* itm) {
 	};
 	if(!itm || !*itm)
 		return;
-	auto pc = getcreature(itm);
+	auto pc = itm->getowner();
 	auto side = pc->getside() % 2;
 	auto itmo = *itm;
 	itm->clear();
@@ -284,16 +284,6 @@ creature* gamei::getvalid(creature* pc, class_s type) const {
 	}
 }
 
-creature* gamei::getcreature(const item* itm) const {
-	if((void*)itm >= location.monsters
-		&& (void*)itm < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
-		return location.monsters + ((creature*)itm - location.monsters);
-	if((void*)itm >= bsdata<creature>::elements
-		&& (void*)itm < bsdata<creature>::source.end())
-		return bsdata<creature>::elements + ((creature*)itm - bsdata<creature>::elements);
-	return 0;
-}
-
 bool gamei::isalive() {
 	for(auto v : party) {
 		auto p = v.getcreature();
@@ -304,7 +294,7 @@ bool gamei::isalive() {
 }
 
 wear_s gamei::getwear(const item* itm) const {
-	auto p = getcreature(itm);
+	auto p = itm->getowner();
 	if(p)
 		return (wear_s)(FirstInvertory + (itm - p->getitem(FirstInvertory)));
 	return Head;

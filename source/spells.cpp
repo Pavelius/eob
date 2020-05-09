@@ -13,43 +13,57 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
-//static bool cast_on_items(spell_s id, int level, creature* caster, bool whole_party, int count, const char* say_success[3], const char* say_fail) {
-//	itema result;
-//	if(whole_party) {
-//		for(auto v : party) {
-//			auto p = v.getcreature();
-//			if(!p)
-//				continue;
-//			p->select(result);
-//		}
-//	} else
-//		caster->select(result);
-//	auto pb = result.data;
-//	for(auto p : result) {
-//		if(!p->cast(id, level, false))
-//			continue;
-//		*pb++ = p;
-//	}
-//	result.count = pb - result.data;
-//	zshuffle(result.data, result.count);
-//	if(!result) {
-//		if(say_fail)
-//			caster->say(say_fail);
-//		return false;
-//	}
-//	caster->say(id);
-//	for(auto p : result) {
-//		if(count-- <= 0)
-//			break;
-//		p->cast(id, level, true);
-//		if(say_success) {
-//			char temp[260]; stringbuilder sb(temp); p->getname(sb);
-//			auto pt = say_success[rand() % 3];
-//			caster->say(pt, temp);
-//		}
-//	}
-//	return true;
-//}
+static bool cast_on_items(spell_s id, int level, creature* caster, itema& result) {
+	auto& si = bsdata<spelli>::elements[id];
+	auto count = si.effect.damage.roll();
+	if(!count)
+		count = 1;
+	auto say_success = si.talk;
+	auto pb = result.data;
+	for(auto p : result) {
+		if(!p->cast(id, level, false))
+			continue;
+		*pb++ = p;
+	}
+	result.count = pb - result.data;
+	zshuffle(result.data, result.count);
+	if(!result)
+		return false;
+	for(auto p : result) {
+		if(count-- <= 0)
+			break;
+		p->cast(id, level, true);
+		if(say_success) {
+			char temp[260]; stringbuilder sb(temp); p->getname(sb);
+			auto pt = say_success[rand() % 3];
+			caster->say(pt, temp);
+		}
+	}
+	return true;
+}
+
+static bool cast_on_party_items(spell_s id, int level, creature* caster) {
+	itema result;
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		p->select(result);
+	}
+	return cast_on_items(id, level, caster, result);
+}
+
+static bool cast_on_ally_items(spell_s id, int level, creature* caster, creature* target) {
+	itema result;
+	target->select(result);
+	return cast_on_items(id, level, caster, result);
+}
+
+static bool cast_on_own_items(spell_s id, int level, creature* caster) {
+	itema result;
+	caster->select(result);
+	return cast_on_items(id, level, caster, result);
+}
 
 spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
@@ -60,12 +74,12 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Detect Magic", {1, 1}, TargetAllAlly, {DetectMagic, DurationTurn}},
 {"Cause Fear", {3, 1}, TargetAllClose, {Fear, Duration1PerLevel, SaveNegate}},
 {"Feather Fall", {1, 0}, TargetAlly, {FeatherFall, DurationTurnPerLevel}},
-{"Identify", {1, 0}, TargetAlly, {Identify}},
+{"Identify", {1, 0}, TargetAllyItems, {Identify}, {}, {"I know! It's a %1.", "Wait a minute! It's %1.", "Very well! This is %1"}},
 {"Mage Armor", {1, 0}, TargetSelf, {MageArmor, Duration8Hours}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, Instant, NoSave, 0, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
-{"Mending", {1, 0}, TargetSelf, {Mending}},
+{"Mending", {1, 0}, TargetItems, {Mending, Instant, NoSave, 0, {1, 3, 1}}, {}, {"%1 as a new", "%1 is fixed", "%1 is repaired"}},
 {"Prot. from Evil", {1, 1}, TargetAlly, {ProtectionFromEvil, DurationTurn}},
-{"Purify food", {0, 1}, TargetAllAlly, {PurifyFood}},
+{"Purify food", {0, 1}, TargetAllAlly, {PurifyFood, Instant, NoSave, 0, {100}}, {}, {"%1 is purified", "%1 clean from poison", "%1 is safe to eat"}},
 {"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationHour}},
 {"Resist Cold", {0, 1}, TargetAlly, {ResistColdSpell, DurationTurnPerLevel}},
 {"Shield", {1, 0}, TargetSelf, {ShieldSpell, Duration5PerLevel}},
@@ -94,7 +108,7 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Cure Disease", {0, 3}, TargetAlly, {CureDisease}},
 {"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
 {"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
-{"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}},
+{"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}, {}, {"%1 is cramble to dust", "%1 is uncursed", "%1 trun to ashes"}},
 {"Remove paralizes", {0, 3}, TargetAllAlly, {RemoveParalizes}},
 // 4 - level
 {"Cure Serious Wounds", {0, 4}, TargetAlly, {Heal, Instant, NoSave, 0, {2, 8, 1}}},
@@ -214,6 +228,22 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		}
 		target->apply(id, level, 0);
 		break;
+	case TargetItems:
+		say(id);
+		cast_on_own_items(id, level, this);
+		break;
+	case TargetAllAllyItems:
+		say(id);
+		cast_on_party_items(id, level, this);
+		break;
+	case TargetAllyItems:
+		if(!target)
+			target = choosehero();
+		if(!target)
+			return false;
+		say(id);
+		cast_on_ally_items(id, level, this, target);
+		break;
 	}
 	if(wand_magic == 0) {
 		if(get(id) > 0)
@@ -255,9 +285,6 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 			return;
 		ei.effect.apply(this, level);
 		break;
-	case Identify:
-		identify(true);
-		break;
 	case Knock:
 		if(true) {
 			auto index = getindex();
@@ -275,12 +302,6 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 		break;
 	case LayOnHands:
 		damage(Heal, 2 * level);
-		break;
-	case Mending:
-		mending(true);
-		break;
-	case PurifyFood:
-		puryfyfood(true);
 		break;
 	case RemoveCurse:
 		uncurse(true);

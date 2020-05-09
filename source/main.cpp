@@ -120,7 +120,7 @@ static void identify_all_party() {
 		auto p = v.getcreature();
 		if(!p)
 			continue;
-		p->identifyall();
+		p->enchant(Identify, 1);
 	}
 }
 
