@@ -305,21 +305,21 @@ static unsigned char find_power(const aref<enchantmenti>& source, variant v) {
 
 rarity_s item::getrandomrarity(int level) {
 	static int source[][Artifact] = {{},
-	{50, 80, 00, 00}, // level 1
-	{46, 77, 00, 00},
-	{41, 74, 99, 00},
-	{37, 71, 97, 99},
-	{33, 68, 95, 99}, // level 5
-	{30, 66, 92, 98},
-	{27, 64, 90, 98},
-	{26, 62, 88, 97},
-	{25, 60, 86, 96},
-	{24, 58, 84, 95}, // level 10
-	{23, 56, 82, 94},
-	{22, 55, 80, 93},
-	{21, 54, 78, 92},
-	{20, 53, 76, 91},
-	{20, 52, 74, 90}, // Level 15
+	{75, 95, 00, 00}, // level 1
+	{70, 90, 00, 00},
+	{65, 85, 99, 00},
+	{60, 80, 97, 00},
+	{55, 75, 95, 99}, // level 5
+	{50, 70, 92, 98},
+	{45, 65, 90, 98},
+	{40, 60, 88, 97},
+	{35, 55, 86, 96},
+	{30, 50, 84, 95}, // level 10
+	{25, 46, 82, 94},
+	{21, 42, 80, 93},
+	{18, 38, 78, 92},
+	{16, 34, 76, 91},
+	{14, 30, 74, 90}, // Level 15
 	};
 	int minimum = 10;
 	int maximum = sizeof(source) / sizeof(source[0]);
@@ -427,10 +427,11 @@ void item::get(combati& result, const creature* enemy) const {
 		result.damage = wi.damage_large;
 	else
 		result.damage = wi.damage;
+	auto magic_bonus = getmagic();
 	result.type = wi.type;
 	result.attack = wi.attack;
-	result.bonus += wi.bonus + get(OfAccuracy) + getmagic();
-	result.damage.b += get(Bludgeon) + getmagic();
+	result.bonus += wi.bonus + get(OfAccuracy) + magic_bonus;
+	result.damage.b += get(Bludgeon) + magic_bonus;
 	if(is(Deadly))
 		result.critical_multiplier++;
 	if(is(Quick))
@@ -462,7 +463,7 @@ void item::getname(stringbuilder& sc) const {
 				sc.adds("of %1", pe->power.getname());
 			else if(pe->magic) {
 				auto magic = getmagic();
-				sc.adds("%1i", magic);
+				sc.add("%+1i", magic);
 			}
 		}
 	}

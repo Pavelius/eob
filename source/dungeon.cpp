@@ -788,6 +788,20 @@ void dungeon::rotate(direction_s direction) {
 	hearnoises(*this);
 }
 
+void dungeon::clearboost() {
+	auto pb = bsdata<boosti>::elements;
+	for(auto& e : bsdata<boosti>()) {
+		auto p = e.owner.getcreature();
+		if(!p)
+			continue;
+		if(p->ishero())
+			*pb++ = e;
+		else
+			p->update(e);
+	}
+	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
+}
+
 void dungeon::move(direction_s direction) {
 	int i = game.getcamera();
 	int i1 = to(i, to(game.getdirection(), direction));
@@ -800,7 +814,7 @@ void dungeon::move(direction_s direction) {
 	switch(t) {
 	case CellStairsUp:
 		mslog("Going up");
-		creature::clearboost();
+		clearboost();
 		write();
 		if(level <= 1) {
 			// Leave dungeon
@@ -809,23 +823,26 @@ void dungeon::move(direction_s direction) {
 		}
 		game.enter(overland_index, level - 1);
 		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
+		game.write();
 		break;
 	case CellStairsDown:
 		mslog("Going down");
-		creature::clearboost();
+		clearboost();
 		write();
 		game.enter(overland_index, level + 1);
 		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
+		game.write();
 		break;
 	case CellPit:
 		mslog("You falling down!");
-		creature::clearboost();
+		clearboost();
 		write();
 		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
 		falling_damage();
 		game.enter(overland_index, level + 1);
 		falling_landing();
+		game.write();
 		break;
 	default:
 		mslog(0);

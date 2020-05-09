@@ -285,15 +285,12 @@ creature* gamei::getvalid(creature* pc, class_s type) const {
 }
 
 creature* gamei::getcreature(const item* itm) const {
-	for(auto v : party) {
-		auto p = v.getcreature();
-		if(!p)
-			break;
-		auto p1 = p->getitem(FirstInvertory);
-		auto p2 = p->getitem(LastInvertory);
-		if(itm >= p1 && itm <= p2)
-			return p;
-	}
+	if((void*)itm >= location.monsters
+		&& (void*)itm < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
+		return location.monsters + ((creature*)itm - location.monsters);
+	if((void*)itm >= bsdata<creature>::elements
+		&& (void*)itm < bsdata<creature>::source.end())
+		return bsdata<creature>::elements + ((creature*)itm - bsdata<creature>::elements);
 	return 0;
 }
 

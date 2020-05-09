@@ -94,12 +94,21 @@ bool messagei::isallow() const {
 	return parcipants.getcount() > 0;
 }
 
-const messagei* messagei::find(int id) const {
+const messagei* messagei::find(int id, bool test_allow) const {
 	if(!this || !id)
 		return 0;
 	for(auto p = this; *p; p++) {
-		if(p->id == id)
+		if(p->id == id) {
+			if(test_allow) {
+				while(*p && p->id==id) {
+					if(p->isallow())
+						return p;
+					p++;
+				}
+				return 0;
+			}
 			return p;
+		}
 	}
 	return 0;
 }
@@ -135,11 +144,10 @@ void messagei::apply() const {
 	}
 }
 
-void messagei::choose(bool border) const {
+void messagei::choose(bool border, int next_id) const {
 	draw::animation::update();
-	auto next_id = 1;
 	while(next_id) {
-		auto p = find(next_id);
+		auto p = find(next_id, true);
 		if(!p)
 			break;
 		answers aw;

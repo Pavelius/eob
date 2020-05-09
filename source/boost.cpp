@@ -7,20 +7,14 @@ void boosti::clear() {
 }
 
 static boosti* find_boost(variant id, variant owner) {
-	auto pb = bsdata<boosti>::elements;
-	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
-	for(; pb < pe; pb++) {
-		if(!*pb)
-			break;
-		if(pb->owner == owner && pb->id == id)
-			return pb;
+	for(auto& e : bsdata<boosti>()) {
+		if(e.owner == owner && e.id == id)
+			return &e;
 	}
-	if(pb == pe)
-		return 0;
+	auto pb = bsdata<boosti>::add();
+	memset(pb, 0, sizeof(*pb));
 	pb->owner = owner;
 	pb->id = id;
-	if(pb + 1 != pe)
-		pb[1].clear();
 	return pb;
 }
 
@@ -45,19 +39,15 @@ void creature::addboost(variant id, unsigned duration, char value) const {
 
 void creature::removeboost(variant v) {
 	variant owner = this;
-	auto pb = bsdata<boosti>::elements;
-	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
+	auto pb = bsdata<boosti>::begin();
 	for(auto& e : bsdata<boosti>::elements) {
-		if(!e)
-			break;
 		if(e.id == v && e.owner == owner) {
 			update(e);
 			continue;
 		}
 		*pb++ = e;
 	}
-	if(pb != pe)
-		pb->clear();
+	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
 }
 
 void creature::update(const boosti& e) {
@@ -68,31 +58,10 @@ void creature::update(const boosti& e) {
 	}
 }
 
-void creature::clearboost() {
-	auto pb = bsdata<boosti>::elements;
-	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
-	for(auto& e : bsdata<boosti>::elements) {
-		if(!e)
-			break;
-		auto p = e.owner.getcreature();
-		if(!p)
-			continue;
-		if(p->ishero())
-			*pb++ = e;
-		else
-			p->update(e);
-	}
-	if(pb != pe)
-		pb->clear();
-}
-
 void creature::update_boost() {
 	auto rounds = game.getrounds();
-	auto pb = bsdata<boosti>::elements;
-	auto pe = bsdata<boosti>::elements + (sizeof(bsdata<boosti>::elements) / sizeof(bsdata<boosti>::elements[0]));
-	for(auto& e : bsdata<boosti>::elements) {
-		if(!e)
-			break;
+	auto pb = bsdata<boosti>::begin();
+	for(auto& e : bsdata<boosti>()) {
 		if(e.round < rounds) {
 			// TODO: apply boost
 			auto p = e.owner.getcreature();
@@ -102,6 +71,5 @@ void creature::update_boost() {
 		} else
 			*pb++ = e;
 	}
-	if(pb != pe)
-		pb->clear();
+	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
 }

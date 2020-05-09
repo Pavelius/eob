@@ -530,8 +530,8 @@ struct messagei {
 	constexpr explicit operator bool() const { return id != 0; }
 	void				apply() const;
 	bool				isallow() const;
-	void				choose(bool border) const;
-	const messagei*		find(int id) const;
+	void				choose(bool border, int next_id = 1) const;
+	const messagei*		find(int id, bool test_allow) const;
 };
 class itema : public adat<item*, 48> {
 public:
@@ -600,7 +600,6 @@ public:
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
-	static void			clearboost();
 	bool				canspeak(race_s language) const;
 	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
@@ -819,6 +818,7 @@ struct dungeon {
 	void				attack(const combati& ci, creature* enemy) const;
 	void				automap(bool fow);
 	void				clear();
+	void				clearboost();
 	bool				create(rect& rc, int w, int h) const;
 	static void			create(short unsigned index, const sitei* site, bool interactive = false);
 	void				dropitem(short unsigned index, item rec, int side);
