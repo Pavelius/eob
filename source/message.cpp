@@ -5,6 +5,8 @@ static void trade_creatures(const selli* goods) {
 	items.select();
 	items.forsale(false);
 	auto pi = items.choose("Sell which item?", true);
+	if(!pi)
+		return;
 	auto cost = pi->getcost();
 	for(int i = 3; cost > 0; i--) {
 		if(i == 0)
