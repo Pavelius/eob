@@ -1,5 +1,7 @@
 #include "main.h"
 
+static reaction_s current_reaction;
+
 static void trade_creatures(const selli* goods) {
 	itema items;
 	items.select();

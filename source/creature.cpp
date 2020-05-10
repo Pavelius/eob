@@ -372,7 +372,7 @@ void creature::equip(item it) {
 
 int	creature::getbonus(variant id, wear_s slot) const {
 	if(kind) {
-		if(slot == RightHand && bsdata<monsteri>::elements[type].is(id))
+		if(slot == RightHand && bsdata<monsteri>::elements[kind].is(id))
 			return 2;
 		return 0;
 	}
@@ -493,7 +493,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// RULE: vampiric ability allow user to drain blood and regain own HP
 			auto vampirism = getbonus(OfVampirism, slot);
 			if(vampirism) {
-				auto hits_healed = xrand(1, 4) + vampirism;
+				auto hits_healed = xrand(1, 6) + vampirism;
 				if(hits_healed > hits)
 					hits_healed = hits;
 				this->damage(Heal, hits_healed);

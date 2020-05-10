@@ -29,9 +29,9 @@ static void test_dungeon(resource_s type) {
 	location.level = 1;
 	draw::settiles(type);
 	test_room2(x, y);
-	//location.addmonster(Wight, location.getindex(x, y - 1), 0, Down);
-	//location.addmonster(Wight, location.getindex(x, y - 1), 3, Down);
-	location.addmonster(Shadow, location.getindex(x, y - 1), 2, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 0, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 3, Down);
+	location.addmonster(Wight, location.getindex(x, y - 1), 2, Down);
 	location.stat.up.index = location.getindex(x, y);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
@@ -301,14 +301,16 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	//debug_dungeon2();
-	//return;
-	if(game.read())
-		setnext(adventure);
+	if(true)
+		debug_dungeon2();
 	else {
+		if(game.read())
+			setnext(adventure);
+		else {
 #ifdef _DEBUG
-		debug_dungeon1();
+			debug_dungeon1();
 #endif // _DEBUG
+		}
 	}
 }
 

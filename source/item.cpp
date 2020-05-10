@@ -578,19 +578,20 @@ void item::setcount(int v) {
 }
 
 bool item::stack(item& v) {
+	unsigned char maximum_count = 98;
 	if(!is(Countable) || type != v.type || subtype != v.subtype || flags != v.flags)
 		return false;
 	int c1 = charges;
 	int c2 = v.charges;
 	auto result = false;
 	c1 += c2 + 1;
-	if(c1 <= 0xFF) {
+	if(c1 <= maximum_count) {
 		charges = c1;
 		v.clear();
 		result = true;
 	} else {
-		charges = 0xFF;
-		v.charges = c1 - 0xFF - 1;
+		charges = maximum_count;
+		v.charges = c1 - maximum_count - 1;
 	}
 	return result;
 }
