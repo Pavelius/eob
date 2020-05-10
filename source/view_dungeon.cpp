@@ -1269,3 +1269,15 @@ void draw::animation::render(int pause, bool show_screen, item* current_item) {
 		sleep(pause);
 	}
 }
+
+void draw::animation::worldmap(int pause, item* current_item) {
+	background(PLAYFLD);
+	blit(*canvas, 176, 120, 3, 56, 0, *canvas, 176, 64);
+	line(0, 176, 176, 176, colors::black);
+	form({0, 177, 319, 199}, 1, false, false);
+	render_players_info(current_item);
+	if(pause) {
+		redraw();
+		sleep(pause);
+	}
+}

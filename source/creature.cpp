@@ -479,7 +479,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 					hits += damage.roll();
 				}
 				if(wi.weapon) {
-					// RULE: Staff and rods magic use this
+					// RULE: Weapon with spell cast it
 					auto power = wi.weapon->getpower();
 					if(power.type == Spell) {
 						auto spell = (spell_s)power.value;
@@ -980,11 +980,8 @@ const char* creature::getname(char* result, const char* result_maximum) const {
 }
 
 int creature::getenchant(variant id, int bonus) const {
-	if(id.type == Enchant) {
-		if(bsdata<monsteri>::elements[kind].is((enchant_s)id.value))
-			return bonus;
-	}
-	// All bonuses no stack each other
+	if(bsdata<monsteri>::elements[kind].is(id))
+		return bonus;
 	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
 	for(auto s : slots) {
 		if(!wears[s])

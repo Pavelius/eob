@@ -660,7 +660,8 @@ void draw::adventure() {
 				{Ask, 2, {}, "Talk", {3}},
 				{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
 				{}};
-				first_dialog->choose(true);
+				//first_dialog->choose(true);
+				game.worldmap();
 			}
 			break;
 		case Alpha + '1':
@@ -1160,6 +1161,49 @@ void picstore::clear() {
 	for(auto& e : *this)
 		e.value.clear();
 	arem::clear();
+}
+
+indext gamei::worldmap() {
+	const int svx = 176;
+	const int svy = 176;
+	point position = {350, 350};
+	openform();
+	while(ismodal()) {
+		animation::worldmap(0);
+		auto& sf = bitmaps.get("worldmap");
+		point camera;
+		camera.x = position.x - svx / 2;
+		camera.y = position.y - svy / 2;
+		if(camera.x > sf.width - svx)
+			camera.x = sf.width - svx;
+		if(camera.y > sf.height - svy)
+			camera.y = sf.height - svy;
+		if(camera.x < 0)
+			camera.x = 0;
+		if(camera.y < 0)
+			camera.y = 0;
+		blit(*draw::canvas, 0, 0, 176, 176, 0, sf, camera.x, camera.y);
+		auto pt = position - camera;
+		rectf({pt.x - 1, pt.y - 1, pt.x + 2, pt.y + 2}, colors::red);
+		domodal();
+		switch(hot::key) {
+		case KeyLeft: position.x--; break;
+		case KeyRight: position.x++; break;
+		case KeyUp: position.y--; break;
+		case KeyDown: position.y++; break;
+		case KeyEscape: breakmodal(Blocked); break;
+		}
+		if(position.x < 0)
+			position.x = 0;
+		if(position.y < 0)
+			position.y = 0;
+		if(position.x >= sf.width)
+			position.x = sf.width - 1;
+		if(position.y >= sf.height)
+			position.y = sf.height - 1;
+	}
+	closeform();
+	return Blocked;
 }
 
 item* itema::choose(const char* title, bool cancel_button) {

@@ -940,6 +940,7 @@ public:
 	void				setcamera(short unsigned index, direction_s direction = Center);
 	void				thrown(item* itm);
 	bool				read();
+	indext				worldmap();
 	void				write();
 };
 struct answers {
@@ -974,6 +975,7 @@ void					damage(creature* target, int hits);
 void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
 int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
+void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
