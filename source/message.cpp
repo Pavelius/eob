@@ -148,7 +148,8 @@ void messagei::apply() const {
 	}
 }
 
-void messagei::choose(bool border, int next_id) const {
+void messagei::choose(bool border, int next_id, reaction_s reaction) const {
+	creature::setcom(reaction);
 	draw::animation::update();
 	while(next_id) {
 		auto p = find(next_id, true);

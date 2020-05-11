@@ -3,10 +3,10 @@
 static selli dirty_sell[3] = {BlueRing, BluePotion, RationIron};
 static selli weapon_sell[3] = {{ArmorPlate, Uncommon}, {SwordLong, Rare}, BluePotion};
 
-static messagei standart_dialog[] = {{Say, 1, {}, "\"Who is there? How you dig so deep? Are you from Master?\""},
+static messagei standart_dialog[] = {{Say, 1, {Friendly}, "\"Welcome friends!\"", {3}},
+{Say, 1, {}, "\"Who is there? How you dig so deep? Are you from Master?\""},
 {Ask, 1, {Charisma}, "Lie", {4, 3}},
 {Ask, 1, {StartCombat}, "Attack"},
-{Say, 2, {}, "\"Welcome friends!\"", {3}},
 {Say, 3, {}, "\"Do you want something?\""},
 {Ask, 3, {Trade, LeaveAway}, "Trade", {}, {}, dirty_sell},
 {Ask, 3, {LeaveAway}, "Leave"},
@@ -20,12 +20,9 @@ void creature::encounter(reaction_s id) {
 		return;
 	switch(id) {
 	case Cautious:
-		location.turnto(game.getcamera(), to(direction, Down));
-		standart_dialog->choose(false, 1);
-		break;
 	case Friendly:
 		location.turnto(game.getcamera(), to(direction, Down));
-		standart_dialog->choose(false, 2);
+		standart_dialog->choose(false, 1, id);
 		break;
 	}
 }

@@ -188,14 +188,6 @@ resource_s creature::getres() const {
 	return NONE;
 }
 
-static int getweapon(wear_s weapon) {
-	switch(weapon) {
-	case LeftHand: return 1;
-	case Head: return 2;
-	default: return 0;
-	}
-}
-
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.attack = OneAttack;
 	auto hd = gethd();
@@ -2001,6 +1993,16 @@ bool creature::haveforsale() const {
 	return items.getcount() > 0;
 }
 
+static reaction_s current_reaction;
+
+void creature::setcom(reaction_s v) {
+	current_reaction = v;
+}
+
+reaction_s creature::getcomreaction() {
+	return current_reaction;
+}
+
 bool creature::ismatch(const variant v) const {
 	switch(v.type) {
 	case Alignment: return getalignment() == v.value;
@@ -2010,8 +2012,6 @@ bool creature::ismatch(const variant v) const {
 		case HealParty: return gethits() < gethitsmaximum();
 		case RessurectBones: return have(Bones);
 		case Trade: return haveforsale();
-		case RemoveItem1: case RemoveItem2: case RemoveItem3:
-		case RemoveItemS1: case RemoveItemS2: return have(game.items[v.value - RemoveItem1]);
 		default: return true;
 		}
 	case Class: return get((class_s)v.value) > 0;
@@ -2019,7 +2019,7 @@ bool creature::ismatch(const variant v) const {
 	case Race: return getrace() == v.value;
 	case Item: return have((item_s)v.value);
 	case Spell: return isknown((spell_s)v.value);
-	case Reaction: return getreaction() == v.value;
+	case Reaction: return getcomreaction()==(reaction_s)v.value;
 	}
 	return false;
 }

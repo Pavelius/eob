@@ -224,8 +224,7 @@ enum action_s : unsigned char {
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
 	DeathSave, TrapDamage,
-	AddItem1, AddItem2, AddItem3, AddItemS1, AddItemS2,
-	RemoveItem1, RemoveItem2, RemoveItem3, RemoveItemS1, RemoveItemS2,
+	AddItem, RemoveItem,
 };
 enum speech_s : unsigned char {
 	Say, Ask,
@@ -531,7 +530,7 @@ struct messagei {
 	constexpr explicit operator bool() const { return id != 0; }
 	void				apply() const;
 	bool				isallow() const;
-	void				choose(bool border, int next_id = 1) const;
+	void				choose(bool border, int next_id = 1, reaction_s reaction = Indifferent) const;
 	const messagei*		find(int id, bool test_allow) const;
 };
 class itema : public adat<item*, 48> {
@@ -626,6 +625,7 @@ public:
 	class_s				getclass() const { return type; }
 	static class_s		getclass(class_s id, int index);
 	int					getclasscount() const;
+	static reaction_s	getcomreaction();
 	direction_s			getdirection() const;
 	int					getenchant(variant id, int bonus) const;
 	int					getexperience() const { return experience; }
@@ -722,6 +722,7 @@ public:
 	void				setmoved(bool value);
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
+	static void			setcom(reaction_s v);
 	bool				setweapon(item_s v, int charges);
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
@@ -898,7 +899,6 @@ public:
 };
 struct adventurei {
 	char				name[32];
-	item_s				items[5];
 	int					reward;
 	sitei				levels[8];
 };
