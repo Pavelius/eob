@@ -941,6 +941,30 @@ void draw::chooseopt(const menu* source) {
 	closeform();
 }
 
+void draw::chooseopt(const menu* source, unsigned count, const char* title) {
+	openform();
+	while(ismodal()) {
+		background(PLAYFLD);
+		if(true) {
+			draw::state push;
+			setbigfont();
+			form({0, 0, 22 * 8 + 2, 174}, 2);
+			auto x = 4, y = 6;
+			if(title) {
+				fore = colors::title;
+				textb(6, 6, title);
+				y += 12;
+			}
+			fore = colors::white;
+			for(unsigned i = 0; i<count; i++)
+				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
+		}
+		domodal();
+		navigate(true);
+	}
+	closeform();
+}
+
 const int dx = 4;
 
 static rect getformpos(const char* text, int height = 0) {

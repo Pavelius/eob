@@ -4,9 +4,9 @@ using namespace draw;
 
 callback	next_proc;
 
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}, {Wight}},
+static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
 {{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}},
+{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
 {}};
 
 #ifdef _DEBUG
@@ -301,7 +301,7 @@ static void debug_dungeon2() {
 
 static void load_game() {
 	draw::resetres();
-	if(true)
+	if(false)
 		debug_dungeon2();
 	else {
 		if(game.read())
@@ -329,9 +329,18 @@ void draw::options() {
 	chooseopt(elements);
 }
 
+static void choose_monster() {
+}
+
+static void edit_game() {
+	static menu elements[] = {{choose_monster, "Monsters"}};
+	chooseopt(elements, 1, "Choose action");
+}
+
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
+	{edit_game, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);

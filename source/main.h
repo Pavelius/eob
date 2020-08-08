@@ -980,6 +980,7 @@ void					update();
 }
 void					adventure();
 void					chooseopt(const menu* source);
+void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
 void					mainmenu();
 void					options();
