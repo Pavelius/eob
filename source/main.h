@@ -239,6 +239,7 @@ typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
+typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -979,6 +980,7 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
+void*					choose(array& source, const char* title, fngetname pgetname, bool exclude_first);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);

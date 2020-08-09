@@ -332,9 +332,18 @@ void draw::options() {
 static void choose_monster() {
 }
 
+static const char* getitemname(void* object, stringbuilder& sb) {
+	return ((itemi*)object)->name;
+}
+
+static void choose_items() {
+	choose(bsdata<itemi>::source, "Choose item", getitemname, true);
+}
+
 static void edit_game() {
-	static menu elements[] = {{choose_monster, "Monsters"}};
-	chooseopt(elements, 1, "Choose action");
+	static menu elements[] = {{choose_monster, "Monsters"},
+	{choose_items, "Items"}};
+	chooseopt(elements, 2, "Choose action");
 }
 
 void draw::mainmenu() {

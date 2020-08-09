@@ -290,30 +290,6 @@ void draw::buttont(int x, int y, int width, const cmd& ev, const char* name, con
 	textb(rc.x2 - w2, rc.y1, name2);
 }
 
-int draw::button(int x, int y, int width, const cmd& ev, const char* name, int key) {
-	draw::state push;
-	if(width == -1)
-		width = textw(name) + 3 * 2;
-	rect rc = {x, y, x + width, y + draw::texth() + 4};
-	form(rc);
-	focusing(rc, ev.focus);
-	auto run = false;
-	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
-		flags |= Focused;
-		fore = colors::focus;
-		if(hot::key == KeyEnter)
-			run = true;
-	}
-	if(key && key == hot::key)
-		run = true;
-	rc.offset(3, 2);
-	textb(rc, name, flags);
-	if(run)
-		ev.execute();
-	return draw::texth();
-}
-
 void draw::greenbar(rect rc, int vc, int vm) {
 	if(!vc || !vm || vc <= 0)
 		return;
@@ -941,30 +917,6 @@ void draw::chooseopt(const menu* source) {
 	closeform();
 }
 
-void draw::chooseopt(const menu* source, unsigned count, const char* title) {
-	openform();
-	while(ismodal()) {
-		background(PLAYFLD);
-		if(true) {
-			draw::state push;
-			setbigfont();
-			form({0, 0, 22 * 8 + 2, 174}, 2);
-			auto x = 4, y = 6;
-			if(title) {
-				fore = colors::title;
-				textb(6, 6, title);
-				y += 12;
-			}
-			fore = colors::white;
-			for(unsigned i = 0; i<count; i++)
-				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
-		}
-		domodal();
-		navigate(true);
-	}
-	closeform();
-}
-
 const int dx = 4;
 
 static rect getformpos(const char* text, int height = 0) {
@@ -1260,4 +1212,161 @@ item* itema::choose(const char* title, bool cancel_button) {
 	}
 	closeform();
 	return (item*)getresult();
+}
+
+int draw::button(int x, int y, int width, const cmd& ev, const char* name, int key) {
+	draw::state push;
+	if(width == -1)
+		width = textw(name) + 3 * 2;
+	rect rc = {x, y, x + width, y + draw::texth() + 4};
+	form(rc);
+	focusing(rc, ev.focus);
+	auto run = false;
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	if(key && key == hot::key)
+		run = true;
+	rc.offset(3, 2);
+	textb(rc, name, flags);
+	if(run)
+		ev.execute();
+	return draw::texth();
+}
+
+static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned key = 0) {
+	auto w = textw(title) + 3*2;
+	button(x, y, w, proc, title, key);
+	return w + 2;
+}
+
+class choosei {
+	void**				source;
+	int					start, maximum;
+	static const int	perpage = 12;
+	static fngetname	compare_callback;
+	static void choose_item() {
+		breakmodal(hot::param);
+	}
+	void correct() {
+		if(start + perpage > maximum)
+			start = maximum - perpage;
+		if(start < 0)
+			start = 0;
+	}
+	static void button_next() {
+		auto p = (choosei*)hot::param;
+		p->start += p->perpage - 2;
+		p->correct();
+	}
+	static void button_prev() {
+		auto p = (choosei*)hot::param;
+		p->start -= p->perpage;
+		p->correct();
+	}
+	static int compare(const void* v1, const void* v2) {
+		auto p1 = *((void**)v1);
+		auto p2 = *((void**)v2);
+		char t1[260]; stringbuilder sb1(t1);
+		auto s1 = compare_callback(p1, sb1);
+		if(!s1)
+			s1 = "";
+		char t2[260]; stringbuilder sb2(t2);
+		auto s2 = compare_callback(p2, sb2);
+		if(!s2)
+			s2 = "";
+		return strcmp(s1, s2);
+	}
+public:
+	constexpr choosei(void** source, unsigned maximum) : source(source), maximum(maximum),
+		start(0) {}
+	void sort(fngetname pgetname) {
+		compare_callback = pgetname;
+		qsort(source, maximum, sizeof(source[0]), compare);
+	}
+	void* choose(const char* title, fngetname pgn) {
+		openform();
+		while(ismodal()) {
+			if(true) {
+				draw::state push;
+				setbigfont();
+				form({0, 0, 320, 200}, 2);
+				auto x = 4, y = 6;
+				if(title) {
+					fore = colors::title;
+					textb(6, 6, title);
+					y += 11;
+				}
+				fore = colors::white;
+				for(auto i = start; i < maximum; i++) {
+					char temp[260]; stringbuilder sb(temp);
+					auto pt = source[i];
+					auto pn = pgn(pt, sb);
+					if(!pn)
+						pn = "None";
+					y += button(4, y, 166, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
+					if(y >= 200 - 16 * 2)
+						break;
+				}
+			}
+			auto y = 200 - 12 - 4;
+			auto x = 4;
+			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+			if(start + perpage < maximum)
+				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
+			if(start > 0)
+				x += buttonwb(x, y, "Prev", cmd(button_prev, (int)this, (int)button_prev), KeyPageUp);
+			domodal();
+			navigate(true);
+		}
+		closeform();
+		return (void*)getresult();
+	}
+};
+fngetname choosei::compare_callback;
+
+void* draw::choose(array& source, const char* title, fngetname pgetname, bool exclude_first) {
+	void* storage[256];
+	auto p = storage;
+	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
+	auto sm = source.getcount();
+	for(unsigned i = 0; i < sm; i++) {
+		if(exclude_first && i == 0)
+			continue;
+		if(p < pe)
+			*p++ = source.ptr(i);
+	}
+	choosei control(storage, p-storage);
+	control.sort(pgetname);
+	return control.choose(title, pgetname);
+}
+
+void draw::chooseopt(const menu* source, unsigned count, const char* title) {
+	openform();
+	while(ismodal()) {
+		if(true) {
+			draw::state push;
+			setbigfont();
+			form({0, 0, 320, 200}, 2);
+			auto x = 4, y = 6;
+			if(title) {
+				fore = colors::title;
+				textb(6, 6, title);
+				y += 12;
+			}
+			fore = colors::white;
+			for(unsigned i = 0; i < count; i++)
+				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
+		}
+		auto y = 200 - 12 - 4;
+		auto x = 4;
+		x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+		domodal();
+		navigate(true);
+	}
+	closeform();
 }

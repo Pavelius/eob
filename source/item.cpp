@@ -295,6 +295,7 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 {"Flame hand", {81}, 0, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
 };
 assert_enum(item, LastItem);
+INSTELEM(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
 
 static unsigned char find_power(const aref<enchantmenti>& source, variant v) {
