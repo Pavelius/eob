@@ -1244,9 +1244,10 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 	return w + 2;
 }
 
-class choosei {
+class choose_control {
 	void**				source;
 	int					start, maximum;
+	fngetname			getname;
 	static const int	perpage = 12;
 	static fngetname	compare_callback;
 	static void choose_item() {
@@ -1259,12 +1260,12 @@ class choosei {
 			start = 0;
 	}
 	static void button_next() {
-		auto p = (choosei*)hot::param;
+		auto p = (choose_control*)hot::param;
 		p->start += p->perpage - 2;
 		p->correct();
 	}
 	static void button_prev() {
-		auto p = (choosei*)hot::param;
+		auto p = (choose_control*)hot::param;
 		p->start -= p->perpage;
 		p->correct();
 	}
@@ -1282,13 +1283,14 @@ class choosei {
 		return strcmp(s1, s2);
 	}
 public:
-	constexpr choosei(void** source, unsigned maximum) : source(source), maximum(maximum),
-		start(0) {}
-	void sort(fngetname pgetname) {
-		compare_callback = pgetname;
+	constexpr choose_control(void** source, unsigned maximum, fngetname getname) : source(source), maximum(maximum),
+		start(0),
+		getname(getname) {}
+	void sort() {
+		compare_callback = getname;
 		qsort(source, maximum, sizeof(source[0]), compare);
 	}
-	void* choose(const char* title, fngetname pgn) {
+	void* choose(const char* title) {
 		openform();
 		while(ismodal()) {
 			if(true) {
@@ -1305,7 +1307,7 @@ public:
 				for(auto i = start; i < maximum; i++) {
 					char temp[260]; stringbuilder sb(temp);
 					auto pt = source[i];
-					auto pn = pgn(pt, sb);
+					auto pn = getname(pt, sb);
 					if(!pn)
 						pn = "None";
 					y += button(4, y, 166, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
@@ -1327,7 +1329,7 @@ public:
 		return (void*)getresult();
 	}
 };
-fngetname choosei::compare_callback;
+fngetname choose_control::compare_callback;
 
 void* draw::choose(array& source, const char* title, fngetname pgetname, bool exclude_first) {
 	void* storage[256];
@@ -1340,9 +1342,9 @@ void* draw::choose(array& source, const char* title, fngetname pgetname, bool ex
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
-	choosei control(storage, p-storage);
-	control.sort(pgetname);
-	return control.choose(title, pgetname);
+	choose_control control(storage, p-storage, pgetname);
+	control.sort();
+	return control.choose(title);
 }
 
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
