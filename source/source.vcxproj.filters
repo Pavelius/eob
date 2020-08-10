@@ -221,5 +221,8 @@
     <ClCompile Include="effect.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="form.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -27,6 +27,7 @@ monsteri bsdata<monsteri>::elements[] = {{"No monster"},
 {"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}}
 };
 assert_enum(monster, Zombie);
+INSTELEM(monsteri);
 
 bool monsteri::is(variant id) const {
 	return enchantments[0] == id

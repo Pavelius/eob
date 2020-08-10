@@ -329,15 +329,20 @@ void draw::options() {
 	chooseopt(elements);
 }
 
-static void choose_monster() {
-}
-
 static const char* getitemname(void* object, stringbuilder& sb) {
 	return ((itemi*)object)->name;
 }
 
 static void choose_items() {
-	choose(bsdata<itemi>::source, "Choose item", getitemname, true);
+	choose(bsdata<itemi>::source, "Choose item", 166, getitemname, true);
+}
+
+static const char* getmonstername(void* object, stringbuilder& sb) {
+	return ((monsteri*)object)->name;
+}
+
+static void choose_monster() {
+	choose(bsdata<monsteri>::source, "Choose monster", 140, getmonstername, true);
 }
 
 static void edit_game() {
@@ -364,7 +369,7 @@ int main(int argc, char* argv[]) {
 	//return 0;
 	//srand(2112);
 #ifdef _DEBUG
-	util_main();
+	//util_main();
 #endif // _DEBUG
 	draw::initialize();
 #ifdef _DEBUG

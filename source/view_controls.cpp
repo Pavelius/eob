@@ -1246,7 +1246,7 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 
 class choose_control {
 	void**				source;
-	int					start, maximum;
+	int					start, maximum, width;
 	fngetname			getname;
 	static const int	perpage = 12;
 	static fngetname	compare_callback;
@@ -1283,8 +1283,8 @@ class choose_control {
 		return strcmp(s1, s2);
 	}
 public:
-	constexpr choose_control(void** source, unsigned maximum, fngetname getname) : source(source), maximum(maximum),
-		start(0),
+	constexpr choose_control(void** source, unsigned maximum, int width, fngetname getname) : source(source), maximum(maximum),
+		start(0), width(width),
 		getname(getname) {}
 	void sort() {
 		compare_callback = getname;
@@ -1310,7 +1310,7 @@ public:
 					auto pn = getname(pt, sb);
 					if(!pn)
 						pn = "None";
-					y += button(4, y, 166, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
+					y += button(4, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
 					if(y >= 200 - 16 * 2)
 						break;
 				}
@@ -1331,7 +1331,7 @@ public:
 };
 fngetname choose_control::compare_callback;
 
-void* draw::choose(array& source, const char* title, fngetname pgetname, bool exclude_first) {
+void* draw::choose(array& source, const char* title, int width, fngetname pgetname, bool exclude_first) {
 	void* storage[256];
 	auto p = storage;
 	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
@@ -1342,7 +1342,7 @@ void* draw::choose(array& source, const char* title, fngetname pgetname, bool ex
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
-	choose_control control(storage, p-storage, pgetname);
+	choose_control control(storage, p-storage, width, pgetname);
 	control.sort();
 	return control.choose(title);
 }

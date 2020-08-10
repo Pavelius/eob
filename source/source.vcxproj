@@ -153,8 +153,13 @@
     <ClCompile Include="dungeon_generate.cpp" />
     <ClCompile Include="duration.cpp" />
     <ClCompile Include="effect.cpp" />
-    <ClCompile Include="eob3_util.cpp" />
-    <ClCompile Include="eob_util.cpp" />
+    <ClCompile Include="eob3_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="eob_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="form.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="geometry.cpp" />
@@ -173,7 +178,9 @@
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="spells.cpp" />
-    <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="sprite_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="string.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="string_value.cpp" />
