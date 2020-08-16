@@ -962,6 +962,10 @@ private:
 	char				buffer[512];
 	stringbuilder		sc;
 };
+struct formi {
+	const char*			name;
+	array*				source;
+};
 namespace draw {
 struct menu {
 	void(*proc)();
@@ -980,7 +984,7 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array& source, const char* title, fngetname pgetname, bool exclude_first);
+void*					choose(array& source, const char* title, int width, fngetname pgetname, bool exclude_first);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
