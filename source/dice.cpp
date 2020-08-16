@@ -11,12 +11,10 @@ int dice::roll(int c, int d) {
 	return result;
 }
 
-const char* dice::print(char* result, const char* result_maximum) const {
-	stringbuilder sc(result, result_maximum);
-	sc.add("%1id%2i", c, d);
+void dice::print(stringbuilder& sb) const {
+	sb.add("%1id%2i", c, d);
 	if(b != 0)
-		sc.add("%+1i", b);
-	return result;
+		sb.add("%+1i", b);
 }
 
 const char* dice::range(char* result, const char* result_maximum) const {

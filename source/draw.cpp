@@ -1271,8 +1271,10 @@ int	draw::text(rect rc, const char* string, unsigned state) {
 	int y1 = rc.y1 + alignedh(rc, string, state);
 	int dy = texth();
 	if(state&TextSingleLine) {
-		text(aligned(x1, rc.width(), state, draw::textw(string)), y1,
-			string, -1, state);
+		draw::state push;
+		setclip(rc);
+		auto w = draw::textw(string);
+		text(aligned(x1, rc.width(), state, w), y1, string, -1, state);
 		return dy;
 	} else {
 		int w1 = rc.width();

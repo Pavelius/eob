@@ -1232,7 +1232,7 @@ int draw::button(int x, int y, int width, const cmd& ev, const char* name, int k
 	if(key && key == hot::key)
 		run = true;
 	rc.offset(3, 2);
-	textb(rc, name, flags);
+	textb(rc, name, flags|TextSingleLine);
 	if(run)
 		ev.execute();
 	return draw::texth();
@@ -1247,8 +1247,8 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 class choose_control {
 	void**				source;
 	int					start, maximum;
-	fngetname			getname;
-	static const int	perpage = 12;
+	fngetname			getname, getdescription;
+	int					perpage;
 	static fngetname	compare_callback;
 	static void choose_item() {
 		breakmodal(hot::param);
@@ -1261,7 +1261,7 @@ class choose_control {
 	}
 	static void button_next() {
 		auto p = (choose_control*)hot::param;
-		p->start += p->perpage - 2;
+		p->start += p->perpage;
 		p->correct();
 	}
 	static void button_prev() {
@@ -1283,14 +1283,14 @@ class choose_control {
 		return strcmp(s1, s2);
 	}
 public:
-	constexpr choose_control(void** source, unsigned maximum, fngetname getname) : source(source), maximum(maximum),
-		start(0),
-		getname(getname) {}
+	constexpr choose_control(void** source, unsigned maximum, fngetname getname, fngetname getdescription) : source(source),
+		maximum(maximum), start(0), perpage(getdescription ? 11 : 11 * 2),
+		getname(getname), getdescription(getdescription) {}
 	void sort() {
 		compare_callback = getname;
 		qsort(source, maximum, sizeof(source[0]), compare);
 	}
-	void* choose(const char* title) {
+	void* choose(const char* title, int width = 154) const {
 		openform();
 		while(ismodal()) {
 			if(true) {
@@ -1304,15 +1304,30 @@ public:
 					y += 11;
 				}
 				fore = colors::white;
+				auto y1 = y;
+				void* current_element = 0;
 				for(auto i = start; i < maximum; i++) {
 					char temp[260]; stringbuilder sb(temp);
 					auto pt = source[i];
 					auto pn = getname(pt, sb);
 					if(!pn)
 						pn = "None";
-					y += button(4, y, 166, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
-					if(y >= 200 - 16 * 2)
-						break;
+					y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
+					if(getfocus() == (int)pt)
+						current_element = pt;
+					if(y >= 200 - 16 * 2) {
+						if(getdescription || (x + width + 4) >= 320)
+							break;
+						x += width + 4;
+						y = y1;
+					}
+				}
+				if(getdescription && current_element) {
+					char temp[260]; stringbuilder sb(temp);
+					getdescription(current_element, sb);
+					x += width + 4;
+					y = y1;
+					text({x, y, getwidth() - 4, 200 - 16 * 2}, temp, AlignLeft);
 				}
 			}
 			auto y = 200 - 12 - 4;
@@ -1342,7 +1357,7 @@ void* draw::choose(array& source, const char* title, fngetname pgetname, bool ex
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
-	choose_control control(storage, p-storage, pgetname);
+	choose_control control(storage, p-storage, pgetname, 0);
 	control.sort();
 	return control.choose(title);
 }

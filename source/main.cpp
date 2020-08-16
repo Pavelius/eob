@@ -333,7 +333,14 @@ static void choose_monster() {
 }
 
 static const char* getitemname(void* object, stringbuilder& sb) {
-	return ((itemi*)object)->name;
+	auto p = (itemi*)object;
+	if(p->feats.is(Natural)) {
+		sb.add(p->name);
+		sb.add(" ");
+		p->weapon.damage.print(sb);
+	} else
+		return p->name;
+	return sb;
 }
 
 static void choose_items() {
