@@ -330,12 +330,11 @@ void draw::options() {
 }
 
 static void choose_items() {
-	choose(bsdata<itemi>::source);
 }
 
 static void choose_monster() {
-	itemi it = {"Test"};
-	edit("Edit item", &it, dginf<itemi>::meta);
+	item it(SwordLong);
+	edit("Edit item", &it, dginf<decltype(it)>::meta);
 }
 
 static void edit_game() {

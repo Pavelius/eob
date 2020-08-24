@@ -453,6 +453,7 @@ class item {
 	};
 	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
+	friend dginf<item>;
 public:
 	constexpr item(item_s type = NoItem) : type(type), flags(0), subtype(0), charges(0) {}
 	item(item_s type, rarity_s rarity);
@@ -989,8 +990,7 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array& source, const char* title, fntext pgetname, bool exclude_first);
-void*					choose(array& source);
+void*					choose(array& source, const char* title, fntext pgetname);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);

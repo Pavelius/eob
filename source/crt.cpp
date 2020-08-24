@@ -287,6 +287,15 @@ void array::clear() {
 	data = 0;
 }
 
+void array::setup(void* data, unsigned size, unsigned count, unsigned count_maximum) {
+	clear();
+	this->data = data;
+	this->size = size;
+	this->count = count;
+	this->count_maximum = count_maximum;
+	this->growable = false;
+}
+
 void array::setup(unsigned size) {
 	if(!isgrowable())
 		return;

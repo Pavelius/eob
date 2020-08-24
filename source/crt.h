@@ -263,6 +263,7 @@ public:
 	void					remove(int index, int elements_count);
 	void					setcount(unsigned value) { count = value; }
 	void					setup(unsigned size);
+	void					setup(void* data, unsigned size, unsigned count, unsigned count_maximum);
 	void					shift(int i1, int i2, unsigned c1, unsigned c2);
 	void					sort(int i1, int i2, int(*compare)(const void* p1, const void* p2, void* param), void* param);
 	void					swap(int i1, int i2);

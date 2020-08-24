@@ -111,7 +111,7 @@ unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
 static void*			current_focus;
-static void*			current_value;
+static void*			current_object;
 static unsigned			current_focus_param;
 static unsigned			current_size;
 static const markup*	current_markup;
@@ -128,23 +128,23 @@ void					view_dungeon_reset();
 callback				draw::domodal;
 static picstore			bitmaps;
 
-static formi* getform(array& p) {
-	for(auto& e : bsdata<formi>()) {
-		if(e.source == &p)
-			return &e;
-	}
-	return 0;
-}
-
-static formi* getform(const markup* p) {
-	if(!p)
-		return 0;
-	for(auto& e : bsdata<formi>()) {
-		if(e.meta == p)
-			return &e;
-	}
-	return 0;
-}
+//static formi* getform(array& p) {
+//	for(auto& e : bsdata<formi>()) {
+//		if(e.source == &p)
+//			return &e;
+//	}
+//	return 0;
+//}
+//
+//static formi* getform(const markup* p) {
+//	if(!p)
+//		return 0;
+//	for(auto& e : bsdata<formi>()) {
+//		if(e.meta == p)
+//			return &e;
+//	}
+//	return 0;
+//}
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -1385,28 +1385,18 @@ public:
 };
 fntext choose_control::compare_callback;
 
-void* draw::choose(array& source, const char* title, fntext pgetname, bool exclude_first) {
+void* draw::choose(array& source, const char* title, fntext pgetname) {
 	void* storage[512];
 	auto p = storage;
 	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
 	auto sm = source.getcount();
 	for(unsigned i = 0; i < sm; i++) {
-		if(exclude_first && i == 0)
-			continue;
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
 	choose_control control(storage, p - storage, pgetname, 0);
 	control.sort();
 	return control.choose(title);
-}
-
-void* draw::choose(array& source) {
-	auto pf = getform(source);
-	if(!pf)
-		return 0;
-	char temp[64]; stringbuilder sb(temp); sb.add("Choose %1:", pf->name);
-	return draw::choose(*pf->source, temp, pf->getname, true);
 }
 
 bool draw::edit(const char* title, void* object, const markup* pm) {
@@ -1490,37 +1480,43 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static void choose_enum_field(void* pv, unsigned ps, const markup* pm) {
+static void choose_enum_field(void* object, const markup* pm) {
+	array custom_source;
 	if(!pm)
 		return;
-	auto form = getform(pm->value.type);
-	if(!form || !form->source)
+	auto pv = pm->value.ptr(object);
+	auto ps = pm->value.size;
+	auto sr = pm->value.source;
+	if(pm->list.source) {
+		pm->list.source(object, custom_source);
+		sr = &custom_source;
+	}
+	if(!sr)
 		return;
-	char temp[64]; stringbuilder sb(temp); sb.add("Choose %1:", form->name);
 	void* storage[512];
 	auto p = storage;
 	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
-	auto sm = form->source->getcount();
+	auto sm = sr->getcount();
 	for(unsigned i = 0; i < sm; i++) {
 		if(pm->list.allow && !pm->list.allow(pv, i))
 			continue;
 		if(p < pe)
-			*p++ = form->source->ptr(i);
+			*p++ = sr->ptr(i);
 	}
 	choose_control control(storage, p - storage, pm->list.getname, 0);
 	control.sort();
-	auto result = control.choose(temp);
+	auto result = control.choose(0);
 	if(!result)
 		return;
 	if(ps < sizeof(int)) {
-		auto index = form->source->indexof(result);
+		auto index = sr->indexof(result);
 		if(index != -1)
 			setvalue(pv, ps, index);
 	}
 }
 
 static void choose_enum_field() {
-	choose_enum_field(current_value, current_size, current_markup);
+	choose_enum_field(current_object, current_markup);
 }
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
@@ -1534,9 +1530,17 @@ static void getname(const markup& e, const void* object, stringbuilder& sb) {
 			value = "";
 		sb.add(value);
 	} else {
+		array custom_source;
+		auto sr = e.value.source;
+		if(e.list.source) {
+			e.list.source(object, custom_source);
+			sr = &custom_source;
+		}
+		if(!sr)
+			return;
 		auto value = (void*)getvalue(pv, e.value.size);
 		if(e.value.size < 4)
-			value = e.value.source->ptr((int)value);
+			value = sr->ptr((int)value);
 		auto pfn = e.list.getname;
 		if(value && e.list.getname) {
 			auto pn = pfn((void*)value, sb);
@@ -1553,20 +1557,20 @@ static void add_number(void* p, unsigned size, int r, int d, int v) {
 }
 
 static void add_number() {
-	add_number(current_value, current_markup->value.size, 10, 1, hot::param);
+	add_number(current_markup->value.ptr(current_object), current_markup->value.size, 10, 1, hot::param);
 }
 
 static void sub_number() {
-	add_number(current_value, current_markup->value.size, 1, 10, 0);
+	add_number(current_markup->value.ptr(current_object), current_markup->value.size, 1, 10, 0);
 }
 
 static void clear_value() {
-	setvalue(current_value, current_size, 0);
+	setvalue(current_markup->value.ptr(current_object), current_size, 0);
 }
 
 static void post(const markup& e, void* object, callback proc, int param) {
 	current_markup = &e;
-	current_value = e.value.ptr(object);
+	current_object = object;
 	current_size = e.value.size;
 	execute(proc, param);
 }
@@ -1584,10 +1588,11 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	if(!sb)
 		sb.add("None");
 	rect rc = {x, y, x + width, y + draw::texth() + 4};
+	auto pv = e.value.ptr(object);
 	form(rc);
-	focusing(rc, object);
+	focusing(rc, pv);
 	rc.offset(3, 2);
-	auto focused = isfocus(object);
+	auto focused = isfocus(pv);
 	if(focused) {
 		fore = colors::focus;
 		if(hot::key == KeyDelete)
@@ -1627,7 +1632,7 @@ static void checkmark(int x, int y, int state) {
 	rc.x1++; rc.y1++;
 	if(state) {
 		auto p = fore;
-		fore = colors::title;
+		fore = colors::black;
 		line(rc.x2 - 2, rc.y1 + 1, rc.x1 + 1, rc.y2 - 2);
 		line(rc.x1 + 1, rc.y1 + 1, rc.x2 - 2, rc.y2 - 2);
 		fore = p;
@@ -1666,16 +1671,12 @@ static int checkbox(int x, int y, const char* title, void* ev, unsigned size, un
 	return draw::texth() + 1;
 }
 
-static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsigned char size) {
-	auto pf = getform(e.value.type);
-	if(!pf || !pf->source)
-		return 0;
+static int checkboxes(int x, int y, int width, const markup& e, void* object, unsigned char size) {
+	auto ar = e.value.source;
 	auto gn = e.list.getname;
-	if(!gn)
-		gn = pf->getname;
-	auto ar = pf->source;
 	auto im = ar->getcount();
 	auto y0 = y;
+	auto pv = e.value.ptr(object);
 	for(unsigned i = 0; i < im; i++) {
 		auto v = ar->ptr(i);
 		char temp[260]; stringbuilder sb(temp);
@@ -1688,9 +1689,11 @@ static int element(int x, int y, int width, contexti& ctx, const markup& e) {
 	if(e.isgroup())
 		return group(x, y, width, ctx, e.value.type);
 	else if(e.ischeckboxes())
-		return checkboxes(x, y, width, e, e.value.ptr(ctx.object), e.value.size);
+		return checkboxes(x, y, width, e, ctx.object, e.value.size);
+	else if(e.value.mask)
+		return checkbox(x, y, e.title, e.value.ptr(ctx.object), e.value.size, e.value.mask);
 	else
-		return field(x, y, width, e.title, e.value.ptr(ctx.object), ctx.title, e);
+		return field(x, y, width, e.title, ctx.object, ctx.title, e);
 }
 
 int draw::field(int x, int y, int width, void* object, const markup* form) {
