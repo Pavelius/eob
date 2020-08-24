@@ -34,6 +34,7 @@ DGMETA(itemi) = {{0, "Name", DGREQ(name)},
 INSTDATA(formi) = {{"item", "items", getitemname, dginf<itemi>::meta},
 {"item type", "item types", getitemname, dginf<item_s>::meta, bsdata<item_s>::source_ptr},
 {"wear", "wears", getxname<weari>, dginf<wear_s>::meta, bsdata<wear_s>::source_ptr},
+{"usability", "usabilities", getxname<usabilityi>, dginf<usabilityi>::meta, bsdata<usabilityi>::source_ptr},
 //{"Monster", "Monsters", getmonstername},
 };
 INSTELEM(formi);

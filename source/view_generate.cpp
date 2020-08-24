@@ -81,8 +81,8 @@ static void genavatar(int x, int y, const cmd& ev) {
 	}
 	if(ev.proc) {
 		rect rc = {x, y, x + 32, y + 32};
-		focusing(rc, ev.focus);
-		if(getfocus() == ev.focus) {
+		focusing(rc, ev);
+		if(isfocus(ev)) {
 			draw::rectb(rc, colors::white.mix(colors::black, draw::ciclic(200, 7)));
 			if(hot::key == KeyEnter)
 				ev.execute();

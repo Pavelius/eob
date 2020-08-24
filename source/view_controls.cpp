@@ -70,8 +70,8 @@ public:
 	void				clear();
 };
 struct render_control {
-	int					id;
-	anyval				av;
+	void*				av;
+	unsigned			param;
 	rect				rc;
 	void clear() { memset(this, 0, sizeof(*this)); }
 };
@@ -110,15 +110,17 @@ static fxt*				font8 = (fxt*)loadb("art/misc/font8.fnt");
 unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
-static int				current_focus;
-static anyval			current_focus_av;
+static void*			current_focus;
+static unsigned			current_focus_param;
+static unsigned			current_size;
+static const markup*	current_markup;
 static item*			current_item;
 static item*			drag_item;
 static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
-static int				focus_stack[8];
 static int				focus_level;
-static int				focus_pressed;
+static const void*		focus_stack[8];
+static const void*		focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 void					view_dungeon_reset();
@@ -268,9 +270,9 @@ int draw::flatb(int x, int y, int width, unsigned flags, const char* string) {
 int draw::buttonm(int x, int y, int width, const cmd& ev, const char* name) {
 	state push;
 	rect rc = {x, y, x + width, y + texth()};
-	focusing(rc, ev.focus);
+	focusing(rc, ev);
 	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
+	if(isfocus(ev)) {
 		flags |= Focused;
 		fore = colors::focus;
 		if(hot::key == KeyEnter)
@@ -283,9 +285,9 @@ int draw::buttonm(int x, int y, int width, const cmd& ev, const char* name) {
 int draw::buttont(int x, int y, int width, const cmd& ev, const char* name) {
 	state push;
 	rect rc = {x, y, x + width, y + texth()};
-	focusing(rc, ev.focus);
+	focusing(rc, ev);
 	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
+	if(isfocus(ev)) {
 		flags |= Focused;
 		fore = colors::focus;
 		if(hot::key == KeyEnter)
@@ -298,9 +300,9 @@ int draw::buttont(int x, int y, int width, const cmd& ev, const char* name) {
 void draw::buttont(int x, int y, int width, const cmd& ev, const char* name, const char* name2) {
 	state push;
 	rect rc = {x, y, x + width, y + texth()};
-	focusing(rc, ev.focus);
+	focusing(rc, ev);
 	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
+	if(isfocus(ev)) {
 		flags |= Focused;
 		fore = colors::focus;
 		if(hot::key == KeyEnter)
@@ -468,7 +470,7 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 	} else
 		rc.set(x - 16, y - 7, x + 14, y + 8);
 	if(current_item)
-		focusing(rc, (int)pitm);
+		focusing(rc, pitm);
 	if(pitm == current_item)
 		rectb(rc, colors::selected);
 	if(pitm == drag_item)
@@ -544,6 +546,141 @@ void gamei::endround() {
 	setnext(adventure);
 }
 
+static render_control* getby(void* av, unsigned param) {
+	for(auto& e : render_objects) {
+		if(!e.av)
+			return 0;
+		if(e.av == av && e.param == param)
+			return &e;
+	}
+	return 0;
+}
+
+static render_control* getfirst() {
+	for(auto& e : render_objects) {
+		if(!e.av)
+			return 0;
+		return &e;
+	}
+	return 0;
+}
+
+static render_control* getlast() {
+	auto p = render_objects;
+	for(auto& e : render_objects) {
+		if(!e.av)
+			break;
+		p = &e;
+	}
+	return p;
+}
+
+static point center(const rect& rc) {
+	return{(short)rc.x1, (short)rc.y1};
+}
+
+static int distance(point p1, point p2) {
+	int dx = p1.x - p2.x;
+	int dy = p1.y - p2.y;
+	return isqrt(dx*dx + dy * dy);
+}
+
+static render_control* getnextfocus(void* ev, int key, unsigned param) {
+	if(!key)
+		return 0;
+	auto pc = getby(ev, param);
+	if(!pc)
+		pc = getfirst();
+	if(!pc)
+		return 0;
+	auto pe = pc;
+	auto pl = getlast();
+	int inc = 1;
+	if(key == KeyLeft || key == KeyUp)
+		inc = -1;
+	render_control* r1 = 0;
+	auto p1 = center(pe->rc);
+	while(true) {
+		pc += inc;
+		if(pc > pl)
+			pc = render_objects;
+		else if(pc < render_objects)
+			pc = pl;
+		if(pe == pc) {
+			if(r1)
+				return r1;
+			return pe;
+		}
+		auto p2 = center(pc->rc);
+		render_control* r2 = 0;
+		switch(key) {
+		case KeyRight:
+			if(pe->rc.x2 < pc->rc.x1
+				&& ((pe->rc.y1 >= pc->rc.y1 && pe->rc.y1 <= pc->rc.y2)
+					|| (pe->rc.y2 >= pc->rc.y1 && pe->rc.y2 <= pc->rc.y2)))
+				r2 = pc;
+			break;
+		case KeyLeft:
+			if(pe->rc.x1 > pc->rc.x2
+				&& ((pe->rc.y1 >= pc->rc.y1 && pe->rc.y1 <= pc->rc.y2)
+					|| (pe->rc.y2 >= pc->rc.y1 && pe->rc.y2 <= pc->rc.y2)))
+				r2 = pc;
+			break;
+		case KeyDown:
+			if(p1.y < p2.y)
+				r2 = pc;
+			break;
+		case KeyUp:
+			if(p2.y < p1.y)
+				r2 = pc;
+			break;
+		default:
+			return pc;
+		}
+		if(r2) {
+			if(!r1)
+				r1 = r2;
+			else {
+				int d1 = distance(p1, center(r1->rc));
+				int d2 = distance(p1, center(r2->rc));
+				if(d2 < d1)
+					r1 = r2;
+			}
+		}
+	}
+}
+
+static void test_map() {
+	static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"adventure3"}}},
+	{Ask, 1, {}, "Enter", {2}},
+	{Ask, 1, {}, "Leave"},
+	{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
+	{Ask, 2, {}, "Accept"},
+	{Ask, 2, {}, "Talk", {3}},
+	{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
+	{}};
+	first_dialog->choose(true);
+	//game.worldmap();
+}
+
+static void setfocus(void* v, unsigned param = 0) {
+	current_focus = v;
+	current_focus_param = param;
+}
+
+static void movenext(int key) {
+	auto p = getnextfocus(current_focus, key, current_focus_param);
+	if(p)
+		setfocus(p->av, p->param);
+}
+
+static item* movenext(item* current, int key) {
+	auto p = getnextfocus(current, key, 0);
+	if(p)
+		return (item*)p->av;
+	return (item*)current;
+}
+
 void draw::adventure() {
 	creature* pc;
 	if(!game.isalive())
@@ -610,16 +747,16 @@ void draw::adventure() {
 			location.rotate(Right);
 			break;
 		case Alpha + 'W':
-			current_item = (item*)getnext((int)current_item, KeyUp);
+			current_item = movenext(current_item, KeyUp);
 			break;
 		case Alpha + 'Z':
-			current_item = (item*)getnext((int)current_item, KeyDown);
+			current_item = movenext(current_item, KeyDown);
 			break;
 		case Alpha + 'S':
-			current_item = (item*)getnext((int)current_item, KeyRight);
+			current_item = movenext(current_item, KeyRight);
 			break;
 		case Alpha + 'A':
-			current_item = (item*)getnext((int)current_item, KeyLeft);
+			current_item = movenext(current_item, KeyLeft);
 			break;
 		case Alpha + 'P':
 			place_item(current_item);
@@ -648,18 +785,7 @@ void draw::adventure() {
 			draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 			break;
 		case Alpha + 'H':
-			if(true) {
-				static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"adventure3"}}},
-				{Ask, 1, {}, "Enter", {2}},
-				{Ask, 1, {}, "Leave"},
-				{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
-				{Ask, 2, {}, "Accept"},
-				{Ask, 2, {}, "Talk", {3}},
-				{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
-				{}};
-				//first_dialog->choose(true);
-				game.worldmap();
-			}
+			test_map();
 			break;
 		case Alpha + '1':
 		case Alpha + '2':
@@ -677,129 +803,15 @@ void draw::adventure() {
 	}
 }
 
-static render_control* getby(int id) {
-	for(auto& e : render_objects) {
-		if(!e.id)
-			return 0;
-		if(e.id == id)
-			return &e;
-	}
-	return 0;
+bool draw::isfocus(void* av, unsigned param) {
+	return current_focus == av && current_focus_param == param;
 }
 
-static render_control* getby(const anyval& av) {
-	for(auto& e : render_objects) {
-		if(!e.av)
-			return 0;
-		if(e.av == av)
-			return &e;
-	}
-	return 0;
+void* draw::getfocus() {
+	return current_focus;
 }
 
-static render_control* getfirst() {
-	for(auto& e : render_objects) {
-		if(!e.id && !e.av)
-			return 0;
-		return &e;
-	}
-	return 0;
-}
-
-static render_control* getlast() {
-	auto p = render_objects;
-	for(auto& e : render_objects) {
-		if(!e.id && !e.av)
-			break;
-		p = &e;
-	}
-	return p;
-}
-
-static point center(const rect& rc) {
-	return{(short)rc.x1, (short)rc.y1};
-}
-
-static int distance(point p1, point p2) {
-	int dx = p1.x - p2.x;
-	int dy = p1.y - p2.y;
-	return isqrt(dx*dx + dy * dy);
-}
-
-static render_control* getnextfocus(int id, int key) {
-	if(!key)
-		return 0;
-	auto pc = getby(id);
-	if(!pc)
-		pc = getfirst();
-	if(!pc)
-		return 0;
-	auto pe = pc;
-	auto pl = getlast();
-	int inc = 1;
-	if(key == KeyLeft || key == KeyUp)
-		inc = -1;
-	render_control* r1 = 0;
-	auto p1 = center(pe->rc);
-	while(true) {
-		pc += inc;
-		if(pc > pl)
-			pc = render_objects;
-		else if(pc < render_objects)
-			pc = pl;
-		if(pe == pc) {
-			if(r1)
-				return r1;
-			return pe;
-		}
-		auto p2 = center(pc->rc);
-		render_control* r2 = 0;
-		switch(key) {
-		case KeyRight:
-			if(pe->rc.x2 < pc->rc.x1
-				&& ((pe->rc.y1 >= pc->rc.y1 && pe->rc.y1 <= pc->rc.y2)
-					|| (pe->rc.y2 >= pc->rc.y1 && pe->rc.y2 <= pc->rc.y2)))
-				r2 = pc;
-			break;
-		case KeyLeft:
-			if(pe->rc.x1 > pc->rc.x2
-				&& ((pe->rc.y1 >= pc->rc.y1 && pe->rc.y1 <= pc->rc.y2)
-					|| (pe->rc.y2 >= pc->rc.y1 && pe->rc.y2 <= pc->rc.y2)))
-				r2 = pc;
-			break;
-		case KeyDown:
-			if(p1.y < p2.y)
-				r2 = pc;
-			break;
-		case KeyUp:
-			if(p2.y < p1.y)
-				r2 = pc;
-			break;
-		default:
-			return pc;
-		}
-		if(r2) {
-			if(!r1)
-				r1 = r2;
-			else {
-				int d1 = distance(p1, center(r1->rc));
-				int d2 = distance(p1, center(r2->rc));
-				if(d2 < d1)
-					r1 = r2;
-			}
-		}
-	}
-}
-
-static void setfocus(const anyval& av) {
-	current_focus_av = av;
-}
-
-static bool isfocus(const anyval& av) {
-	return current_focus_av == av;
-}
-
-static void focusing(const rect& rc, const anyval& av) {
+void draw::focusing(const rect& rc, void* av, unsigned param) {
 	if(!av)
 		return;
 	if(!render_current
@@ -807,31 +819,11 @@ static void focusing(const rect& rc, const anyval& av) {
 		render_current = render_objects;
 	render_current[0].rc = rc;
 	render_current[0].av = av;
+	render_current[0].param = param;
 	render_current++;
 	render_current->clear();
 	if(!current_focus)
-		setfocus(av);
-}
-
-void draw::focusing(const rect& rc, int id) {
-	if(!id)
-		return;
-	if(!render_current
-		|| render_current >= render_objects + sizeof(render_objects) / sizeof(render_objects[0]))
-		render_current = render_objects;
-	render_current[0].rc = rc;
-	render_current[0].id = id;
-	render_current++;
-	render_current[0].id = 0;
-	if(!current_focus)
-		setfocus(id);
-}
-
-int draw::getnext(int id, int key) {
-	auto p = getnextfocus(id, key);
-	if(p)
-		return p->id;
-	return id;
+		setfocus(av, param);
 }
 
 void draw::execute(callback proc, int param) {
@@ -887,28 +879,20 @@ void cmd::execute() const {
 		draw::execute(proc, param);
 }
 
-int draw::getfocus() {
-	return current_focus;
-}
-
-void draw::setfocus(int id) {
-	current_focus = id;
-}
-
 void draw::openform() {
 	if((unsigned)focus_level < sizeof(focus_stack) / sizeof(focus_stack[0]))
-		focus_stack[focus_level] = getfocus();
+		focus_stack[focus_level] = current_focus;
 	focus_level++;
-	setfocus(0);
-	hot::key = 0;
+	current_focus = 0;
 	focus_pressed = 0;
+	hot::key = 0;
 }
 
 void draw::closeform() {
 	if(focus_level > 0) {
 		focus_level--;
 		if((unsigned)focus_level < sizeof(focus_stack) / sizeof(focus_stack[0]))
-			setfocus(focus_stack[focus_level]);
+			setfocus((void*)focus_stack[focus_level]);
 	}
 	hot::key = 0;
 }
@@ -936,7 +920,7 @@ bool draw::navigate(bool can_cancel) {
 	case KeyUp:
 	case KeyLeft:
 	case KeyRight:
-		setfocus(getnext(getfocus(), hot::key));
+		movenext(hot::key);
 		break;
 	case KeyEscape:
 	case Alpha + 'B':
@@ -1078,21 +1062,21 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static int buttonw(int x, int y, const char* title, const void* id, unsigned key = 0, callback proc = 0) {
+static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0) {
 	auto w = textw(title);
 	rect r1 = {x, y, x + w + 6, y + texth() + 3};
-	focusing(r1, (int)id);
-	auto isfocused = (getfocus() == (int)id);
+	focusing(r1, ev);
+	auto isfocused = isfocus(ev);
 	if((isfocused && hot::key == KeyEnter)
 		|| (key && hot::key == key))
-		focus_pressed = (int)id;
-	else if(hot::key == InputKeyUp && focus_pressed == (int)id) {
+		focus_pressed = ev;
+	else if(hot::key == InputKeyUp && focus_pressed == ev) {
 		focus_pressed = 0;
 		if(!proc)
 			proc = buttonparam;
-		execute(buttonparam, (int)id);
+		execute(buttonparam, (int)ev);
 	}
-	form(r1, 1, isfocused, focus_pressed == (int)id);
+	form(r1, 1, isfocused, focus_pressed == ev);
 	text(r1.x1 + 4, r1.y1 + 2, title);
 	return w + 8;
 }
@@ -1153,9 +1137,9 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
 			if(horizontal_buttons)
-				x += buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
+				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i);
 			else {
-				buttonw(x, y, elements.data[i].text, &elements.data[i], Alpha + '1' + i);
+				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i);
 				y += texth() + 5;
 			}
 		}
@@ -1273,10 +1257,10 @@ int draw::button(int x, int y, int width, const cmd& ev, const char* name, int k
 		width = textw(name) + 3 * 2;
 	rect rc = {x, y, x + width, y + draw::texth() + 4};
 	form(rc);
-	focusing(rc, ev.focus);
+	focusing(rc, ev);
 	auto run = false;
 	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
+	if(isfocus(ev)) {
 		flags |= Focused;
 		fore = colors::focus;
 		if(hot::key == KeyEnter)
@@ -1285,14 +1269,14 @@ int draw::button(int x, int y, int width, const cmd& ev, const char* name, int k
 	if(key && key == hot::key)
 		run = true;
 	rc.offset(3, 2);
-	textb(rc, name, flags|TextSingleLine);
+	textb(rc, name, flags | TextSingleLine);
 	if(run)
 		ev.execute();
 	return draw::texth();
 }
 
 static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned key = 0) {
-	auto w = textw(title) + 3*2;
+	auto w = textw(title) + 3 * 2;
 	button(x, y, w, proc, title, key);
 	return w + 2;
 }
@@ -1338,7 +1322,8 @@ class choose_control {
 public:
 	constexpr choose_control(void** source, unsigned maximum, fntext getname, fntext getdescription) : source(source),
 		maximum(maximum), start(0), perpage(getdescription ? 11 : 11 * 2),
-		getname(getname), getdescription(getdescription) {}
+		getname(getname), getdescription(getdescription) {
+	}
 	void sort() {
 		compare_callback = getname;
 		qsort(source, maximum, sizeof(source[0]), compare);
@@ -1366,7 +1351,7 @@ public:
 					if(!pn)
 						pn = "None";
 					y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
-					if(getfocus() == (int)pt)
+					if(isfocus(pt))
 						current_element = pt;
 					if(y >= 200 - 16 * 2) {
 						if(getdescription || (x + width + 4) >= 320)
@@ -1410,7 +1395,7 @@ void* draw::choose(array& source, const char* title, fntext pgetname, bool exclu
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
-	choose_control control(storage, p-storage, pgetname, 0);
+	choose_control control(storage, p - storage, pgetname, 0);
 	control.sort();
 	return control.choose(title);
 }
@@ -1483,8 +1468,49 @@ struct contexti {
 };
 }
 
-static int field(int x, int y, int width, const char* title, void* object, int title_width, const markitem& value) {
-	auto pv = value.ptr(object);
+static void setvalue(void* p, unsigned size, int v) {
+	if(!p)
+		return;
+	switch(size) {
+	case sizeof(char) : *((char*)p) = v; break;
+	case sizeof(short) : *((short*)p) = v; break;
+	case sizeof(int) : *((int*)p) = v; break;
+	}
+}
+
+static int getvalue(void* p, unsigned size) {
+	if(!p)
+		return 0;
+	switch(size) {
+	case sizeof(char) : return *((char*)p);
+	case sizeof(short) : return *((short*)p);
+	case sizeof(int) : return *((int*)p);
+	}
+	return 0;
+}
+
+static void choose_enum_field() {
+	auto pv = (void*)hot::param;
+	auto ps = current_size;
+	auto type = current_markup;
+	if(!type)
+		return;
+	auto form = getform(type->value.type);
+	if(!form)
+		return;
+	char temp[64]; stringbuilder sb(temp); sb.add("Choose %1:", form->name);
+	auto result = draw::choose(*form->source, temp, form->getname, true);
+	if(!result)
+		return;
+	if(ps < sizeof(int)) {
+		auto index = form->source->indexof(result);
+		if(index != -1)
+			setvalue(pv, ps, index);
+	}
+}
+
+static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
+	auto pv = e.value.ptr(object);
 	if(!title)
 		return 0;
 	auto push_fore = fore;
@@ -1493,10 +1519,24 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	x += title_width;
 	width -= title_width;
 	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
-	value.getname(object, sb);
+	e.value.getname(object, sb);
 	if(!sb)
 		sb.add("None");
-	button(x, y, width, cmd(0, (int)pv, (int)pv), temp);
+	rect rc = {x, y, x + width, y + draw::texth() + 4};
+	form(rc);
+	focusing(rc, object);
+	rc.offset(3, 2);
+	unsigned flags = 0;
+	auto focused = isfocus(object);
+	if(focused) {
+		fore = colors::focus;
+		if(hot::key == KeyEnter) {
+			current_size = e.value.size;
+			current_markup = &e;
+			execute(choose_enum_field, (int)e.value.ptr(object));
+		}
+	}
+	textb(rc, temp, TextSingleLine);
 	fore = push_fore;
 	return texth() + 4;
 }
@@ -1516,24 +1556,45 @@ static int group(int x, int y, int width, contexti& ctx, const markup* form) {
 	return y - y0;
 }
 
-static int checkbox(int x, int y, const char* title, const anyval& ev) {
+static void checkmark(int x, int y, int state) {
+	auto dy = texth();
+	rect rc = {x, y, x + 7, y + dy - 1};
+	form(rc, 1, false, true);
+	rc.x1++; rc.y1++;
+	if(state)
+		rectf(rc, colors::header.mix(colors::focus));
+}
+
+static void change_current_check() {
+	auto v = getvalue(current_focus, current_size);
+	v ^= current_focus_param;
+	setvalue(current_focus, current_size, v);
+}
+
+static int checkbox(int x, int y, const char* title, void* ev, unsigned size, unsigned param) {
 	draw::state push;
-	auto width = textw(title) + 3 * 2;
+	const auto cw = 16;
+	auto width = textw(title) + cw;
 	rect rc = {x, y, x + width, y + draw::texth() + 2};
-	focusing(rc, ev);
+	focusing(rc, ev, param);
 	auto run = false;
 	unsigned flags = 0;
-	if(isfocus(ev)) {
+	if(isfocus(ev, param)) {
 		flags |= Focused;
 		fore = colors::focus;
-		if(hot::key == KeyEnter)
+		if(hot::key == KeyEnter || hot::key == KeySpace)
 			run = true;
 	}
-	rc.offset(3, 1);
+	rc.offset(0, 1);
+	auto s = ((getvalue(ev, size) & param) != 0) ? 1 : 0;
+	checkmark(rc.x1, rc.y1, s);
+	rc.x1 += cw;
 	textb(rc, title, flags | TextSingleLine);
-	//if(run)
-	//	execute();
-	return draw::texth();
+	if(run) {
+		current_size = size;
+		execute(change_current_check);
+	}
+	return draw::texth() + 1;
 }
 
 static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsigned char size) {
@@ -1546,13 +1607,10 @@ static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsign
 	auto ar = pf->source;
 	auto im = ar->getcount();
 	auto y0 = y;
-	anyval av(pv, size, 0);
 	for(unsigned i = 0; i < im; i++) {
 		auto v = ar->ptr(i);
 		char temp[260]; stringbuilder sb(temp);
-		gn(v, sb);
-		av.setvalue(1<<i);
-		y += checkbox(x, y, temp, av);
+		y += checkbox(x, y, gn(v, sb), pv, size, 1 << i);
 	}
 	return y - y0;
 }
@@ -1566,7 +1624,7 @@ static int element(int x, int y, int width, contexti& ctx, const markup& e) {
 		return checkboxes(x, y, width, e, e.value.ptr(ctx.object), e.value.size);
 	else {
 		auto pv = e.value.ptr(ctx.object);
-		return field(x, y, width, e.title, pv, ctx.title, e.value);
+		return field(x, y, width, e.title, pv, ctx.title, e);
 	}
 }
 

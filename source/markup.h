@@ -42,6 +42,7 @@ struct markup {
 	markitem			value;
 	fnallow				isallow;
 	fntext				getname;
+	fncommand			execute;
 	//
 	bool				is(const char* id) const;
 	bool				ischeckboxes() const { return is("chk"); }

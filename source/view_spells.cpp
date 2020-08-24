@@ -224,8 +224,8 @@ void creature::preparespells(class_s type) {
 		result.count = 0;
 		auto maximum_spells = 0;
 		auto prepared_spells = 0;
-		if(getfocus() >= 1 && getfocus() <= 9)
-			current_level = getfocus();
+		if((int)getfocus() >= 1 && (int)getfocus() <= 9)
+			current_level = (int)getfocus();
 		if(hero) {
 			result.count = select_known_spells(result.data, zendof(result.data), hero, type, current_level);
 			maximum_spells = hero->getspellsperlevel(type, current_level);

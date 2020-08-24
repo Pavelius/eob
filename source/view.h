@@ -19,14 +19,19 @@ void					choose(const menu* source);
 int						ciclic(int range, int speed = 1);
 void					closeform();
 int						flatb(int x, int y, int width, unsigned flags, const char* string);
+void					focusing(const rect& rc, void* v, unsigned param = 0);
+inline void				focusing(const rect& rc, const cmd& v, unsigned param = 0) { focusing(rc, (void*)v.focus, param); }
 rect					form(rect rc, int count = 1, bool focused = false, bool pressed = false);
 infoproc				getmode();
+void*					getfocus();
 sprite*					gres(resource_s id);
 void					greenbar(rect rc, int vc, int vm);
 int						header(int x, int y, const char* text);
 void					imagex(int x, int y, const sprite* res, int id, unsigned flags, int percent, unsigned char shadow);
 void					initialize();
 void					invertory(int x, int y, creature* pc, item* current_item);
+bool					isfocus(void* ev, unsigned param = 0);
+inline bool				isfocus(const cmd& v) { return isfocus((void*)v.focus); }
 void					itemicn(int x, int y, item itm, unsigned char alpha = 0xFF, int spell = 0);
 void					itemicn(int x, int y, item* pitm, bool invlist = false, unsigned flags = 0, void* current_item = 0);
 void					logs();
