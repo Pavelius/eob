@@ -13,6 +13,7 @@ typedef const char* (*fntext)(const void* object, stringbuilder& sb);
 #define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
 #define DGMETA(T) const markup dginf<T>::meta[]
 #define DGREQ(R) {dginf<meta_decoy<decltype(data_type::R)>::value>::meta,\
+bsdata<meta_decoy<decltype(data_type::R)>::value>::source_ptr,\
 (unsigned)&((data_type*)0)->R,\
 sizeof(data_type::R),\
 0}
@@ -21,17 +22,20 @@ template<class T> struct dginf {
 	typedef T			data_type;
 	static const markup	meta[];
 };
+struct fnlist {
+	fntext				getname;
+	fnallow				allow;
+};
 // Data binding element
 struct markitem {
 	const markup*		type;
+	array*				source;
 	unsigned			offset;
 	unsigned			size;
 	unsigned			index;
 	//
 	constexpr bool		isnum() const { return type == dginf<int>::meta; }
 	constexpr bool		istext() const { return type == dginf<const char*>::meta; }
-	int					get(const void* value_ptr) const;
-	void				getname(const void* object, stringbuilder& sb, fntext pgetname = 0) const;
 	void*				ptr(void* object) const { return (char*)object + offset + size * index; }
 };
 // Standart markup
@@ -40,8 +44,7 @@ struct markup {
 	int					width;
 	const char*			title;
 	markitem			value;
-	fnallow				isallow;
-	fntext				getname;
+	fnlist				list;
 	fncommand			execute;
 	//
 	bool				is(const char* id) const;

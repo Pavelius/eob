@@ -38,7 +38,7 @@ private:
 #define INSTMETA(e) template<> const bsreq bsmeta<e>::meta[]
 #define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define NOINSTDATA(e) template<> struct bsdata<e> : bsdata<int> {};
-#define DECLENUM(e) template<> struct bsmeta<e##_s> : bsmeta<e##i> {}; template<> struct bsdata<e##_s> : bsdata<e##i> {};
+#define BSLNK(R, S) template<> struct bsmeta<R> : bsmeta<S> {}; template<> struct bsdata<R> : bsdata<S> {};
 #define BSINF(e) {#e, bsmeta<e##i>::meta, bsdata<e##i>::source}
 
 extern "C" int						atexit(void(*func)(void));

@@ -16,23 +16,29 @@ static const char* getitemname(const void* object, stringbuilder& sb) {
 		return p->name;
 	return sb;
 }
+static bool allow_item_wears(const void* object, int param) {
+	auto p = bsdata<weari>::elements + param;
+	return p->choose_name!=0;
+}
+static const char* get_wear_choose_name(const void* object, stringbuilder& sb) {
+	auto p = (weari*)object;
+	return p->choose_name;
+}
 DGMETA(weari) = {{0, "Name", DGREQ(name)},
 {}};
 DGMETA(usabilityi) = {{0, "Name", DGREQ(name)},
 {}};
 DGMETA(itemi) = {{0, "Name", DGREQ(name)},
 {0, "Cost", DGREQ(cost)},
-{0, "Equipment", DGREQ(equipment)},
-{0, "Ammo", DGREQ(ammo)},
+{0, "Wears", DGREQ(equipment), {get_wear_choose_name, allow_item_wears}},
+{0, "Use ammo", DGREQ(ammo), {getitemname}},
 {0, "#chk", DGREQ(usability)},
-//usabilitya			;
 //cflags<item_feat_s>	feats;
 //weaponi				weapon;
 //armori				armor;
 //aref<enchantmenti>	enchantments;
 {}};
-INSTDATA(formi) = {{"item", "items", getitemname, dginf<itemi>::meta},
-{"item type", "item types", getitemname, dginf<item_s>::meta, bsdata<item_s>::source_ptr},
+INSTDATA(formi) = {{"item type", "item types", getitemname, dginf<item_s>::meta, bsdata<item_s>::source_ptr},
 {"wear", "wears", getxname<weari>, dginf<wear_s>::meta, bsdata<wear_s>::source_ptr},
 {"usability", "usabilities", getxname<usabilityi>, dginf<usabilityi>::meta, bsdata<usabilityi>::source_ptr},
 //{"Monster", "Monsters", getmonstername},

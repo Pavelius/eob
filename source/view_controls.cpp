@@ -111,6 +111,7 @@ unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
 static void*			current_focus;
+static void*			current_value;
 static unsigned			current_focus_param;
 static unsigned			current_size;
 static const markup*	current_markup;
@@ -1489,17 +1490,26 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static void choose_enum_field() {
-	auto pv = (void*)hot::param;
-	auto ps = current_size;
-	auto type = current_markup;
-	if(!type)
+static void choose_enum_field(void* pv, unsigned ps, const markup* pm) {
+	if(!pm)
 		return;
-	auto form = getform(type->value.type);
-	if(!form)
+	auto form = getform(pm->value.type);
+	if(!form || !form->source)
 		return;
 	char temp[64]; stringbuilder sb(temp); sb.add("Choose %1:", form->name);
-	auto result = draw::choose(*form->source, temp, form->getname, true);
+	void* storage[512];
+	auto p = storage;
+	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
+	auto sm = form->source->getcount();
+	for(unsigned i = 0; i < sm; i++) {
+		if(pm->list.allow && !pm->list.allow(pv, i))
+			continue;
+		if(p < pe)
+			*p++ = form->source->ptr(i);
+	}
+	choose_control control(storage, p - storage, pm->list.getname, 0);
+	control.sort();
+	auto result = control.choose(temp);
 	if(!result)
 		return;
 	if(ps < sizeof(int)) {
@@ -1509,8 +1519,59 @@ static void choose_enum_field() {
 	}
 }
 
+static void choose_enum_field() {
+	choose_enum_field(current_value, current_size, current_markup);
+}
+
+static void getname(const markup& e, const void* object, stringbuilder& sb) {
+	auto pv = e.value.ptr((void*)object);
+	if(e.value.isnum()) {
+		auto value = getvalue(pv, e.value.size);
+		sb.add("%1i", value);
+	} else if(e.value.istext()) {
+		auto value = (const char*)getvalue(pv, e.value.size);
+		if(!value)
+			value = "";
+		sb.add(value);
+	} else {
+		auto value = (void*)getvalue(pv, e.value.size);
+		if(e.value.size < 4)
+			value = e.value.source->ptr((int)value);
+		auto pfn = e.list.getname;
+		if(value && e.list.getname) {
+			auto pn = pfn((void*)value, sb);
+			if(pn && pn != sb)
+				sb.add(pn);
+		}
+		if(!sb || !sb[0])
+			sb.add("None");
+	}
+}
+
+static void add_number(void* p, unsigned size, int r, int d, int v) {
+	setvalue(p, size, getvalue(p, size) * r / d + v);
+}
+
+static void add_number() {
+	add_number(current_value, current_markup->value.size, 10, 1, hot::param);
+}
+
+static void sub_number() {
+	add_number(current_value, current_markup->value.size, 1, 10, 0);
+}
+
+static void clear_value() {
+	setvalue(current_value, current_size, 0);
+}
+
+static void post(const markup& e, void* object, callback proc, int param) {
+	current_markup = &e;
+	current_value = e.value.ptr(object);
+	current_size = e.value.size;
+	execute(proc, param);
+}
+
 static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
-	auto pv = e.value.ptr(object);
 	if(!title)
 		return 0;
 	auto push_fore = fore;
@@ -1519,22 +1580,25 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	x += title_width;
 	width -= title_width;
 	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
-	e.value.getname(object, sb);
+	getname(e, object, sb);
 	if(!sb)
 		sb.add("None");
 	rect rc = {x, y, x + width, y + draw::texth() + 4};
 	form(rc);
 	focusing(rc, object);
 	rc.offset(3, 2);
-	unsigned flags = 0;
 	auto focused = isfocus(object);
 	if(focused) {
 		fore = colors::focus;
-		if(hot::key == KeyEnter) {
-			current_size = e.value.size;
-			current_markup = &e;
-			execute(choose_enum_field, (int)e.value.ptr(object));
-		}
+		if(hot::key == KeyDelete)
+			post(e, object, clear_value, 0);
+		else if(e.value.isnum()) {
+			if(hot::key == KeyBackspace)
+				post(e, object, sub_number, 0);
+			else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9'))
+				post(e, object, add_number, hot::key - (Alpha + '0'));
+		} else if(hot::key == KeyEnter)
+			post(e, object, choose_enum_field, 0);
 	}
 	textb(rc, temp, TextSingleLine);
 	fore = push_fore;
@@ -1559,10 +1623,15 @@ static int group(int x, int y, int width, contexti& ctx, const markup* form) {
 static void checkmark(int x, int y, int state) {
 	auto dy = texth();
 	rect rc = {x, y, x + 7, y + dy - 1};
-	form(rc, 1, false, true);
+	form(rc, 1, false, state ? false : true);
 	rc.x1++; rc.y1++;
-	if(state)
-		rectf(rc, colors::header.mix(colors::focus));
+	if(state) {
+		auto p = fore;
+		fore = colors::title;
+		line(rc.x2 - 2, rc.y1 + 1, rc.x1 + 1, rc.y2 - 2);
+		line(rc.x1 + 1, rc.y1 + 1, rc.x2 - 2, rc.y2 - 2);
+		fore = p;
+	}
 }
 
 static void change_current_check() {
@@ -1601,7 +1670,7 @@ static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsign
 	auto pf = getform(e.value.type);
 	if(!pf || !pf->source)
 		return 0;
-	auto gn = e.getname;
+	auto gn = e.list.getname;
 	if(!gn)
 		gn = pf->getname;
 	auto ar = pf->source;
@@ -1616,16 +1685,12 @@ static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsign
 }
 
 static int element(int x, int y, int width, contexti& ctx, const markup& e) {
-	if(e.isallow && !e.isallow(ctx.object, e.value.index))
-		return 0;
 	if(e.isgroup())
 		return group(x, y, width, ctx, e.value.type);
 	else if(e.ischeckboxes())
 		return checkboxes(x, y, width, e, e.value.ptr(ctx.object), e.value.size);
-	else {
-		auto pv = e.value.ptr(ctx.object);
-		return field(x, y, width, e.title, pv, ctx.title, e);
-	}
+	else
+		return field(x, y, width, e.title, e.value.ptr(ctx.object), ctx.title, e);
 }
 
 int draw::field(int x, int y, int width, void* object, const markup* form) {
