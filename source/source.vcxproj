@@ -120,6 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="anyreq.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="markup.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringbuilder.h" />
@@ -135,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
+    <ClCompile Include="anyreq.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
@@ -168,6 +171,7 @@
     <ClCompile Include="item.cpp" />
     <ClCompile Include="itema.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="markup.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="point.cpp" />
@@ -193,6 +197,7 @@
     <ClCompile Include="view_dungeon.cpp" />
     <ClCompile Include="view_generate.cpp" />
     <ClCompile Include="view_spells.cpp" />
+    <ClCompile Include="wear.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
     <ClCompile Include="win_time.cpp" />

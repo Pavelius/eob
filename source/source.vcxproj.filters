@@ -54,6 +54,12 @@
     <ClInclude Include="stringbuilder.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="markup.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="anyreq.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -222,6 +228,15 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="form.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="anyreq.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="markup.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="wear.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

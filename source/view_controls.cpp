@@ -1244,6 +1244,26 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 	return w + 2;
 }
 
+static int checkbox(int x, int y, const char* title, const cmd& ev) {
+	draw::state push;
+	auto width = textw(title) + 3 * 2;
+	rect rc = {x, y, x + width, y + draw::texth()+2};
+	focusing(rc, ev.focus);
+	auto run = false;
+	unsigned flags = 0;
+	if(getfocus() == ev.focus) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	rc.offset(3, 1);
+	textb(rc, title, flags | TextSingleLine);
+	if(run)
+		ev.execute();
+	return draw::texth();
+}
+
 class choose_control {
 	void**				source;
 	int					start, maximum;
@@ -1362,6 +1382,31 @@ void* draw::choose(array& source, const char* title, fngetname pgetname, bool ex
 	return control.choose(title);
 }
 
+bool draw::edit(const char* title) {
+	openform();
+	while(ismodal()) {
+		if(true) {
+			setbigfont();
+			form({0, 0, 320, 200}, 2);
+			auto x = 4, y = 6;
+			if(title) {
+				fore = colors::title;
+				textb(6, 6, title);
+				y += 12;
+			}
+			fore = colors::white;
+			//y += field(x, y, "Test", (void*)title);
+		}
+		auto y = 200 - 12 - 4;
+		auto x = 4;
+		x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+		domodal();
+		navigate(true);
+	}
+	closeform();
+	return getresult() != 0;
+}
+
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
 	while(ismodal()) {
@@ -1386,4 +1431,57 @@ void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 		navigate(true);
 	}
 	closeform();
+}
+
+namespace {
+struct contexti {
+	void*			object;
+	int				title;
+};
+}
+
+static int field(int x, int y, int width, const char* title, void* object, int title_width, const markitem& value) {
+	auto pv = value.ptr(object);
+	auto pn = 0;
+	if(!pn)
+		return 0;
+	auto push_fore = fore;
+	fore = colors::white;
+	textb(x, y + 2, title);
+	x += title_width;
+	width -= title_width;
+	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
+	value.getname(object, sb);
+	button(x, y, width, cmd(0, (int)pv, (int)pv), temp);
+	fore = push_fore;
+	return texth() + 4;
+}
+
+static int element(int x, int y, int width, contexti& ctx, const markup& e);
+
+static int group(int x, int y, int width, contexti& ctx, const markup* form) {
+	if(!form)
+		return 0;
+	auto y0 = y;
+	for(auto f = form; *f; f++)
+		y += element(x, y, width, ctx, *f);
+	return y - y0;
+}
+
+static int element(int x, int y, int width, contexti& ctx, const markup& e) {
+	if(e.pallow && !e.pallow(ctx.object, e.value.index))
+		return 0;
+	if(e.isgroup())
+		return group(x, y, width, ctx, e.value.type);
+	else {
+		auto pv = e.value.ptr(ctx.object);
+		return field(x, y, width, e.title, pv, ctx.title, e.value);
+	}
+}
+
+int draw::field(int x, int y, int width, void* object, const markup* form) {
+	contexti ct;
+	ct.object = object;
+	ct.title = 80;
+	return group(x, y, width, ct, form);
 }

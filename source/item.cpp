@@ -196,7 +196,7 @@ static enchantmenti priest_scrolls[] = {{Common, 0, DetectEvil},
 {Rare, 0, RemoveCurse},
 };
 
-itemi bsdata<itemi>::elements[] = {{"No item"},
+INSTDATA(itemi) = {{"No item"},
 {"Battle axe", {7, 4, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 {"Axe", {7, 4, 1}, 0, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 {"Club", {76, 1}, 0, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
@@ -297,6 +297,17 @@ itemi bsdata<itemi>::elements[] = {{"No item"},
 assert_enum(item, LastItem);
 INSTELEM(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
+
+DGMETA(itemi) = {{0, "Name", DGREQ(name)},
+{0, "Cost", DGREQ(cost)},
+{0, "Equipment", DGREQ(equipment)},
+{0, "Ammo", DGREQ(ammo)},
+//usabilitya			usability;
+//cflags<item_feat_s>	feats;
+//weaponi				weapon;
+//armori				armor;
+//aref<enchantmenti>	enchantments;
+{}};
 
 static unsigned char find_power(const aref<enchantmenti>& source, variant v) {
 	for(auto& e : source) {

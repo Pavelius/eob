@@ -329,27 +329,16 @@ void draw::options() {
 	chooseopt(elements);
 }
 
-static const char* getitemname(void* object, stringbuilder& sb) {
-	auto p = (itemi*)object;
-	if(p->feats.is(Natural)) {
-		sb.add(p->name);
-		sb.add(" ");
-		p->weapon.damage.print(sb);
-	} else
-		return p->name;
-	return sb;
-}
-
 static void choose_items() {
-	choose(bsdata<itemi>::source, "Choose item", 166, getitemname, true);
-}
-
-static const char* getmonstername(void* object, stringbuilder& sb) {
-	return ((monsteri*)object)->name;
+	//choose(bsdata<itemi>::source, "Choose item", getitemname, true);
 }
 
 static void choose_monster() {
-	choose(bsdata<monsteri>::source, "Choose monster", 140, getmonstername, true);
+	//choose(bsdata<monsteri>::source, "Choose monster", getmonstername, true);
+	auto p0 = dginf<itemi>::meta + 0;
+	auto p1 = dginf<itemi>::meta + 1;
+	auto p2 = dginf<itemi>::meta + 2;
+	edit("Edit item");
 }
 
 static void edit_game() {

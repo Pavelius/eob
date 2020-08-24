@@ -3,6 +3,7 @@
 #include "crt.h"
 #include "rect.h"
 #include "stringbuilder.h"
+#include "markup.h"
 
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
 
@@ -431,6 +432,9 @@ struct sitei {
 	crypti				crypt;
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
+};
+struct weari {
+	const char*			name;
 };
 class item {
 	item_s				type;
@@ -962,10 +966,6 @@ private:
 	char				buffer[512];
 	stringbuilder		sc;
 };
-struct formi {
-	const char*			name;
-	array*				source;
-};
 namespace draw {
 struct menu {
 	void(*proc)();
@@ -984,10 +984,12 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array& source, const char* title, int width, fngetname pgetname, bool exclude_first);
+void*					choose(array& source, const char* title, fngetname pgetname, bool exclude_first);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
+bool					edit(const char* title);
+int						field(int x, int y, int width, void* object, const markup* form);
 void					mainmenu();
 void					options();
 void					setnext(void(*p)());
@@ -1013,3 +1015,7 @@ DECLENUM(monster)
 DECLENUM(race)
 DECLENUM(spell)
 DECLENUM(gender)
+DECLENUM(wear)
+DECLENUM(item)
+DGLNK(wear_s, weari)
+DGLNK(item_s, itemi)
