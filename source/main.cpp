@@ -330,15 +330,12 @@ void draw::options() {
 }
 
 static void choose_items() {
-	//choose(bsdata<itemi>::source, "Choose item", getitemname, true);
+	choose(bsdata<itemi>::source);
 }
 
 static void choose_monster() {
-	//choose(bsdata<monsteri>::source, "Choose monster", getmonstername, true);
-	auto p0 = dginf<itemi>::meta + 0;
-	auto p1 = dginf<itemi>::meta + 1;
-	auto p2 = dginf<itemi>::meta + 2;
-	edit("Edit item");
+	itemi it = {"Test"};
+	edit("Edit item", &it, dginf<itemi>::meta);
 }
 
 static void edit_game() {

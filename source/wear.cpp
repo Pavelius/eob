@@ -30,5 +30,3 @@ INSTDATA(weari) = {{"Backpack"},
 };
 assert_enum(wear, LastBelt)
 INSTELEM(weari)
-DGMETA(weari) = {{0, "Name", DGREQ(name)},
-{}};

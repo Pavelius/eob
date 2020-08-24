@@ -120,7 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="anyreq.h" />
+    <ClInclude Include="anyval.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
@@ -137,7 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
-    <ClCompile Include="anyreq.cpp" />
+    <ClCompile Include="anyval.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
@@ -190,6 +190,7 @@
     <ClCompile Include="string_value.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="usability.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="view_automap.cpp" />
     <ClCompile Include="view_character.cpp" />

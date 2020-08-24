@@ -298,17 +298,6 @@ assert_enum(item, LastItem);
 INSTELEM(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
 
-DGMETA(itemi) = {{0, "Name", DGREQ(name)},
-{0, "Cost", DGREQ(cost)},
-{0, "Equipment", DGREQ(equipment)},
-{0, "Ammo", DGREQ(ammo)},
-//usabilitya			usability;
-//cflags<item_feat_s>	feats;
-//weaponi				weapon;
-//armori				armor;
-//aref<enchantmenti>	enchantments;
-{}};
-
 static unsigned char find_power(const aref<enchantmenti>& source, variant v) {
 	for(auto& e : source) {
 		if(e.power == v)

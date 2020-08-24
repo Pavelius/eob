@@ -57,7 +57,7 @@
     <ClInclude Include="markup.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="anyreq.h">
+    <ClInclude Include="anyval.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
   </ItemGroup>
@@ -230,14 +230,17 @@
     <ClCompile Include="form.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="anyreq.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
     <ClCompile Include="markup.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="wear.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="usability.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="anyval.cpp">
+      <Filter>Поддержка</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

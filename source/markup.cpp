@@ -19,7 +19,7 @@ int	markitem::get(const void* value_ptr) const {
 	}
 }
 
-void markitem::getname(const void* object, stringbuilder& sb) const {
+void markitem::getname(const void* object, stringbuilder& sb, fntext pgetname) const {
 	if(isnum()) {
 		auto value = get(ptr((void*)object));
 		sb.add("%1i", value);
@@ -29,6 +29,9 @@ void markitem::getname(const void* object, stringbuilder& sb) const {
 			value = "";
 		sb.add(value);
 	} else {
-
+		if(pgetname)
+			pgetname(object, sb);
+		if(!sb || !sb[0])
+			sb.add("None");
 	}
 }

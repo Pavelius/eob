@@ -1,4 +1,5 @@
-﻿#include "dice.h"
+﻿#include "anyval.h"
+#include "dice.h"
 #include "color.h"
 #include "crt.h"
 #include "rect.h"
@@ -311,6 +312,9 @@ struct genderi {
 struct intellegencei {
 	const char*			name;
 	char				v1, v2;
+};
+struct usabilityi {
+	const char*			name;
 };
 struct combati {
 	attack_s			attack;
@@ -984,11 +988,12 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array& source, const char* title, fngetname pgetname, bool exclude_first);
+void*					choose(array& source, const char* title, fntext pgetname, bool exclude_first);
+void*					choose(array& source);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
-bool					edit(const char* title);
+bool					edit(const char* title, void* object, const markup* form);
 int						field(int x, int y, int width, void* object, const markup* form);
 void					mainmenu();
 void					options();
@@ -1019,3 +1024,4 @@ DECLENUM(wear)
 DECLENUM(item)
 DGLNK(wear_s, weari)
 DGLNK(item_s, itemi)
+DGLNK(usability_s, usabilityi)

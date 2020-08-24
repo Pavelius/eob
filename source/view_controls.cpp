@@ -71,7 +71,9 @@ public:
 };
 struct render_control {
 	int					id;
+	anyval				av;
 	rect				rc;
+	void clear() { memset(this, 0, sizeof(*this)); }
 };
 struct fxt {
 	short int			filesize;			// the size of the file
@@ -109,6 +111,7 @@ unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
 static int				current_focus;
+static anyval			current_focus_av;
 static item*			current_item;
 static item*			drag_item;
 static char				log_message[128];
@@ -121,6 +124,24 @@ extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_s
 void					view_dungeon_reset();
 callback				draw::domodal;
 static picstore			bitmaps;
+
+static formi* getform(array& p) {
+	for(auto& e : bsdata<formi>()) {
+		if(e.source == &p)
+			return &e;
+	}
+	return 0;
+}
+
+static formi* getform(const markup* p) {
+	if(!p)
+		return 0;
+	for(auto& e : bsdata<formi>()) {
+		if(e.meta == p)
+			return &e;
+	}
+	return 0;
+}
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -666,9 +687,19 @@ static render_control* getby(int id) {
 	return 0;
 }
 
+static render_control* getby(const anyval& av) {
+	for(auto& e : render_objects) {
+		if(!e.av)
+			return 0;
+		if(e.av == av)
+			return &e;
+	}
+	return 0;
+}
+
 static render_control* getfirst() {
 	for(auto& e : render_objects) {
-		if(!e.id)
+		if(!e.id && !e.av)
 			return 0;
 		return &e;
 	}
@@ -678,7 +709,7 @@ static render_control* getfirst() {
 static render_control* getlast() {
 	auto p = render_objects;
 	for(auto& e : render_objects) {
-		if(!e.id)
+		if(!e.id && !e.av)
 			break;
 		p = &e;
 	}
@@ -758,6 +789,28 @@ static render_control* getnextfocus(int id, int key) {
 			}
 		}
 	}
+}
+
+static void setfocus(const anyval& av) {
+	current_focus_av = av;
+}
+
+static bool isfocus(const anyval& av) {
+	return current_focus_av == av;
+}
+
+static void focusing(const rect& rc, const anyval& av) {
+	if(!av)
+		return;
+	if(!render_current
+		|| render_current >= render_objects + sizeof(render_objects) / sizeof(render_objects[0]))
+		render_current = render_objects;
+	render_current[0].rc = rc;
+	render_current[0].av = av;
+	render_current++;
+	render_current->clear();
+	if(!current_focus)
+		setfocus(av);
 }
 
 void draw::focusing(const rect& rc, int id) {
@@ -1244,32 +1297,12 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 	return w + 2;
 }
 
-static int checkbox(int x, int y, const char* title, const cmd& ev) {
-	draw::state push;
-	auto width = textw(title) + 3 * 2;
-	rect rc = {x, y, x + width, y + draw::texth()+2};
-	focusing(rc, ev.focus);
-	auto run = false;
-	unsigned flags = 0;
-	if(getfocus() == ev.focus) {
-		flags |= Focused;
-		fore = colors::focus;
-		if(hot::key == KeyEnter)
-			run = true;
-	}
-	rc.offset(3, 1);
-	textb(rc, title, flags | TextSingleLine);
-	if(run)
-		ev.execute();
-	return draw::texth();
-}
-
 class choose_control {
 	void**				source;
 	int					start, maximum;
-	fngetname			getname, getdescription;
+	fntext				getname, getdescription;
 	int					perpage;
-	static fngetname	compare_callback;
+	static fntext		compare_callback;
 	static void choose_item() {
 		breakmodal(hot::param);
 	}
@@ -1303,7 +1336,7 @@ class choose_control {
 		return strcmp(s1, s2);
 	}
 public:
-	constexpr choose_control(void** source, unsigned maximum, fngetname getname, fngetname getdescription) : source(source),
+	constexpr choose_control(void** source, unsigned maximum, fntext getname, fntext getdescription) : source(source),
 		maximum(maximum), start(0), perpage(getdescription ? 11 : 11 * 2),
 		getname(getname), getdescription(getdescription) {}
 	void sort() {
@@ -1364,10 +1397,10 @@ public:
 		return (void*)getresult();
 	}
 };
-fngetname choose_control::compare_callback;
+fntext choose_control::compare_callback;
 
-void* draw::choose(array& source, const char* title, fngetname pgetname, bool exclude_first) {
-	void* storage[256];
+void* draw::choose(array& source, const char* title, fntext pgetname, bool exclude_first) {
+	void* storage[512];
 	auto p = storage;
 	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
 	auto sm = source.getcount();
@@ -1382,7 +1415,15 @@ void* draw::choose(array& source, const char* title, fngetname pgetname, bool ex
 	return control.choose(title);
 }
 
-bool draw::edit(const char* title) {
+void* draw::choose(array& source) {
+	auto pf = getform(source);
+	if(!pf)
+		return 0;
+	char temp[64]; stringbuilder sb(temp); sb.add("Choose %1:", pf->name);
+	return draw::choose(*pf->source, temp, pf->getname, true);
+}
+
+bool draw::edit(const char* title, void* object, const markup* pm) {
 	openform();
 	while(ismodal()) {
 		if(true) {
@@ -1394,8 +1435,10 @@ bool draw::edit(const char* title) {
 				textb(6, 6, title);
 				y += 12;
 			}
+			x += 6;
+			auto width = draw::getwidth() - x * 2;
 			fore = colors::white;
-			//y += field(x, y, "Test", (void*)title);
+			y += field(x, y, width, object, pm);
 		}
 		auto y = 200 - 12 - 4;
 		auto x = 4;
@@ -1442,8 +1485,7 @@ struct contexti {
 
 static int field(int x, int y, int width, const char* title, void* object, int title_width, const markitem& value) {
 	auto pv = value.ptr(object);
-	auto pn = 0;
-	if(!pn)
+	if(!title)
 		return 0;
 	auto push_fore = fore;
 	fore = colors::white;
@@ -1452,6 +1494,8 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	width -= title_width;
 	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
 	value.getname(object, sb);
+	if(!sb)
+		sb.add("None");
 	button(x, y, width, cmd(0, (int)pv, (int)pv), temp);
 	fore = push_fore;
 	return texth() + 4;
@@ -1463,16 +1507,63 @@ static int group(int x, int y, int width, contexti& ctx, const markup* form) {
 	if(!form)
 		return 0;
 	auto y0 = y;
-	for(auto f = form; *f; f++)
-		y += element(x, y, width, ctx, *f);
+	for(auto f = form; *f; f++) {
+		auto h = element(x, y, width, ctx, *f);
+		if(!h)
+			continue;
+		y += h + 2;
+	}
+	return y - y0;
+}
+
+static int checkbox(int x, int y, const char* title, const anyval& ev) {
+	draw::state push;
+	auto width = textw(title) + 3 * 2;
+	rect rc = {x, y, x + width, y + draw::texth() + 2};
+	focusing(rc, ev);
+	auto run = false;
+	unsigned flags = 0;
+	if(isfocus(ev)) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	rc.offset(3, 1);
+	textb(rc, title, flags | TextSingleLine);
+	//if(run)
+	//	execute();
+	return draw::texth();
+}
+
+static int checkboxes(int x, int y, int width, const markup& e, void* pv, unsigned char size) {
+	auto pf = getform(e.value.type);
+	if(!pf || !pf->source)
+		return 0;
+	auto gn = e.getname;
+	if(!gn)
+		gn = pf->getname;
+	auto ar = pf->source;
+	auto im = ar->getcount();
+	auto y0 = y;
+	anyval av(pv, size, 0);
+	for(unsigned i = 0; i < im; i++) {
+		auto v = ar->ptr(i);
+		char temp[260]; stringbuilder sb(temp);
+		gn(v, sb);
+		av.setvalue(1<<i);
+		y += checkbox(x, y, temp, av);
+	}
 	return y - y0;
 }
 
 static int element(int x, int y, int width, contexti& ctx, const markup& e) {
-	if(e.pallow && !e.pallow(ctx.object, e.value.index))
+	if(e.isallow && !e.isallow(ctx.object, e.value.index))
 		return 0;
 	if(e.isgroup())
 		return group(x, y, width, ctx, e.value.type);
+	else if(e.ischeckboxes())
+		return checkboxes(x, y, width, e, e.value.ptr(ctx.object), e.value.size);
 	else {
 		auto pv = e.value.ptr(ctx.object);
 		return field(x, y, width, e.title, pv, ctx.title, e.value);

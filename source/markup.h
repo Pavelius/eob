@@ -31,7 +31,7 @@ struct markitem {
 	constexpr bool		isnum() const { return type == dginf<int>::meta; }
 	constexpr bool		istext() const { return type == dginf<const char*>::meta; }
 	int					get(const void* value_ptr) const;
-	void				getname(const void* object, stringbuilder& sb) const;
+	void				getname(const void* object, stringbuilder& sb, fntext pgetname = 0) const;
 	void*				ptr(void* object) const { return (char*)object + offset + size * index; }
 };
 // Standart markup
@@ -40,9 +40,11 @@ struct markup {
 	int					width;
 	const char*			title;
 	markitem			value;
-	fnallow				pallow;
+	fnallow				isallow;
+	fntext				getname;
 	//
 	bool				is(const char* id) const;
+	bool				ischeckboxes() const { return is("chk"); }
 	bool				isdecortext() const { return value.type==0; }
 	bool				isgroup() const { return is("grp"); }
 };
