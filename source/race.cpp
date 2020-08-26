@@ -1,6 +1,6 @@
 #include "main.h"
 
-racei bsdata<racei>::elements[] = {{"No race"},
+INSTDATA(racei) = {{"No race"},
 {"Dwarf", {8, 3, 11, 3, 3, 3}, {18, 17, 18, 18, 18, 17}, {0, 0, 1, 0, 0, -1},
 {BonusSaveVsPoison, BonusSaveVsSpells, BonusToHitVsGoblinoid, BonusACVsLargeEnemy}, {UseLargeWeapon},
 {{OpenLocks, 10}, {RemoveTraps, 15}, {ClimbWalls, -10}, {ReadLanguages, -10}}},
@@ -21,4 +21,5 @@ racei bsdata<racei>::elements[] = {{"No race"},
 {"Insectoid", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}, {}, {}, {UseLargeWeapon}, {{ResistCharm, 100}}},
 {"Animal", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}},
 };
-assert_enum(race, Animal);
+assert_enum(race, Animal)
+INSTELEM(racei)

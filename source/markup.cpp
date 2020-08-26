@@ -1,7 +1,7 @@
 #include "markup.h"
 
-DGMETA(int) = {{}};
-DGMETA(const char*) = {{}};
+DGINF(int) = {{}};
+DGINF(const char*) = {{}};
 
 bool markup::is(const char* id) const {
 	return title
@@ -9,5 +9,5 @@ bool markup::is(const char* id) const {
 		&& title[1] == id[0]
 		&& title[2] == id[1]
 		&& title[3] == id[2]
-		&& title[4] == id[3];
+		&& (title[4] == 0 || title[4] == 0x20);
 }

@@ -1,7 +1,8 @@
 #include "main.h"
 
-genderi bsdata<genderi>::elements[] = {{"Transgender"},
+INSTDATA(genderi) = {{"Transgender"},
 {"Male"},
 {"Female"},
 };
-assert_enum(gender, Female);
+assert_enum(gender, Female)
+INSTELEM(genderi)

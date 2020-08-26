@@ -248,5 +248,8 @@
     <ClCompile Include="item_feat.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="size.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

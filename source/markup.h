@@ -12,20 +12,19 @@ typedef const char* (*fntext)(const void* object, stringbuilder& sb);
 typedef void (*fnsource)(const void* object, array& source);
 
 #define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
-#define DGMETA(T) const markup dginf<T>::meta[]
-#define DGCHK(R, T1, T2, ID, MS) {dginf<meta_decoy<T1>::value>::meta,\
+#define DGINF(T) const markup dginf<T>::meta[]
+#define DGGEN(R, T1, T2, MS) {dginf<meta_decoy<T1>::value>::meta,\
 bsdata<meta_decoy<T2>::value>::source_ptr,\
 (unsigned)&((data_type*)0)->R,\
 sizeof(data_type::R),\
-ID,\
 MS}
 #define DGINH(R) {dginf<meta_decoy<R>::value>::meta,\
 0,\
 (unsigned)static_cast<R*>((data_type*)0),\
 sizeof(R),\
-0,\
 0}
-#define DGREQ(R) DGCHK(R, decltype(data_type::R), decltype(data_type::R), 0, 0)
+#define DGREQ(R) DGGEN(R, decltype(data_type::R), decltype(data_type::R), 0)
+#define DGCHK(R, M) DGGEN(R, decltype(data_type::R), decltype(data_type::R), M)
 
 struct fnlist {
 	fntext				getname;
@@ -42,13 +41,12 @@ struct markitem {
 	array*				source;
 	unsigned			offset;
 	unsigned			size;
-	unsigned			index;
 	unsigned			mask;
 	//
 	constexpr bool		isnum() const { return type == dginf<int>::meta; }
 	constexpr bool		isreference() const { return source!=0; }
 	constexpr bool		istext() const { return type == dginf<const char*>::meta; }
-	void*				ptr(void* object) const { return (char*)object + offset + size * index; }
+	void*				ptr(void* object) const { return (char*)object + offset; }
 };
 // Standart markup
 struct markup {

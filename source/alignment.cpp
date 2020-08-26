@@ -10,4 +10,5 @@ alignmenti bsdata<alignmenti>::elements[] = {{"Lawful Good", {Theif}},
 {"Neutral Evil", {Ranger, Paladin}},
 {"Chaotic Evil", {Ranger, Paladin}},
 };
-assert_enum(alignment, ChaoticEvil);
+assert_enum(alignment, ChaoticEvil)
+INSTELEM(alignmenti)

@@ -7,6 +7,7 @@
 #include "markup.h"
 
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
+#define MNLNK(T1, T2) BSLNK(T1, T2) DGLNK(T1, T2)
 
 const unsigned short	Blocked = 0xFFFF;
 const int				walls_frames = 9;
@@ -312,6 +313,9 @@ struct durationi {
 struct genderi {
 	const char*			name;
 };
+struct sizei {
+	const char*			name;
+};
 struct intellegencei {
 	const char*			name;
 	char				v1, v2;
@@ -398,6 +402,11 @@ struct racei {
 	cflags<feat_s>		feats;
 	usabilitya			usability;
 	skilla				skills;
+};
+struct resourcei {
+	const char*			name;
+	const char*			path;
+	void*				data;
 };
 struct effecti {
 	variant				type;
@@ -1023,22 +1032,18 @@ inline int				d100() { return rand() % 100; }
 NOINSTDATA(dice)
 NOINSTDATA(itemi::weaponi)
 NOINSTDATA(itemi::armori)
-BSLNK(ability_s, abilityi)
-BSLNK(alignment_s, alignmenti)
-BSLNK(attack_s, attacki)
-BSLNK(class_s, classi)
-BSLNK(damage_s, damagei)
-BSLNK(item_feat_s, item_feati)
-BSLNK(monster_s, monsteri)
-BSLNK(race_s, racei)
-BSLNK(spell_s, spelli)
-BSLNK(gender_s, genderi)
-BSLNK(wear_s, weari)
-BSLNK(item_s, itemi)
-BSLNK(usability_s, usabilityi)
-DGLNK(attack_s, attacki)
-DGLNK(damage_s, damagei)
-DGLNK(item_feat_s, item_feati)
-DGLNK(wear_s, weari)
-DGLNK(item_s, itemi)
-DGLNK(usability_s, usabilityi)
+MNLNK(ability_s, abilityi)
+MNLNK(alignment_s, alignmenti)
+MNLNK(attack_s, attacki)
+MNLNK(class_s, classi)
+MNLNK(damage_s, damagei)
+MNLNK(gender_s, genderi)
+MNLNK(item_feat_s, item_feati)
+MNLNK(monster_s, monsteri)
+MNLNK(race_s, racei)
+MNLNK(resource_s, resourcei)
+MNLNK(size_s, sizei)
+MNLNK(spell_s, spelli)
+MNLNK(wear_s, weari)
+MNLNK(item_s, itemi)
+MNLNK(usability_s, usabilityi)

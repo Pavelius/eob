@@ -334,8 +334,8 @@ static void choose_items() {
 
 static void choose_monster() {
 	//item it(SwordLong);
-	auto it = bsdata<itemi>::elements[SwordLong];
-	edit("Weapon", &it, dginf<decltype(it)>::meta);
+	auto it = bsdata<monsteri>::elements[Zombie];
+	edit("Monster", &it, dginf<decltype(it)>::meta);
 }
 
 static void edit_game() {

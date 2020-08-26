@@ -2,11 +2,7 @@
 
 using namespace draw;
 
-static struct resource_info {
-	const char*			name;
-	const char*			path;
-	sprite*				data;
-} objects[] = {{"NONE"},
+INSTDATA(resourcei) = {{"NONE"},
 {"BORDER", "art/interface"},
 {"OUTTAKE", "art/misc"},
 {"CHARGEN", "art/interface"},
@@ -61,7 +57,8 @@ static struct resource_info {
 {"WOLF", "art/monsters"},
 {"ZOMBIE", "art/monsters"},
 };
-static_assert((sizeof(objects) / sizeof(objects[0])) == Count, "Need resource update");
+assert_enum(resource, ZOMBIE);
+INSTELEM(resourcei)
 
 namespace draw {
 class picstore : arem<pair<const char*, surface>> {
@@ -157,17 +154,18 @@ int draw::ciclic(int range, int speed) {
 }
 
 sprite* draw::gres(resource_s id) {
-	if(!objects[id].data) {
+	auto& e = bsdata<resourcei>::elements[id];
+	if(!e.data) {
 		if(!id)
 			return 0;
 		char temp[260];
-		objects[id].data = (sprite*)loadb(szurl(temp, objects[id].path, objects[id].name, "pma"));
+		e.data = (sprite*)loadb(szurl(temp, e.path, e.name, "pma"));
 	}
-	return objects[id].data;
+	return (sprite*)e.data;
 }
 
 void draw::resetres() {
-	for(auto& e : objects) {
+	for(auto& e : bsdata<resourcei>()) {
 		if(e.data) {
 			delete e.data;
 			e.data = 0;
@@ -1654,9 +1652,11 @@ class edit_control : contexti {
 	const markup*		elements;
 	static void next_page() {
 		((edit_control*)hot::param)->page++;
+		setfocus(0);
 	}
 	static void prev_page() {
 		((edit_control*)hot::param)->page--;
+		setfocus(0);
 	}
 	const markup* getcurrentpage() {
 		const markup* pages[32];
@@ -1701,14 +1701,22 @@ class edit_control : contexti {
 		else
 			return field(x, y, width, e.title, ctx.object, ctx.title, e);
 	}
+	const char* gettitle(const markup* pm) const {
+		if(!pm || !pm->title || pm->title[0] != '#')
+			return "";
+		return zskipsp(pm->title + 4);
+	}
 public:
 	constexpr edit_control(void* object, const markup* pm) : contexti(object), elements(pm),
 		page(0), page_maximum(0) {
 	}
-	int header(int x, int y, const char* title) {
+	int header(int x, int y, const char* title, const char* subtitle = 0) {
 		if(!title)
 			return 0;
-		char temp[260]; stringbuilder sb(temp); sb.add("Edit %1", title);
+		char temp[260]; stringbuilder sb(temp);
+		sb.add("Edit %1", title);
+		if(subtitle && subtitle[0])
+			sb.adds(subtitle);
 		auto fore_push = fore;
 		fore = colors::title;
 		textb(6, 6, temp);
@@ -1726,7 +1734,7 @@ public:
 			form({0, 0, 320, 200}, 2);
 			auto x = 4, y = 6;
 			auto pm = getcurrentpage();
-			y += header(x, y, title); x += 6;
+			y += header(x, y, title, gettitle(pm)); x += 6;
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
