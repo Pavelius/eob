@@ -26,6 +26,10 @@ static bool allow_item_type_no_natural(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return !p->feats.is(Natural);
 }
+static bool allow_countable(const void* object, int param) {
+	auto p = bsdata<itemi>::elements + param;
+	return p->feats.is(Countable);
+}
 static const char* getenchantmentname(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
 	if(!p->name) {
@@ -50,11 +54,24 @@ static const char* get_wear_choose_name(const void* object, stringbuilder& sb) {
 	auto p = (weari*)object;
 	return p->choose_name;
 }
-DGMETA(weari) = {{"Name", DGREQ(name)},
+static const char* getdicename(const void* object, stringbuilder& sb) {
+	auto p = (dice*)object;
+	p->print(sb);
+	return sb;
+}
+DGMETA(attacki) = {{"Name", DGREQ(name)},
+{}};
+DGMETA(damagei) = {{"Name", DGREQ(name)},
+{}};
+DGMETA(enchantmenti) = {{"Name", DGREQ(name)},
 {}};
 DGMETA(usabilityi) = {{"Name", DGREQ(name)},
 {}};
-DGMETA(enchantmenti) = {{"Name", DGREQ(name)},
+DGMETA(weari) = {{"Name", DGREQ(name)},
+{}};
+DGMETA(dice) = {{"Count", DGREQ(c)},
+{"Dice", DGREQ(d)},
+{"Modifier", DGREQ(b)},
 {}};
 DGMETA(item) = {{"Type", DGREQ(type), {getitemname, allow_item_type_no_natural}},
 {"Power", DGCHK(subtype, enchantmenti, int, 0, 0), {getenchantmentname, 0, getenchantments}},
@@ -66,10 +83,22 @@ DGMETA(item) = {{"Type", DGREQ(type), {getitemname, allow_item_type_no_natural}}
 DGMETA(itemi) = {{"Name", DGREQ(name)},
 {"Cost", DGREQ(cost)},
 {"Wears", DGREQ(equipment), {get_wear_choose_name, allow_item_wears}},
-{"Use ammo", DGREQ(ammo), {getitemname}},
+{"Use ammo", DGREQ(ammo), {getitemname, allow_countable}},
 {"#chk", DGREQ(usability)},
+{"Weapon", DGREQ(weapon)},
 //cflags<item_feat_s>	feats;
 //weaponi				weapon;
 //armori				armor;
 //aref<enchantmenti>	enchantments;
+{}};
+DGMETA(combati) = {{"Attack", DGREQ(attack), {getxname<attacki>}},
+{"Type", DGREQ(type), {getxname<damagei>}},
+{"Speed", DGREQ(speed)},
+{"Damage S-M", DGREQ(damage), {getdicename}},
+{"Bonus", DGREQ(bonus)},
+{"Crit. mul", DGREQ(critical_multiplier)},
+{"Crit. rng", DGREQ(critical_range)},
+{}};
+DGMETA(itemi::weaponi) = {{"#grp", DGINH(combati)},
+{"Damage L+", DGREQ(damage_large), {getdicename}},
 {}};

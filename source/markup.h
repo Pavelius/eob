@@ -19,6 +19,12 @@ bsdata<meta_decoy<T2>::value>::source_ptr,\
 sizeof(data_type::R),\
 ID,\
 MS}
+#define DGINH(R) {dginf<meta_decoy<R>::value>::meta,\
+0,\
+(unsigned)static_cast<R*>((data_type*)0),\
+sizeof(R),\
+0,\
+0}
 #define DGREQ(R) DGCHK(R, decltype(data_type::R), decltype(data_type::R), 0, 0)
 
 struct fnlist {
@@ -40,6 +46,7 @@ struct markitem {
 	unsigned			mask;
 	//
 	constexpr bool		isnum() const { return type == dginf<int>::meta; }
+	constexpr bool		isreference() const { return source!=0; }
 	constexpr bool		istext() const { return type == dginf<const char*>::meta; }
 	void*				ptr(void* object) const { return (char*)object + offset + size * index; }
 };
@@ -54,7 +61,7 @@ struct markup {
 	bool				is(const char* id) const;
 	bool				ischeckboxes() const { return is("chk"); }
 	bool				isdecortext() const { return value.type==0; }
-	bool				isgroup() const { return is("grp"); }
+	bool				isgroup() const { return value.type!=0 && !list.getname && !value.istext() && !value.isnum(); }
 };
 DGLNK(char, int)
 DGLNK(short, int)

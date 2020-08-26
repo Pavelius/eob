@@ -297,6 +297,9 @@ struct classi {
 struct commandi {
 	const char*			name;
 };
+struct damagei {
+	const char*			name;
+};
 struct directioni {
 	const char*			name;
 };
@@ -1014,9 +1017,13 @@ direction_s				pointto(short unsigned from, short unsigned to);
 int						rangeto(short unsigned i1, short unsigned i2);
 direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
+NOINSTDATA(dice)
+NOINSTDATA(itemi::weaponi)
 BSLNK(ability_s, abilityi)
 BSLNK(alignment_s, alignmenti)
+BSLNK(attack_s, attacki)
 BSLNK(class_s, classi)
+BSLNK(damage_s, damagei)
 BSLNK(monster_s, monsteri)
 BSLNK(race_s, racei)
 BSLNK(spell_s, spelli)
@@ -1024,6 +1031,8 @@ BSLNK(gender_s, genderi)
 BSLNK(wear_s, weari)
 BSLNK(item_s, itemi)
 BSLNK(usability_s, usabilityi)
+DGLNK(attack_s, attacki)
+DGLNK(damage_s, damagei)
 DGLNK(wear_s, weari)
 DGLNK(item_s, itemi)
 DGLNK(usability_s, usabilityi)

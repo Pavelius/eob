@@ -333,8 +333,9 @@ static void choose_items() {
 }
 
 static void choose_monster() {
-	item it(SwordLong);
-	edit("Edit item", &it, dginf<decltype(it)>::meta);
+	//item it(SwordLong);
+	itemi::weaponi it = {};
+	edit("Edit weapon", &it, dginf<decltype(it)>::meta);
 }
 
 static void edit_game() {

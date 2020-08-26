@@ -1,11 +1,12 @@
 #include "main.h"
 
-attacki bsdata<attacki>::elements[] = {{"AutoHit", 0},
-{"OneAttack", 2},
-{"OneAndTwoAttacks", 3},
-{"TwoAttacks", 4},
-{"OnHit", 0},
-{"OnAllHit", 0},
-{"OnCriticalHit", 0},
+attacki bsdata<attacki>::elements[] = {{"Automatic hit", 0},
+{"1 attack", 2},
+{"3/2 attack", 3},
+{"2 attacks", 4},
+{"If one hit", 0},
+{"If all hits", 0},
+{"On critical hit", 0},
 };
-assert_enum(attack, OnCriticalHit);
+assert_enum(attack, OnCriticalHit)
+INSTELEM(attacki)

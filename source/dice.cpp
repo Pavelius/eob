@@ -12,6 +12,10 @@ int dice::roll(int c, int d) {
 }
 
 void dice::print(stringbuilder& sb) const {
+	if(c == 0 && d == 0) {
+		sb.add("None");
+		return;
+	}
 	sb.add("%1id%2i", c, d);
 	if(b != 0)
 		sb.add("%+1i", b);

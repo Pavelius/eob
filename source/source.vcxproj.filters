@@ -242,5 +242,8 @@
     <ClCompile Include="anyval.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+    <ClCompile Include="damage.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
