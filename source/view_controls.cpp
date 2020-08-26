@@ -1303,7 +1303,7 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 		textb(draw::getwidth() - 6 - textw(temp), 6, temp);
 	}
 	fore = fore_push;
-	return 10;
+	return 11;
 }
 
 class choose_control {
@@ -1381,7 +1381,7 @@ public:
 				setbigfont();
 				form({0, 0, 320, 200}, 2);
 				auto x = 4, y = 6;
-				y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage); x += 6;
+				y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage);
 				auto y1 = y;
 				void* current_element = 0;
 				for(auto i = start; i < maximum; i++) {
@@ -1845,7 +1845,7 @@ public:
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
 			else if(pm->is("adc"))
-				tableadatc(x - 6, y, width, *pm, object, pm->value.size);
+				tableadatc(x - 6, y + 1, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
 				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {
