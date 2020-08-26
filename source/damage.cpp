@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(damagei) = {{"Bludgeon"},
+BSDATA(damagei) = {{"Bludgeon"},
 {"Slashing"},
 {"Pierce"},
 {"Cold"},

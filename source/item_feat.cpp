@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(item_feati) = {{"Use two hands"},
+BSDATA(item_feati) = {{"Use two hands"},
 {"Light"},
 {"Versatile"},
 {"Ranged"},

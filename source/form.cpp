@@ -1,9 +1,21 @@
 #include "main.h"
 
-#define GENDEF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
+#define GENDGINF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
 
 template<class T> const char* getnm(const void* object, stringbuilder& sb) {
 	return ((T*)object)->name;
+}
+template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
+	auto p = (enchantmenti*)object;
+	if(!p->name && !p->magic && !p->power)
+		return "No special power";
+	auto pn = p->name;
+	if(!pn)
+		pn = "magic";
+	sb.add("%+1", pn);
+	if(p->magic)
+		sb.add(" %+1i", p->magic);
+	return sb;
 }
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
@@ -19,7 +31,32 @@ template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 }
 template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 	auto p = (variant*)object;
-	return p->getname();
+	if(!(*p))
+		return "";
+	auto& e = bsdata<varianti>::elements[p->type];
+	if(e.pgetname) {
+		if(!e.source)
+			return "No source";
+		return e.pgetname(e.source->ptr(p->value), sb);
+	}
+	return "Noname";
+}
+static bool variant_selectable(const void* object, int param) {
+	auto p = bsdata<varianti>::elements + param;
+	return p->pgetname != 0;
+}
+static bool choose_variant(const void* object, array& source, void* pointer) {
+	auto v = (variant*)pointer;
+	if(!draw::choose(bsdata<varianti>::source, "Type",
+		object, &v->type, sizeof(v->type), {getnm<varianti>, variant_selectable}))
+		return false;
+	auto& e = bsdata<varianti>::elements[v->type];
+	if(!e.source)
+		return false;
+	if(!draw::choose(*e.source, e.name,
+		object, &v->value, sizeof(v->value), {e.pgetname}))
+		return false;
+	return true;
 }
 static bool monster_resources(const void* object, int param) {
 	auto p = bsdata<resourcei>::elements + param;
@@ -41,18 +78,6 @@ static bool allow_countable(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return p->feats.is(Countable);
 }
-template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
-	auto p = (enchantmenti*)object;
-	if(!p->name && !p->magic && !p->power)
-		return "No special power";
-	auto pn = p->name;
-	if(!pn)
-		pn = "magic";
-	sb.add("%+1", pn);
-	if(p->magic)
-		sb.add(" %+1i", p->magic);
-	return sb;
-}
 static void getenchantments(const void* object, array& result) {
 	auto p = (item*)object;
 	auto& ei = p->gete();
@@ -67,18 +92,19 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	p->print(sb);
 	return sb;
 }
-GENDEF(alignmenti)
-GENDEF(attacki)
-GENDEF(damagei)
-GENDEF(enchantmenti)
-GENDEF(feati)
-GENDEF(item_feati)
-GENDEF(intellegencei)
-GENDEF(genderi)
-GENDEF(racei)
-GENDEF(sizei)
-GENDEF(usabilityi)
-GENDEF(weari)
+GENDGINF(abilityi)
+GENDGINF(alignmenti)
+GENDGINF(attacki)
+GENDGINF(damagei)
+GENDGINF(enchantmenti)
+GENDGINF(feati)
+GENDGINF(item_feati)
+GENDGINF(intellegencei)
+GENDGINF(genderi)
+GENDGINF(racei)
+GENDGINF(sizei)
+GENDGINF(usabilityi)
+GENDGINF(weari)
 DGINF(variant) = {{"Value", DGREQ(value)},
 {}};
 DGINF(dice) = {{"Count", DGREQ(c)},
@@ -139,8 +165,8 @@ DGINF(monsteri) = {{"Name", DGREQ(name)},
 {"Attack 2", DGREQ(attacks[1]), {getnm<itemi>}},
 {"Attack 3", DGREQ(attacks[2]), {getnm<itemi>}},
 {"Attack 4", DGREQ(attacks[3]), {getnm<itemi>}},
-{"Power 1", DGREQ(enchantments[0]), {getnm<variant>}},
+{"Power 1", DGREQ(enchantments[0]), {getnm<variant>,0,0,choose_variant}},
 {"Power 2", DGREQ(enchantments[1]), {getnm<variant>}},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
-//skilla				skills;
+{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 {}};

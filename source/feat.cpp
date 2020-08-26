@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(feati) = {{"Bonus save vs Poison"},
+BSDATA(feati) = {{"Bonus save vs Poison"},
 {"Bonus save vs Spells"},
 {"Holy Grace"},
 {"Ambidextrity"},

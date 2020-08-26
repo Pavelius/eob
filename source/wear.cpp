@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(weari) = {{"Backpack", "Backpack"},
+BSDATA(weari) = {{"Backpack", "Backpack"},
 {"Backpack+1"},
 {"Backpack+2"},
 {"Backpack+3"},

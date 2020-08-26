@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-INSTDATA(resourcei) = {{"NONE"},
+BSDATA(resourcei) = {{"NONE"},
 {"BORDER", "art/interface"},
 {"OUTTAKE", "art/misc"},
 {"CHARGEN", "art/interface"},
@@ -1459,9 +1459,11 @@ void* draw::choose(array source, const char* title, const void* object, const vo
 	return control.choose(title, current);
 }
 
-static bool choose_element(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
+bool draw::choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
 	if(list.source)
 		list.source(object, source);
+	if(list.choose)
+		return list.choose(object, source, field);
 	auto current_value = (void*)getvalue(field, field_size);
 	if(field_size < sizeof(int))
 		current_value = source.ptr((int)current_value);
@@ -1477,15 +1479,22 @@ static bool choose_element(array source, const char* title, const void* object, 
 }
 
 static void choose_enum_field() {
-	if(!current_markup->value.source)
-		return;
-	choose_element(*current_markup->value.source, current_markup->title,
-		current_object, current_markup->value.ptr(current_object), current_markup->value.size,
-		current_markup->list);
-}
-
-static void edit_form() {
-	edit(current_markup->title, current_markup->value.ptr(current_object), current_markup->value.type);
+	if(!current_markup->value.source) {
+		if(current_markup->list.choose) {
+			array source;
+			choose(source, current_markup->title,
+				current_object, current_markup->value.ptr(current_object), current_markup->value.size,
+				current_markup->list);
+		} else {
+			edit(current_markup->title,
+				current_markup->value.ptr(current_object),
+				current_markup->value.type);
+		}
+	} else {
+		choose(*current_markup->value.source, current_markup->title,
+			current_object, current_markup->value.ptr(current_object), current_markup->value.size,
+			current_markup->list);
+	}
 }
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
@@ -1573,12 +1582,8 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 				post(e, object, sub_number, 0);
 			else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9'))
 				post(e, object, add_number, hot::key - (Alpha + '0'));
-		} else if(hot::key == KeyEnter) {
-			if(!e.value.source && !e.list.source)
-				post(e, object, edit_form, 0);
-			else
-				post(e, object, choose_enum_field, 0);
-		}
+		} else if(hot::key == KeyEnter)
+			post(e, object, choose_enum_field, 0);
 	}
 	textb(rc, temp, TextSingleLine);
 	fore = push_fore;
@@ -1632,12 +1637,58 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	auto ar = e.value.source;
 	auto gn = e.list.getname;
 	auto im = ar->getcount();
-	auto y0 = y;
 	auto pv = e.value.ptr(object);
+	if(im > 16)
+		width = width / 2;
+	auto y0 = y;
+	auto y1 = y0 + 16 * (texth() + 1);
 	for(unsigned i = 0; i < im; i++) {
 		auto v = ar->ptr(i);
 		char temp[260]; stringbuilder sb(temp);
 		y += checkbox(x, y, gn(v, sb), e, object, 1 << i);
+		if(y > y1) {
+			y = y0;
+			x += width;
+		}
+	}
+	return y - y0;
+}
+
+static int tablerow(int x, int y, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
+	draw::state push;
+	const auto cw = 24;
+	auto width = textw(title) + cw;
+	rect rc = {x, y, x + width, y + draw::texth() + 2};
+	focusing(rc, pv);
+	auto run = false;
+	if(isfocus(pv))
+		fore = colors::focus;
+	rc.offset(0, 1);
+	rc.x1 += cw;
+	textb(rc, title, TextSingleLine);
+	return draw::texth() + 1;
+}
+
+static int tableadatc(int x, int y, int width, const markup& e, void* object, unsigned char size) {
+	auto ar = e.value.source;
+	auto im = ar->getcount();
+	if(!im)
+		return 0;
+	auto gn = e.list.getname;
+	auto pv = e.value.ptr(object);
+	auto y0 = y;
+	auto y1 = y0 + 16 * (texth() + 1);
+	auto element_size = size / im;
+	if(im > 16)
+		width = width / 2;
+	for(unsigned i = 0; i < im; i++) {
+		auto v = ar->ptr(i);
+		char temp[260]; stringbuilder sb(temp);
+		y += tablerow(x, y, gn(v, sb), e, object, (char*)pv + i*element_size, element_size);
+		if(y > y1) {
+			y = y0;
+			x += width;
+		}
 	}
 	return y - y0;
 }
@@ -1715,6 +1766,8 @@ public:
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
+			else if(pm->is("adc"))
+				tableadatc(x, y, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
 				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {

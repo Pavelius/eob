@@ -327,6 +327,11 @@ struct usabilityi {
 struct item_feati {
 	const char*			name;
 };
+struct varianti {
+	const char*			name;
+	array*				source;
+	fntext				pgetname;
+};
 struct combati {
 	attack_s			attack;
 	damage_s			type;
@@ -1006,8 +1011,8 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-//void*					choose(array& source, const char* title, fntext pgetname);
 void*					choose(array source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow);
+bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
@@ -1030,10 +1035,12 @@ direction_s				pointto(short unsigned from, short unsigned to);
 int						rangeto(short unsigned i1, short unsigned i2);
 direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
-NOINSTDATA(dice)
-NOINSTDATA(itemi::weaponi)
-NOINSTDATA(itemi::armori)
-NOINSTDATA(variant)
+// Function get comon name
+template<class T> const char* getnm(const void* object, stringbuilder& sb);
+NOBSDATA(dice)
+NOBSDATA(itemi::weaponi)
+NOBSDATA(itemi::armori)
+NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
@@ -1042,6 +1049,7 @@ MNLNK(damage_s, damagei)
 MNLNK(feat_s, feati)
 MNLNK(gender_s, genderi)
 MNLNK(intellegence_s, intellegencei)
+MNLNK(item_s, itemi)
 MNLNK(item_feat_s, item_feati)
 MNLNK(monster_s, monsteri)
 MNLNK(race_s, racei)
@@ -1049,5 +1057,4 @@ MNLNK(resource_s, resourcei)
 MNLNK(size_s, sizei)
 MNLNK(spell_s, spelli)
 MNLNK(wear_s, weari)
-MNLNK(item_s, itemi)
 MNLNK(usability_s, usabilityi)

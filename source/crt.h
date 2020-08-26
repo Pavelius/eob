@@ -33,13 +33,13 @@ private:
 #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
-#define INSTDATA(e) template<> e bsdata<e>::elements[]
-#define INSTDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
-#define INSTMETA(e) template<> const bsreq bsmeta<e>::meta[]
-#define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
-#define NOINSTDATA(e) template<> struct bsdata<e> : bsdata<int> {};
-#define BSLNK(R, S) template<> struct bsmeta<R> : bsmeta<S> {}; template<> struct bsdata<R> : bsdata<S> {};
+#define BSDATA(e) template<> e bsdata<e>::elements[]
 #define BSINF(e) {#e, bsmeta<e##i>::meta, bsdata<e##i>::source}
+#define BSLNK(R, S) template<> struct bsmeta<R> : bsmeta<S> {}; template<> struct bsdata<R> : bsdata<S> {};
+#define BSMETA(e) template<> const bsreq bsmeta<e>::meta[]
+#define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
+#define INSTDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
+#define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 
 extern "C" int						atexit(void(*func)(void));
 extern "C" void*					bsearch(const void* key, const void *base, unsigned num, unsigned size, int(*compar)(const void *, const void *));
@@ -287,13 +287,13 @@ template<typename T> struct bsdata {
 	static constexpr T*		end() { return elements + source.getcount(); }
 };
 template<> struct bsdata<int> { static constexpr array*	source_ptr = 0; };
-NOINSTDATA(unsigned)
-NOINSTDATA(short)
-NOINSTDATA(unsigned short)
-NOINSTDATA(char)
-NOINSTDATA(unsigned char)
-NOINSTDATA(const char*)
-NOINSTDATA(bsreq)
+NOBSDATA(unsigned)
+NOBSDATA(short)
+NOBSDATA(unsigned short)
+NOBSDATA(char)
+NOBSDATA(unsigned char)
+NOBSDATA(const char*)
+NOBSDATA(bsreq)
 // Abstract metadata class
 template<typename T> struct bsmeta {
 	typedef T				data_type;
@@ -326,4 +326,5 @@ template<class T> struct meta_decoy<const T> : meta_decoy<T> {};
 template<class T> struct meta_decoy<aref<T>> : meta_decoy<T> {};
 template<class T> struct meta_decoy<arem<T>> : meta_decoy<T> {};
 template<class T, unsigned N> struct meta_decoy<adat<T, N>> : meta_decoy<T> {};
+template<class K, class T, unsigned N> struct meta_decoy<adatc<K, T, N>> : meta_decoy<K> {};
 template<class T, class DT> struct meta_decoy<cflags<T, DT>> : meta_decoy<T> {};

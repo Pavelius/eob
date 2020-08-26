@@ -1,5 +1,23 @@
 #include "main.h"
 
+BSDATA(varianti) = {{""},
+{"Ability"},
+{"Action"},
+{"Alignment", &bsdata<alignmenti>::source, getnm<alignmenti>},
+{"Class"},
+{"Creature"},
+{"Damage", &bsdata<damagei>::source, getnm<damagei>},
+{"Enchant"},
+{"Gender", &bsdata<genderi>::source, getnm<genderi>},
+{"Item", &bsdata<itemi>::source, getnm<itemi>},
+{"Number"},
+{"Race", &bsdata<racei>::source, getnm<racei>},
+{"Reaction"},
+{"Spell"},
+};
+assert_enum(variant, Spell)
+INSTELEM(varianti)
+
 const unsigned		creature_players_base = 240;
 
 variant::variant(const creature* p) {

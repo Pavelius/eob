@@ -10,7 +10,7 @@ typedef void(*fncommand)(void* object); // Object's actions
 typedef int(*fndraw)(int x, int y, int width, const void* object); // Custom draw
 typedef const char* (*fntext)(const void* object, stringbuilder& sb);
 typedef void(*fnsource)(const void* object, array& source);
-typedef void(*fnchoose)(const void* object, array& source, void* pointer);
+typedef bool(*fnchoose)(const void* object, array& source, void* pointer);
 
 #define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]

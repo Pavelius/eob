@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(usabilityi) = {{"Use leather armor"},
+BSDATA(usabilityi) = {{"Use leather armor"},
 {"Use metal armor"},
 {"Use shield"},
 {"Use theif weapon"},

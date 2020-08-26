@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(genderi) = {{"Transgender"},
+BSDATA(genderi) = {{"Transgender"},
 {"Male"},
 {"Female"},
 };

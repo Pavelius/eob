@@ -196,7 +196,7 @@ static enchantmenti priest_scrolls[] = {{Common, 0, DetectEvil},
 {Rare, 0, RemoveCurse},
 };
 
-INSTDATA(itemi) = {{"No item"},
+BSDATA(itemi) = {{"No item"},
 {"Battle axe", {7, 4, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 {"Axe", {7, 4, 1}, 0, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 {"Club", {76, 1}, 0, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},

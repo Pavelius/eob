@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(sizei) = {{"Tiny"},
+BSDATA(sizei) = {{"Tiny"},
 {"Small"},
 {"Medium"},
 {"Tall"},

@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATA(abilityi) = {{"Str", {}, {"strenght", "ogre strenght", "hill giant", "fire giant", "cloud giant"}},
+BSDATA(abilityi) = {{"Str", {}, {"strenght", "ogre strenght", "hill giant", "fire giant", "cloud giant"}},
 {"Dex", {}, {"archery"}},
 {"Con", {}, {"health"}},
 {"Int", {}, {"intellegence"}},
@@ -30,4 +30,5 @@ INSTDATA(abilityi) = {{"Str", {}, {"strenght", "ogre strenght", "hill giant", "f
 {"Deflect critical"},
 {"Detect secrets"},
 };
-assert_enum(ability, LastSkill);
+assert_enum(ability, LastSkill)
+INSTELEM(abilityi)
