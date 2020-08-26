@@ -282,6 +282,7 @@ struct alignmenti {
 struct attacki {
 	const char*			name;
 	char				attacks_p2r;
+	const char*			prefix;
 };
 struct classi {
 	const char*			name;
@@ -1032,12 +1033,15 @@ inline int				d100() { return rand() % 100; }
 NOINSTDATA(dice)
 NOINSTDATA(itemi::weaponi)
 NOINSTDATA(itemi::armori)
+NOINSTDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
 MNLNK(class_s, classi)
 MNLNK(damage_s, damagei)
+MNLNK(feat_s, feati)
 MNLNK(gender_s, genderi)
+MNLNK(intellegence_s, intellegencei)
 MNLNK(item_feat_s, item_feati)
 MNLNK(monster_s, monsteri)
 MNLNK(race_s, racei)

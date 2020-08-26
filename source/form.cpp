@@ -1,17 +1,31 @@
 #include "main.h"
 
+#define GENDEF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
+
 template<class T> const char* getnm(const void* object, stringbuilder& sb) {
 	return ((T*)object)->name;
 }
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
 	if(p->feats.is(Natural)) {
-		sb.add(p->name);
-		sb.add(" ");
+		auto& e = bsdata<attacki>::elements[p->weapon.attack];
+		if(e.prefix)
+			sb.adds(e.prefix);
+		sb.adds(p->name);
 		p->weapon.damage.print(sb);
 	} else
 		return p->name;
 	return sb;
+}
+template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
+	auto p = (variant*)object;
+	return p->getname();
+}
+static bool monster_resources(const void* object, int param) {
+	auto p = bsdata<resourcei>::elements + param;
+	if(!p->path)
+		return false;
+	return strcmp(p->path, "art/monsters")==0;
 }
 static bool allow_item_wears(const void* object, int param) {
 	auto p = bsdata<weari>::elements + param;
@@ -53,25 +67,19 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	p->print(sb);
 	return sb;
 }
-DGINF(alignmenti) = {{"Name", DGREQ(name)},
-{}};
-DGINF(attacki) = {{"Name", DGREQ(name)},
-{}};
-DGINF(damagei) = {{"Name", DGREQ(name)},
-{}};
-DGINF(enchantmenti) = {{"Name", DGREQ(name)},
-{}};
-DGINF(item_feati) = {{"Name", DGREQ(name)},
-{}};
-DGINF(genderi) = {{"Name", DGREQ(name)},
-{}};
-DGINF(racei) = {{"Name", DGREQ(name)},
-{}};
-DGINF(sizei) = {{"Name", DGREQ(name)},
-{}};
-DGINF(usabilityi) = {{"Name", DGREQ(name)},
-{}};
-DGINF(weari) = {{"Name", DGREQ(name)},
+GENDEF(alignmenti)
+GENDEF(attacki)
+GENDEF(damagei)
+GENDEF(enchantmenti)
+GENDEF(feati)
+GENDEF(item_feati)
+GENDEF(intellegencei)
+GENDEF(genderi)
+GENDEF(racei)
+GENDEF(sizei)
+GENDEF(usabilityi)
+GENDEF(weari)
+DGINF(variant) = {{"Value", DGREQ(value)},
 {}};
 DGINF(dice) = {{"Count", DGREQ(c)},
 {"Dice", DGREQ(d)},
@@ -112,17 +120,27 @@ DGINF(resourcei) = {{"Name", DGREQ(name)},
 {"Path", DGREQ(path)},
 {}};
 DGINF(monsteri) = {{"Name", DGREQ(name)},
-{"Resource", DGREQ(rfile), {getnm<resourcei>}},
+{"Resource", DGREQ(rfile), {getnm<resourcei>, monster_resources}},
 {"Race", DGREQ(race), {getnm<racei>}},
 {"Gender", DGREQ(gender), {getnm<genderi>}},
 {"Size", DGREQ(size), {getnm<sizei>}},
 {"Alignment", DGREQ(alignment), {getnm<alignmenti>}},
-//intellegence_s		ins;
-//cflags<feat_s>		feats;
-//char				hd[2];
-//char				ac;
-//item_s				attacks[4];
-//variant				enchantments[2];
+{"Intellect", DGREQ(ins), {getnm<intellegencei>}},
+{"Base AC", DGREQ(ac)},
+{"Hit dice", DGREQ(hd[0])},
+{"Hit bonus", DGREQ(hd[1])},
+{"#div overlays"},
+{"Overlay 1", DGREQ(overlays[0])},
+{"Overlay 2", DGREQ(overlays[1])},
+{"Overlay 3", DGREQ(overlays[2])},
+{"Overlay 4", DGREQ(overlays[3])},
+{"#div attacks"},
+{"Attack 1", DGREQ(attacks[0]), {getnm<itemi>}},
+{"Attack 2", DGREQ(attacks[1]), {getnm<itemi>}},
+{"Attack 3", DGREQ(attacks[2]), {getnm<itemi>}},
+{"Attack 4", DGREQ(attacks[3]), {getnm<itemi>}},
+{"Power 1", DGREQ(enchantments[0]), {getnm<variant>}},
+{"Power 2", DGREQ(enchantments[1]), {getnm<variant>}},
+{"#chk feats", DGREQ(feats), {getnm<feati>}},
 //skilla				skills;
-//{"Overlay 1", DGREQ(overlays[0])},
 {}};

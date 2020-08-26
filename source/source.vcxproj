@@ -163,6 +163,7 @@
     <ClCompile Include="eob_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gender.cpp" />

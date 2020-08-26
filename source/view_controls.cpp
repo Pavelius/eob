@@ -1738,6 +1738,8 @@ public:
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
+			else if(pm->is("div"))
+				y += group(x, y, width, *this, pm+1);
 			else if(pm->ispage()) {
 				contexti ctx = *this;
 				ctx.object = pm->value.ptr(object);

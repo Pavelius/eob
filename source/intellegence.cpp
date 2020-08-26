@@ -12,4 +12,5 @@ intellegencei bsdata<intellegencei>::elements[] = {{"NoInt"},
 {"Supra", 19, 20},
 {"Godlike", 21, 25},
 };
-assert_enum(intellegence, Godlike);
+assert_enum(intellegence, Godlike)
+INSTELEM(intellegencei)
