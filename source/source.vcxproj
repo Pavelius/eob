@@ -171,6 +171,7 @@
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="itema.cpp" />
+    <ClCompile Include="item_feat.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="markup.cpp" />
     <ClCompile Include="monster.cpp" />

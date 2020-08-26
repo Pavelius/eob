@@ -319,6 +319,9 @@ struct intellegencei {
 struct usabilityi {
 	const char*			name;
 };
+struct item_feati {
+	const char*			name;
+};
 struct combati {
 	attack_s			attack;
 	damage_s			type;
@@ -1025,6 +1028,7 @@ BSLNK(alignment_s, alignmenti)
 BSLNK(attack_s, attacki)
 BSLNK(class_s, classi)
 BSLNK(damage_s, damagei)
+BSLNK(item_feat_s, item_feati)
 BSLNK(monster_s, monsteri)
 BSLNK(race_s, racei)
 BSLNK(spell_s, spelli)
@@ -1034,6 +1038,7 @@ BSLNK(item_s, itemi)
 BSLNK(usability_s, usabilityi)
 DGLNK(attack_s, attacki)
 DGLNK(damage_s, damagei)
+DGLNK(item_feat_s, item_feati)
 DGLNK(wear_s, weari)
 DGLNK(item_s, itemi)
 DGLNK(usability_s, usabilityi)

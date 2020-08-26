@@ -245,5 +245,8 @@
     <ClCompile Include="damage.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="item_feat.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

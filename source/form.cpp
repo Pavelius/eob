@@ -61,6 +61,8 @@ DGMETA(enchantmenti) = {{"Name", DGREQ(name)},
 {}};
 DGMETA(usabilityi) = {{"Name", DGREQ(name)},
 {}};
+DGMETA(item_feati) = {{"Name", DGREQ(name)},
+{}};
 DGMETA(weari) = {{"Name", DGREQ(name)},
 {}};
 DGMETA(dice) = {{"Count", DGREQ(c)},
@@ -81,7 +83,7 @@ DGMETA(itemi) = {{"Name", DGREQ(name)},
 {"#tab", DGREQ(weapon)},
 {"#tab", DGREQ(armor)},
 {"#chk", DGREQ(usability), {getxname<usabilityi>}},
-//cflags<item_feat_s>	feats;
+{"#chk", DGREQ(feats), {getxname<item_feati>}},
 {}};
 DGMETA(combati) = {{"Attack", DGREQ(attack), {getxname<attacki>}},
 {"Type", DGREQ(type), {getxname<damagei>}},
