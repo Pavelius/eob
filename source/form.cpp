@@ -29,18 +29,15 @@ static bool allow_countable(const void* object, int param) {
 }
 static const char* getenchantmentname(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
-	if(!p->name) {
-		if(!p->magic && !p->power)
-			sb.add("No special power");
-		else
-			sb.add("magic+%1i", p->magic);
-		return sb;
-	}
-	if(p->magic) {
-		sb.add("%1+%2i", p->name, p->magic);
-		return sb;
-	}
-	return p->name;
+	if(!p->name && !p->magic && !p->power)
+		return "No special power";
+	auto pn = p->name;
+	if(!pn)
+		pn = "magic";
+	sb.add("%+1", pn);
+	if(p->magic)
+		sb.add(" %+1i", p->magic);
+	return sb;
 }
 static void getenchantments(const void* object, array& result) {
 	auto p = (item*)object;
@@ -81,9 +78,9 @@ DGMETA(itemi) = {{"Name", DGREQ(name)},
 {"Cost", DGREQ(cost)},
 {"Wears", DGREQ(equipment), {get_wear_choose_name, allow_item_wears}},
 {"Use ammo", DGREQ(ammo), {getitemname, allow_countable}},
-{"#chk", DGREQ(usability)},
-{"Weapon", DGREQ(weapon)},
-{"Armor", DGREQ(armor)},
+{"#tab", DGREQ(weapon)},
+{"#tab", DGREQ(armor)},
+{"#chk", DGREQ(usability), {getxname<usabilityi>}},
 //cflags<item_feat_s>	feats;
 {}};
 DGMETA(combati) = {{"Attack", DGREQ(attack), {getxname<attacki>}},

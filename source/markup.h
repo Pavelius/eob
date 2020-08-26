@@ -62,6 +62,7 @@ struct markup {
 	bool				ischeckboxes() const { return is("chk"); }
 	bool				isdecortext() const { return value.type==0; }
 	bool				isgroup() const { return value.type!=0 && !list.getname && !value.istext() && !value.isnum(); }
+	bool				ispage() const { return title && title[0]=='#'; }
 };
 DGLNK(char, int)
 DGLNK(short, int)

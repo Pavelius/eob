@@ -98,6 +98,13 @@ namespace info {
 color					text = color::create(64, 64, 64);
 }
 }
+namespace {
+struct contexti {
+	void*				object;
+	int					title;
+	constexpr contexti(void* object) : object(object), title(84) {}
+};
+}
 
 static render_control	render_objects[48];
 static render_control*	render_current;
@@ -1397,55 +1404,6 @@ void* draw::choose(array& source, const char* title, fntext pgetname) {
 	return control.choose(title);
 }
 
-static void post_key_down() {
-	hot::key = KeyPageDown;
-}
-
-static void post_key_up() {
-	hot::key = KeyPageUp;
-}
-
-bool draw::edit(const char* title, void* object, const markup* pm) {
-	auto page = 0;
-	openform();
-	while(ismodal()) {
-		auto maximum_page = 0;
-		if(page >= maximum_page)
-			page = maximum_page - 1;
-		if(true) {
-			setbigfont();
-			form({0, 0, 320, 200}, 2);
-			auto x = 4, y = 6;
-			if(title) {
-				fore = colors::title;
-				textb(6, 6, title);
-				y += 11;
-			}
-			x += 6;
-			auto width = draw::getwidth() - x * 2;
-			fore = colors::white;
-			y += field(x, y, width, object, pm);
-		}
-		auto y = 200 - 12 - 4;
-		auto x = 4;
-		x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-		x += buttonwb(x, y, "OK", buttonok);
-		if(page > 0)
-			x += buttonwb(x, y, "Prev", post_key_up, KeyPageUp);
-		if(page > 0)
-			x += buttonwb(x, y, "Next", post_key_down, KeyPageDown);
-		domodal();
-		navigate(false);
-		switch(hot::key) {
-		case KeyPageUp: page--; break;
-		case KeyPageDown: page++; break;
-		default: break;
-		}
-	}
-	closeform();
-	return getresult() != 0;
-}
-
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
 	while(ismodal()) {
@@ -1470,13 +1428,6 @@ void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 		navigate(true);
 	}
 	closeform();
-}
-
-namespace {
-struct contexti {
-	void*			object;
-	int				title;
-};
 }
 
 static void setvalue(void* p, unsigned size, int v) {
@@ -1541,8 +1492,7 @@ static void choose_enum_field() {
 }
 
 static void edit_form() {
-	char temp[260]; stringbuilder sb(temp); sb.add("Edit %1", current_markup->title);
-	edit(temp, current_markup->value.ptr(current_object), current_markup->value.type);
+	edit(current_markup->title, current_markup->value.ptr(current_object), current_markup->value.type);
 }
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
@@ -1631,7 +1581,7 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 			else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9'))
 				post(e, object, add_number, hot::key - (Alpha + '0'));
 		} else if(hot::key == KeyEnter) {
-			if(!e.value.source)
+			if(!e.value.source && !e.list.source)
 				post(e, object, edit_form, 0);
 			else
 				post(e, object, choose_enum_field, 0);
@@ -1642,33 +1592,13 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	return texth() + 4;
 }
 
-static int element(int x, int y, int width, contexti& ctx, const markup& e);
-
-static int group(int x, int y, int width, contexti& ctx, const markup* form) {
-	if(!form)
-		return 0;
-	auto y0 = y;
-	for(auto f = form; *f; f++) {
-		auto h = element(x, y, width, ctx, *f);
-		if(!h)
-			continue;
-		y += h + 2;
-	}
-	return y - y0;
-}
-
 static void checkmark(int x, int y, int state) {
 	auto dy = texth();
 	rect rc = {x, y, x + 7, y + dy - 1};
 	form(rc, 1, false, state ? false : true);
 	rc.x1++; rc.y1++;
-	if(state) {
-		auto p = fore;
-		fore = colors::black;
-		line(rc.x2 - 2, rc.y1 + 1, rc.x1 + 1, rc.y2 - 2);
-		line(rc.x1 + 1, rc.y1 + 1, rc.x2 - 2, rc.y2 - 2);
-		fore = p;
-	}
+	if(state)
+		rectf({rc.x1 + 1, rc.y1 + 1, rc.x2 - 1, rc.y2 - 1}, colors::title);
 }
 
 static void change_current_check(void* pv, unsigned size, unsigned mask) {
@@ -1719,20 +1649,110 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	return y - y0;
 }
 
-static int element(int x, int y, int width, contexti& ctx, const markup& e) {
-	if(e.isgroup())
-		return group(x, y, width, ctx, e.value.type);
-	else if(e.ischeckboxes())
-		return checkboxes(x, y, width, e, ctx.object, e.value.size);
-	else if(e.value.mask)
-		return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
-	else
-		return field(x, y, width, e.title, ctx.object, ctx.title, e);
-}
+class edit_control : contexti {
+	int					page, page_maximum;
+	const markup*		elements;
+	static void next_page() {
+		((edit_control*)hot::param)->page++;
+	}
+	static void prev_page() {
+		((edit_control*)hot::param)->page--;
+	}
+	const markup* getcurrentpage() {
+		const markup* pages[32];
+		auto ps = pages;
+		auto pe = pages + sizeof(pages) / sizeof(pages[0]);
+		if(!elements->ispage())
+			*ps++ = elements;
+		for(auto p = elements; *p; p++) {
+			if(!p->ispage())
+				continue;
+			if(ps < pe)
+				*ps++ = p;
+		}
+		page_maximum = ps - pages;
+		if(page >= page_maximum)
+			page = page_maximum - 1;
+		if(!page_maximum)
+			pages[0] = elements;
+		return pages[page];
+	}
+	static int group(int x, int y, int width, const contexti& ctx, const markup* form) {
+		if(!form)
+			return 0;
+		auto y0 = y;
+		for(auto f = form; *f; f++) {
+			if(f->ispage())
+				break;
+			auto h = element(x, y, width, ctx, *f);
+			if(!h)
+				continue;
+			y += h + 2;
+		}
+		return y - y0;
+	}
+	static int element(int x, int y, int width, const contexti& ctx, const markup& e) {
+		if(e.isgroup())
+			return group(x, y, width, ctx, e.value.type);
+		else if(e.ischeckboxes())
+			return checkboxes(x, y, width, e, ctx.object, e.value.size);
+		else if(e.value.mask)
+			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
+		else
+			return field(x, y, width, e.title, ctx.object, ctx.title, e);
+	}
+public:
+	constexpr edit_control(void* object, const markup* pm) : contexti(object), elements(pm),
+		page(0), page_maximum(0) {
+	}
+	int header(int x, int y, const char* title) {
+		if(!title)
+			return 0;
+		char temp[260]; stringbuilder sb(temp); sb.add("Edit %1", title);
+		auto fore_push = fore;
+		fore = colors::title;
+		textb(6, 6, temp);
+		if(page_maximum > 1) {
+			sb.clear();
+			sb.add("Page %1i of %2i", page + 1, page_maximum);
+			textb(draw::getwidth() - 6 - textw(temp), 6, temp);
+		}
+		fore = fore_push;
+		return 11;
+	}
+	bool edit(const char* title) {
+		openform();
+		while(ismodal()) {
+			form({0, 0, 320, 200}, 2);
+			auto x = 4, y = 6;
+			auto pm = getcurrentpage();
+			y += header(x, y, title); x += 6;
+			auto width = draw::getwidth() - x * 2;
+			if(pm->ischeckboxes())
+				checkboxes(x, y, width, *pm, object, pm->value.size);
+			else if(pm->ispage()) {
+				contexti ctx = *this;
+				ctx.object = pm->value.ptr(object);
+				y += group(x, y, width, ctx, pm->value.type);
+			} else
+				y += group(x, y, width, *this, pm);
+			// Footer
+			x = 4; y = 200 - 12 - 4;
+			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+			x += buttonwb(x, y, "OK", buttonok, Ctrl + Alpha + 'S');
+			if(page > 0)
+				x += buttonwb(x, y, "Prev", cmd(prev_page, (int)this, (int)prev_page), KeyPageUp);
+			if(page < page_maximum-1)
+				x += buttonwb(x, y, "Next", cmd(next_page, (int)this, (int)next_page), KeyPageDown);
+			domodal();
+			navigate(false);
+		}
+		closeform();
+		return getresult() != 0;
+	}
+};
 
-int draw::field(int x, int y, int width, void* object, const markup* form) {
-	contexti ct;
-	ct.object = object;
-	ct.title = 84;
-	return group(x, y, width, ct, form);
+bool draw::edit(const char* title, void* object, const markup* pm) {
+	edit_control e(object, pm);
+	return e.edit(title);
 }
