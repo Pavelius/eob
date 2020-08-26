@@ -131,24 +131,6 @@ void					view_dungeon_reset();
 callback				draw::domodal;
 static picstore			bitmaps;
 
-//static formi* getform(array& p) {
-//	for(auto& e : bsdata<formi>()) {
-//		if(e.source == &p)
-//			return &e;
-//	}
-//	return 0;
-//}
-//
-//static formi* getform(const markup* p) {
-//	if(!p)
-//		return 0;
-//	for(auto& e : bsdata<formi>()) {
-//		if(e.meta == p)
-//			return &e;
-//	}
-//	return 0;
-//}
-
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
 }
@@ -1285,10 +1267,29 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 	return w + 2;
 }
 
+static int headerc(int x, int y, const char* prefix, const char* title, const char* subtitle, int page, int page_maximum) {
+	if(!title)
+		return 0;
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("%1 %2", prefix, title);
+	if(subtitle && subtitle[0])
+		sb.adds(subtitle);
+	auto fore_push = fore;
+	fore = colors::title;
+	textb(6, 6, temp);
+	if(page_maximum > 1) {
+		sb.clear();
+		sb.add("Page %1i of %2i", page + 1, page_maximum);
+		textb(draw::getwidth() - 6 - textw(temp), 6, temp);
+	}
+	fore = fore_push;
+	return 11;
+}
+
 class choose_control {
 	void**				source;
 	int					start, maximum;
-	fntext				getname, getdescription;
+	fntext				getname;
 	int					perpage;
 	static fntext		compare_callback;
 	static void choose_item() {
@@ -1323,29 +1324,44 @@ class choose_control {
 			s2 = "";
 		return strcmp(s1, s2);
 	}
+	int getindex(const void* v) const {
+		for(auto i = 0; i < maximum; i++) {
+			if(v == source[i])
+				return i;
+		}
+		return -1;
+	}
 public:
+	void ensurevisible(const void* v) {
+		auto i = getindex(v);
+		if(i == -1)
+			return;
+		start = (i / perpage)*perpage;
+		if(start + perpage >= maximum)
+			start = maximum - perpage;
+		if(start < 0)
+			start = 0;
+	}
 	constexpr choose_control(void** source, unsigned maximum, fntext getname, fntext getdescription) : source(source),
 		maximum(maximum), start(0), perpage(getdescription ? 11 : 11 * 2),
-		getname(getname), getdescription(getdescription) {
+		getname(getname) {
 	}
 	void sort() {
 		compare_callback = getname;
 		qsort(source, maximum, sizeof(source[0]), compare);
 	}
-	void* choose(const char* title, int width = 154) const {
+	void* choose(const char* title, const void* current_value = 0, int width = 154) const {
+		if(!source || !maximum)
+			return 0;
 		openform();
+		setfocus((void*)current_value);
 		while(ismodal()) {
 			if(true) {
 				draw::state push;
 				setbigfont();
 				form({0, 0, 320, 200}, 2);
 				auto x = 4, y = 6;
-				if(title) {
-					fore = colors::title;
-					textb(6, 6, title);
-					y += 11;
-				}
-				fore = colors::white;
+				y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage); x += 6;
 				auto y1 = y;
 				void* current_element = 0;
 				for(auto i = start; i < maximum; i++) {
@@ -1358,18 +1374,9 @@ public:
 					if(isfocus(pt))
 						current_element = pt;
 					if(y >= 200 - 16 * 2) {
-						if(getdescription || (x + width + 4) >= 320)
-							break;
 						x += width + 4;
 						y = y1;
 					}
-				}
-				if(getdescription && current_element) {
-					char temp[260]; stringbuilder sb(temp);
-					getdescription(current_element, sb);
-					x += width + 4;
-					y = y1;
-					text({x, y, getwidth() - 4, 200 - 16 * 2}, temp, AlignLeft);
 				}
 			}
 			auto y = 200 - 12 - 4;
@@ -1387,20 +1394,6 @@ public:
 	}
 };
 fntext choose_control::compare_callback;
-
-void* draw::choose(array& source, const char* title, fntext pgetname) {
-	void* storage[512];
-	auto p = storage;
-	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
-	auto sm = source.getcount();
-	for(unsigned i = 0; i < sm; i++) {
-		if(p < pe)
-			*p++ = source.ptr(i);
-	}
-	choose_control control(storage, p - storage, pgetname, 0);
-	control.sort();
-	return control.choose(title);
-}
 
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
@@ -1449,44 +1442,46 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static void choose_enum_field(const char* title, void* object, const markup* pm) {
-	if(!pm)
-		return;
-	auto pv = pm->value.ptr(object);
-	auto ps = pm->value.size;
-	auto sr = pm->value.source;
-	array custom_source;
-	if(pm->list.source) {
-		pm->list.source(object, custom_source);
-		sr = &custom_source;
-	}
-	if(!sr)
-		return;
+void* draw::choose(array source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow) {
 	void* storage[512];
 	auto p = storage;
 	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
-	auto sm = sr->getcount();
+	auto sm = source.getcount();
 	for(unsigned i = 0; i < sm; i++) {
-		if(pm->list.allow && !pm->list.allow(pv, i))
+		if(pallow && !pallow(object, i))
 			continue;
 		if(p < pe)
-			*p++ = sr->ptr(i);
+			*p++ = source.ptr(i);
 	}
-	choose_control control(storage, p - storage, pm->list.getname, 0);
+	choose_control control(storage, p - storage, pgetname, 0);
 	control.sort();
-	auto result = control.choose(title);
+	control.ensurevisible(current);
+	return control.choose(title, current);
+}
+
+static bool choose_element(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
+	if(list.source)
+		list.source(object, source);
+	auto current_value = (void*)getvalue(field, field_size);
+	if(field_size < sizeof(int))
+		current_value = source.ptr((int)current_value);
+	auto result = choose(source, title, object, current_value, list.getname, list.allow);
 	if(!result)
-		return;
-	if(ps < sizeof(int)) {
-		auto index = sr->indexof(result);
-		if(index != -1)
-			setvalue(pv, ps, index);
-	}
+		return false;
+	if(field_size < sizeof(int))
+		current_value = (void*)source.indexof(result);
+	if(current_value == (void*)0xFFFFFFFF)
+		return false;
+	setvalue(field, field_size, (int)current_value);
+	return true;
 }
 
 static void choose_enum_field() {
-	char temp[260]; stringbuilder sb(temp); sb.add("Choose %1", current_markup->title);
-	choose_enum_field(temp, current_object, current_markup);
+	if(!current_markup->value.source)
+		return;
+	choose_element(*current_markup->value.source, current_markup->title,
+		current_object, current_markup->value.ptr(current_object), current_markup->value.size,
+		current_markup->list);
 }
 
 static void edit_form() {
@@ -1710,36 +1705,18 @@ public:
 	constexpr edit_control(void* object, const markup* pm) : contexti(object), elements(pm),
 		page(0), page_maximum(0) {
 	}
-	int header(int x, int y, const char* title, const char* subtitle = 0) {
-		if(!title)
-			return 0;
-		char temp[260]; stringbuilder sb(temp);
-		sb.add("Edit %1", title);
-		if(subtitle && subtitle[0])
-			sb.adds(subtitle);
-		auto fore_push = fore;
-		fore = colors::title;
-		textb(6, 6, temp);
-		if(page_maximum > 1) {
-			sb.clear();
-			sb.add("Page %1i of %2i", page + 1, page_maximum);
-			textb(draw::getwidth() - 6 - textw(temp), 6, temp);
-		}
-		fore = fore_push;
-		return 11;
-	}
 	bool edit(const char* title) {
 		openform();
 		while(ismodal()) {
 			form({0, 0, 320, 200}, 2);
 			auto x = 4, y = 6;
 			auto pm = getcurrentpage();
-			y += header(x, y, title, gettitle(pm)); x += 6;
+			y += headerc(x, y, "Edit", title, gettitle(pm), page, page_maximum); x += 6;
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
-				y += group(x, y, width, *this, pm+1);
+				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {
 				contexti ctx = *this;
 				ctx.object = pm->value.ptr(object);
@@ -1752,7 +1729,7 @@ public:
 			x += buttonwb(x, y, "OK", buttonok, Ctrl + Alpha + 'S');
 			if(page > 0)
 				x += buttonwb(x, y, "Prev", cmd(prev_page, (int)this, (int)prev_page), KeyPageUp);
-			if(page < page_maximum-1)
+			if(page < page_maximum - 1)
 				x += buttonwb(x, y, "Next", cmd(next_page, (int)this, (int)next_page), KeyPageDown);
 			domodal();
 			navigate(false);

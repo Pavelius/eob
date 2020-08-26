@@ -1006,12 +1006,12 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array& source, const char* title, fntext pgetname);
+//void*					choose(array& source, const char* title, fntext pgetname);
+void*					choose(array source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
 bool					edit(const char* title, void* object, const markup* form);
-int						field(int x, int y, int width, void* object, const markup* form);
 void					mainmenu();
 void					options();
 void					setnext(void(*p)());

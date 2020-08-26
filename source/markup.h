@@ -9,7 +9,8 @@ typedef bool(*fnallow)(const void* object, int index); // Is allow some property
 typedef void(*fncommand)(void* object); // Object's actions
 typedef int(*fndraw)(int x, int y, int width, const void* object); // Custom draw
 typedef const char* (*fntext)(const void* object, stringbuilder& sb);
-typedef void (*fnsource)(const void* object, array& source);
+typedef void(*fnsource)(const void* object, array& source);
+typedef void(*fnchoose)(const void* object, array& source, void* pointer);
 
 #define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
@@ -30,6 +31,7 @@ struct fnlist {
 	fntext				getname;
 	fnallow				allow;
 	fnsource			source;
+	fnchoose			choose;
 };
 template<class T> struct dginf {
 	typedef T			data_type;
