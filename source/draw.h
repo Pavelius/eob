@@ -181,7 +181,7 @@ struct cmd {
 	constexpr cmd() : proc(0), param(0), focus(0) {}
 	constexpr cmd(callback proc, int param = 0) : proc(proc), param(param), focus((int)proc) {}
 	constexpr cmd(callback proc, int param, int focus) : proc(proc), param(param), focus(focus) {}
-	virtual void		execute() const;
+	void				execute() const;
 };
 int						alignedh(const rect& rc, const char* string, unsigned state);
 int						aligned(int x, int width, unsigned flags, int dx);

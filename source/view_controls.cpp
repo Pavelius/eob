@@ -115,8 +115,9 @@ unsigned				draw::frametick;
 static unsigned			frametick_last;
 static infoproc			show_mode;
 static void*			current_focus;
-static void*			current_object;
 static unsigned			current_focus_param;
+static void*			current_object;
+static unsigned			current_size;
 static const markup*	current_markup;
 static item*			current_item;
 static item*			drag_item;
@@ -1267,6 +1268,25 @@ static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned k
 	return w + 2;
 }
 
+static bool buttontxt(int x, int& y, int width, void* focus, const char* name, int key) {
+	draw::state push;
+	if(width == -1)
+		width = textw(name) + 2;
+	rect rc = {x, y, x + width, y + draw::texth()};
+	focusing(rc, focus);
+	auto run = false;
+	if(isfocus(focus)) {
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	if(key && key == hot::key)
+		run = true;
+	textb(rc, name, TextSingleLine);
+	y += rc.height() + 1;
+	return run;
+}
+
 static int headerc(int x, int y, const char* prefix, const char* title, const char* subtitle, int page, int page_maximum) {
 	if(!title)
 		return 0;
@@ -1283,7 +1303,7 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 		textb(draw::getwidth() - 6 - textw(temp), 6, temp);
 	}
 	fore = fore_push;
-	return 11;
+	return 10;
 }
 
 class choose_control {
@@ -1536,11 +1556,19 @@ static void add_number(void* p, unsigned size, int r, int d, int v) {
 }
 
 static void add_number() {
-	add_number(current_markup->value.ptr(current_object), current_markup->value.size, 10, 1, hot::param);
+	add_number(current_object, current_size, 10, 1, hot::param);
+}
+
+static void increment() {
+	add_number(current_object, current_size, 1, 1, 1);
+}
+
+static void decrement() {
+	add_number(current_object, current_size, 1, 1, -1);
 }
 
 static void sub_number() {
-	add_number(current_markup->value.ptr(current_object), current_markup->value.size, 1, 10, 0);
+	add_number(current_object, current_size, 1, 10, 0);
 }
 
 static void clear_value() {
@@ -1553,41 +1581,62 @@ static void post(const markup& e, void* object, callback proc, int param) {
 	execute(proc, param);
 }
 
-static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
+static void event_number(void* object, unsigned size) {
+	if(hot::key == KeyBackspace) {
+		current_object = object;
+		current_size = size;
+		execute(sub_number);
+	} else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9')) {
+		current_object = object;
+		current_size = size;
+		execute(add_number, hot::key - (Alpha + '0'));
+	} else if(hot::key == (Alpha + '+')) {
+		current_object = object;
+		current_size = size;
+		execute(increment);
+	} else if(hot::key == (Alpha + '-')) {
+		current_object = object;
+		current_size = size;
+		execute(decrement);
+	}
+}
+
+static int field(const rect& rco, const char* title, void* object, const markup& e) {
 	if(!title)
-		return 0;
-	auto push_fore = fore;
-	fore = colors::white;
-	textb(x, y + 2, title);
-	x += title_width;
-	width -= title_width;
-	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
-	getname(e, object, sb);
-	if(!sb)
-		sb.add("None");
-	rect rc = {x, y, x + width, y + draw::texth() + 4};
+		title = "None";
 	auto pv = e.value.ptr(object);
-	form(rc);
-	focusing(rc, pv);
+	form(rco);
+	focusing(rco, pv);
+	auto rc = rco;
 	rc.offset(3, 2);
 	auto focused = isfocus(pv);
+	auto push_fore = fore;
+	fore = colors::white;
 	if(focused) {
 		fore = colors::focus;
 		if(hot::key == KeyDelete)
 			post(e, object, clear_value, 0);
 		else if(e.value.istext()) {
 
-		} else if(e.value.isnum()) {
-			if(hot::key == KeyBackspace)
-				post(e, object, sub_number, 0);
-			else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9'))
-				post(e, object, add_number, hot::key - (Alpha + '0'));
-		} else if(hot::key == KeyEnter)
+		} else if(e.value.isnum())
+			event_number(e.value.ptr(object), e.value.size);
+		else if(hot::key == KeyEnter)
 			post(e, object, choose_enum_field, 0);
 	}
-	textb(rc, temp, TextSingleLine);
+	textb(rc, title, TextSingleLine);
 	fore = push_fore;
-	return texth() + 4;
+	return rco.height();
+}
+
+static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
+	if(!title)
+		return 0;
+	textb(x, y + 2, title);
+	x += title_width;
+	width -= title_width;
+	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
+	getname(e, object, sb);
+	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -1630,7 +1679,7 @@ static int checkbox(int x, int y, const char* title, const markup& e, void* obje
 	checkmark(rc.x1, rc.y1, s);
 	rc.x1 += cw;
 	textb(rc, title, flags | TextSingleLine);
-	return draw::texth() + 1;
+	return draw::texth() + 2;
 }
 
 static int checkboxes(int x, int y, int width, const markup& e, void* object, unsigned char size) {
@@ -1641,12 +1690,12 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	if(im > 16)
 		width = width / 2;
 	auto y0 = y;
-	auto y1 = y0 + 16 * (texth() + 1);
+	auto y1 = y0 + 16 * (texth() + 2);
 	for(unsigned i = 0; i < im; i++) {
 		auto v = ar->ptr(i);
 		char temp[260]; stringbuilder sb(temp);
 		y += checkbox(x, y, gn(v, sb), e, object, 1 << i);
-		if(y > y1) {
+		if(y >= y1) {
 			y = y0;
 			x += width;
 		}
@@ -1654,22 +1703,42 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	return y - y0;
 }
 
-static int tablerow(int x, int y, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
+static int tablerow(int x, int y, int cw, int width, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
 	draw::state push;
-	const auto cw = 24;
-	auto width = textw(title) + cw;
-	rect rc = {x, y, x + width, y + draw::texth() + 2};
+	rect rc = {x, y, x + width - 1, y + draw::texth()};
 	focusing(rc, pv);
-	auto run = false;
-	if(isfocus(pv))
+	auto focused = isfocus(pv);
+	if(focused) {
 		fore = colors::focus;
-	rc.offset(0, 1);
-	rc.x1 += cw;
-	textb(rc, title, TextSingleLine);
-	return draw::texth() + 1;
+		event_number(pv, size);
+	}
+	char temp[64]; stringbuilder sb(temp);
+	auto value = getvalue(pv, size);
+	sb.add("%1i", value);
+	textb({rc.x1, rc.y1, rc.x1 + cw, rc.y2}, temp, AlignCenter);
+	textb({rc.x1 + cw + 4, rc.y1, rc.x2, rc.y2}, title, TextSingleLine);
+	return rc.height() + 2;
+}
+
+static void add_record(const markup& e, void* object) {
+	auto value = draw::choose(*e.value.source, e.title, object, 0, e.list.getname, e.list.allow);
+	auto index = e.value.source->indexof(value);
+	if(index == -1)
+		return;
+	auto mx = e.value.source->getcount();
+	if(!mx)
+		return;
+	auto se = e.value.size / mx;
+	auto pv = (char*)e.value.ptr(object) + index*se;
+	*pv = 1;
+}
+
+static void add_record_call() {
+	add_record(*current_markup, current_object);
 }
 
 static int tableadatc(int x, int y, int width, const markup& e, void* object, unsigned char size) {
+	const int cw = 18;
 	auto ar = e.value.source;
 	auto im = ar->getcount();
 	if(!im)
@@ -1677,18 +1746,27 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 	auto gn = e.list.getname;
 	auto pv = e.value.ptr(object);
 	auto y0 = y;
-	auto y1 = y0 + 16 * (texth() + 1);
+	auto y1 = 170;
 	auto element_size = size / im;
 	if(im > 16)
 		width = width / 2;
 	for(unsigned i = 0; i < im; i++) {
 		auto v = ar->ptr(i);
+		auto pr = (char*)pv + i*element_size;
+		auto nv = getvalue(pr, element_size);
+		if(!nv)
+			continue;
 		char temp[260]; stringbuilder sb(temp);
-		y += tablerow(x, y, gn(v, sb), e, object, (char*)pv + i*element_size, element_size);
-		if(y > y1) {
+		y += tablerow(x, y, cw, width, gn(v, sb), e, object, pr, element_size);
+		if(y >= y1) {
 			y = y0;
 			x += width;
 		}
+	}
+	if(buttontxt(x + cw + 4, y, width, add_record, "Add record", F3)) {
+		current_markup = &e;
+		current_object = object;
+		execute(add_record_call);
 	}
 	return y - y0;
 }
@@ -1767,7 +1845,7 @@ public:
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
 			else if(pm->is("adc"))
-				tableadatc(x, y, width, *pm, object, pm->value.size);
+				tableadatc(x - 6, y, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
 				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {

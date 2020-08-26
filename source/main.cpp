@@ -334,7 +334,7 @@ static void choose_items() {
 
 static void choose_monster() {
 	//item it(SwordLong);
-	auto it = bsdata<monsteri>::elements[Zombie];
+	auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
 	edit("Monster", &it, dginf<decltype(it)>::meta);
 }
