@@ -1019,6 +1019,7 @@ direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 NOINSTDATA(dice)
 NOINSTDATA(itemi::weaponi)
+NOINSTDATA(itemi::armori)
 BSLNK(ability_s, abilityi)
 BSLNK(alignment_s, alignmenti)
 BSLNK(attack_s, attacki)

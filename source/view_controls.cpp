@@ -1397,9 +1397,21 @@ void* draw::choose(array& source, const char* title, fntext pgetname) {
 	return control.choose(title);
 }
 
+static void post_key_down() {
+	hot::key = KeyPageDown;
+}
+
+static void post_key_up() {
+	hot::key = KeyPageUp;
+}
+
 bool draw::edit(const char* title, void* object, const markup* pm) {
+	auto page = 0;
 	openform();
 	while(ismodal()) {
+		auto maximum_page = 0;
+		if(page >= maximum_page)
+			page = maximum_page - 1;
 		if(true) {
 			setbigfont();
 			form({0, 0, 320, 200}, 2);
@@ -1407,7 +1419,7 @@ bool draw::edit(const char* title, void* object, const markup* pm) {
 			if(title) {
 				fore = colors::title;
 				textb(6, 6, title);
-				y += 12;
+				y += 11;
 			}
 			x += 6;
 			auto width = draw::getwidth() - x * 2;
@@ -1416,10 +1428,19 @@ bool draw::edit(const char* title, void* object, const markup* pm) {
 		}
 		auto y = 200 - 12 - 4;
 		auto x = 4;
-		x += buttonwb(x, y, "OK", buttonok);
 		x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+		x += buttonwb(x, y, "OK", buttonok);
+		if(page > 0)
+			x += buttonwb(x, y, "Prev", post_key_up, KeyPageUp);
+		if(page > 0)
+			x += buttonwb(x, y, "Next", post_key_down, KeyPageDown);
 		domodal();
 		navigate(false);
+		switch(hot::key) {
+		case KeyPageUp: page--; break;
+		case KeyPageDown: page++; break;
+		default: break;
+		}
 	}
 	closeform();
 	return getresult() != 0;
@@ -1479,7 +1500,7 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static void choose_enum_field(void* object, const markup* pm) {
+static void choose_enum_field(const char* title, void* object, const markup* pm) {
 	if(!pm)
 		return;
 	auto pv = pm->value.ptr(object);
@@ -1504,7 +1525,7 @@ static void choose_enum_field(void* object, const markup* pm) {
 	}
 	choose_control control(storage, p - storage, pm->list.getname, 0);
 	control.sort();
-	auto result = control.choose(0);
+	auto result = control.choose(title);
 	if(!result)
 		return;
 	if(ps < sizeof(int)) {
@@ -1515,15 +1536,13 @@ static void choose_enum_field(void* object, const markup* pm) {
 }
 
 static void choose_enum_field() {
-	choose_enum_field(current_object, current_markup);
-}
-
-static void edit_form(void* object, const markup* pm) {
-	edit("Edit object", object, pm);
+	char temp[260]; stringbuilder sb(temp); sb.add("Choose %1", current_markup->title);
+	choose_enum_field(temp, current_object, current_markup);
 }
 
 static void edit_form() {
-	edit_form(current_markup->value.ptr(current_object), current_markup->value.type);
+	char temp[260]; stringbuilder sb(temp); sb.add("Edit %1", current_markup->title);
+	edit(temp, current_markup->value.ptr(current_object), current_markup->value.type);
 }
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {

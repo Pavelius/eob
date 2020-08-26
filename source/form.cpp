@@ -3,9 +3,6 @@
 template<class T> const char* getxname(const void* object, stringbuilder& sb) {
 	return ((T*)object)->name;
 }
-static const char* getmonstername(const void* object, stringbuilder& sb) {
-	return ((monsteri*)object)->name;
-}
 static const char* getitemname(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
 	if(p->feats.is(Natural)) {
@@ -86,10 +83,8 @@ DGMETA(itemi) = {{"Name", DGREQ(name)},
 {"Use ammo", DGREQ(ammo), {getitemname, allow_countable}},
 {"#chk", DGREQ(usability)},
 {"Weapon", DGREQ(weapon)},
+{"Armor", DGREQ(armor)},
 //cflags<item_feat_s>	feats;
-//weaponi				weapon;
-//armori				armor;
-//aref<enchantmenti>	enchantments;
 {}};
 DGMETA(combati) = {{"Attack", DGREQ(attack), {getxname<attacki>}},
 {"Type", DGREQ(type), {getxname<damagei>}},
@@ -99,6 +94,10 @@ DGMETA(combati) = {{"Attack", DGREQ(attack), {getxname<attacki>}},
 {"Crit. mul", DGREQ(critical_multiplier)},
 {"Crit. rng", DGREQ(critical_range)},
 {}};
-DGMETA(itemi::weaponi) = {{"#grp", DGINH(combati)},
+DGMETA(itemi::weaponi) = {{0, DGINH(combati)},
 {"Damage L+", DGREQ(damage_large), {getdicename}},
+{}};
+DGMETA(itemi::armori) = {{"AC", DGREQ(ac)},
+{"Crit. def", DGREQ(critical_deflect)},
+{"Reduction", DGREQ(reduction)},
 {}};
