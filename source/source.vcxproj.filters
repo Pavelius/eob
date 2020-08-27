@@ -254,5 +254,8 @@
     <ClCompile Include="feat.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="enchant.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

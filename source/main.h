@@ -379,6 +379,9 @@ struct itemi {
 struct feati {
 	const char*			name;
 };
+struct enchanti {
+	const char*			name;
+};
 struct monsteri {
 	const char*			name;
 	resource_s			rfile;
@@ -614,6 +617,7 @@ class creature {
 	void				random_spells(class_s type, int level, int count);
 	void				update_levelup(bool interactive);
 	void				update_poison(bool interactive);
+	friend dginf<creature>;
 public:
 	explicit operator bool() const { return race != NoRace; }
 	typedef void		(creature::*apply_proc)(bool);
@@ -1011,7 +1015,7 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(array source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow);
+void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow);
 bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
@@ -1046,6 +1050,7 @@ MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
 MNLNK(class_s, classi)
 MNLNK(damage_s, damagei)
+MNLNK(enchant_s, enchanti)
 MNLNK(feat_s, feati)
 MNLNK(gender_s, genderi)
 MNLNK(intellegence_s, intellegencei)

@@ -5,6 +5,9 @@
 template<class T> const char* getnm(const void* object, stringbuilder& sb) {
 	return ((T*)object)->name;
 }
+template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
+	return ((enchanti*)object)->name;
+}
 template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
 	if(!p->name && !p->magic && !p->power)
@@ -74,6 +77,14 @@ static bool allow_item_type_no_natural(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return !p->feats.is(Natural);
 }
+static bool weapon_visible(const void* object) {
+	auto p = (itemi*)object;
+	return p->equipment == RightHand;
+}
+static bool armor_visible(const void* object) {
+	auto p = (itemi*)object;
+	return p->equipment != Backpack;
+}
 static bool allow_countable(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return p->feats.is(Countable);
@@ -95,6 +106,7 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
 GENDGINF(attacki)
+GENDGINF(classi)
 GENDGINF(damagei)
 GENDGINF(enchantmenti)
 GENDGINF(feati)
@@ -122,8 +134,8 @@ DGINF(itemi) = {{"Name", DGREQ(name)},
 {"Cost", DGREQ(cost)},
 {"Wears", DGREQ(equipment), {getnm<weari>, allow_item_wears}},
 {"Use ammo", DGREQ(ammo), {getnm<itemi>, allow_countable}},
-{"#tab attacks", DGREQ(weapon)},
-{"#tab defences", DGREQ(armor)},
+{"#tab attacks", DGREQ(weapon), {}, {weapon_visible}},
+{"#tab defences", DGREQ(armor), {}, {armor_visible}},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 {"#chk feats", DGREQ(feats), {getnm<item_feati>}},
 {}};
@@ -169,4 +181,34 @@ DGINF(monsteri) = {{"Name", DGREQ(name)},
 {"Power 2", DGREQ(enchantments[1]), {getnm<variant>}},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#adc skills", DGREQ(skills), {getnm<abilityi>}},
+{}};
+DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
+{"Gender", DGREQ(gender), {getnm<genderi>}},
+{"Alignment", DGREQ(alignment), {getnm<alignmenti>}},
+{"Monster", DGREQ(kind), {getnm<monsteri>}},
+{"Class", DGREQ(type), {getnm<classi>}},
+{"Hits", DGREQ(hits)},
+{"Hits rolled", DGREQ(hits_rolled)},
+{"Level 1", DGREQ(levels[0])},
+{"Level 2", DGREQ(levels[1])},
+{"Level 3", DGREQ(levels[2])},
+{"#chk feats", DGREQ(feats), {getnm<feati>}},
+{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
+//direction_s			direction;
+//short				hits, hits_aid, hits_rolled;
+//char				initiative;
+//char				ability[LastAbility + 1];
+//item				wears[LastInvertory + 1];
+//char				spells[LastSpellAbility + 1];
+//char				prepared[LastSpellAbility + 1];
+//spella			known_spells;
+//spella			active_spells;
+//char				avatar;
+//unsigned			experience;
+//unsigned char		name[2];
+//char				str_exeptional;
+//char				drain_energy, drain_strenght, disease_progress;
+//char				pallette;
+//short				food;
+//reaction_s		reaction;
 {}};

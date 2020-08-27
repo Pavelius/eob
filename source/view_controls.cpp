@@ -1462,10 +1462,9 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-void* draw::choose(array source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow) {
-	void* storage[512];
+static unsigned getrows(const array& source, const void* object, void** storage, unsigned maximum, fnallow pallow) {
 	auto p = storage;
-	auto pe = storage + sizeof(storage) / sizeof(storage[0]);
+	auto pe = storage + maximum;
 	auto sm = source.getcount();
 	for(unsigned i = 0; i < sm; i++) {
 		if(pallow && !pallow(object, i))
@@ -1473,7 +1472,13 @@ void* draw::choose(array source, const char* title, const void* object, const vo
 		if(p < pe)
 			*p++ = source.ptr(i);
 	}
-	choose_control control(storage, p - storage, pgetname, 0);
+	return p - storage;
+}
+
+void* draw::choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow) {
+	void* storage[512];
+	auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow);
+	choose_control control(storage, count, pgetname, 0);
 	control.sort();
 	control.ensurevisible(current);
 	return control.choose(title, current);
@@ -1791,6 +1796,8 @@ class edit_control : contexti {
 		for(auto p = elements; *p; p++) {
 			if(!p->ispage())
 				continue;
+			if(p->proc.visible && !p->proc.visible(object))
+				continue;
 			if(ps < pe)
 				*ps++ = p;
 		}
@@ -1816,6 +1823,8 @@ class edit_control : contexti {
 		return y - y0;
 	}
 	static int element(int x, int y, int width, const contexti& ctx, const markup& e) {
+		if(e.proc.visible && !e.proc.visible(ctx.object))
+			return 0;
 		if(e.isgroup())
 			return group(x, y, width, ctx, e.value.type);
 		else if(e.ischeckboxes())

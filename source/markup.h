@@ -11,6 +11,7 @@ typedef int(*fndraw)(int x, int y, int width, const void* object); // Custom dra
 typedef const char* (*fntext)(const void* object, stringbuilder& sb);
 typedef void(*fnsource)(const void* object, array& source);
 typedef bool(*fnchoose)(const void* object, array& source, void* pointer);
+typedef bool(*fnvisible)(const void* object);
 
 #define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
@@ -32,6 +33,10 @@ struct fnlist {
 	fnallow				allow;
 	fnsource			source;
 	fnchoose			choose;
+};
+struct fnelement {
+	fnvisible			visible;
+	fncommand			execute;
 };
 template<class T> struct dginf {
 	typedef T			data_type;
@@ -56,7 +61,7 @@ struct markup {
 	const char*			title;
 	markitem			value;
 	fnlist				list;
-	fncommand			execute;
+	fnelement			proc;
 	//
 	bool				is(const char* id) const;
 	bool				ischeckboxes() const { return is("chk"); }
