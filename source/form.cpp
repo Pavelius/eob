@@ -158,7 +158,7 @@ DGINF(resourcei) = {{"Name", DGREQ(name)},
 {"Path", DGREQ(path)},
 {}};
 DGINF(monsteri) = {{"Name", DGREQ(name)},
-{"Resource", DGREQ(rfile), {getnm<resourcei>, monster_resources}},
+{"Resource", DGREQ(rfile), {getnm<resourcei>, monster_resources, 0, 0, resourcei::preview, 130}},
 {"Race", DGREQ(race), {getnm<racei>}},
 {"Gender", DGREQ(gender), {getnm<genderi>}},
 {"Size", DGREQ(size), {getnm<sizei>}},

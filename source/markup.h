@@ -33,6 +33,8 @@ struct fnlist {
 	fnallow				allow;
 	fnsource			source;
 	fnchoose			choose;
+	fndraw				preview;
+	int					view_width;
 };
 struct fnelement {
 	fnvisible			visible;

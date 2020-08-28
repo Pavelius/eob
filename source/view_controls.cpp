@@ -101,6 +101,10 @@ struct contexti {
 	int					title;
 	constexpr contexti(void* object) : object(object), title(84) {}
 };
+struct rowi {
+	void*				data;
+	int					index;
+};
 }
 
 static render_control	render_objects[48];
@@ -532,6 +536,19 @@ void gamei::endround() {
 	passround();
 	findsecrets();
 	setnext(adventure);
+}
+
+int resourcei::preview(int x, int y, int width, const void* object) {
+	auto p = (resourcei*)object;
+	auto id = (resource_s)(p - bsdata<resourcei>::elements);
+	auto x0 = x + 86 + 3;
+	auto y0 = y + 128 / 2 - 3;
+	auto y1 = y + 196 / 2 - 3;
+	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
+	border_down(rc);
+	draw::image(x0, y0, draw::gres(BLUE), 0, 0);
+	draw::image(x0, y1, draw::gres(id), 0, 0);
+	return 0;
 }
 
 static render_control* getby(void* av, unsigned param) {
@@ -1111,15 +1128,7 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 		form(rc);
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
-		//rc = {0, 177, 319, 199};
-		//form(rc);
 		auto x = rc.x1, y = rc.y1;
-		//if(footer) {
-		//	auto push_color = fore;
-		//	fore = colors::yellow;
-		//	text(x + 2, y + 3, footer);
-		//	fore = push_color;
-		//}
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
@@ -1306,10 +1315,32 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 	return 11;
 }
 
+static fntext compare_callback;
+
+static int qsort_compare(const void* v1, const void* v2) {
+	auto p1 = (rowi*)v1;
+	auto p2 = (rowi*)v2;
+	char t1[260]; stringbuilder sb1(t1);
+	auto s1 = compare_callback(p1->data, sb1);
+	if(!s1)
+		s1 = "";
+	char t2[260]; stringbuilder sb2(t2);
+	auto s2 = compare_callback(p2->data, sb2);
+	if(!s2)
+		s2 = "";
+	return strcmp(s1, s2);
+}
+
+static void sort(rowi* storage, unsigned maximum, fntext getname) {
+	compare_callback = getname;
+	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
+}
+
 class choose_control {
-	void**				source;
+	rowi*				source;
 	int					start, maximum;
 	fntext				getname;
+	fndraw				preview;
 	int					perpage;
 	static fntext		compare_callback;
 	static void choose_item() {
@@ -1331,22 +1362,9 @@ class choose_control {
 		p->start -= p->perpage;
 		p->correct();
 	}
-	static int compare(const void* v1, const void* v2) {
-		auto p1 = *((void**)v1);
-		auto p2 = *((void**)v2);
-		char t1[260]; stringbuilder sb1(t1);
-		auto s1 = compare_callback(p1, sb1);
-		if(!s1)
-			s1 = "";
-		char t2[260]; stringbuilder sb2(t2);
-		auto s2 = compare_callback(p2, sb2);
-		if(!s2)
-			s2 = "";
-		return strcmp(s1, s2);
-	}
 	int getindex(const void* v) const {
 		for(auto i = 0; i < maximum; i++) {
-			if(v == source[i])
+			if(v == source[i].data)
 				return i;
 		}
 		return -1;
@@ -1362,45 +1380,43 @@ public:
 		if(start < 0)
 			start = 0;
 	}
-	constexpr choose_control(void** source, unsigned maximum, fntext getname, fntext getdescription) : source(source),
-		maximum(maximum), start(0), perpage(getdescription ? 11 : 11 * 2),
-		getname(getname) {
+	constexpr choose_control(rowi* source, unsigned maximum, fntext getname, fndraw preview) : source(source),
+		maximum(maximum), start(0), perpage(preview ? 11 : 11 * 2),
+		getname(getname), preview(preview) {
 	}
-	void sort() {
-		compare_callback = getname;
-		qsort(source, maximum, sizeof(source[0]), compare);
-	}
-	void* choose(const char* title, const void* current_value = 0, int width = 154) const {
+	void* choose(const char* title, const void* current_value, int width) const {
 		if(!source || !maximum)
 			return 0;
 		openform();
 		setfocus((void*)current_value);
 		while(ismodal()) {
-			if(true) {
-				draw::state push;
-				setbigfont();
-				form({0, 0, 320, 200}, 2);
-				auto x = 4, y = 6;
-				y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage);
-				auto y1 = y;
-				void* current_element = 0;
-				for(auto i = start; i < maximum; i++) {
-					char temp[260]; stringbuilder sb(temp);
-					auto pt = source[i];
-					auto pn = getname(pt, sb);
-					if(!pn)
-						pn = "None";
-					y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
-					if(isfocus(pt))
-						current_element = pt;
-					if(y >= 200 - 16 * 2) {
-						x += width + 4;
-						y = y1;
-					}
+			form({0, 0, 320, 200}, 2);
+			auto x = 4, y = 6;
+			y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage);
+			auto y1 = y;
+			void* current_element = 0;
+			for(auto i = start; i < maximum; i++) {
+				char temp[260]; stringbuilder sb(temp);
+				auto pt = source[i].data;
+				auto pn = getname(pt, sb);
+				if(!pn)
+					pn = "None";
+				y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
+				if(isfocus(pt))
+					current_element = pt;
+				if(y >= 200 - 16 * 2) {
+					if(preview)
+						break;
+					x += width + 4;
+					y = y1;
 				}
 			}
-			auto y = 200 - 12 - 4;
-			auto x = 4;
+			if(preview && current_element) {
+				x += width + 4;
+				preview(x, y1, 320 - 4 - x, current_element);
+			}
+			y = 200 - 12 - 4;
+			x = 4;
 			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
 			if(start + perpage < maximum)
 				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
@@ -1413,7 +1429,6 @@ public:
 		return (void*)getresult();
 	}
 };
-fntext choose_control::compare_callback;
 
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
@@ -1462,26 +1477,33 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static unsigned getrows(const array& source, const void* object, void** storage, unsigned maximum, fnallow pallow) {
+static unsigned getrows(const array& source, const void* object, rowi* storage, unsigned maximum, fnallow pallow, fntext getname) {
 	auto p = storage;
 	auto pe = storage + maximum;
 	auto sm = source.getcount();
 	for(unsigned i = 0; i < sm; i++) {
 		if(pallow && !pallow(object, i))
 			continue;
-		if(p < pe)
-			*p++ = source.ptr(i);
+		if(p < pe) {
+			p->data = source.ptr(i);
+			p->index = i;
+			p++;
+		}
 	}
-	return p - storage;
+	auto count = p - storage;
+	if(getname)
+		sort(storage, count, getname);
+	return count;
 }
 
-void* draw::choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow) {
-	void* storage[512];
-	auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow);
-	choose_control control(storage, count, pgetname, 0);
-	control.sort();
+void* draw::choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width) {
+	if(!view_width)
+		view_width = 154;
+	rowi storage[512];
+	auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow, pgetname);
+	choose_control control(storage, count, pgetname, preview);
 	control.ensurevisible(current);
-	return control.choose(title, current);
+	return control.choose(title, current, view_width);
 }
 
 bool draw::choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
@@ -1492,7 +1514,7 @@ bool draw::choose(array source, const char* title, const void* object, void* fie
 	auto current_value = (void*)getvalue(field, field_size);
 	if(field_size < sizeof(int))
 		current_value = source.ptr((int)current_value);
-	auto result = choose(source, title, object, current_value, list.getname, list.allow);
+	auto result = choose(source, title, object, current_value, list.getname, list.allow, list.preview, list.view_width);
 	if(!result)
 		return false;
 	if(field_size < sizeof(int))
@@ -1690,17 +1712,19 @@ static int checkbox(int x, int y, const char* title, const markup& e, void* obje
 static int checkboxes(int x, int y, int width, const markup& e, void* object, unsigned char size) {
 	auto ar = e.value.source;
 	auto gn = e.list.getname;
-	auto im = ar->getcount();
 	auto pv = e.value.ptr(object);
-	if(im > 16)
-		width = width / 2;
+	rowi storage[512];
 	auto y0 = y;
 	auto y1 = y0 + 16 * (texth() + 2);
+	auto im = getrows(*ar, object, storage, sizeof(storage) / sizeof(storage[0]),
+		e.list.allow, e.list.getname);
+	if(im > 16)
+		width = width / 2;
 	for(unsigned i = 0; i < im; i++) {
-		auto v = ar->ptr(i);
+		auto v = storage[i].data;
 		char temp[260]; stringbuilder sb(temp);
-		y += checkbox(x, y, gn(v, sb), e, object, 1 << i);
-		if(y >= y1) {
+		y += checkbox(x, y, gn(v, sb), e, object, 1 << storage[i].index);
+		if(y >= 200 - 16 * 2) {
 			y = y0;
 			x += width;
 		}
@@ -1726,7 +1750,8 @@ static int tablerow(int x, int y, int cw, int width, const char* title, const ma
 }
 
 static void add_record(const markup& e, void* object) {
-	auto value = draw::choose(*e.value.source, e.title, object, 0, e.list.getname, e.list.allow);
+	auto value = draw::choose(*e.value.source, e.title, object, 0,
+		e.list.getname, e.list.allow, e.list.preview, e.list.view_width);
 	auto index = e.value.source->indexof(value);
 	if(index == -1)
 		return;
@@ -1745,19 +1770,20 @@ static void add_record_call() {
 static int tableadatc(int x, int y, int width, const markup& e, void* object, unsigned char size) {
 	const int cw = 18;
 	auto ar = e.value.source;
-	auto im = ar->getcount();
-	if(!im)
-		return 0;
 	auto gn = e.list.getname;
 	auto pv = e.value.ptr(object);
 	auto y0 = y;
 	auto y1 = 170;
-	auto element_size = size / im;
+	rowi storage[512];
+	auto im = getrows(*ar, object, storage, sizeof(storage) / sizeof(storage[0]), e.list.allow, e.list.getname);
+	if(!im)
+		return 0;
 	if(im > 16)
 		width = width / 2;
+	auto element_size = 1;
 	for(unsigned i = 0; i < im; i++) {
-		auto v = ar->ptr(i);
-		auto pr = (char*)pv + i*element_size;
+		auto v = storage[i].data;
+		auto pr = (char*)pv + storage[i].index*element_size;
 		auto nv = getvalue(pr, element_size);
 		if(!nv)
 			continue;

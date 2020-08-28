@@ -416,6 +416,7 @@ struct resourcei {
 	const char*			name;
 	const char*			path;
 	void*				data;
+	static int			preview(int x, int y, int width, const void* object);
 };
 struct effecti {
 	variant				type;
@@ -1015,7 +1016,7 @@ void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 void					adventure();
-void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow);
+void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width);
 bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
