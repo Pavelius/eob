@@ -610,3 +610,7 @@ creature* item::getowner() const {
 		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
 	return 0;
 }
+
+size_s itemi::getsize() const {
+	return this->image.size ? Large : Small;
+}

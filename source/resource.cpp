@@ -13,7 +13,6 @@ BSDATA(resourcei) = {{"NONE"},
 {"ITEMGS", "art/misc"},
 {"ITEMGL", "art/misc"},
 //
-{"AZURE", "art/dungeons"},
 {"BLUE", "art/dungeons"},
 {"BRICK", "art/dungeons"},
 {"CRIMSON", "art/dungeons"},

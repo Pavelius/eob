@@ -170,6 +170,10 @@ static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto n = bsdata<classi>::elements[c].classes[2];
 	return bsdata<classi>::elements[n].name;
 }
+static bool small_items(const void* object, int param) {
+	auto p = bsdata<itemi>::elements + param;
+	return p->image.size==0;
+}
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
 GENDGINF(attacki)
@@ -281,8 +285,8 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, 0, resourcei::preview, 130}},
 {"Monster 1", DGREQ(habbits[0]), {getnm<monsteri>}},
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
-{"Key 1", DGREQ(keys[0]), {getnm<itemi>}},
-{"Key 2", DGREQ(keys[1]), {getnm<itemi>}},
+{"Key 1", DGREQ(keys[0]), {getnm<itemi>, small_items}},
+{"Key 2", DGREQ(keys[1]), {getnm<itemi>, small_items}},
 {"Special 1", DGREQ(special[0]), {getnm<itemi>}},
 {"Special 2", DGREQ(special[1]), {getnm<itemi>}},
 {"Language", DGREQ(language), {getnm<racei>}},

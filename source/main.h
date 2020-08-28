@@ -25,7 +25,7 @@ enum resource_s : unsigned char {
 	NONE,
 	BORDER, OUTTAKE,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
-	AZURE, BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
+	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
@@ -375,6 +375,7 @@ struct itemi {
 	armori				armor;
 	aref<enchantmenti>	enchantments;
 	item_s				ammo;
+	size_s				getsize() const;
 };
 struct feati {
 	const char*			name;
