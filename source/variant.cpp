@@ -1,17 +1,19 @@
 #include "main.h"
 
+#define DECL(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
+
 BSDATA(varianti) = {{""},
-{"Ability"},
+{"Ability", DECL(abilityi)},
 {"Action"},
-{"Alignment", &bsdata<alignmenti>::source, getnm<alignmenti>},
-{"Class"},
+{"Alignment", DECL(alignmenti)},
+{"Class", DECL(classi)},
 {"Creature"},
-{"Damage", &bsdata<damagei>::source, getnm<damagei>},
-{"Enchant", &bsdata<enchanti>::source, getnm<enchanti>},
-{"Gender", &bsdata<genderi>::source, getnm<genderi>},
-{"Item", &bsdata<itemi>::source, getnm<itemi>},
+{"Damage", DECL(damagei)},
+{"Enchant", DECL(enchanti)},
+{"Gender", DECL(genderi)},
+{"Item", DECL(itemi)},
 {"Number"},
-{"Race", &bsdata<racei>::source, getnm<racei>},
+{"Race", DECL(racei)},
 {"Reaction"},
 {"Spell"},
 };

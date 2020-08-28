@@ -337,6 +337,7 @@ struct varianti {
 	const char*			name;
 	array*				source;
 	fntext				pgetname;
+	const markup*		form;
 };
 struct combati {
 	attack_s			attack;
@@ -1027,6 +1028,7 @@ void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
 bool					edit(const char* title, void* object, const markup* form);
+void					editor();
 void					mainmenu();
 void					options();
 void					setnext(void(*p)());

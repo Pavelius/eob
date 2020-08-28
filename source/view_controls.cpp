@@ -1865,3 +1865,24 @@ bool draw::edit(const char* title, void* object, const markup* pm) {
 	edit_control e(object, pm);
 	return e.edit(title);
 }
+
+static bool variant_selectable(const void* object, int param) {
+	auto p = bsdata<varianti>::elements + param;
+	return p->pgetname != 0;
+}
+
+void draw::editor() {
+	varianti* pv = 0;
+	while(true) {
+		pv = (varianti*)choose(bsdata<varianti>::source, "elements", 0, pv,
+			getnm<varianti>, variant_selectable, 0, 0);
+		if(!pv)
+			break;
+		while(true) {
+			auto p = choose(*pv->source, pv->name, 0, 0, pv->pgetname, 0, 0, 0);
+			if(!p)
+				break;
+			edit(pv->name, p, pv->form);
+		}
+	}
+}

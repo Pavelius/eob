@@ -352,7 +352,7 @@ static void edit_game() {
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
-	{edit_game, "Game editor"},
+	{draw::editor, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);
