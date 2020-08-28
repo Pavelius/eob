@@ -67,6 +67,12 @@ static bool monster_resources(const void* object, int param) {
 		return false;
 	return strcmp(p->path, "art/monsters") == 0;
 }
+static bool dungeon_resources(const void* object, int param) {
+	auto p = bsdata<resourcei>::elements + param;
+	if(!p->path)
+		return false;
+	return strcmp(p->path, "art/dungeons") == 0;
+}
 static bool allow_item_wears(const void* object, int param) {
 	auto p = bsdata<weari>::elements + param;
 	return p->choose_name != 0;
@@ -129,6 +135,34 @@ static bool visible_class3(const void* object) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
 	return bsdata<classi>::elements[c].classes[2] != 0;
+}
+static bool visible_levels2(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[0].levels != 0;
+}
+static bool visible_levels3(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[1].levels != 0;
+}
+static bool visible_levels4(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[2].levels != 0;
+}
+static bool visible_levels5(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[3].levels != 0;
+}
+static bool visible_levels6(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[4].levels != 0;
+}
+static bool visible_levels7(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[5].levels != 0;
+}
+static bool visible_levels8(const void* object) {
+	auto p = (adventurei*)object;
+	return p->levels[6].levels!=0;
 }
 static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
@@ -226,7 +260,7 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 {"#div Abilities"},
 {"Strenght", DGREQ(ability[0])},
 {"Dexterity", DGREQ(ability[1])},
-{"Constitution", DGREQ(ability[2])},
+{"Constitut.", DGREQ(ability[2])},
 {"Intellect", DGREQ(ability[3])},
 {"Wisdow", DGREQ(ability[4])},
 {"Charisma", DGREQ(ability[5])},
@@ -239,9 +273,37 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 //char				spells[LastSpellAbility + 1];
 //char				prepared[LastSpellAbility + 1];
 //spella			known_spells;
-//spella			active_spells;
 //char				avatar;
 //unsigned			experience;
 //unsigned char		name[2];
 //reaction_s		reaction;
+{}};
+DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, 0, resourcei::preview, 130}},
+{"Monster 1", DGREQ(habbits[0]), {getnm<monsteri>}},
+{"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
+{"Key 1", DGREQ(keys[0]), {getnm<itemi>}},
+{"Key 2", DGREQ(keys[1]), {getnm<itemi>}},
+{"Special 1", DGREQ(special[0]), {getnm<itemi>}},
+{"Special 2", DGREQ(special[1]), {getnm<itemi>}},
+{"Language", DGREQ(language), {getnm<racei>}},
+{}};
+DGINF(sitei::chancei) = {{"Curse item", DGREQ(curse)},
+{}};
+DGINF(sitei::crypti) = {{"Boss", DGREQ(boss), {getnm<monsteri>}},
+{}};
+DGINF(sitei) = {{0, DGREQ(head)},
+{0, DGREQ(chance)},
+{"Levels", DGREQ(levels)},
+{0, DGREQ(crypt)},
+{}};
+DGINF(adventurei) = {{"Name", DGREQ(name)},
+{"Rewards", DGREQ(reward)},
+{"#tab Part 1", DGREQ(levels[0])},
+{"#tab Part 2", DGREQ(levels[1]), {}, {visible_levels2}},
+{"#tab Part 3", DGREQ(levels[2]), {}, {visible_levels3}},
+{"#tab Part 4", DGREQ(levels[3]), {}, {visible_levels4}},
+{"#tab Part 5", DGREQ(levels[4]), {}, {visible_levels5}},
+{"#tab Part 6", DGREQ(levels[5]), {}, {visible_levels6}},
+{"#tab Part 7", DGREQ(levels[6]), {}, {visible_levels7}},
+{"#tab Part 8", DGREQ(levels[7]), {}, {visible_levels8}},
 {}};

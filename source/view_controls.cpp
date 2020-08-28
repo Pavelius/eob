@@ -2,64 +2,6 @@
 
 using namespace draw;
 
-BSDATA(resourcei) = {{"NONE"},
-{"BORDER", "art/interface"},
-{"OUTTAKE", "art/misc"},
-{"CHARGEN", "art/interface"},
-{"CHARGENB", "art/interface"},
-{"COMPASS", "art/interface"},
-{"INVENT", "art/interface"},
-{"ITEMS", "art/misc"},
-{"ITEMGS", "art/misc"},
-{"ITEMGL", "art/misc"},
-//
-{"AZURE", "art/dungeons"},
-{"BLUE", "art/dungeons"},
-{"BRICK", "art/dungeons"},
-{"CRIMSON", "art/dungeons"},
-{"DROW", "art/dungeons"},
-{"DUNG", "art/dungeons"},
-{"GREEN", "art/dungeons"},
-{"FOREST", "art/dungeons"},
-{"MEZZ", "art/dungeons"},
-{"SILVER", "art/dungeons"},
-{"XANATHA", "art/dungeons"},
-//
-{"MENU", "art/interface"},
-{"PLAYFLD", "art/interface"},
-{"PORTM", "art/misc"},
-{"THROWN", "art/misc"},
-{"XSPL", "art/interface"},
-//
-{"ANKHEG", "art/monsters"},
-{"ANT", "art/monsters"},
-{"BLDRAGON", "art/monsters"},
-{"BUGBEAR", "art/monsters"},
-{"CLERIC1", "art/monsters"},
-{"CLERIC2", "art/monsters"},
-{"CLERIC3", "art/monsters"},
-{"DRAGON", "art/monsters"},
-{"DWARF", "art/monsters"},
-{"FLIND", "art/monsters"},
-{"GHOUL", "art/monsters"},
-{"GOBLIN", "art/monsters"},
-{"GUARD1", "art/monsters"},
-{"GUARD2", "art/monsters"},
-{"KOBOLD", "art/monsters"},
-{"KUOTOA", "art/monsters"},
-{"LEECH", "art/monsters"},
-{"ORC", "art/monsters"},
-{"SHADOW", "art/monsters"},
-{"SKELETON", "art/monsters"},
-{"SKELWAR", "art/monsters"},
-{"SPIDER1", "art/monsters"},
-{"WIGHT", "art/monsters"},
-{"WOLF", "art/monsters"},
-{"ZOMBIE", "art/monsters"},
-};
-assert_enum(resource, ZOMBIE);
-INSTELEM(resourcei)
-
 namespace draw {
 class picstore : arem<pair<const char*, surface>> {
 public:
@@ -132,33 +74,11 @@ static const void*		focus_stack[8];
 static const void*		focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
-void					view_dungeon_reset();
 callback				draw::domodal;
 static picstore			bitmaps;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
-}
-
-sprite* draw::gres(resource_s id) {
-	auto& e = bsdata<resourcei>::elements[id];
-	if(!e.data) {
-		if(!id)
-			return 0;
-		char temp[260];
-		e.data = (sprite*)loadb(szurl(temp, e.path, e.name, "pma"));
-	}
-	return (sprite*)e.data;
-}
-
-void draw::resetres() {
-	for(auto& e : bsdata<resourcei>()) {
-		if(e.data) {
-			delete e.data;
-			e.data = 0;
-		}
-	}
-	view_dungeon_reset();
 }
 
 static void update_frame_counter() {
@@ -548,19 +468,28 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	auto sp = draw::gres(id);
 	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
 	border_down(rc);
-	draw::image(x0, y0, draw::gres(BLUE), 0, 0);
-	draw::image(x0, y1, sp, 0, 0);
+	if(p->ismonster()) {
+		draw::image(x0, y0, draw::gres(BLUE), 0, 0);
+		draw::image(x0, y1, sp, 0, 0);
+	} else if(p->isdungeon()) {
+		draw::image(x0, y0, sp, 0, 0);
+		y1 = rc.y2 + 3;
+	}
 	y1 = rc.y2 + 3;
 	sb.clear(); sb.add("Path: %1", p->path);
 	textb(x, y1, temp, -1); y1 += texth();
-	sb.clear(); sb.add("Number of sprites: %1i", sp->count);
-	textb(x, y1, temp, -1); y1 += texth();
-	auto overlays = (sp->count / 6)-1;
-	if(overlays) {
-		sb.clear(); sb.add("Number of overlays: %1i", overlays);
+	if(sp) {
+		sb.clear(); sb.add("Number of sprites: %1i", sp->count);
 		textb(x, y1, temp, -1); y1 += texth();
 	}
-	return rc.y2 - y;
+	if(p->ismonster()) {
+		auto overlays = (sp->count / 6) - 1;
+		if(overlays) {
+			sb.clear(); sb.add("Number of overlays: %1i", overlays);
+			textb(x, y1, temp, -1); y1 += texth();
+		}
+	}
+	return y1 - y;
 }
 
 static render_control* getby(void* av, unsigned param) {
@@ -1865,9 +1794,11 @@ class edit_control : contexti {
 	static int element(int x, int y, int width, const contexti& ctx, const markup& e) {
 		if(e.proc.visible && !e.proc.visible(ctx.object))
 			return 0;
-		if(e.isgroup())
-			return group(x, y, width, ctx, e.value.type);
-		else if(e.ischeckboxes())
+		if(e.isgroup()) {
+			contexti c1 = ctx;
+			c1.object = e.value.ptr(ctx.object);
+			return group(x, y, width, c1, e.value.type);
+		} else if(e.ischeckboxes())
 			return checkboxes(x, y, width, e, ctx.object, e.value.size);
 		else if(e.value.mask)
 			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);

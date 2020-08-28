@@ -181,6 +181,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portrait.cpp" />
     <ClCompile Include="race.cpp" />
+    <ClCompile Include="resource.cpp" />
     <ClCompile Include="scale.c" />
     <ClCompile Include="site.cpp" />
     <ClCompile Include="size.cpp" />

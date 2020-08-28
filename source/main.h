@@ -416,6 +416,8 @@ struct resourcei {
 	const char*			name;
 	const char*			path;
 	void*				data;
+	bool				isdungeon() const;
+	bool				ismonster() const;
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct effecti {
@@ -443,10 +445,6 @@ struct sitei {
 		item_s			keys[2]; // Two keys open all doors
 		item_s			special[2]; // Two special items find on this level
 		race_s			language; // All messages in this language
-	};
-	struct monsteri {
-		monster_s		type;
-		unsigned char	count;
 	};
 	struct crypti {
 		monster_s		boss;
@@ -1045,6 +1043,10 @@ template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
+NOBSDATA(sitei)
+NOBSDATA(sitei::chancei)
+NOBSDATA(sitei::crypti)
+NOBSDATA(sitei::headi)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
