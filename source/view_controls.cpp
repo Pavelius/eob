@@ -539,16 +539,28 @@ void gamei::endround() {
 }
 
 int resourcei::preview(int x, int y, int width, const void* object) {
+	char temp[260]; stringbuilder sb(temp);
 	auto p = (resourcei*)object;
 	auto id = (resource_s)(p - bsdata<resourcei>::elements);
 	auto x0 = x + 86 + 3;
 	auto y0 = y + 128 / 2 - 3;
 	auto y1 = y + 196 / 2 - 3;
+	auto sp = draw::gres(id);
 	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
 	border_down(rc);
 	draw::image(x0, y0, draw::gres(BLUE), 0, 0);
-	draw::image(x0, y1, draw::gres(id), 0, 0);
-	return 0;
+	draw::image(x0, y1, sp, 0, 0);
+	y1 = rc.y2 + 3;
+	sb.clear(); sb.add("Path: %1", p->path);
+	textb(x, y1, temp, -1); y1 += texth();
+	sb.clear(); sb.add("Number of sprites: %1i", sp->count);
+	textb(x, y1, temp, -1); y1 += texth();
+	auto overlays = (sp->count / 6)-1;
+	if(overlays) {
+		sb.clear(); sb.add("Number of overlays: %1i", overlays);
+		textb(x, y1, temp, -1); y1 += texth();
+	}
+	return rc.y2 - y;
 }
 
 static render_control* getby(void* av, unsigned param) {
@@ -1658,11 +1670,13 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
 	if(!title)
 		return 0;
+	char temp[260]; stringbuilder sb(temp);
+	if(e.proc.getheader)
+		title = e.proc.getheader(object, sb);
 	textb(x, y + 2, title);
 	x += title_width;
 	width -= title_width;
-	char temp[260]; stringbuilder sb(temp); temp[0] = 0;
-	getname(e, object, sb);
+	sb.clear(); getname(e, object, sb);
 	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
 }
 

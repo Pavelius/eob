@@ -38,6 +38,7 @@ struct fnlist {
 };
 struct fnelement {
 	fnvisible			visible;
+	fntext				getheader;
 	fncommand			execute;
 };
 template<class T> struct dginf {

@@ -65,7 +65,7 @@ static bool monster_resources(const void* object, int param) {
 	auto p = bsdata<resourcei>::elements + param;
 	if(!p->path)
 		return false;
-	return strcmp(p->path, "art/monsters")==0;
+	return strcmp(p->path, "art/monsters") == 0;
 }
 static bool allow_item_wears(const void* object, int param) {
 	auto p = bsdata<weari>::elements + param;
@@ -102,6 +102,39 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	auto p = (dice*)object;
 	p->print(sb);
 	return sb;
+}
+static bool visible_class1(const void* object) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	return bsdata<classi>::elements[c].classes[0] != 0;
+}
+static const char* getclass1(const void* object, stringbuilder& sb) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	auto n = bsdata<classi>::elements[c].classes[0];
+	return bsdata<classi>::elements[n].name;
+}
+static bool visible_class2(const void* object) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	return bsdata<classi>::elements[c].classes[1] != 0;
+}
+static const char* getclass2(const void* object, stringbuilder& sb) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	auto n = bsdata<classi>::elements[c].classes[1];
+	return bsdata<classi>::elements[n].name;
+}
+static bool visible_class3(const void* object) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	return bsdata<classi>::elements[c].classes[2] != 0;
+}
+static const char* getclass3(const void* object, stringbuilder& sb) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	auto n = bsdata<classi>::elements[c].classes[2];
+	return bsdata<classi>::elements[n].name;
 }
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
@@ -177,7 +210,7 @@ DGINF(monsteri) = {{"Name", DGREQ(name)},
 {"Attack 2", DGREQ(attacks[1]), {getnm<itemi>}},
 {"Attack 3", DGREQ(attacks[2]), {getnm<itemi>}},
 {"Attack 4", DGREQ(attacks[3]), {getnm<itemi>}},
-{"Power 1", DGREQ(enchantments[0]), {getnm<variant>,0,0,choose_variant}},
+{"Power 1", DGREQ(enchantments[0]), {getnm<variant>, 0, 0, choose_variant}},
 {"Power 2", DGREQ(enchantments[1]), {getnm<variant>}},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#adc skills", DGREQ(skills), {getnm<abilityi>}},
@@ -187,17 +220,21 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 {"Alignment", DGREQ(alignment), {getnm<alignmenti>}},
 {"Monster", DGREQ(kind), {getnm<monsteri>}},
 {"Class", DGREQ(type), {getnm<classi>}},
+{"Level 1", DGREQ(levels[0]), {}, {visible_class1, getclass1}},
+{"Level 2", DGREQ(levels[1]), {}, {visible_class2, getclass2}},
+{"Level 3", DGREQ(levels[2]), {}, {visible_class3, getclass3}},
+{"#div Abilities"},
+{"Strenght", DGREQ(ability[0])},
+{"Dexterity", DGREQ(ability[1])},
+{"Constitution", DGREQ(ability[2])},
+{"Intellect", DGREQ(ability[3])},
+{"Wisdow", DGREQ(ability[4])},
+{"Charisma", DGREQ(ability[5])},
+{"Strenght %", DGREQ(str_exeptional)},
 {"Hits", DGREQ(hits)},
-{"Hits rolled", DGREQ(hits_rolled)},
-{"Level 1", DGREQ(levels[0])},
-{"Level 2", DGREQ(levels[1])},
-{"Level 3", DGREQ(levels[2])},
+{"Hits roll", DGREQ(hits_rolled)},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
-//direction_s			direction;
-//short				hits, hits_aid, hits_rolled;
-//char				initiative;
-//char				ability[LastAbility + 1];
 //item				wears[LastInvertory + 1];
 //char				spells[LastSpellAbility + 1];
 //char				prepared[LastSpellAbility + 1];
@@ -206,9 +243,5 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 //char				avatar;
 //unsigned			experience;
 //unsigned char		name[2];
-//char				str_exeptional;
-//char				drain_energy, drain_strenght, disease_progress;
-//char				pallette;
-//short				food;
 //reaction_s		reaction;
 {}};
