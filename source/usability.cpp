@@ -7,8 +7,8 @@ BSDATA(usabilityi) = {{"Use leather armor"},
 {"Use martial weapon"},
 {"Use large weapon"},
 {"Use scrolls"},
-{"Use divine"},
-{"Use arcane"},
-{"Use theif"},
+{"Use divine items"},
+{"Use arcane items"},
+{"Use theif items"},
 };
 INSTELEM(usabilityi);

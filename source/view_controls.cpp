@@ -1535,6 +1535,10 @@ static void decrement() {
 	add_number(current_object, current_size, 1, 1, -1);
 }
 
+static void inverse() {
+	add_number(current_object, current_size, -1, 1, 0);
+}
+
 static void sub_number() {
 	add_number(current_object, current_size, 1, 10, 0);
 }
@@ -1566,6 +1570,10 @@ static void event_number(void* object, unsigned size) {
 		current_object = object;
 		current_size = size;
 		execute(decrement);
+	} else if(hot::key == (Alpha + '*')) {
+		current_object = object;
+		current_size = size;
+		execute(inverse);
 	}
 }
 
@@ -1675,23 +1683,6 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	return y - y0;
 }
 
-static int tablerow(int x, int y, int cw, int width, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
-	draw::state push;
-	rect rc = {x, y, x + width - 1, y + draw::texth()};
-	focusing(rc, pv);
-	auto focused = isfocus(pv);
-	if(focused) {
-		fore = colors::focus;
-		event_number(pv, size);
-	}
-	char temp[64]; stringbuilder sb(temp);
-	auto value = getvalue(pv, size);
-	sb.add("%1i", value);
-	textb({rc.x1, rc.y1, rc.x1 + cw, rc.y2}, temp, AlignCenter);
-	textb({rc.x1 + cw + 4, rc.y1, rc.x2, rc.y2}, title, TextSingleLine);
-	return rc.height() + 2;
-}
-
 static void add_record(const markup& e, void* object) {
 	auto value = draw::choose(*e.value.source, e.title, object, 0,
 		e.list.getname, e.list.allow, e.list.preview, e.list.view_width);
@@ -1710,8 +1701,25 @@ static void add_record_call() {
 	add_record(*current_markup, current_object);
 }
 
+static int tablerow(int x, int y, int width, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
+	auto fore_push = fore;
+	rect rc = {x, y, x + width - 1, y + draw::texth()};
+	focusing(rc, pv);
+	auto focused = isfocus(pv);
+	if(focused) {
+		fore = colors::focus;
+		event_number(pv, size);
+	}
+	char temp[260]; stringbuilder sb(temp);
+	auto value = getvalue(pv, size);
+	sb.add(title, value);
+	sb.adds("%1i", value);
+	textb(rc, temp, AlignLeft);
+	fore = fore_push;
+	return rc.height() + 2;
+}
+
 static int tableadatc(int x, int y, int width, const markup& e, void* object, unsigned char size) {
-	const int cw = 18;
 	auto ar = e.value.source;
 	auto gn = e.list.getname;
 	auto pv = e.value.ptr(object);
@@ -1731,17 +1739,20 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 		if(!nv)
 			continue;
 		char temp[260]; stringbuilder sb(temp);
-		y += tablerow(x, y, cw, width, gn(v, sb), e, object, pr, element_size);
+		y += tablerow(x, y, width, gn(v, sb), e, object, pr, element_size);
 		if(y >= y1) {
 			y = y0;
 			x += width;
 		}
 	}
-	if(buttontxt(x + cw + 4, y, width, add_record, "Add record", F3)) {
+	auto fore_push = fore;
+	fore = colors::header;
+	if(buttontxt(x, y, width, add_record, "Add record", F3)) {
 		current_markup = &e;
 		current_object = object;
 		execute(add_record_call);
 	}
+ 	fore = fore_push;
 	return y - y0;
 }
 
@@ -1825,7 +1836,7 @@ public:
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
 			else if(pm->is("adc"))
-				tableadatc(x - 6, y + 1, width, *pm, object, pm->value.size);
+				tableadatc(x, y + 1, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
 				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {

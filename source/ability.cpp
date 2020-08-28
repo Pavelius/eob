@@ -1,34 +1,37 @@
 #include "main.h"
 
-BSDATA(abilityi) = {{"Str", {}, {"strenght", "ogre strenght", "hill giant", "fire giant", "cloud giant"}},
-{"Dex", {}, {"archery"}},
-{"Con", {}, {"health"}},
-{"Int", {}, {"intellegence"}},
-{"Wis", {}, {"wisdow"}},
-{"Cha", {}, {"charisma"}},
-//
-{"Save vs Paralize"},
-{"Save vs Poison", {}, {"poison immunity"}, 0, 15},
-{"Save vs Traps"},
-{"Save vs Magic", {}, {"magic resistance"}},
-//
-{"Climb Walls", {Theif}, {"feather falling"}, 0, 100},
-{"Hear Noise", {Theif}},
-{"Move Silently", {Theif, Ranger}, {"elvenkind"}, 0, 90},
-{"Open Locks", {Theif}, {"bulgary"}, 0, 40},
+static const char* num = "%1i";
+static const char* per = "%1i%%";
 
-{"Remove Traps", {Theif}},
+BSDATA(abilityi) = {{"Str", num, {}, {"strenght", "ogre strenght", "hill giant", "fire giant", "cloud giant"}},
+{"Dex", num, {}, {"archery"}},
+{"Con", num, {}, {"health"}},
+{"Int", num, {}, {"intellegence"}},
+{"Wis", num, {}, {"wisdow"}},
+{"Cha", num, {}, {"charisma"}},
 //
-{"Read Languages", {Theif}},
-{"Learn Spells", {Mage}},
+{"Save vs Paralize", per},
+{"Save vs Poison", per, {}, {"poison immunity"}, 0, 15},
+{"Save vs Traps", per},
+{"Save vs Magic", per, {}, {"magic resistance"}},
 //
-{"Resist Charm", {}, {"paralize immunity"}, 0, 100},
-{"Resist Cold", {}, {"cold immunity"}, 0, 100},
-{"Resist Fire", {}, {"fire immunity"}, 0, 100},
-{"Resist Magic", {}, {"magic resistance"}, 0, 60},
+{"Climb Walls", per, {Theif}, {"feather falling"}, 0, 100},
+{"Hear Noise", per, {Theif}},
+{"Move Silently", per, {Theif, Ranger}, {"elvenkind"}, 0, 90},
+{"Open Locks", per, {Theif}, {"bulgary"}, 0, 40},
+
+{"Remove Traps", per, {Theif}},
 //
-{"Deflect critical"},
-{"Detect secrets"},
+{"Read Languages", per, {Theif}},
+{"Learn Spells", per, {Mage}},
+//
+{"Resist Charm", per, {}, {"paralize immunity"}, 0, 100},
+{"Resist Cold", per, {}, {"cold immunity"}, 0, 100},
+{"Resist Fire", per, {}, {"fire immunity"}, 0, 100},
+{"Resist Magic", per, {}, {"magic resistance"}, 0, 60},
+//
+{"Deflect critical", per},
+{"Detect secrets", per},
 };
 assert_enum(ability, LastSkill)
 INSTELEM(abilityi)

@@ -174,17 +174,18 @@ static bool small_items(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return p->image.size==0;
 }
+static bool ability_only(const void* object, int param) {
+	return param<=Charisma;
+}
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
 GENDGINF(attacki)
-GENDGINF(classi)
 GENDGINF(damagei)
 GENDGINF(enchantmenti)
 GENDGINF(feati)
 GENDGINF(item_feati)
 GENDGINF(intellegencei)
 GENDGINF(genderi)
-GENDGINF(racei)
 GENDGINF(sizei)
 GENDGINF(usabilityi)
 GENDGINF(weari)
@@ -282,6 +283,24 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 //unsigned char		name[2];
 //reaction_s		reaction;
 {}};
+DGINF(classi) = {{"Name", DGREQ(name)},
+{"Playable", DGREQ(playable)},
+{"Hit dice", DGREQ(hd)},
+{"Main", DGREQ(ability), {getnm<abilityi>, ability_only}},
+{"#tab minimum", DGREQ(minimum)},
+{"#chk feats", DGREQ(feats), {getnm<feati>}},
+{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
+//adat<class_s, 4>	classes;
+//adat<race_s, 12>	races;
+{}};
+DGINF(racei) = {{"Name", DGREQ(name)},
+{"#tab minimum", DGREQ(minimum)},
+{"#tab maximum", DGREQ(maximum)},
+{"#tab adjustment", DGREQ(adjustment)},
+{"#chk feats", DGREQ(feats), {getnm<feati>}},
+{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}}, 
+{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
+{}};
 DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, 0, resourcei::preview, 130}},
 {"Monster 1", DGREQ(habbits[0]), {getnm<monsteri>}},
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
@@ -310,4 +329,11 @@ DGINF(adventurei) = {{"Name", DGREQ(name)},
 {"#tab Part 6", DGREQ(levels[5]), {}, {visible_levels6}},
 {"#tab Part 7", DGREQ(levels[6]), {}, {visible_levels7}},
 {"#tab Part 8", DGREQ(levels[7]), {}, {visible_levels8}},
+{}};
+DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
+{"Dexterity", DGREQ(data[1])},
+{"Constit.", DGREQ(data[2])},
+{"Intellect", DGREQ(data[3])},
+{"Wisdow", DGREQ(data[4])},
+{"Charisma", DGREQ(data[5])},
 {}};

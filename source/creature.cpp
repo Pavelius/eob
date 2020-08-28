@@ -1373,25 +1373,25 @@ void creature::roll_ability() {
 		iswap(result[max_position], result[bst_position]);
 	// Check maximum by class
 	for(int j = 0; j < 6; j++) {
-		int m = bsdata<classi>::elements[type].minimum[j];
+		int m = bsdata<classi>::elements[type].minimum.data[j];
 		if(result[j] < m)
 			result[j] = m;
 	}
 	// Check minimum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[race].minimum[j];
+		auto m = bsdata<racei>::elements[race].minimum.data[j];
 		if(result[j] < m)
 			result[j] = m;
 	}
 	// Check maximum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[race].maximum[j];
+		auto m = bsdata<racei>::elements[race].maximum.data[j];
 		if(result[j] > m)
 			result[j] = m;
 	}
 	// Adjust ability
 	for(auto j = 0; j < 6; j++)
-		result[j] += bsdata<racei>::elements[race].adjustment[j];
+		result[j] += bsdata<racei>::elements[race].adjustment.data[j];
 	// Расставим атрибуты по местам
 	for(auto j = 0; j < 6; j++)
 		ability[j] = result[j];

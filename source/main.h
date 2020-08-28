@@ -234,12 +234,14 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Class, Creature, Damage, Enchant, Gender, Item, Number, Race, Reaction, Spell,
+	Ability, Action, Alignment, Class, Creature, Damage,
+	Enchant, Gender, Item, Number, Race, Reaction, Spell,
 };
 class creature;
 class item;
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spella;
+typedef cflags<feat_s> feata;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
@@ -270,10 +272,14 @@ struct spellprogi {
 };
 struct abilityi {
 	const char*			name;
+	const char*			present;
 	adat<class_s, 4>	allow;
 	const char*			nameof[5];
 	char				multiplier;
 	char				base;
+};
+struct abilitya {
+	char				data[Charisma + 1];
 };
 struct alignmenti {
 	const char*			name;
@@ -291,8 +297,8 @@ struct classi {
 	ability_s			ability;
 	adat<class_s, 4>	classes;
 	usabilitya			usability;
-	cflags<feat_s>		feats;
-	char				minimum[Charisma + 1];
+	feata				feats;
+	abilitya			minimum;
 	adat<race_s, 12>	races;
 	const spellprogi*	spells[2];
 };
@@ -392,7 +398,7 @@ struct monsteri {
 	size_s				size;
 	alignment_s			alignment;
 	intellegence_s		ins;
-	cflags<feat_s>		feats;
+	feata				feats;
 	char				hd[2];
 	char				ac;
 	item_s				attacks[4];
@@ -406,10 +412,10 @@ struct monsteri {
 };
 struct racei {
 	const char*			name;
-	char				minimum[Charisma + 1];
-	char				maximum[Charisma + 1];
-	char				adjustment[Charisma + 1];
-	cflags<feat_s>		feats;
+	abilitya			minimum;
+	abilitya			maximum;
+	abilitya			adjustment;
+	feata				feats;
 	usabilitya			usability;
 	skilla				skills;
 };
@@ -583,7 +589,7 @@ class creature {
 	short unsigned		index;
 	unsigned char		side;
 	direction_s			direction;
-	cflags<feat_s>		feats;
+	feata				feats;
 	usabilitya			usability;
 	short				hits, hits_aid, hits_rolled;
 	char				initiative;
@@ -1041,6 +1047,7 @@ direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
+NOBSDATA(abilitya)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
