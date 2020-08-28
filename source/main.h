@@ -237,6 +237,9 @@ enum variant_s : unsigned char {
 	Ability, Action, Alignment, Class, Creature, Damage,
 	Enchant, Gender, Item, Number, Race, Reaction, Spell,
 };
+enum condition_s : unsigned char {
+	NoCondition, IfPartyHas, IfPartyNotHas,
+};
 class creature;
 class item;
 typedef short unsigned indext;
@@ -244,6 +247,7 @@ typedef flagable<LastSpellAbility> spella;
 typedef cflags<feat_s> feata;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
+typedef cflags<variant_s> varianta;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 struct variant {
 	variant_s			type;
@@ -269,6 +273,15 @@ struct variant {
 };
 struct spellprogi {
 	char				elements[21][10];
+};
+struct conditioni {
+	const char*			name;
+	int					params;
+	varianta			variants;
+};
+struct condition {
+	condition_s			type;
+	variant				param;
 };
 struct abilityi {
 	const char*			name;
@@ -1050,6 +1063,7 @@ inline int				d100() { return rand() % 100; }
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
+NOBSDATA(condition)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
@@ -1062,6 +1076,7 @@ MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
 MNLNK(class_s, classi)
+MNLNK(condition_s, conditioni)
 MNLNK(damage_s, damagei)
 MNLNK(enchant_s, enchanti)
 MNLNK(feat_s, feati)
@@ -1074,5 +1089,6 @@ MNLNK(race_s, racei)
 MNLNK(resource_s, resourcei)
 MNLNK(size_s, sizei)
 MNLNK(spell_s, spelli)
-MNLNK(wear_s, weari)
 MNLNK(usability_s, usabilityi)
+MNLNK(variant_s, varianti)
+MNLNK(wear_s, weari)

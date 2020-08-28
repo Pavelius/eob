@@ -109,6 +109,11 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	p->print(sb);
 	return sb;
 }
+static bool visible_parameter(const void* object) {
+	auto p = (condition*)object;
+	return bsdata<conditioni>::elements[p->type].params >= 1;
+}
+
 static bool visible_class1(const void* object) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
@@ -162,7 +167,7 @@ static bool visible_levels7(const void* object) {
 }
 static bool visible_levels8(const void* object) {
 	auto p = (adventurei*)object;
-	return p->levels[6].levels!=0;
+	return p->levels[6].levels != 0;
 }
 static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
@@ -172,10 +177,17 @@ static const char* getclass3(const void* object, stringbuilder& sb) {
 }
 static bool small_items(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
-	return p->image.size==0;
+	return p->image.size == 0;
 }
 static bool ability_only(const void* object, int param) {
-	return param<=Charisma;
+	return param <= Charisma;
+}
+static const char* condition_param(const void* object, stringbuilder& sb) {
+	auto p = (condition*)object;
+	auto n = p->param.type;
+	if(!n)
+		return "Parameter";
+	return bsdata<varianti>::elements[n].name;
 }
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
@@ -190,7 +202,9 @@ GENDGINF(genderi)
 GENDGINF(sizei)
 GENDGINF(usabilityi)
 GENDGINF(weari)
-DGINF(variant) = {{"Value", DGREQ(value)},
+GENDGINF(varianti)
+DGINF(variant) = {{"Type", DGREQ(type), {getnm<varianti>}},
+{"Value", DGREQ(value)},
 {}};
 DGINF(dice) = {{"Count", DGREQ(c)},
 {"Dice", DGREQ(d)},
@@ -299,7 +313,7 @@ DGINF(racei) = {{"Name", DGREQ(name)},
 {"#tab maximum", DGREQ(maximum)},
 {"#tab adjustment", DGREQ(adjustment)},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
-{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}}, 
+{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 {"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 {}};
 DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, 0, resourcei::preview, 130}},
@@ -337,4 +351,10 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Intellect", DGREQ(data[3])},
 {"Wisdow", DGREQ(data[4])},
 {"Charisma", DGREQ(data[5])},
+{}};
+DGINF(conditioni) = {{"Name", DGREQ(name)},
+{"#chk variants", DGREQ(variants), {getnm<varianti>}},
+{}};
+DGINF(condition) = {{"Condition", DGREQ(type), {getnm<conditioni>}},
+{"Parameter", DGREQ(param), {getnm<variant>, 0, 0, choose_variant}, {visible_parameter, condition_param}},
 {}};

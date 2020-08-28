@@ -329,30 +329,22 @@ void draw::options() {
 	chooseopt(elements);
 }
 
-static void choose_items() {
-}
-
-static void choose_monster() {
+static void edit_game() {
 	//item it(SwordLong);
 	//creature it = {};
 	//adventurei it = {};
-	auto it = bsdata<classi>::elements[FighterCleric];
+	condition it = {};
+	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
 	edit("Player", &it, dginf<decltype(it)>::meta);
 }
 
-static void edit_game() {
-	static menu elements[] = {{choose_monster, "Monsters"},
-	{choose_items, "Items"}};
-	chooseopt(elements, 2, "Choose action");
-}
-
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
-	{draw::editor, "Game editor"},
+	{edit_game, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);

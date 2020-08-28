@@ -2,7 +2,7 @@
 
 #define DECL(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
 
-BSDATA(varianti) = {{""},
+BSDATA(varianti) = {{"None"},
 {"Ability", DECL(abilityi)},
 {"Action"},
 {"Alignment", DECL(alignmenti)},
@@ -20,7 +20,7 @@ BSDATA(varianti) = {{""},
 assert_enum(variant, Spell)
 INSTELEM(varianti)
 
-const unsigned		creature_players_base = 240;
+const unsigned creature_players_base = 240;
 
 variant::variant(const creature* p) {
 	if(!p) {
