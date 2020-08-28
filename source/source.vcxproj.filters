@@ -260,7 +260,7 @@
     <ClCompile Include="resource.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="condition.cpp">
+    <ClCompile Include="action.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

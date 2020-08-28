@@ -333,7 +333,7 @@ static void edit_game() {
 	//item it(SwordLong);
 	//creature it = {};
 	//adventurei it = {};
-	condition it = {};
+	action it = {};
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
@@ -344,7 +344,7 @@ static void edit_game() {
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
-	{edit_game, "Game editor"},
+	{edit_game/*editor*/, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);

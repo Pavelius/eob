@@ -110,8 +110,8 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	return sb;
 }
 static bool visible_parameter(const void* object) {
-	auto p = (condition*)object;
-	return bsdata<conditioni>::elements[p->type].params >= 1;
+	auto p = (action*)object;
+	return bsdata<actioni>::elements[p->type].params >= 1;
 }
 
 static bool visible_class1(const void* object) {
@@ -183,7 +183,7 @@ static bool ability_only(const void* object, int param) {
 	return param <= Charisma;
 }
 static const char* condition_param(const void* object, stringbuilder& sb) {
-	auto p = (condition*)object;
+	auto p = (action*)object;
 	auto n = p->param.type;
 	if(!n)
 		return "Parameter";
@@ -352,9 +352,9 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Wisdow", DGREQ(data[4])},
 {"Charisma", DGREQ(data[5])},
 {}};
-DGINF(conditioni) = {{"Name", DGREQ(name)},
+DGINF(actioni) = {{"Name", DGREQ(name)},
 {"#chk variants", DGREQ(variants), {getnm<varianti>}},
 {}};
-DGINF(condition) = {{"Condition", DGREQ(type), {getnm<conditioni>}},
+DGINF(action) = {{0, DGREQ(type), {getnm<actioni>}},
 {"Parameter", DGREQ(param), {getnm<variant>, 0, 0, choose_variant}, {visible_parameter, condition_param}},
 {}};

@@ -1605,14 +1605,14 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 }
 
 static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
-	if(!title)
-		return 0;
 	char temp[260]; stringbuilder sb(temp);
 	if(e.proc.getheader)
 		title = e.proc.getheader(object, sb);
-	textb(x, y + 2, title);
-	x += title_width;
-	width -= title_width;
+	if(title) {
+		textb(x + 6, y + 2, title);
+		x += title_width;
+		width -= title_width;
+	}
 	sb.clear(); getname(e, object, sb);
 	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
 }
@@ -1831,7 +1831,7 @@ public:
 			form({0, 0, 320, 200}, 2);
 			auto x = 4, y = 6;
 			auto pm = getcurrentpage();
-			y += headerc(x, y, "Edit", title, gettitle(pm), page, page_maximum); x += 6;
+			y += headerc(x, y, "Edit", title, gettitle(pm), page, page_maximum);
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
@@ -1873,13 +1873,14 @@ static bool variant_selectable(const void* object, int param) {
 
 void draw::editor() {
 	varianti* pv = 0;
+	void* p = 0;
 	while(true) {
 		pv = (varianti*)choose(bsdata<varianti>::source, "elements", 0, pv,
 			getnm<varianti>, variant_selectable, 0, 0);
 		if(!pv)
 			break;
 		while(true) {
-			auto p = choose(*pv->source, pv->name, 0, 0, pv->pgetname, 0, 0, 0);
+			p = choose(*pv->source, pv->name, 0, p, pv->pgetname, 0, 0, 0);
 			if(!p)
 				break;
 			edit(pv->name, p, pv->form);

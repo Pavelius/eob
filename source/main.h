@@ -224,9 +224,11 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
+	NoAction,
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
 	DeathSave, TrapDamage,
+	PartyHas, PartyNotHas,
 	AddItem, RemoveItem,
 };
 enum speech_s : unsigned char {
@@ -236,9 +238,6 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, Alignment, Class, Creature, Damage,
 	Enchant, Gender, Item, Number, Race, Reaction, Spell,
-};
-enum condition_s : unsigned char {
-	NoCondition, IfPartyHas, IfPartyNotHas,
 };
 class creature;
 class item;
@@ -274,13 +273,13 @@ struct variant {
 struct spellprogi {
 	char				elements[21][10];
 };
-struct conditioni {
+struct actioni {
 	const char*			name;
 	int					params;
 	varianta			variants;
 };
-struct condition {
-	condition_s			type;
+struct action {
+	action_s			type;
 	variant				param;
 };
 struct abilityi {
@@ -1062,8 +1061,8 @@ direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
+NOBSDATA(action)
 NOBSDATA(abilitya)
-NOBSDATA(condition)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
@@ -1076,7 +1075,7 @@ MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
 MNLNK(class_s, classi)
-MNLNK(condition_s, conditioni)
+MNLNK(action_s, actioni)
 MNLNK(damage_s, damagei)
 MNLNK(enchant_s, enchanti)
 MNLNK(feat_s, feati)

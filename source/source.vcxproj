@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
+    <ClCompile Include="action.cpp" />
     <ClCompile Include="anyval.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
@@ -145,7 +146,6 @@
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="condition.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="creature_chating.cpp" />
