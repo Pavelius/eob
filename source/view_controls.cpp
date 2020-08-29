@@ -471,9 +471,11 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	if(p->ismonster()) {
 		draw::image(x0, y0, draw::gres(BLUE), 0, 0);
 		draw::image(x0, y1, sp, 0, 0);
-	} else if(p->isdungeon()) {
+	} else if(p->isdungeon())
 		draw::image(x0, y0, sp, 0, 0);
-		y1 = rc.y2 + 3;
+	else {
+		draw::state push; setclip(rc);
+		draw::image(x + 1, y + 1, sp, 0, 0);
 	}
 	y1 = rc.y2 + 3;
 	sb.clear(); sb.add("Path: %1", p->path);

@@ -228,7 +228,7 @@ enum action_s : unsigned char {
 	HealParty, RessurectBones,
 	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
 	DeathSave, TrapDamage,
-	PartyHas, PartyNotHas,
+	PartyHas, PartyNotHas, PlayerHas, PlayerNotHas,
 	AddItem, RemoveItem,
 };
 enum speech_s : unsigned char {
@@ -281,6 +281,7 @@ struct actioni {
 struct action {
 	action_s			type;
 	variant				param;
+	int					number;
 };
 struct abilityi {
 	const char*			name;

@@ -333,7 +333,7 @@ static void edit_game() {
 	//item it(SwordLong);
 	//creature it = {};
 	//adventurei it = {};
-	action it = {};
+	messagei::imagei it = {};
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];

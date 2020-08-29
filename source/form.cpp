@@ -1,4 +1,4 @@
-#include "main.h"
+#include "view.h"
 
 #define GENDGINF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
 
@@ -43,6 +43,9 @@ template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 		return e.pgetname(e.source->ptr(p->value), sb);
 	}
 	return "Noname";
+}
+const char* getnoname(const void* object, stringbuilder& sb) {
+	return 0;
 }
 static bool variant_selectable(const void* object, int param) {
 	auto p = bsdata<varianti>::elements + param;
@@ -355,6 +358,11 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 DGINF(actioni) = {{"Name", DGREQ(name)},
 {"#chk variants", DGREQ(variants), {getnm<varianti>}},
 {}};
-DGINF(action) = {{0, DGREQ(type), {getnm<actioni>}},
+DGINF(action) = {{"Action", DGREQ(type), {getnm<actioni>}, {0, getnoname}},
 {"Parameter", DGREQ(param), {getnm<variant>, 0, 0, choose_variant}, {visible_parameter, condition_param}},
+{}};
+DGINF(messagei::imagei) = {{"Resource", DGREQ(res), {getnm<resourcei>, 0, 0, 0, resourcei::preview, 130}},
+{"Frame", DGREQ(id)},
+{"Mirror vertical", DGCHK(flags, ImageMirrorV)},
+{"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
 {}};
