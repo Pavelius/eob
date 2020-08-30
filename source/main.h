@@ -239,6 +239,10 @@ enum variant_s : unsigned char {
 	Ability, Action, Alignment, Class, Creature, Damage,
 	Enchant, Gender, Item, Number, Race, Reaction, Spell,
 };
+enum pack_s : unsigned char {
+	PackDungeon, PackMonster, PackOuttake,
+	PackInterface, PackBackground,
+};
 class creature;
 class item;
 typedef short unsigned indext;
@@ -436,6 +440,7 @@ struct racei {
 struct resourcei {
 	const char*			name;
 	const char*			path;
+	pack_s				pack;
 	void*				data;
 	bool				isdungeon() const;
 	bool				ismonster() const;
