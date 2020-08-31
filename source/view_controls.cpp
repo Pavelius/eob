@@ -458,6 +458,17 @@ void gamei::endround() {
 	setnext(adventure);
 }
 
+static int current_res_frame = 0;
+static void* current_res_focus = 0;
+
+static void increment_frame() {
+	current_res_frame++;
+}
+
+static void decrement_frame() {
+	current_res_frame--;
+}
+
 int resourcei::preview(int x, int y, int width, const void* object) {
 	char temp[260]; stringbuilder sb(temp);
 	auto p = (resourcei*)object;
@@ -467,6 +478,18 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	auto y1 = y + 196 / 2 - 3;
 	auto sp = draw::gres(id);
 	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
+	if(!isfocus(current_res_focus)) {
+		current_res_focus = getfocus();
+		current_res_focus = 0;
+	}
+	if(sp) {
+		if(current_res_frame >= sp->count)
+			current_res_frame = sp->count - 1;
+		if(hot::key == Alpha + '+' && current_res_frame < sp->count - 1)
+			execute(increment_frame);
+		if(hot::key == Alpha + '-' && current_res_frame > 0)
+			execute(decrement_frame);
+	}
 	border_down(rc);
 	if(p->ismonster()) {
 		draw::image(x0, y0, draw::gres(BLUE), 0, 0);
@@ -475,10 +498,10 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 		draw::image(x0, y0, sp, 0, 0);
 	else if(p->pack == PackOuttake) {
 		draw::image(x0, y0, draw::gres(MEZZ), 0, 0);
-		draw::image(x0, y1, sp, 0, 0);
+		draw::image(x0, y1, sp, current_res_frame, 0);
 	} else {
 		draw::state push; setclip(rc);
-		draw::image(x + 1, y + 1, sp, 0, 0);
+		draw::image(x + 1, y + 1, sp, current_res_frame, 0);
 	}
 	y1 = rc.y2 + 3;
 	sb.clear(); sb.add("Path: %1", p->path);
