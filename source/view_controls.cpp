@@ -499,7 +499,9 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	else if(p->pack == PackOuttake) {
 		draw::image(x0, y0, draw::gres(MEZZ), 0, 0);
 		draw::image(x0, y1, sp, current_res_frame, 0);
-	} else {
+	} else if(p->pack == PackCenter)
+		draw::image(x0, y1-32, sp, current_res_frame, 0);
+	else {
 		draw::state push; setclip(rc);
 		draw::image(x + 1, y + 1, sp, current_res_frame, 0);
 	}
