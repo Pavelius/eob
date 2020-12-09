@@ -1,5 +1,4 @@
-﻿#include "anyval.h"
-#include "dice.h"
+﻿#include "dice.h"
 #include "color.h"
 #include "crt.h"
 #include "rect.h"
@@ -497,7 +496,7 @@ class item {
 		struct {
 			unsigned char identified : 1;
 			unsigned char cursed : 1; // -1 to quality and not remove
-			unsigned char broken : 1; // sometime -1 to quality and next breaking destroy item
+			unsigned char broken : 1; // Next breaking destroy item
 		};
 	};
 	unsigned char		subtype; // spell scroll or spell of wand
@@ -793,7 +792,7 @@ public:
 	void				update_turn(bool interactive);
 	void				update_hour(bool interactive);
 	static void			update_boost();
-	bool				use(ability_s id, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive);
+	bool				use(ability_s id, indext index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	bool				usequick();
 	void				view_ability();
@@ -823,14 +822,12 @@ struct dungeon {
 		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
 	struct groundi : item {
-		//item			value;
-		short unsigned	index;
+		indext			index;
 		unsigned char	side;
 		unsigned char	flags;
-		//constexpr explicit operator bool() const { return value.operator bool(); }
 	};
 	struct overlayitem : item {
-		short unsigned	storage_index;
+		indext			storage_index;
 	};
 	struct statei {
 		overlayi		up; // where is stairs up
@@ -838,7 +835,7 @@ struct dungeon {
 		overlayi		portal; // where is portal
 		overlayi		crypt; // where is crypt located
 		overlayi		crypt_button; // where is crypt located
-		short unsigned	spawn[2]; // new monster appera here
+		indext			spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
 		unsigned char	artifacts; // count of powerful items (+4 or hight)
@@ -854,10 +851,10 @@ struct dungeon {
 	struct eventi {
 		variant			owner;
 		ability_s		skill;
-		short unsigned	index;
+		indext			index;
 		constexpr operator bool() const { return owner.operator bool(); }
 	};
-	unsigned short		overland_index;
+	indext				overland_index;
 	unsigned char		level;
 	sitei::headi		head;
 	statei				stat;
@@ -870,82 +867,82 @@ struct dungeon {
 	eventi				events[256];
 	dungeon() { clear(); }
 	operator bool() const { return head.type != NONE; }
-	overlayi*			add(short unsigned index, cell_s type, direction_s dir);
+	overlayi*			add(indext index, cell_s type, direction_s dir);
 	void				add(overlayi* p, item it);
-	creature*			addmonster(monster_s type, short unsigned index, char side, direction_s dir);
-	int					addmonster(monster_s type, short unsigned index, direction_s dir = Up);
-	bool				allaround(short unsigned index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
+	creature*			addmonster(monster_s type, indext index, char side, direction_s dir);
+	int					addmonster(monster_s type, indext index, direction_s dir = Up);
+	bool				allaround(indext index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				attack(const combati& ci, creature* enemy) const;
 	void				automap(bool fow);
 	void				clear();
 	void				clearboost();
 	bool				create(rect& rc, int w, int h) const;
-	static void			create(short unsigned index, const sitei* site, bool interactive = false);
-	void				dropitem(short unsigned index, item rec, int side);
+	static void			create(indext index, const sitei* site, bool interactive = false);
+	void				dropitem(indext index, item rec, int side);
 	void				dropitem(item* pi, int side = -1);
-	void				fill(short unsigned index, int sx, int sy, cell_s value);
+	void				fill(indext index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
-	void				formation(short unsigned index, direction_s dr);
-	cell_s				get(short unsigned index) const;
+	void				formation(indext index, direction_s dr);
+	cell_s				get(indext index) const;
 	cell_s				get(int x, int y) const;
-	short unsigned		gettarget(short unsigned start, direction_s dir);
-	void				getblocked(short unsigned* pathmap, bool treat_door_as_passable);
+	short unsigned		gettarget(indext start, direction_s dir);
+	void				getblocked(indext* pathmap, bool treat_door_as_passable);
 	int					getfreeside(creature** sides);
-	int					getfreeside(short unsigned index);
-	unsigned			getitems(item** result, item** result_maximum, short unsigned index, int side = -1);
+	int					getfreeside(indext index);
+	unsigned			getitems(item** result, item** result_maximum, indext index, int side = -1);
 	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
 	int					getitemside(item* pi);
 	short unsigned		getindex(int x, int y) const;
 	race_s				getlanguage() const;
 	unsigned			getmonstercount() const;
-	void				getmonsters(creature** result, short unsigned index, direction_s dr);
+	void				getmonsters(creature** result, indext index, direction_s dr);
 	item_s				getkeytype(cell_s keyhole) const;
-	short unsigned		getnearest(short unsigned index, int radius, cell_s t1);
-	short unsigned*		getnearestfree(short unsigned* indicies, short unsigned index);
-	direction_s			getpassable(short unsigned index, direction_s* dirs);
+	short unsigned		getnearest(indext index, int radius, cell_s t1);
+	short unsigned*		getnearestfree(indext* indicies, indext index);
+	direction_s			getpassable(indext index, direction_s* dirs);
 	short unsigned		getsecret() const;
 	static size_s		getsize(creature** sides);
-	overlayi*			getoverlay(short unsigned index, direction_s dir);
+	overlayi*			getoverlay(indext index, direction_s dir);
 	overlayi*			getoverlay(const overlayitem& e) { return &overlays[e.storage_index]; }
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
-	bool				is(short unsigned index, cell_flag_s value) const;
-	bool				is(short unsigned index, int width, int height, cell_s v) const;
+	void				hearnoises();
+	bool				is(indext index, cell_flag_s value) const;
+	bool				is(indext index, int width, int height, cell_s v) const;
 	bool				is(const rect& rc, cell_s id) const;
 	bool				isactive(const overlayi* po);
-	bool				isblocked(short unsigned index) const;
-	bool				isblocked(short unsigned index, int side) const;
-	bool				islineh(short unsigned index, direction_s dir, int count, cell_s t1, cell_s t2 = CellUnknown) const;
-	bool				ismatch(short unsigned index, cell_s t1, cell_s t2);
-	bool				ismonster(short unsigned index);
-	bool				isroom(short unsigned index, direction_s dir, int side, int height) const;
+	bool				isblocked(indext index) const;
+	bool				isblocked(indext index, int side) const;
+	bool				islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2 = CellUnknown) const;
+	bool				ismatch(indext index, cell_s t1, cell_s t2);
+	bool				ismonster(indext index);
+	bool				isroom(indext index, direction_s dir, int side, int height) const;
 	static bool			isvisible(indext index);
 	dungeon::overlayi*	getlinked(indext index);
 	void				makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side);
 	void				makeroom(const rect& rc, overlayi& door);
-	void				makewave(short unsigned start, short unsigned* pathmap);
+	void				makewave(indext start, indext* pathmap);
 	void				move(indext index, direction_s dr);
 	void				move(direction_s direction);
 	void				passhour();
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
-	short unsigned		random(short unsigned* indicies);
+	short unsigned		random(indext* indicies);
 	bool				read(indext overland_index, indext level);
 	void				remove(indext index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
-	void				makedoor(const rect& rc);
 	void				rotate(direction_s direction);
-	void				set(short unsigned index, cell_s value);
-	void				set(short unsigned index, cell_flag_s value);
-	void				set(short unsigned index, direction_s dir, cell_s type);
-	void				set(short unsigned index, reaction_s v);
+	void				set(indext index, cell_s value);
+	void				set(indext index, cell_flag_s value);
+	void				set(indext index, direction_s dir, cell_s type);
+	void				set(indext index, reaction_s v);
 	void				setactive(overlayi* po, bool active);
-	void				setactive(short unsigned index, bool value);
-	void				setactive(short unsigned index, bool value, int radius);
-	void				stop(short unsigned index);
-	void				traplaunch(short unsigned index, direction_s dir, item_s show, const combati& e);
-	void				turnto(short unsigned index, direction_s dr);
+	void				setactive(indext index, bool value);
+	void				setactive(indext index, bool value, int radius);
+	void				stop(indext index);
+	void				traplaunch(indext index, direction_s dir, item_s show, const combati& e);
+	void				turnto(indext index, direction_s dr);
 	void				write();
 };
 class string : public stringbuilder {
@@ -1034,8 +1031,8 @@ void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);
 void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
-int						thrown(short unsigned index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
-int						thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
+int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
+int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
@@ -1056,13 +1053,13 @@ extern gamei			game;
 extern dungeon			location_above;
 extern dungeon			location;
 extern variant			party[6];
-inline int				gx(short unsigned index) { return index % mpx; }
-inline int				gy(short unsigned index) { return index / mpx; }
-short unsigned			to(short unsigned index, direction_s d);
+inline int				gx(indext index) { return index % mpx; }
+inline int				gy(indext index) { return index / mpx; }
+indext					to(indext index, direction_s d);
 void					mslog(const char* format, ...);
 void					mslogv(const char* format, const char* vl);
-direction_s				pointto(short unsigned from, short unsigned to);
-int						rangeto(short unsigned i1, short unsigned i2);
+direction_s				pointto(indext from, indext to);
+int						rangeto(indext i1, indext i2);
 direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 // Function get comon name

@@ -131,7 +131,7 @@ static int get_party_disp(creature* target, wear_s id) {
 	return 0;
 }
 
-static unsigned flip_flags(short unsigned index, direction_s direction) {
+static unsigned flip_flags(indext index, direction_s direction) {
 	return ((gx(index) + gy(index) + direction) & 1) != 0 ? ImageMirrorH : 0;
 }
 
@@ -491,7 +491,7 @@ bool draw::settiles(resource_s type) {
 	return true;
 }
 
-static dungeon::overlayi* add_wall_decor(render_disp* p, short unsigned index, direction_s dir, int n, bool flip, bool use_flip) {
+static dungeon::overlayi* add_wall_decor(render_disp* p, indext index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
 	auto bd = to(game.getdirection(), dir);
@@ -601,7 +601,7 @@ static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlayi* p
 	return p;
 }
 
-static render_disp* create_wall(render_disp* p, int i, short unsigned index, int frame, cell_s rec, bool flip) {
+static render_disp* create_wall(render_disp* p, int i, indext index, int frame, cell_s rec, bool flip) {
 	int n;
 	// Walls render
 	// | |_  5 4 7
@@ -823,7 +823,7 @@ static render_disp* create_wall(render_disp* p, int i, short unsigned index, int
 	return p;
 }
 
-static render_disp* create_floor(render_disp* p, int i, short unsigned index, cell_s rec, bool flip) {
+static render_disp* create_floor(render_disp* p, int i, indext index, cell_s rec, bool flip) {
 	static short floor_pos[18] = {
 		scrx / 2 - 42 * 3, scrx / 2 - 42 * 2, scrx / 2 - 42, scrx / 2, scrx / 2 + 42, scrx / 2 + 42 * 2, scrx / 2 + 42 * 3,
 		scrx / 2 - 64 * 2, scrx / 2 - 64, scrx / 2, scrx / 2 + 64, scrx / 2 + 64 * 2,
@@ -891,7 +891,7 @@ static render_disp* create_thrown(render_disp* p, int i, int ps, item_s rec, dir
 	return p;
 }
 
-static render_disp* create_items(render_disp* p, int i, short unsigned index, direction_s dr) {
+static render_disp* create_items(render_disp* p, int i, indext index, direction_s dr) {
 	item* result[64];
 	int item_count = location.getitems(result, zendof(result), index);
 	for(int n = 0; n < item_count; n++) {
@@ -911,7 +911,7 @@ static render_disp* create_items(render_disp* p, int i, short unsigned index, di
 	return p;
 }
 
-static render_disp* create_monsters(render_disp* p, int i, short unsigned index, direction_s dr, bool flip) {
+static render_disp* create_monsters(render_disp* p, int i, indext index, direction_s dr, bool flip) {
 	creature* result[4]; location.getmonsters(result, index, dr);
 	for(int n = 0; n < 4; n++) {
 		auto pc = result[n];
@@ -970,7 +970,7 @@ static render_disp* create_monsters(render_disp* p, int i, short unsigned index,
 	return p;
 }
 
-static void prepare_draw(short unsigned index, direction_s dr) {
+static void prepare_draw(indext index, direction_s dr) {
 	static char offset_north[18][2] = {{-3, -3}, {-2, -3}, {-1, -3}, {0, -3}, {1, -3}, {2, -3}, {3, -3},
 	{-2, -2}, {-1, -2}, {0, -2}, {1, -2}, {2, -2},
 	{-1, -1}, {0, -1}, {1, -1},
@@ -1209,7 +1209,7 @@ static int get_index_pos(short unsigned index) {
 	return -1;
 }
 
-int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s itype, direction_s sdr, int wait) {
+int draw::animation::thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr, int wait) {
 	index = to(index, dr);
 	if(index == Blocked)
 		return index;
@@ -1243,7 +1243,7 @@ int draw::animation::thrownstep(short unsigned index, direction_s dr, item_s ity
 	return index;
 }
 
-int draw::animation::thrown(short unsigned index, direction_s dr, item_s type, direction_s sdr, int wait, bool block_monsters) {
+int draw::animation::thrown(indext index, direction_s dr, item_s type, direction_s sdr, int wait, bool block_monsters) {
 	for(int i = 0; i < 3; i++) {
 		int i2 = thrownstep(index, dr, type, sdr, wait);
 		if(i2 == Blocked || location.isblocked(i2))

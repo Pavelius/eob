@@ -57,9 +57,6 @@
     <ClInclude Include="markup.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="anyval.h">
-      <Filter>Поддержка</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -238,9 +235,6 @@
     </ClCompile>
     <ClCompile Include="usability.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="anyval.cpp">
-      <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="damage.cpp">
       <Filter>Логика</Filter>

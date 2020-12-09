@@ -1214,7 +1214,7 @@ void creature::addexp(int value, int killing_hit_dice) {
 	}
 }
 
-bool creature::use(ability_s skill, short unsigned index, int bonus, bool* firsttime, int exp, bool interactive) {
+bool creature::use(ability_s skill, indext index, int bonus, bool* firsttime, int exp, bool interactive) {
 	if(firsttime)
 		*firsttime = false;
 	if(get(skill) <= 0)

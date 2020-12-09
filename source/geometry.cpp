@@ -10,7 +10,7 @@ direction_s to(direction_s d, direction_s d1) {
 	return rotate_direction[d - Left][d1 - Left];
 }
 
-short unsigned to(short unsigned index, direction_s d) {
+indext to(indext index, direction_s d) {
 	if(index == Blocked)
 		return Blocked;
 	switch(d) {
@@ -35,7 +35,7 @@ short unsigned to(short unsigned index, direction_s d) {
 	}
 }
 
-direction_s pointto(short unsigned from, short unsigned dest) {
+direction_s pointto(indext from, indext dest) {
 	static direction_s dirs[] = {Left, Right, Up, Down};
 	for(auto e : dirs) {
 		if(to(from, e) == dest)
@@ -44,7 +44,7 @@ direction_s pointto(short unsigned from, short unsigned dest) {
 	return Center;
 }
 
-int rangeto(short unsigned i1, short unsigned i2) {
+int rangeto(indext i1, indext i2) {
 	if(i1 == Blocked || i2 == Blocked)
 		return -1;
 	auto x1 = gx(i1), y1 = gy(i1);

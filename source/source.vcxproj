@@ -120,7 +120,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="anyval.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
@@ -138,7 +137,6 @@
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="action.cpp" />
-    <ClCompile Include="anyval.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
