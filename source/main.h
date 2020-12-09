@@ -240,7 +240,7 @@ enum variant_s : unsigned char {
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
-	PackInterface, PackBackground,
+	PackInterface, PackBackground, PackCenter
 };
 class creature;
 class item;

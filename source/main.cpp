@@ -371,7 +371,10 @@ int main(int argc, char* argv[]) {
 	//test_monster(CLERIC2, ovr13);
 	//test_monster(BLDRAGON, 0);
 #endif
-	next_proc = mainmenu;
+	fore = colors::white;
+	//next_proc = mainmenu;
+	next_proc = edit_game;
+	setbigfont();
 	while(next_proc) {
 		auto p = next_proc;
 		next_proc = 0; p();
