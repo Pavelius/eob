@@ -892,7 +892,7 @@ struct dungeon {
 	unsigned			getitems(item** result, item** result_maximum, indext index, int side = -1);
 	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
 	int					getitemside(item* pi);
-	short unsigned		getindex(int x, int y) const;
+	indext				getindex(int x, int y) const;
 	race_s				getlanguage() const;
 	unsigned			getmonstercount() const;
 	void				getmonsters(creature** result, indext index, direction_s dr);
@@ -915,7 +915,8 @@ struct dungeon {
 	bool				isblocked(indext index, int side) const;
 	bool				islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2 = CellUnknown) const;
 	bool				ismatch(indext index, cell_s t1, cell_s t2);
-	bool				ismonster(indext index);
+	bool				ismonster(indext index) const;
+	bool				ismonsternearby(indext i, int r = 3) const;
 	bool				isroom(indext index, direction_s dir, int side, int height) const;
 	static bool			isvisible(indext index);
 	dungeon::overlayi*	getlinked(indext index);

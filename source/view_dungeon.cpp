@@ -336,6 +336,9 @@ void draw::avatar(int x, int y, int party_index, unsigned flags, item* current_i
 }
 
 void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item) {
+	draw::state push;
+	fore = colors::black;
+	setsmallfont();	
 	char temp[260]; pc->getname(temp, zendof(temp));
 	image(x, y, gres(INVENT), 1, 0);
 	image(x, y + 24, gres(INVENT), 2, 0);

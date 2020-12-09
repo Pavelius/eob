@@ -1652,6 +1652,10 @@ bool creature::use(item* pi) {
 			mslog("%1 is not eadible!", name);
 			return false;
 		}
+		if(location.ismonsternearby(pc->getindex(), 3)) {
+			pc->say("Can't camp here. Monsters are nearby.");
+			return false;
+		}
 		if(!draw::dlgask("Do you want make camp?"))
 			return false;
 		creature::camp(*pi);

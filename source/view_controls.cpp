@@ -362,7 +362,7 @@ void mslog(const char* format, ...) {
 }
 
 void draw::logs() {
-	draw::state push;
+	draw::state push; setsmallfont();
 	setclip(log_rect);
 	text(log_rect, log_message);
 }

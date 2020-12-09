@@ -333,10 +333,10 @@ static void edit_game() {
 	//item it(SwordLong);
 	//creature it = {};
 	//adventurei it = {};
-	messagei::imagei it = {};
+	//messagei::imagei it = {};
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
-	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
+	auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
 	edit("Player", &it, dginf<decltype(it)>::meta);
 }
@@ -344,7 +344,7 @@ static void edit_game() {
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
-	{edit_game/*editor*/, "Game editor"},
+	{edit_game, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);
@@ -352,6 +352,16 @@ void draw::mainmenu() {
 
 void draw::setnext(void(*v)()) {
 	next_proc = v;
+}
+
+static void show_monsters() {
+	static int ovr12[4] = {0, 1, 2};
+	static int ovr13[4] = {0, 1, 3};
+	static int ovr3[4] = {0, 2, 3};
+	//test_monster(ANT, 0);
+	//test_monster(GUARD1, ovr3);
+	//test_monster(CLERIC2, ovr13);
+	//test_monster(BLDRAGON, 0);
 }
 
 int main(int argc, char* argv[]) {
@@ -362,18 +372,9 @@ int main(int argc, char* argv[]) {
 	//util_main();
 #endif // _DEBUG
 	draw::initialize();
-#ifdef _DEBUG
-	static int ovr12[4] = {0, 1, 2};
-	static int ovr13[4] = {0, 1, 3};
-	static int ovr3[4] = {0, 2, 3};
-	//test_monster(ANT, 0);
-	//test_monster(GUARD1, ovr3);
-	//test_monster(CLERIC2, ovr13);
-	//test_monster(BLDRAGON, 0);
-#endif
 	fore = colors::white;
-	//next_proc = mainmenu;
-	next_proc = edit_game;
+	next_proc = mainmenu;
+	//next_proc = edit_game;
 	setbigfont();
 	while(next_proc) {
 		auto p = next_proc;

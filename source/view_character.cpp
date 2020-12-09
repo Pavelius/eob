@@ -31,6 +31,7 @@ static int number(int x, int y, const char* name, const combati& v) {
 }
 
 static void sheet_head(int x, int y, creature* pc) {
+	draw::state push; setsmallfont();
 	char temp[260]; pc->getname(temp, zendof(temp));
 	image(x, y, gres(INVENT), 0, 0);
 	pc->view_portrait(x + 4, y + 3);
@@ -74,7 +75,7 @@ void draw::invertory(int x, int y, creature* pc, item* current_item) {
 void draw::abilities(int x, int y, creature* pc) {
 	char temp[260];
 	blanksheet(x, y, pc);
-	state push;
+	state push; setsmallfont();
 	fore = colors::info::text;
 	int x1 = x + 4;
 	int y1 = y + 54;
@@ -114,7 +115,7 @@ void draw::abilities(int x, int y, creature* pc) {
 
 void draw::skills(int x, int y, creature* pc) {
 	blanksheet(x, y, pc);
-	state push;
+	state push; setsmallfont();
 	fore = colors::info::text;
 	int x1 = x + 4;
 	int y1 = y + 54;

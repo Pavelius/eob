@@ -437,7 +437,7 @@ void dungeon::getmonsters(creature** result, indext index, direction_s dr) {
 	}
 }
 
-bool dungeon::ismonster(indext index) {
+bool dungeon::ismonster(indext index) const {
 	for(auto& e : monsters) {
 		if(!e)
 			continue;
@@ -529,7 +529,7 @@ race_s dungeon::getlanguage() const {
 indext dungeon::getindex(int x, int y) const {
 	if(x < 0 || x >= mpx || y < 0 || y >= mpy)
 		return Blocked;
-	return (short unsigned)(y * mpx + x);
+	return (indext)(y * mpx + x);
 }
 
 indext dungeon::gettarget(indext index, direction_s dir) {
@@ -1078,4 +1078,19 @@ void dungeon::makeroom(const rect& rc, overlayi& door) {
 	for(auto y = rc.y1; y <= rc.y2; y++)
 		set(getindex(rc.x2, y), CellWall);
 	makedoor(rc, door, maprnd(dirs), false, false);
+}
+
+bool dungeon::ismonsternearby(indext i, int r) const {
+	auto xc = gx(i);
+	auto yc = gy(i);
+	for(auto x = xc - r; x <= x + r; x++) {
+		for(auto y = yc - r; y <= y + r; y++) {
+			auto i = getindex(x, y);
+			if(i == Blocked)
+				continue;
+			if(ismonster(i))
+				return true;
+		}
+	}
+	return false;
 }
