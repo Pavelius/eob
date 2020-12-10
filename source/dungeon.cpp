@@ -1083,8 +1083,8 @@ void dungeon::makeroom(const rect& rc, overlayi& door) {
 bool dungeon::ismonsternearby(indext i, int r) const {
 	auto xc = gx(i);
 	auto yc = gy(i);
-	for(auto x = xc - r; x <= x + r; x++) {
-		for(auto y = yc - r; y <= y + r; y++) {
+	for(auto x = xc - r; x <= xc + r; x++) {
+		for(auto y = yc - r; y <= yc + r; y++) {
 			auto i = getindex(x, y);
 			if(i == Blocked)
 				continue;
