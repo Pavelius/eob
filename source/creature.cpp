@@ -3,6 +3,8 @@
 
 INSTDATAC(creature, 32)
 
+static reaction_s current_reaction;
+
 const char* get_name_part(short rec);
 
 static const int monsters_thac0[] = {
@@ -1939,28 +1941,6 @@ int creature::getpartyindex() const {
 	return game.getindex(this);
 }
 
-void creature::dressoff() {
-	dress_wears(-1);
-}
-
-void creature::dresson() {
-	dress_wears(1);
-}
-
-void creature::dress_wears(int m) {
-	for(auto id = Head; id <= Legs; id = (wear_s)(id + 1)) {
-		auto it = wears[id];
-		if(!it)
-			continue;
-		auto pe = it.getenchantment();
-		if(!pe)
-			continue;
-		auto power = pe->power;
-		if(power.type == Ability)
-			ability[power.value] += pe->magic*m;
-	}
-}
-
 void creature::remove(spell_s v) {
 	if(active_spells.is(v)) {
 		active_spells.remove(v);
@@ -1987,8 +1967,6 @@ bool creature::haveforsale() const {
 	items.forsale(false);
 	return items.getcount() > 0;
 }
-
-static reaction_s current_reaction;
 
 void creature::setcom(reaction_s v) {
 	current_reaction = v;

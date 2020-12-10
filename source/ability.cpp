@@ -9,19 +9,15 @@ BSDATA(abilityi) = {{"Str", num},
 {"Int", num},
 {"Wis", num},
 {"Cha", num},
-//
 {"Save vs Paralize", per},
 {"Save vs Poison", per},
 {"Save vs Traps", per},
 {"Save vs Magic", per, {}},
-//
 {"Climb Walls", per, {Theif}},
 {"Hear Noise", per, {Theif}},
 {"Move Silently", per, {Theif, Ranger}},
 {"Open Locks", per, {Theif}},
-
 {"Remove Traps", per, {Theif}},
-//
 {"Read Languages", per, {Theif}},
 {"Learn Spells", per, {Mage}},
 //

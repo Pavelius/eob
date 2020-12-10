@@ -165,7 +165,6 @@ int	creature::get(ability_s id) const {
 		return r;
 	}
 	int result = bsdata<racei>::elements[race].skills[id];
-	int magic_bonus = getbonus(id);
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);
@@ -187,6 +186,7 @@ int	creature::get(ability_s id) const {
 			result += maptbl(widow_spell_bonus, get(Wisdow)) * 5;
 			break;
 		}
+		result += getbonus(id) * 10;
 	} else if(id >= ClimbWalls && id <= ReadLanguages) {
 		auto value = get_theiv_skill(id, type, levels);
 		switch(id) {
@@ -195,6 +195,7 @@ int	creature::get(ability_s id) const {
 				result += 100;
 			break;
 		}
+		value += getbonus(id) * 20;
 		if(value <= 0)
 			return 0;
 		result += value;
@@ -204,9 +205,9 @@ int	creature::get(ability_s id) const {
 	} else {
 		if(!allow_skill(id, type))
 			return 0;
-		auto str = get(Strenght);
+		//auto str = get(Strenght);
 		auto ins = get(Intellegence);
-		auto con = get(Constitution);
+		//auto con = get(Constitution);
 		switch(id) {
 		case LearnSpell:
 			result += maptbl(chance_learn_spells, ins);
@@ -228,6 +229,7 @@ int	creature::get(ability_s id) const {
 				result += 50;
 			break;
 		}
+		result += getbonus(id) * 20;
 	}
 	if(result > 100)
 		result = 100;

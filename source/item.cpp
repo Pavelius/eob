@@ -68,9 +68,9 @@ static enchantmenti magic_potions[] = {{Common, "healing", CureLightWounds, 1},
 {Artifact, "god insight", OfAdvise, 5},
 };
 static enchantmenti magic_bracers[] = {{Common},
-{Common, "bulgary+1", OpenLocks, 20},
+{Common, "bulgary+1", OpenLocks, 1},
 {Uncommon, "protection+1", OfProtection, 1},
-{Uncommon, "bulgery+2", OpenLocks, 40},
+{Uncommon, "bulgery+2", OpenLocks, 2},
 {Rare, "protection+2", OfProtection, 2},
 {Rare, "orge strenght", Strenght, 1},
 {Rare, "archery", Dexterity, 1},
@@ -83,8 +83,8 @@ static enchantmenti magic_bracers[] = {{Common},
 };
 static enchantmenti magic_boots[] = {{Common},
 {Uncommon},
-{Uncommon, "jumping", ClimbWalls, 100},
-{Rare, "elvenind", MoveSilently, 100},
+{Uncommon, "jumping", ClimbWalls, 4},
+{Rare, "elvenind", MoveSilently, 5},
 {Rare, "speed", Haste},
 {VeryRare, "speed", Haste},
 {Artifact, "speed", Haste},
@@ -100,14 +100,14 @@ static enchantmenti magic_amulets[] = {{Common},
 };
 static enchantmenti magic_rings[] = {{Common},
 {Uncommon, "protection+1", OfProtection, 1},
-{Uncommon, "resist fire", ResistFire, 100},
-{Uncommon, "resist cold", ResistCold, 100},
-{Uncommon, "resist poison", SaveVsPoison, 40},
+{Uncommon, "resist fire", ResistFire, 5},
+{Uncommon, "resist cold", ResistCold, 5},
+{Uncommon, "resist poison", SaveVsPoison, 2},
 {Uncommon, "luck", OfLuck, 1},
 {Uncommon, "sustenance", CureLightWounds, 1},
-{Uncommon, "feather falling", ClimbWalls, 100},
+{Uncommon, "feather falling", ClimbWalls, 5},
 {Rare, "advise", OfAdvise, 1},
-{Rare, "resist magic", ResistMagic, 40},
+{Rare, "resist magic", ResistMagic, 2},
 {Rare, "wizardy I", OfWizardy, 1},
 {Rare, "protection+2", OfProtection, 2},
 {Rare, "invisibility", Invisibility, 1},
@@ -411,7 +411,15 @@ int item::getportrait() const {
 }
 
 int	item::get(variant value) const {
-	return (getpower() == value) ? getmagic() : 0;
+	auto pe = getenchantment();
+	if(!pe)
+		return 0;
+	if(pe->power == value) {
+		if(iscursed())
+			return -pe->magic;
+		return pe->magic;
+	} else
+		return 0;
 }
 
 void item::get(combati& result, const creature* enemy) const {

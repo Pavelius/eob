@@ -290,7 +290,7 @@ struct action {
 struct abilityi {
 	const char*			name;
 	const char*			present;
-	adat<class_s, 4>	allow;
+	cflags<class_s>		allow;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -630,9 +630,6 @@ class creature {
 	//
 	void				addboost(variant id, unsigned duration, char value = 0) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
-	void				dress_wears(int m);
-	void				dressoff();
-	void				dresson();
 	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);

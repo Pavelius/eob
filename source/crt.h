@@ -191,6 +191,7 @@ class cflags {
 public:
 	constexpr cflags() : data(0) {}
 	constexpr cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
+	constexpr explicit operator bool() const { return data != 0; }
 	constexpr void			add(const T id) { data |= 1 << id; }
 	constexpr void			add(const cflags& e) { data |= e.data; }
 	constexpr void			clear() { data = 0; }
