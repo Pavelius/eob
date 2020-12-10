@@ -236,7 +236,7 @@ enum speech_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, Alignment, Class, Creature, Damage,
-	Enchant, Gender, Item, Number, Race, Reaction, Spell,
+	Enchant, Feat, Gender, Item, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -261,6 +261,7 @@ struct variant {
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
+	constexpr variant(const feat_s v) : type(Feat), value(v) {}
 	constexpr variant(const gender_s v) : type(Gender), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
@@ -290,9 +291,6 @@ struct abilityi {
 	const char*			name;
 	const char*			present;
 	adat<class_s, 4>	allow;
-	const char*			nameof[5];
-	char				multiplier;
-	char				base;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -323,6 +321,9 @@ struct commandi {
 };
 struct damagei {
 	const char*			name;
+	feat_s				half;
+	ability_s			reduce;
+	feat_s				immunity;
 };
 struct directioni {
 	const char*			name;

@@ -237,9 +237,8 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 		if(d100() < 30)
 			type = RationIron;
 	}
-	auto r0 = bonus_chance_magic + (rand() % 85);
-	auto rarity = item::getrandomrarity(pd->level);
 	item it(type);
+	auto rarity = item::getrandomrarity(pd->level);
 	it.setpower(rarity);
 	it.setidentified(0);
 	if(pd->chance.curse && (d100()<pd->chance.curse))

@@ -105,6 +105,7 @@ static enchantmenti magic_rings[] = {{Common},
 {Uncommon, "resist poison", SaveVsPoison, 40},
 {Uncommon, "luck", OfLuck, 1},
 {Uncommon, "sustenance", CureLightWounds, 1},
+{Uncommon, "feather falling", ClimbWalls, 100},
 {Rare, "advise", OfAdvise, 1},
 {Rare, "resist magic", ResistMagic, 40},
 {Rare, "wizardy I", OfWizardy, 1},
@@ -324,19 +325,9 @@ rarity_s item::getrandomrarity(int level) {
 	{16, 34, 76, 91},
 	{14, 30, 74, 90}, // Level 15
 	};
-	int minimum = 10;
-	int maximum = sizeof(source) / sizeof(source[0]);
-	int current = imin(level, maximum);
+	int mod_level = imin((unsigned)level, sizeof(source) / sizeof(source[0]));
 	int result[Artifact];
-	memcpy(result, source[current], sizeof(result));
-	if(level > maximum) {
-		auto difference = level - maximum;
-		for(auto i = 0; i < Artifact; i++) {
-			result[i] -= difference;
-			if(result[i] < minimum)
-				result[i] = minimum;
-		}
-	}
+	memcpy(result, source[mod_level], sizeof(result));
 	auto r = d100();
 	for(auto i = 0; i < Artifact; i++) {
 		if(result[i] == 0 || r <= result[i])
@@ -374,7 +365,7 @@ void item::setpower(variant power) {
 
 static unsigned char getpowerindex(item_s type, rarity_s rarity) {
 	auto& ei = bsdata<itemi>::elements[type];
-	adat<unsigned char, 128> source;
+	adat<unsigned char, 256> source;
 	for(auto& e : ei.enchantments) {
 		if(e.rarity == rarity)
 			source.add(ei.enchantments.indexof(&e));

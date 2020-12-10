@@ -166,12 +166,6 @@ int	creature::get(ability_s id) const {
 	}
 	int result = bsdata<racei>::elements[race].skills[id];
 	int magic_bonus = getbonus(id);
-	if(bsdata<abilityi>::elements[id].multiplier)
-		result += magic_bonus * bsdata<abilityi>::elements[id].multiplier;
-	else if(magic_bonus>0)
-		result += bsdata<abilityi>::elements[id].base;
-	else if(magic_bonus<0)
-		result -= bsdata<abilityi>::elements[id].base;
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);

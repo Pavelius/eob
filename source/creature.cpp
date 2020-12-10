@@ -401,12 +401,6 @@ void creature::attack_drain(creature* defender, char& value, int& hits) {
 		hits = defender->gethits() + 10;
 }
 
-static int getresisted(int value, int percent) {
-	if(!percent)
-		return value;
-	return value * (100 - percent) / 100;
-}
-
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	item_s ammo = NoItem;
@@ -1144,25 +1138,23 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 		sethits(c);
 		return;
 	}
-	if(type == Bludgeon && is(ResistBludgeon))
-		hits /= 2;
-	if(type == Slashing && is(ResistSlashing))
+	auto& di = bsdata<damagei>::elements[type];
+	if(di.half && is(di.half))
 		hits = (hits + 1) / 2;
-	if(type == Pierce && is(ResistPierce))
-		hits /= 2;
-	if(type == Cold)
-		hits = getresisted(hits, get(ResistCold));
-	if(type == Fire)
-		hits = getresisted(hits, get(ResistFire));
-	if((magic_bonus == 0) && is(ImmuneNormalWeapon)
-		&& (type == Bludgeon || type == Slashing || type == Pierce))
+	if(di.reduce) {
+		auto v = get(di.reduce);
+		if(v) {
+			if(v > 100)
+				v = 100;
+			hits = hits*(100 - v) / 100;
+		}
+	}
+	if(di.immunity && is(di.immunity))
 		hits = 0;
 	if(hits == 0)
 		return;
-	auto h = hits;
-	remove_hits(hits_aid, h);
-	auto c = this->hits - h;
-	sethits(c);
+	remove_hits(hits_aid, hits);
+	sethits(this->hits - hits);
 	draw::animation::damage(this, hits);
 	// If we kill enemy monster
 	if(gethits() <= 0)
@@ -1960,13 +1952,12 @@ void creature::dress_wears(int m) {
 		auto it = wears[id];
 		if(!it)
 			continue;
-		auto sp = it.getpower();
-		if(!sp)
+		auto pe = it.getenchantment();
+		if(!pe)
 			continue;
-		if(sp.type == Ability) {
-			auto& ei = bsdata<abilityi>::elements[sp.value];
-			ability[sp.value] += ei.multiplier*it.getmagic()*m;
-		}
+		auto power = pe->power;
+		if(power.type == Ability)
+			ability[power.value] += pe->magic*m;
 	}
 }
 
@@ -2023,7 +2014,7 @@ bool creature::ismatch(const variant v) const {
 	case Race: return getrace() == v.value;
 	case Item: return have((item_s)v.value);
 	case Spell: return isknown((spell_s)v.value);
-	case Reaction: return getcomreaction()==(reaction_s)v.value;
+	case Reaction: return getcomreaction() == (reaction_s)v.value;
 	}
 	return false;
 }
