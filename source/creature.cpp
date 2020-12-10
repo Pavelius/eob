@@ -403,6 +403,22 @@ void creature::attack_drain(creature* defender, char& value, int& hits) {
 		hits = defender->gethits() + 10;
 }
 
+bool creature::useammo(item_s ammo, wear_s slot, bool use_item) {
+	if(ammo) {
+		if(wears[Quiver].is(ammo)) {
+			if(use_item)
+				wears[Quiver].use();
+		} else {
+			if(ishero())
+				say("No ammunitions!");
+			if(remove(slot, false))
+				usequick();
+			return false;
+		}
+	}
+	return true;
+}
+
 void creature::attack(creature* defender, wear_s slot, int bonus) {
 	combati wi = {}; get(wi, slot, defender);
 	item_s ammo = NoItem;
@@ -416,13 +432,6 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			wi.damage.b += awi.damage.b + amb;
 			wi.critical_multiplier += awi.critical_multiplier;
 			wi.critical_range += awi.critical_range;
-			wears[Quiver].use();
-		} else {
-			if(ishero())
-				say("No ammunitions!");
-			if(remove(slot, false))
-				usequick();
-			return;
 		}
 	}
 	auto ac = defender->getac();
@@ -441,6 +450,8 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	if(ishero())
 		subenergy();
 	for(auto atn = (bsdata<attacki>::elements[wi.attack].attacks_p2r + (game.getrounds() % 2)) / 2; atn > 0; atn--) {
+		if(!useammo(ammo, slot, true))
+			return;
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 		auto rolls = xrand(1, 20);
 		auto hits = -1;
@@ -523,6 +534,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			return;
 		}
 	}
+	useammo(ammo, slot, false);
 }
 
 void creature::attack(short unsigned index, direction_s d, int bonus, bool ranged) {

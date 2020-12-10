@@ -792,6 +792,7 @@ public:
 	static void			update_boost();
 	bool				use(ability_s id, indext index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
+	bool				useammo(item_s ammo, wear_s slot, bool use_item);
 	bool				usequick();
 	void				view_ability();
 	static void			view_party();
