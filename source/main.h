@@ -110,13 +110,6 @@ enum ability_s : unsigned char {
 	ResistCharm, ResistCold, ResistFire, ResistMagic,
 	CriticalDeflect, DetectSecrets,
 	LastSkill = DetectSecrets,
-	// Other bonus
-	//AttackBonus, MeleeAttackBonus, RangedAttackBonus,
-	//DamageBonus, MeleeDamageBonus, RangedDamageBonus,
-	//CriticalRange, CriticalMultiplayer,
-	//ArmorClass, ArmorClassVsMelee, ArmorClassVsRanged,
-	//ArmorThreshold, ArmorThresholdVsMelee, ArmorThresholdVsRanged,
-	//AllSaves,
 };
 enum wear_s : unsigned char {
 	Backpack, LastBackpack = Backpack + 13,

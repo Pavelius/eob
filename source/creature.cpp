@@ -455,10 +455,10 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
 		auto rolls = xrand(1, 20);
 		auto hits = -1;
-		auto crhit = 20 - wi.critical_range;
+		auto chance_critical = 20 - wi.critical_range;
 		auto damage_type = wi.type;
 		tohit = imax(2, imin(20, tohit));
-		if(rolls >= tohit || rolls >= crhit) {
+		if(rolls >= tohit || rolls >= chance_critical) {
 			auto damage = wi.damage;
 			hits = damage.roll();
 			if(getbonus(Fire, slot)) {
@@ -470,13 +470,10 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 				hits += xrand(1, 4) + 1;
 			}
 			// RULE: crtitical hit can deflected
-			if(rolls >= crhit) {
+			if(rolls >= chance_critical) {
 				// RULE: critical damage depends on weapon and count in dices
-				if(!defender->roll(CriticalDeflect)) {
-					damage.b = 0; // Only initial dice rolled second time
-					damage.c += wi.critical_multiplier;
-					hits += damage.roll();
-				}
+				if(!defender->roll(CriticalDeflect))
+					hits = hits * 2;
 				if(wi.weapon) {
 					// RULE: Weapon with spell cast it
 					auto power = wi.weapon->getpower();
@@ -492,7 +489,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 			// RULE: vampiric ability allow user to drain blood and regain own HP
 			auto vampirism = getbonus(OfVampirism, slot);
 			if(vampirism) {
-				auto hits_healed = xrand(1, 6) + vampirism;
+				auto hits_healed = xrand(1, 3) + vampirism;
 				if(hits_healed > hits)
 					hits_healed = hits;
 				this->damage(Heal, hits_healed);
@@ -529,8 +526,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		draw::animation::clear();
 		// Weapon can be broken
 		if(rolls == 1 && wi.weapon) {
-			if(wi.weapon->damage(0, 0))
-				usequick();
+			if(d100() < 40) {
+				if(wi.weapon->damage(0, 0))
+					usequick();
+			} else
+				damage(Bludgeon, 1, 5);
 			return;
 		}
 	}

@@ -65,7 +65,7 @@ static bool cast_on_own_items(spell_s id, int level, creature* caster) {
 	return cast_on_items(id, level, caster, result);
 }
 
-spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
+BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
 // 1 - level
 {"Bless", {0, 1}, TargetAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, Instant, SaveHalf, 0, {1, 3}, {2}, 1, 10}, FireThrown},
@@ -117,7 +117,8 @@ spelli bsdata<spelli>::elements[] = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
 {"Turn Undead", {0, 1}, TargetSelf, {TurnUndead}, MagicThrown},
 };
-assert_enum(spell, TurnUndead);
+assert_enum(spell, TurnUndead)
+INSTELEM(spelli)
 
 int	creature::getlevel(spell_s id, class_s type) {
 	switch(type) {
