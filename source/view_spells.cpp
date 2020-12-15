@@ -119,15 +119,17 @@ creature* creature::choosehero() {
 	return (creature*)elements.choosesm("On which hero?", true);
 }
 
-spell_s creature::choosespell(class_s type) const {
-	adat<spell_s, 32> result;
+int variantc::chooselv(class_s type) const {
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
 	fore = colors::white;
 	unsigned current_element = 0;
 	while(ismodal()) {
-		result.count = select_spells(result.data, zendof(result.data), this, type, current_level);
+		variantc result;
+		result = *this;
+		result.matchsl(type, current_level);
+		result.sort();
 		if(current_element >= result.count)
 			current_element = result.count - 1;
 		if(current_element < 0)
@@ -149,7 +151,7 @@ spell_s creature::choosespell(class_s type) const {
 		y = rc.y1 + draw::texth() + 2;
 		for(unsigned i = 0; i < result.count; i++) {
 			unsigned flags = (i == current_element) ? Focused : 0;
-			y += labelb(x, y, rc.width(), flags, getstr(result.data[i]));
+			y += labelb(x, y, rc.width(), flags, result.data[i].getname());
 		}
 		domodal();
 		switch(hot::key) {
@@ -157,7 +159,7 @@ spell_s creature::choosespell(class_s type) const {
 			return Moved;
 		case KeyEnter:
 		case Alpha + 'U':
-			breakmodal(result.data[current_element]);
+			breakmodal(result.data[current_element].value);
 			break;
 		case KeyLeft:
 		case Alpha + 'A':
@@ -192,7 +194,13 @@ spell_s creature::choosespell(class_s type) const {
 			break;
 		}
 	}
-	return (spell_s)getresult();
+	return getresult();
+}
+
+spell_s creature::choosespell(class_s type) const {
+	variantc spells;
+	spells.cspells(this, true);
+	return (spell_s)spells.chooselv(type);
 }
 
 static bool choose_creature(class_s type, creature** hero) {

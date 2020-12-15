@@ -40,6 +40,7 @@ private:
 #define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
 #define INSTDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
+#define FO(c, f) (unsigned)(&((c*)0)->f)
 
 extern "C" int						atexit(void(*func)(void));
 extern "C" void*					bsearch(const void* key, const void *base, unsigned num, unsigned size, int(*compar)(const void *, const void *));

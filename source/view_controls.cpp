@@ -722,6 +722,15 @@ void draw::adventure() {
 		case KeyPageUp:
 			location.rotate(Right);
 			break;
+		case Alpha + 'E':
+			if(true) {
+				auto pc = current_item->getowner();
+				auto spell_element = pc->choosespell(Mage);
+				if(!spell_element)
+					break;
+				pc->cast(spell_element, Mage, 0);
+			}
+			break;
 		case Alpha + 'W':
 			current_item = movenext(current_item, KeyUp);
 			break;

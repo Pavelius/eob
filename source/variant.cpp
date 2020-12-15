@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define DECL(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
+#define DECL(T) &bsdata<T>::source, getnm<T>, FO(T, name), dginf<T>::meta
 
 BSDATA(varianti) = {{"None"},
 {"Ability", DECL(abilityi)},
@@ -16,7 +16,7 @@ BSDATA(varianti) = {{"None"},
 {"Number"},
 {"Race", DECL(racei)},
 {"Reaction"},
-{"Spell"},
+{"Spell", &bsdata<spelli>::source, 0, FO(spelli, name)},
 };
 assert_enum(variant, Spell)
 INSTELEM(varianti)
@@ -45,9 +45,9 @@ creature* variant::getcreature() const {
 }
 
 const char* variant::getname() const {
-	switch(type) {
-	case Ability: return bsdata<abilityi>::elements[value].name;
-	case Spell: return bsdata<spelli>::elements[value].name;
-	default: return "None";
-	}
+	auto p = bsdata<varianti>::elements + type;
+	if(!p->source)
+		return "None";
+	auto pe = p->source->ptr(value);
+	return *((const char**)((char*)pe + p->uname));
 }

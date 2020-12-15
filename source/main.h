@@ -238,11 +238,11 @@ enum pack_s : unsigned char {
 class creature;
 class item;
 typedef short unsigned indext;
-typedef flagable<LastSpellAbility> spella;
+typedef flagable<LastSpellAbility> spellf;
 typedef cflags<feat_s> feata;
 typedef adatc<ability_s, char, LastSkill+1> skilla;
 typedef cflags<usability_s> usabilitya;
-typedef cflags<variant_s> varianta;
+typedef cflags<variant_s> variantf;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 struct variant {
 	variant_s			type;
@@ -267,13 +267,19 @@ struct variant {
 	creature*			getcreature() const;
 	const char*			getname() const;
 };
+struct variantc : adat<variant> {
+	void				cspells(const creature* p, bool expand);
+	int					chooselv(class_s type) const;
+	void				matchsl(class_s v, int level);
+	void				sort();
+};
 struct spellprogi {
 	char				elements[21][10];
 };
 struct actioni {
 	const char*			name;
 	int					params;
-	varianta			variants;
+	variantf			variants;
 };
 struct action {
 	action_s			type;
@@ -347,6 +353,7 @@ struct varianti {
 	const char*			name;
 	array*				source;
 	fntext				pgetname;
+	unsigned			uname;
 	const markup*		form;
 };
 struct combati {
@@ -610,8 +617,8 @@ class creature {
 	item				wears[LastInvertory + 1];
 	char				spells[LastSpellAbility + 1];
 	char				prepared[LastSpellAbility + 1];
-	spella				known_spells;
-	spella				active_spells;
+	spellf				known_spells;
+	spellf				active_spells;
 	char				avatar;
 	unsigned			experience;
 	unsigned char		name[2];
