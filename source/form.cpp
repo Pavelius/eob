@@ -8,6 +8,9 @@ template<class T> const char* getnm(const void* object, stringbuilder& sb) {
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
+template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
+	return ((enchanti*)object)->name;
+}
 template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
 	if(!p->name && !p->magic && !p->power)
@@ -365,4 +368,6 @@ DGINF(messagei::imagei) = {{"Resource", DGREQ(res), {getnm<resourcei>, 0, 0, 0, 
 {"Frame", DGREQ(id)},
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},
 {"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
+{}};
+DGINF(spelli) = {{"Name", DGREQ(name)},
 {}};

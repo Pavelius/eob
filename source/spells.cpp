@@ -66,7 +66,6 @@ static bool cast_on_own_items(spell_s id, int level, creature* caster) {
 }
 
 BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
-// 1 - level
 {"Bless", {0, 1}, TargetAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, Instant, SaveHalf, 0, {1, 3}, {2}, 1, 10}, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {1, 8}}},
@@ -85,7 +84,7 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Shield", {1, 0}, TargetSelf, {ShieldSpell, Duration5PerLevel}},
 {"Shoking grasp", {1, 0}, TargetSelf, {ShokingHand}},
 {"Sleep", {1, 0}, TargetAllClose, {Sleep, Duration5PerLevel, SaveNegate}},
-// 2 - level
+
 {"Acid arrow", {2}, TargetThrowHitFighter, {Pierce, Instant, NoSave, 0, {2, 4}}, Arrow},
 {"Aid", {0, 2}, TargetAlly, {Aid}},
 {"Blindness", {2}, TargetClose, {Blindness, Instant, SaveNegate}},
@@ -101,19 +100,19 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Resist fire", {0, 2}, TargetAlly, {ResistFireSpell, DurationTurnPerLevel}},
 {"Slow Poison", {0, 2}, TargetAlly, {SlowPoison, Duration8Hours}},
 {"Scare", {2}, TargetAllClose, {Fear, Duration1d4P1PerLevel, NoSave}},
-// 3 - level
+
 {"Create Food", {0, 3}, TargetSelf, {CreateFood}},
 {"Cure Blindness", {0, 3}, TargetAlly, {CureBlindnessDeafness}},
 {"Cause Disease", {0, 3}, TargetClose, {Disease, Instant, SaveNegate}},
 {"Cure Disease", {0, 3}, TargetAlly, {CureDisease}},
 {"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
 {"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
-{"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}, {}, {"%1 is cramble to dust", "%1 is uncursed", "%1 trun to ashes"}},
+{"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}, {}, {"%1 cramble to dust", "%1 is uncursed", "%1 turn to ashe"}},
 {"Remove paralizes", {0, 3}, TargetAllAlly, {RemoveParalizes}},
-// 4 - level
+
 {"Cure Serious Wounds", {0, 4}, TargetAlly, {Heal, Instant, NoSave, 0, {2, 8, 1}}},
-{"Cause Poison", {0, 3}, TargetClose, {Poison, Instant, SaveNegate}},
-// Special ability
+{"Cause Poison", {0, 4}, TargetClose, {Poison, Instant, SaveNegate}},
+
 {"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
 {"Turn Undead", {0, 1}, TargetSelf, {TurnUndead}, MagicThrown},
 };

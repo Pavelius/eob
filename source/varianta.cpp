@@ -21,16 +21,27 @@ void variantc::cspells(const creature* player, bool expand) {
 	}
 }
 
+static int getlevel(spell_s v, class_s c) {
+	int i;
+	auto& ei = bsdata<spelli>::elements[v];
+	switch(c) {
+	case NoClass:
+		i = ei.levels[1];
+		if(!i && ei.levels[0] && i > ei.levels[0])
+			i = ei.levels[0];
+		return i;
+	case Cleric: return ei.levels[1];
+	default: return ei.levels[0];
+	}
+}
+
 void variantc::matchsl(class_s c, int level) {
 	auto p = data;
 	for(auto& e : *this) {
 		if(e.type != Spell)
 			continue;
 		auto& ei = bsdata<spelli>::elements[e.value];
-		auto i = 0;
-		if(c == Cleric)
-			i = 1;
-		if(ei.levels[i] != level)
+		if(getlevel((spell_s)e.value, c) != level)
 			continue;
 		*p++ = e;
 	}

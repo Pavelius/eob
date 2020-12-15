@@ -1666,15 +1666,15 @@ bool creature::use(item* pi) {
 			return false;
 		creature::camp(*pi);
 		break;
-	case MagicBook:
-	case HolySymbol:
-	case HolyWarriorSymbol:
-		consume = false;
-		spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
-		if(!spell_element)
-			return false;
-		pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
-		break;
+	//case MagicBook:
+	//case HolySymbol:
+	//case HolyWarriorSymbol:
+	//	consume = false;
+	//	spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
+	//	if(!spell_element)
+	//		return false;
+	//	pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
+	//	break;
 	case TheifTools:
 		consume = false;
 		if(location.get(forward_index) == CellPit) {
@@ -2026,4 +2026,12 @@ bool creature::remove(wear_s slot, bool interactive) {
 		return false;
 	wears[slot].clear();
 	return true;
+}
+
+class_s	creature::getcaster() const {
+	if(get(Cleric) || get(Paladin))
+		return Cleric;
+	if(get(Mage) || get(Ranger))
+		return Mage;
+	return NoClass;
 }

@@ -725,10 +725,10 @@ void draw::adventure() {
 		case Alpha + 'E':
 			if(true) {
 				auto pc = current_item->getowner();
-				auto spell_element = pc->choosespell(Mage);
-				if(!spell_element)
-					break;
-				pc->cast(spell_element, Mage, 0);
+				auto caster = pc->getcaster();
+				auto spell_element = pc->choosespell(caster);
+				if(spell_element)
+					pc->cast(spell_element, caster, 0);
 			}
 			break;
 		case Alpha + 'W':

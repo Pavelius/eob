@@ -270,7 +270,7 @@ struct variant {
 struct variantc : adat<variant> {
 	void				cspells(const creature* p, bool expand);
 	int					chooselv(class_s type) const;
-	void				matchsl(class_s v, int level);
+	void				matchsl(class_s type, int level);
 	void				sort();
 };
 struct spellprogi {
@@ -679,6 +679,7 @@ public:
 	int					getawards() const;
 	int					getbonus(variant id) const;
 	int					getbonus(variant id, wear_s slot) const;
+	class_s				getcaster() const;
 	int					getcasterlevel(class_s id) const;
 	class_s				getclass() const { return type; }
 	static class_s		getclass(class_s id, int index);

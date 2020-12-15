@@ -200,6 +200,12 @@ static enchantmenti priest_scrolls[] = {{Common, 0, DetectEvil},
 {Rare, 0, NegativePlanProtection},
 {Rare, 0, RemoveCurse},
 };
+static enchantmenti old_tome[] = {{Common},
+{Uncommon},
+{Rare},
+{VeryRare},
+{Artifact},
+};
 
 BSDATA(itemi) = {{"No item"},
 {"Battle axe", {7, 4, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},

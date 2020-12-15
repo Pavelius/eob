@@ -16,7 +16,7 @@ BSDATA(varianti) = {{"None"},
 {"Number"},
 {"Race", DECL(racei)},
 {"Reaction"},
-{"Spell", &bsdata<spelli>::source, 0, FO(spelli, name)},
+{"Spell", DECL(spelli)},
 };
 assert_enum(variant, Spell)
 INSTELEM(varianti)
