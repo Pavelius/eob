@@ -471,3 +471,13 @@ bool gamei::read() {
 	enter(location_index, location_level);
 	return true;
 }
+
+void gamei::leavedungeon() {
+	looti loot = {};
+	for(auto v : party) {
+		auto pc = v.getcreature();
+		if(!pc)
+			continue;
+		pc->removeloot(loot);
+	}
+}

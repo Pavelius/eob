@@ -341,7 +341,6 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {0, DGREQ(crypt)},
 {}};
 DGINF(adventurei) = {{"Name", DGREQ(name)},
-{"Rewards", DGREQ(reward)},
 {"#tab Part 1", DGREQ(levels[0])},
 {"#tab Part 2", DGREQ(levels[1]), {}, {visible_levels2}},
 {"#tab Part 3", DGREQ(levels[2]), {}, {visible_levels3}},

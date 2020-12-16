@@ -166,7 +166,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		return false;
 	if(is(Deafness) && (d100() < 20)) {
 		if(ishero())
-			mslog("Spell failed!");
+			mslog("Spell failed due to deafness!");
 	}
 	auto save_skill = SaveVsMagic;
 	switch(range) {

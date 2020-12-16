@@ -324,8 +324,15 @@ bool creature::isenemy(creature* target) const {
 	return ishero() != target->ishero();
 }
 
+void creature::say(const item& it, const char* format, ...) {
+	char name[128]; stringbuilder sb(name); it.getname(sb);
+	say(format, name);
+}
+
 void creature::say(const char* format, ...) {
-	return sayv(format, xva_start(format));
+	if(!ishero())
+		return;
+	sayv(format, xva_start(format));
 }
 
 void creature::sayv(const char* format, const char* vl) {
@@ -1460,6 +1467,79 @@ static void try_autocast(creature* pc) {
 	}
 }
 
+void creature::campcast(item& it) {
+	auto pe = it.getenchantment();
+	if(!pe)
+		return;
+	switch(pe->power.type) {
+	case Spell:
+		cast((spell_s)pe->power.value, getcaster(), 0, this);
+		break;
+	}
+}
+
+void creature::resting(int healed) {
+	healed += getenchant(CureLightWounds, 10);
+	food = getfoodmax();
+	// Remove additional hit points
+	hits_aid = 0;
+	// Remove enchanted weapon
+	if(wears[RightHand].is(Charged) && wears[RightHand].is(Natural))
+		wears[RightHand].clear();
+	// Heal damage
+	damage(Heal, healed);
+	// Prepare spells
+	preparespells();
+	// Some magic items activate
+	campcast(wears[Head]);
+	campcast(wears[Neck]);
+	campcast(wears[Body]);
+	campcast(wears[Elbow]);
+	campcast(wears[Legs]);
+	// Recharge some items
+	for(auto& it : wears) {
+		if(!it)
+			continue;
+		auto type = it.gettype();
+		switch(type) {
+		case MagicWand:
+		case Staff:
+			if(it.iscursed())
+				break;
+			// RULE: Only mages can recharge spells
+			if(get(Mage) < 5)
+				break;
+			if(it.getcharges() < 40)
+				it.setcharges(it.getcharges() + 1);
+			break;
+		case MageScroll:
+		case PriestScroll:
+			// Autodetect scrolls by itellegence check
+			if((type == MageScroll && get(Mage))
+				|| (type == PriestScroll && (get(Cleric) || get(Paladin) || get(Ranger)))
+				|| get(Theif) >= 3) {
+				if(!it.isidentified() && roll(Intellegence)) {
+					it.setidentified(1);
+					say(it, "It's %1");
+				}
+			}
+			break;
+		case RedPotion:
+		case GreenPotion:
+		case BluePotion:
+			if(!get(Mage))
+				break;
+			if(!it.isidentified() && roll(Intellegence)) {
+				it.setidentified(1);
+				say(it, "It's %1");
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void creature::camp(item& it) {
 	for(auto v : party) {
 		auto e = v.getcreature();
@@ -1479,7 +1559,7 @@ void creature::camp(item& it) {
 		if(!pc)
 			continue;
 		// RULE: Ring of healing get addition healing
-		auto healed = pc->getenchant(CureLightWounds, 10);
+		int healed = 0;
 		if(poisoned) {
 			// RULE: Cursed food add weak poison
 			pc->add(Poison, Instant, NoSave);
@@ -1493,65 +1573,7 @@ void creature::camp(item& it) {
 				break;
 			}
 		}
-		pc->food = pc->getfoodmax();
-		// Remove additional hit points
-		pc->hits_aid = 0;
-		// Remove enchanted weapon
-		if(pc->wears[RightHand].is(Charged) && pc->wears[RightHand].is(Natural))
-			pc->wears[RightHand].clear();
-		// Heal damage
-		pc->damage(Heal, healed);
-		// Prepare spells
-		pc->preparespells();
-		// Recharge some items
-		for(auto i = FirstInvertory; i <= LastInvertory; i = (wear_s)(i + 1)) {
-			auto pi = pc->getitem(i);
-			if(!pi || !(*pi))
-				continue;
-			auto type = pi->gettype();
-			switch(type) {
-			case MagicWand:
-			case Staff:
-				if(pi->iscursed())
-					break;
-				// RULE: Only mages can recharge spells
-				if(pc->get(Mage) < 5)
-					break;
-				if(pi->getcharges() < 40)
-					pi->setcharges(pi->getcharges() + 1);
-				break;
-			case MageScroll:
-			case PriestScroll:
-				// Autodetect scrolls by itellegence check
-				if((type == MageScroll && pc->get(Mage))
-					|| (type == PriestScroll && (pc->get(Cleric) || pc->get(Paladin) || pc->get(Ranger)))
-					|| pc->get(Theif) >= 3) {
-					if(pi->isidentified())
-						break;
-					if(pc->roll(Intellegence)) {
-						pi->setidentified(1);
-						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
-						pc->say("It's %1", temp);
-					}
-				}
-				break;
-			case RedPotion:
-			case GreenPotion:
-			case BluePotion:
-				if(!pc->get(Mage))
-					break;
-				if(!pi->isidentified()) {
-					if(pc->roll(Intellegence)) {
-						pi->setidentified(1);
-						char temp[128]; stringbuilder sb(temp); pi->getname(sb);
-						pc->say("It's %1", temp);
-					}
-				}
-				break;
-			default:
-				break;
-			}
-		}
+		pc->resting(healed);
 	}
 }
 
@@ -1660,15 +1682,15 @@ bool creature::use(item* pi) {
 			return false;
 		creature::camp(*pi);
 		break;
-	//case MagicBook:
-	//case HolySymbol:
-	//case HolyWarriorSymbol:
-	//	consume = false;
-	//	spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
-	//	if(!spell_element)
-	//		return false;
-	//	pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
-	//	break;
+		//case MagicBook:
+		//case HolySymbol:
+		//case HolyWarriorSymbol:
+		//	consume = false;
+		//	spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
+		//	if(!spell_element)
+		//		return false;
+		//	pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
+		//	break;
 	case TheifTools:
 		consume = false;
 		if(location.get(forward_index) == CellPit) {
@@ -2038,4 +2060,30 @@ bool creature::is(spell_s v) const {
 	if(wears[RightRing].ispower(v))
 		return true;
 	return false;
+}
+
+void creature::removeloot(looti& result) {
+	for(auto& e : wears) {
+		if(!e)
+			continue;
+		// Equiped items do not remove
+		auto slot = (wear_s)(&e - wears);
+		if(slot >= Head && slot <= LastBelt)
+			continue;
+		auto type = e.gettype();
+		// All items cost coins, but some cost more
+		auto cost = e.getcost() * 100;
+		if(!cost)
+			cost = 20;
+		result.gold += cost;
+		// Some items earn experience
+		cost = 0;
+		switch(type) {
+		case MagicBook: cost = 100; break;
+		case HolyWarriorSymbol: case HolySymbol: cost = 50; break;
+		}
+		// Some items earn fame
+		// Clear item
+		e.clear();
+	}
 }

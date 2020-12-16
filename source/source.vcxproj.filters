@@ -209,9 +209,6 @@
     <ClCompile Include="creaturea.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="string.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="message.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

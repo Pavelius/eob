@@ -1,6 +1,7 @@
 ﻿#include "dice.h"
 #include "color.h"
 #include "crt.h"
+#include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
 #include "markup.h"
@@ -600,6 +601,12 @@ public:
 	void				forsale(bool remove);
 	void				select();
 };
+struct looti {
+	int					gold;
+	int					experience;
+	int					fame;
+	int					progress;
+};
 class creature {
 	alignment_s			alignment;
 	race_s				race;
@@ -631,9 +638,11 @@ class creature {
 	//
 	void				addboost(variant id, unsigned duration, char value = 0) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
+	void				campcast(item& it);
 	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
+	void				resting(int healed);
 	char				racial_bonus(char* data) const;
 	void				raise_level(class_s type);
 	void				random_equipment();
@@ -748,6 +757,7 @@ public:
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
 	void				removeboost(variant v);
+	void				removeloot(looti& result);
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
@@ -755,6 +765,7 @@ public:
 	reaction_s			rollreaction(int bonus) const;
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
+	void				say(const item& it, const char* format, ...);
 	void				sayv(const char* format, const char* vl);
 	bool				save(int& value, ability_s skill, save_s type, int bonus);
 	void				scribe(item& it);
@@ -947,20 +958,28 @@ struct dungeon {
 	void				turnto(indext index, direction_s dr);
 	void				write();
 };
-class string : public stringbuilder {
-	creature*			source_hero;
-	item*				source_item;
-public:
-	constexpr string(char* pb, const char* pe) : stringbuilder(pb, pe), source_hero(0), source_item(0) {}
-	template<unsigned N> constexpr string(char(&result)[N]) : string(result, result + N - 1) {}
-	void				set(creature* v) { source_hero = v; }
-	void				set(item* v) { source_item = v; }
-	virtual void		addidentifier(const char* identifier) override;
-};
 struct adventurei {
 	char				name[32];
-	int					reward;
 	sitei				levels[8];
+};
+struct fractioni : looti {
+	char				name[32];
+};
+struct companyi {
+	looti				resource;
+	fractioni			fractions[16];
+};
+class worldmapi {
+	char				name[32];
+	point				camera;
+	point				party;
+	void				paint(point camera) const;
+public:
+	void				edit();
+	point				getparty() const { return party; }
+	void				read(const char* url);
+	void				scroll(point from, point to) const;
+	void				setparty(point v) { party = v; }
 };
 class gamei : public adventurei {
 	indext				camera_index;
@@ -972,6 +991,7 @@ class gamei : public adventurei {
 	unsigned			rounds_hour;
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
+	unsigned			gold;
 public:
 	void				add(monster_s id) { killed[id]++; }
 	void				attack(indext index, bool ranged);
@@ -992,10 +1012,10 @@ public:
 	creature*			getvalid(creature* pc, class_s type) const;
 	wear_s				getwear(const item* itm) const;
 	static bool			isalive();
+	void				leavedungeon();
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
-	void				pause();
 	bool				question(item* current_item);
 	void				setcamera(short unsigned index, direction_s direction = Center);
 	void				thrown(item* itm);
@@ -1046,8 +1066,12 @@ void					chooseopt(const menu* source, unsigned count, const char* title);
 bool					dlgask(const char* text);
 bool					edit(const char* title, void* object, const markup* form);
 void					editor();
+void					fullimage(point camera);
 void					mainmenu();
 void					options();
+void					pause();
+void					scroll(point from, point to);
+void					setimage(const char* id);
 void					setnext(void(*p)());
 bool					settiles(resource_s id);
 }

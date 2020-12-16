@@ -3,11 +3,6 @@
 using namespace draw;
 
 namespace draw {
-class picstore : arem<pair<const char*, surface>> {
-public:
-	surface&			get(const char* id);
-	void				clear();
-};
 struct render_control {
 	void*				av;
 	unsigned			param;
@@ -74,11 +69,34 @@ static const void*		focus_stack[8];
 static const void*		focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
+static draw::surface	bitmap;
+char					bitmap_url[260];
 callback				draw::domodal;
-static picstore			bitmaps;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
+}
+
+static void setblink(color v) {
+	const int ci = 16;
+	int m = frametick % ci;
+	if(m > ci / 2)
+		m = ci - m;
+	m += ci / 2;
+	fore.r = v.r * m / ci;
+	fore.g = v.g * m / ci;
+	fore.b = v.b * m / ci;
+}
+
+static void correct(point& p, short x1, short y1, short x2, short y2) {
+	if(p.x > x2)
+		p.x = x2;
+	if(p.y > y2)
+		p.y = y2;
+	if(p.x < x1)
+		p.x = x1;
+	if(p.y < y1)
+		p.y = y1;
 }
 
 static void update_frame_counter() {
@@ -1080,8 +1098,9 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 				if(pi[i].res) {
 					if(pi[i].custom) {
 						need_border = true;
-						auto& sf = bitmaps.get(pi[i].custom);
-						blit(*draw::canvas, 8, 8, sf.width, sf.height, pi[i].flags, sf, 0, 0);
+						setimage(pi[i].custom);
+						if(bitmap)
+							blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi[i].flags, bitmap, 0, 0);
 					} else {
 						auto sp = gres(pi[i].res);
 						auto& fr = sp->get(pi[i].id);
@@ -1127,72 +1146,6 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 	if(!p)
 		return 0;
 	return p->id;
-}
-
-surface& picstore::get(const char* id) {
-	id = szdup(id);
-	// Find existing;
-	for(auto& e : *this) {
-		if(e.key == id)
-			return e.value;
-	}
-	char temp[260];
-	auto p = add();
-	memset(p, 0, sizeof(*p));
-	p->key = szdup(id);
-	p->value.read(szurl(temp, "art/custom", id, "bmp"));
-	if(!p->value)
-		p->value.read(szurl(temp, "art/quest", id, "bmp"));
-	return p->value;
-}
-
-void picstore::clear() {
-	for(auto& e : *this)
-		e.value.clear();
-	arem::clear();
-}
-
-indext gamei::worldmap() {
-	const int svx = 176;
-	const int svy = 176;
-	point position = {350, 350};
-	openform();
-	while(ismodal()) {
-		animation::worldmap(0);
-		auto& sf = bitmaps.get("worldmap");
-		point camera;
-		camera.x = position.x - svx / 2;
-		camera.y = position.y - svy / 2;
-		if(camera.x > sf.width - svx)
-			camera.x = sf.width - svx;
-		if(camera.y > sf.height - svy)
-			camera.y = sf.height - svy;
-		if(camera.x < 0)
-			camera.x = 0;
-		if(camera.y < 0)
-			camera.y = 0;
-		blit(*draw::canvas, 0, 0, 176, 176, 0, sf, camera.x, camera.y);
-		auto pt = position - camera;
-		rectf({pt.x - 1, pt.y - 1, pt.x + 2, pt.y + 2}, colors::red);
-		domodal();
-		switch(hot::key) {
-		case KeyLeft: position.x--; break;
-		case KeyRight: position.x++; break;
-		case KeyUp: position.y--; break;
-		case KeyDown: position.y++; break;
-		case KeyEscape: breakmodal(Blocked); break;
-		}
-		if(position.x < 0)
-			position.x = 0;
-		if(position.y < 0)
-			position.y = 0;
-		if(position.x >= sf.width)
-			position.x = sf.width - 1;
-		if(position.y >= sf.height)
-			position.y = sf.height - 1;
-	}
-	closeform();
-	return Blocked;
 }
 
 item* itema::choose(const char* title, bool cancel_button) {
@@ -1925,4 +1878,66 @@ void draw::editor() {
 			edit(pv->name, p, pv->form);
 		}
 	}
+}
+
+static void paintparty(point camera, point party) {
+	auto p = party - camera;
+	setblink(colors::white);
+	pixel(p.x, p.y);
+	pixel(p.x, p.y + 1);
+	pixel(p.x, p.y + 2);
+	pixel(p.x, p.y - 1);
+	pixel(p.x, p.y - 2);
+	pixel(p.x + 2, p.y);
+	pixel(p.x + 1, p.y);
+	pixel(p.x - 1, p.y);
+	pixel(p.x - 2, p.y);
+}
+
+void draw::setimage(const char* id) {
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("art/custom/%-1.bmp", id);
+	if(strcmp(bitmap_url, temp) == 0)
+		return;
+	zcpy(bitmap_url, temp);
+	bitmap.read(bitmap_url);
+}
+
+void draw::fullimage(point camera) {
+	auto sx = draw::getwidth();
+	auto sy = draw::getheight();
+	camera.x -= sx / 2;
+	camera.y -= sy / 2;
+	correct(camera, 0, 0, bitmap.width - sx, bitmap.height - sy);
+	blit(*draw::canvas, 0, 0, 320, 200, 0, bitmap, camera.x, camera.y);
+}
+
+//void worldmapi::edit() {
+//	if(!bitmap)
+//		return;
+//	auto sdx = getwidth() / 2;
+//	auto sdy = getheight() / 2;
+//	state push;
+//	setbigfont();
+//	fore = colors::white;
+//	openform();
+//	while(ismodal()) {
+//		correct(party, 0, 0, bitmap.width, bitmap.height);
+//		fullimage(party);
+//		domodal();
+//		switch(hot::key) {
+//		case KeyLeft: party.x--; break;
+//		case KeyHome: party.x--; party.y--; break;
+//		case KeyEnd: party.x--; party.y++; break;
+//		case KeyRight: party.x++; break;
+//		case KeyPageUp: party.x++; party.y--; break;
+//		case KeyPageDown: party.x++; party.y++; break;
+//		case KeyUp: party.y--; break;
+//		case KeyDown: party.y++; break;
+//		}
+//	}
+//	closeform();
+//}
+
+void draw::scroll(point from, point to) {
 }

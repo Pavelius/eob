@@ -191,7 +191,6 @@
     <ClCompile Include="sprite_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="string.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="string_value.cpp" />
     <ClCompile Include="surface_serial.cpp" />

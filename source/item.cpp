@@ -49,7 +49,7 @@ static enchantmenti magic_bludgeon[] = {{Common},
 {Rare, 0, {}, 3},
 {Rare, "luck", OfLuck, 2},
 {Rare, "strenght drain", OfStrenghtDrain, 2},
-{Rare, "holiness", OfHolyness, 2},
+{Rare, "holyness", OfHolyness, 2},
 {VeryRare, 0, {}, 4},
 {Artifact, 0, {}, 5},
 };
@@ -70,6 +70,7 @@ static enchantmenti magic_potions[] = {{Common, "healing", CureLightWounds, 1},
 };
 static enchantmenti magic_bracers[] = {{Common},
 {Common, "bulgary+1", OpenLocks, 1},
+{Uncommon, "sustenance", CureLightWounds, 1},
 {Uncommon, "protection+1", OfProtection, 1},
 {Uncommon, "bulgery+2", OpenLocks, 2},
 {Rare, "protection+2", OfProtection, 2},
@@ -83,17 +84,16 @@ static enchantmenti magic_bracers[] = {{Common},
 {Artifact, "titan strenght", Strenght, 5},
 };
 static enchantmenti magic_boots[] = {{Common},
-{Uncommon},
 {Uncommon, "jumping", ClimbWalls, 4},
 {Rare, "elvenind", MoveSilently, 5},
-{Rare, "speed", Haste},
 {VeryRare, "speed", Haste},
-{Artifact, "speed", Haste},
-{Artifact, "elvenind", MoveSilently, 100},
+{Artifact, "elvenind", MoveSilently, 5},
 };
 static enchantmenti magic_amulets[] = {{Common},
 {Uncommon, "protection+1", OfProtection, 1},
+{Uncommon, "magic sense", DetectMagic, 1},
 {Rare, "speed", Haste},
+{Rare, "knowledge", Identify},
 {Rare, "protection+2", OfProtection, 2},
 {VeryRare, "health", Constitution},
 {VeryRare, "protection+3", OfProtection, 3},
@@ -105,13 +105,14 @@ static enchantmenti magic_rings[] = {{Common},
 {Uncommon, "resist cold", ResistCold, 5},
 {Uncommon, "resist poison", SaveVsPoison, 2},
 {Uncommon, "luck", OfLuck, 1},
-{Uncommon, "sustenance", CureLightWounds, 1},
 {Uncommon, "feather falling", ClimbWalls, 5},
 {Rare, "advise", OfAdvise, 1},
 {Rare, "resist magic", ResistMagic, 2},
 {Rare, "wizardy I", OfWizardy, 1},
 {Rare, "protection+2", OfProtection, 2},
 {Rare, "invisibility", Invisibility, 1},
+{Rare, "warrior", Haste, 1},
+{VeryRare, "holyness", Bless, 1},
 {VeryRare, "regeneration", OfRegeneration, 1},
 {VeryRare, "protection+3", OfProtection, 3},
 {VeryRare, "wizardy II", OfWizardy, 2},
@@ -222,10 +223,10 @@ BSDATA(itemi) = {{"No item"},
 {"Longsword", {1, 0, 1}, 0, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_swords},
 {"Short sword", {2, 0, 1}, 0, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
 {"Two-handed sword", {42, 0, 1}, 0, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
-//
+
 {"Bow", {10, 6, 1, Arrow}, 0, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
 {"Sling", {18, 4, 0, Stone}, 0, RightHand, {}, {Ranged, UseInHand}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
-//
+
 {"Robe", {32, 8, 1}, 0, Body, {UseArcane}, {}, {}, {}, magic_robe},
 {"Leather armor", {31, 8, 1}, 0, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
 {"Studded leather armor", {31, 8, 1}, 0, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
@@ -233,32 +234,32 @@ BSDATA(itemi) = {{"No item"},
 {"Chain mail", {29, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
 {"Banded mail", {28, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
 {"Plate mail", {26, 9, 1}, 0, Body, {UseMetalArmor}, {}, {}, {8, 4}, magic_armor},
-//
+
 {"Helm", {20, 6}, 0, Head, {UseShield}, {}, {}, {0, 2}, magic_helmet},
 {"Shield", {23, 7, 1}, 0, LeftHand, {UseShield}, {}, {}, {1, 2}, magic_shield},
 {"Boots", {21, 9}, 0, Legs, {}, {}, {}, {0, 1}, magic_boots},
-//
+
 {"Bracers", {25, 16}, 0, Elbow, {}, {}, {}, {}, magic_bracers},
 {"Necklage", {33, 13}, 1, Neck, {}, {}, {}, {}, magic_amulets},
 {"Necklage", {34, 13}, 2, Neck, {}, {}, {}, {}, magic_amulets},
 {"Jewelry", {108, 13}, 3, Neck, {}, {}, {}, {}, magic_amulets},
-//
+
 {"Arrow", {16, 5}, 0, Quiver, {}, {Countable}},
 {"Dart", {14, 0}, 0, RightHand, {}, {Countable}},
 {"Stone", {19, 2}, 0, Quiver, {}, {Countable}},
-//
+
 {"Bones", {43, 7}, 0, {}, {}, {}},
 {"Map", {86, 12}, 0, {}, {}, {}},
-//
+
 {"Holy Symbol", {53, 20}, 0, {}, {UseDivine}, {UseInHand}},
 {"Holy Symbol", {27, 20}, 0, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
 {"Spell book", {35, 11}, 0, {}, {UseArcane}, {UseInHand}},
 {"Lockpicks", {54, 1}, 0, {}, {UseTheif}},
-//
+
 {"Wand", {52, 10}, 0, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, magic_wand},
 {"Scroll", {36, 12}, 0, {}, {UseScrolls, UseArcane}, {}, {}, {}, wizard_scrolls},
 {"Scroll", {85, 12}, 0, {}, {UseScrolls, UseDivine}, {}, {}, {}, priest_scrolls},
-// Keys
+
 {"Shelf key", {46, 8}},
 {"Silver key", {47, 8}},
 {"Cooper key", {48, 8}},
@@ -267,23 +268,23 @@ BSDATA(itemi) = {{"No item"},
 {"Moon key", {88, 8}},
 {"Diamond key", {102, 8}},
 {"Green key", {50, 8}},
-// Rings
+
 {"Ring", {55, 15}, 1, RightRing, {UseArcane}, {}, {}, {}, magic_rings},
 {"Ring", {78, 15}, 1, RightRing, {}, {}, {}, {}, magic_rings},
 {"Ring", {79, 15}, 1, RightRing, {}, {}, {}, {}, magic_rings},
-// Potions
+
 {"Potion", {39, 19}, 0, {}, {}, {}, {}, {}, magic_potions},
 {"Potion", {40, 19}, 0, {}, {}, {}, {}, {}, magic_potions},
 {"Potion", {41, 19}, 0, {}, {}, {}, {}, {}, magic_potions},
-// Gems
+
 {"Red gem", {93, 22}, 5},
 {"Blue gem", {94, 22}, 6},
 {"Green gem", {95, 22}, 8},
 {"Purple gem", {96, 22}, 10},
-// Food
+
 {"Ration", {38, 14}},
 {"Iron ration", {37, 14}},
-// Unique/Special items
+
 {"Dust of Ages", {97, 25}, 0, {}, {UseArcane}, {Unique}},
 {"Horn", {59, 23}, 0, {}, {}, {Unique}},
 {"Mantist Head", {51, 18}, 0, {}, {}, {Unique}},
@@ -294,7 +295,7 @@ BSDATA(itemi) = {{"No item"},
 {"Stone gem", {57, 22}, 0, {}, {}, {Unique}},
 {"Stone holy symbol", {63, 20}, 0, {}, {UseDivine}, {Unique}},
 {"Stone orb", {61, 18}, 0, {}, {}, {Unique}},
-// Natural weapon
+
 {"Slam", {}, 0, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
 {"Slam", {}, 0, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
 {"Claws", {}, 0, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
@@ -305,7 +306,7 @@ BSDATA(itemi) = {{"No item"},
 {"Flame blade", {82}, 0, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
 {"Flame hand", {81}, 0, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
 };
-assert_enum(item, LastItem);
+assert_enum(item, LastItem)
 INSTELEM(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
 

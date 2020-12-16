@@ -222,7 +222,7 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 	}
 }
 
-void gamei::pause() {
+void draw::pause() {
 	while(draw::ismodal()) {
 		draw::domodal();
 		switch(hot::key) {
@@ -236,7 +236,7 @@ void gamei::pause() {
 void dungeon::automap(bool fow) {
 	render_automap(*this, fow);
 	show_camera_pos();
-	game.pause();
+	draw::pause();
 }
 
 void draw::animation::appear(dungeon& location, short unsigned index, int radius) {
@@ -258,5 +258,5 @@ void draw::animation::appear(dungeon& location, short unsigned index, int radius
 	show_camera_pos();
 	draw::screenshoot after;
 	before.blend(after, 2000);
-	game.pause();
+	pause();
 }
