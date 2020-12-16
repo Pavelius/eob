@@ -623,3 +623,12 @@ creature* item::getowner() const {
 size_s itemi::getsize() const {
 	return this->image.size ? Large : Small;
 }
+
+bool item::ispower(variant v) const {
+	if(!type)
+		return false;
+	auto p = getenchantment();
+	if(!p)
+		return false;
+	return p->power == v;
+}

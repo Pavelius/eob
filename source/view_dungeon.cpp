@@ -2,17 +2,17 @@
 
 using namespace draw;
 
-struct tileinfo {
+struct tilei {
 	char				frame;		// Main tile
 	char				flipped;	// Flipped tile
 	char				alternate;	// Alternate
 	char				type;		// Type
 };
-struct render_disp {
+struct renderi {
 	short				x, y, z;
 	short				frame[4];
 	const sprite*		rdata;
-	short unsigned		index;
+	indext				index;
 	short unsigned		flags[4];
 	creature*			pc;
 	cell_s				rec;
@@ -22,13 +22,13 @@ struct render_disp {
 	unsigned char		zorder;
 	rect				clip;
 	void				paint() const;
-	void clear() { memset(this, 0, sizeof(render_disp)); }
+	void clear() { memset(this, 0, sizeof(renderi)); }
 };
-static tileinfo			tiles[CellDoorButton + 1];
+static tilei			tiles[CellDoorButton + 1];
 static sprite*			map_tiles;
 static int				disp_damage[6];
 static int				disp_hits[6][2];
-static render_disp		disp_data[512];
+static renderi			disp_data[512];
 const int				distance_per_level = 4;
 const int				mpg = 8;
 static short unsigned	indecies[18];
@@ -106,7 +106,7 @@ static inline int get_tile_alternate(cell_s id) {
 	return tiles[id].alternate;
 }
 
-static render_disp* get_monster_disp(creature* target) {
+static renderi* get_monster_disp(creature* target) {
 	if(!target)
 		return 0;
 	for(auto& e : disp_data) {
@@ -494,7 +494,7 @@ bool draw::settiles(resource_s type) {
 	return true;
 }
 
-static dungeon::overlayi* add_wall_decor(render_disp* p, indext index, direction_s dir, int n, bool flip, bool use_flip) {
+static dungeon::overlayi* add_wall_decor(renderi* p, indext index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
 	auto bd = to(game.getdirection(), dir);
@@ -530,7 +530,7 @@ static int get_throw_index(item_s type) {
 	}
 }
 
-static void fill_item_sprite(render_disp* p, item_s type, int frame = 0) {
+static void fill_item_sprite(renderi* p, item_s type, int frame = 0) {
 	if(bsdata<itemi>::elements[type].image.size == 1)
 		p->rdata = draw::gres(ITEMGL);
 	else
@@ -538,7 +538,7 @@ static void fill_item_sprite(render_disp* p, item_s type, int frame = 0) {
 	p->frame[frame] = bsdata<itemi>::elements[type].image.ground;
 }
 
-static void fill_sprite(render_disp* p, item_s type, direction_s drs) {
+static void fill_sprite(renderi* p, item_s type, direction_s drs) {
 	switch(type) {
 	case FireThrown: case LightingThrown: case IceThrown: case MagicThrown:
 		p->frame[0] = (type - FireThrown) + 2;
@@ -556,14 +556,14 @@ static void fill_sprite(render_disp* p, item_s type, direction_s drs) {
 	}
 }
 
-static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlayi* povr) {
+static renderi* add_cellar_items(renderi* p, int i, dungeon::overlayi* povr) {
 	if(!povr)
 		return p;
 	if(povr->type == CellCellar) {
 		const int dy1 = 8;
 		const int dy2 = 16;
 		const int dy3 = 17;
-		static point item_position_cellar[18] = {{scrx / 2 - 48 * 3, scry / 2},
+		static point positions[18] = {{scrx / 2 - 48 * 3, scry / 2},
 		{scrx / 2 - 48 * 2, scry / 2 - dy3},
 		{scrx / 2 - 48 * 1, scry / 2 - dy3},
 		{scrx / 2, scry / 2 - dy3},
@@ -591,8 +591,8 @@ static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlayi* p
 		for(unsigned n = 0; n < item_count; n++) {
 			p++;
 			p->clear();
-			p->x = item_position_cellar[i].x + n;
-			p->y = item_position_cellar[i].y + n / 2;
+			p->x = positions[i].x + n;
+			p->y = positions[i].y + n / 2;
 			p->z = pos_levels[i] * distance_per_level;
 			p->zorder = 2;
 			p->index = povr->index;
@@ -604,7 +604,7 @@ static render_disp* add_cellar_items(render_disp* p, int i, dungeon::overlayi* p
 	return p;
 }
 
-static render_disp* create_wall(render_disp* p, int i, indext index, int frame, cell_s rec, bool flip) {
+static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s rec, bool flip) {
 	int n;
 	// Walls render
 	// | |_  5 4 7
@@ -826,7 +826,7 @@ static render_disp* create_wall(render_disp* p, int i, indext index, int frame, 
 	return p;
 }
 
-static render_disp* create_floor(render_disp* p, int i, indext index, cell_s rec, bool flip) {
+static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool flip) {
 	static short floor_pos[18] = {
 		scrx / 2 - 42 * 3, scrx / 2 - 42 * 2, scrx / 2 - 42, scrx / 2, scrx / 2 + 42, scrx / 2 + 42 * 2, scrx / 2 + 42 * 3,
 		scrx / 2 - 64 * 2, scrx / 2 - 64, scrx / 2, scrx / 2 + 64, scrx / 2 + 64 * 2,
@@ -862,7 +862,7 @@ static int get_x_from_line(int y, int x1, int y1, int x2, int y2) {
 	return ((y - y1)*(x2 - x1)) / (y2 - y1) + x1;
 }
 
-static render_disp* create_thrown(render_disp* p, int i, int ps, item_s rec, direction_s dr) {
+static renderi* create_thrown(renderi* p, int i, int ps, item_s rec, direction_s dr) {
 	static int height_sizes[8] = {120, 96, 71, 64, 48, 40, 30, 24};
 	p->clear();
 	int m = pos_levels[i];
@@ -894,7 +894,7 @@ static render_disp* create_thrown(render_disp* p, int i, int ps, item_s rec, dir
 	return p;
 }
 
-static render_disp* create_items(render_disp* p, int i, indext index, direction_s dr) {
+static renderi* create_items(renderi* p, int i, indext index, direction_s dr) {
 	item* result[64];
 	int item_count = location.getitems(result, zendof(result), index);
 	for(int n = 0; n < item_count; n++) {
@@ -914,7 +914,7 @@ static render_disp* create_items(render_disp* p, int i, indext index, direction_
 	return p;
 }
 
-static render_disp* create_monsters(render_disp* p, int i, indext index, direction_s dr, bool flip) {
+static renderi* create_monsters(renderi* p, int i, indext index, direction_s dr, bool flip) {
 	creature* result[4]; location.getmonsters(result, index, dr);
 	for(int n = 0; n < 4; n++) {
 		auto pc = result[n];
@@ -1062,9 +1062,9 @@ bool dungeon::isvisible(indext index) {
 	return false;
 }
 
-int compare_drawable(const void* p1, const void* p2) {
-	render_disp* e1 = *((render_disp**)p1);
-	render_disp* e2 = *((render_disp**)p2);
+static int compare_drawable(const void* p1, const void* p2) {
+	renderi* e1 = *((renderi**)p1);
+	renderi* e2 = *((renderi**)p2);
 	if(e1->z != e2->z)
 		return e2->z - e1->z;
 	else if(e1->zorder != e2->zorder)
@@ -1105,7 +1105,7 @@ void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int p
 		blit(*draw::canvas, x - sox, y - soy, ssx, ssy, ImageTransparent, scaler2, 0, 0);
 }
 
-void render_disp::paint() const {
+void renderi::paint() const {
 	color pal[256];
 	auto push_pal = palt;
 	unsigned flags_addon = 0;
@@ -1172,17 +1172,17 @@ static void render_screen() {
 	// 1 - 128x96, side has 24
 	// 0 - 176x120 - background
 	draw::state push;
-	render_disp* zorder[512];
+	renderi* zorder[512];
 	unsigned flags = flip_flags(game.getcamera(), game.getdirection());
 	//draw::image(scrx/2((flags&ImageMirrorH) != 0) ? 22 * 8 : 0, 0, map_tiles, 0, flags);
 	draw::image(scrx / 2, scry / 2, map_tiles, 0, flags);
 	draw::setclip({0, 0, scrx, scry});
-	render_disp** pz = zorder;
-	for(render_disp* p = disp_data; p->rdata; p++)
+	renderi** pz = zorder;
+	for(renderi* p = disp_data; p->rdata; p++)
 		*pz++ = p;
 	qsort(zorder, pz - zorder, sizeof(zorder[0]), compare_drawable);
 	for(auto p1 = zorder; p1 < pz; p1++) {
-		render_disp* p = *p1;
+		renderi* p = *p1;
 		if(p->clip) {
 			draw::state push;
 			draw::setclip(p->clip);
@@ -1196,7 +1196,7 @@ void draw::animation::update() {
 	prepare_draw(game.getcamera(), game.getdirection());
 }
 
-render_disp* get_last_disp() {
+renderi* get_last_disp() {
 	for(auto& e : disp_data) {
 		if(!e.rdata)
 			return &e;

@@ -78,7 +78,7 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
 {"Magic Missile", {1, 0}, TargetThrow, {Magic, Instant, NoSave, 0, {1, 4, 1}, {1, 4, 1}, 2, 4}, MagicThrown},
 {"Mending", {1, 0}, TargetItems, {Mending, Instant, NoSave, 0, {1, 3, 1}}, {}, {"%1 as a new", "%1 is fixed", "%1 is repaired"}},
 {"Prot. from Evil", {1, 1}, TargetAlly, {ProtectionFromEvil, DurationTurn}},
-{"Purify food", {0, 1}, TargetAllAlly, {PurifyFood, Instant, NoSave, 0, {100}}, {}, {"%1 is purified", "%1 clean from poison", "%1 is safe to eat"}},
+{"Purify food", {0, 1}, TargetAllAllyItems, {PurifyFood, Instant, NoSave, 0, {100}}, {}, {"%1 is purified", "%1 clean from poison", "%1 is safe to eat"}},
 {"Read Languages", {1, 0}, TargetSelf, {ReadLanguagesSpell, DurationHour}},
 {"Resist Cold", {0, 1}, TargetAlly, {ResistColdSpell, DurationTurnPerLevel}},
 {"Shield", {1, 0}, TargetSelf, {ShieldSpell, Duration5PerLevel}},
@@ -361,7 +361,7 @@ bool item::cast(spell_s id, int level, bool run) {
 			broken = false;
 		break;
 	case PurifyFood:
-		if(!isbroken() || !(type == Ration && type == RationIron))
+		if(!isbroken() || !(type == Ration || type == RationIron))
 			return false;
 		if(run)
 			broken = false;

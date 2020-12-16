@@ -544,6 +544,7 @@ public:
 	bool				ismagical() const;
 	bool				ismelee() const;
 	constexpr bool		isnatural() const { return is(Natural); }
+	bool				ispower(variant v) const;
 	constexpr bool		isranged() const { return is(Ranged); }
 	bool				istwohanded() const { return is(TwoHanded); }
 	void				setcharges(int v);
@@ -721,7 +722,7 @@ public:
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				haveforsale() const;
 	void				interract();
-	bool				is(spell_s v) const { return active_spells.is(v); }
+	bool				is(spell_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				isaffect(variant v) const;

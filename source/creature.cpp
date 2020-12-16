@@ -269,7 +269,7 @@ bool creature::roll(ability_s id, int bonus) const {
 }
 
 bool creature::isinvisible() const {
-	return is(Invisibility) || getenchant(Invisibility, 1);
+	return is(Invisibility);
 }
 
 bool creature::isready() const {
@@ -701,12 +701,6 @@ void creature::random_equipment() {
 		break;
 	}
 	add(RationIron);
-	if(get(Mage))
-		equip(MagicBook);
-	if(get(Cleric))
-		equip(HolySymbol);
-	if(get(Paladin))
-		equip(HolyWarriorSymbol);
 	if(get(Theif))
 		add(TheifTools);
 	if(get(Fighter))
@@ -2034,4 +2028,14 @@ class_s	creature::getcaster() const {
 	if(get(Mage) || get(Ranger))
 		return Mage;
 	return NoClass;
+}
+
+bool creature::is(spell_s v) const {
+	if(active_spells.is(v))
+		return true;
+	if(wears[LeftRing].ispower(v))
+		return true;
+	if(wears[RightRing].ispower(v))
+		return true;
+	return false;
 }
