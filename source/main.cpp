@@ -2,13 +2,6 @@
 
 using namespace draw;
 
-callback	next_proc;
-
-static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
-{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
-{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
-{}};
-
 #ifdef _DEBUG
 
 static void test_room2(int x, int y) {
@@ -241,46 +234,11 @@ static void test_monster(resource_s rs, int overlay[4]) {
 }
 #endif // DEBUG
 
-static void newgame() {
-	game.setcamera(Blocked);
-	creature::view_party();
-	draw::resetres();
-	dungeon::create(1, first_adventure);
-	game.write();
-	game.enter(1, 1);
-	setnext(adventure);
-}
-
-static void main_new_game() {
-	setnext(newgame);
-}
-
-static void option_new_game() {
-	if(!dlgask("Are you really want to start new game?"))
-		return;
-	setnext(newgame);
-}
-
-static void memorize_spells() {
-	creature::preparespells(Mage);
-}
-
-static void pray_for_spells() {
-	creature::preparespells(Cleric);
-}
-
-static void option_save_game() {
-	game.write();
-	setnext(adventure);
-}
-
-static void quit_game() {
-	if(!dlgask("Are you really want to quit game?"))
-		return;
-	exit(0);
-}
-
 static void debug_dungeon1() {
+	static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
+	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
+	{}};
 	game.setcamera(Blocked);
 	dungeon::create(1, first_adventure, false);
 	random_heroes();
@@ -299,7 +257,7 @@ static void debug_dungeon2() {
 	setnext(adventure);
 }
 
-static void load_game() {
+void load_game() {
 	draw::resetres();
 	if(false)
 		debug_dungeon2();
@@ -314,47 +272,31 @@ static void load_game() {
 	}
 }
 
-static void settings() {}
-
-void draw::options() {
-	static menu elements[] = {{pray_for_spells, "Pray for spells"},
-	{memorize_spells, "Memorize spells"},
-	{creature::scriblescrolls, "Scrible scrolls"},
-	{option_new_game, "New game"},
-	{load_game, "Load game"},
-	{option_save_game, "Save game"},
-	{settings, "Settings"},
-	{quit_game, "Quit game"},
-	{}};
-	chooseopt(elements);
+static void test_worldmap() {
+	setimage("tavern24");
+	fullimage({0, 0});
+	pause();
+	setimage("worldmap1");
+	fullimage({493, 415}, {1040, 740});
+	appearmarker(320 / 2, 200 / 2);
+	pause();
 }
 
-static void edit_game() {
+void edit_game() {
+	test_worldmap();
+	return;
 	//item it(SwordLong);
 	//creature it = {};
-	//adventurei it = {};
+	adventurei it = {};
 	//messagei::imagei it = {};
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
-	//edit("Player", &it, dginf<decltype(it)>::meta);
-	setimage("tavern24");
-	fullimage({0, 0});
-	pause();
-	setimage("worldmap1");
-	fullimage({493, 415}, {1040, 740}, "Small dungeon");
-	pause();
+	edit("Player", &it, dginf<decltype(it)>::meta);
 }
 
-void draw::mainmenu() {
-	static draw::menu source[] = {{main_new_game, "Create New Game"},
-	{load_game, "Load Saved game"},
-	{edit_game, "Game editor"},
-	{quit_game, "Exit game"},
-	{}};
-	choose(source);
-}
+callback next_proc;
 
 void draw::setnext(void(*v)()) {
 	next_proc = v;

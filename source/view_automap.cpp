@@ -222,17 +222,6 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 	}
 }
 
-void draw::pause() {
-	while(draw::ismodal()) {
-		draw::domodal();
-		switch(hot::key) {
-		case KeyEscape:
-		case Alpha + 'V':
-			return;
-		}
-	}
-}
-
 void dungeon::automap(bool fow) {
 	render_automap(*this, fow);
 	show_camera_pos();

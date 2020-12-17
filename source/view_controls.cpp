@@ -1955,16 +1955,90 @@ void draw::fullimage(point from, point to) {
 	camera.y = y1;
 }
 
-void draw::fullimage(point from, point to, const char* header) {
-	auto sx = getwidth();
-	auto sy = getheight();
-	state push;
-	setsmallfont();
-	fore = colors::white;
-	fullimage(from, to);
+void draw::appearmarker(int x, int y) {
 	screenshoot before;
-	redmarker(sx / 2 - 4, sy / 2 - 4);
-	textb((sx - textw(header)) / 2, sy / 2 + 10, header);
+	redmarker(x - 4, y - 4);
 	draw::screenshoot after;
 	before.blend(after, 1000);
+}
+
+void draw::pause() {
+	while(draw::ismodal()) {
+		draw::domodal();
+		switch(hot::key) {
+		case KeyEscape:
+		case KeySpace:
+			return;
+		}
+	}
+}
+
+static void newgame() {
+	static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
+	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
+	{}};
+	game.setcamera(Blocked);
+	creature::view_party();
+	draw::resetres();
+	dungeon::create(1, first_adventure);
+	game.write();
+	game.enter(1, 1);
+	setnext(adventure);
+}
+
+static void main_new_game() {
+	setnext(newgame);
+}
+
+static void option_new_game() {
+	if(!dlgask("Are you really want to start new game?"))
+		return;
+	setnext(newgame);
+}
+
+static void memorize_spells() {
+	creature::preparespells(Mage);
+}
+
+static void pray_for_spells() {
+	creature::preparespells(Cleric);
+}
+
+static void option_save_game() {
+	game.write();
+	setnext(adventure);
+}
+
+static void quit_game() {
+	if(!dlgask("Are you really want to quit game?"))
+		return;
+	exit(0);
+}
+
+static void settings() {}
+
+extern void load_game();
+extern void edit_game();
+
+void draw::options() {
+	static menu elements[] = {{pray_for_spells, "Pray for spells"},
+	{memorize_spells, "Memorize spells"},
+	{creature::scriblescrolls, "Scrible scrolls"},
+	{option_new_game, "New game"},
+	{load_game, "Load game"},
+	{option_save_game, "Save game"},
+	{settings, "Settings"},
+	{quit_game, "Quit game"},
+	{}};
+	chooseopt(elements);
+}
+
+void draw::mainmenu() {
+	static draw::menu source[] = {{main_new_game, "Create New Game"},
+	{load_game, "Load Saved game"},
+	{edit_game, "Game editor"},
+	{quit_game, "Exit game"},
+	{}};
+	choose(source);
 }
