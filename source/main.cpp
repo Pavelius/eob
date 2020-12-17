@@ -340,7 +340,7 @@ static void edit_game() {
 	//auto it = bsdata<itemi>::elements[BluePotion];
 	//edit("Player", &it, dginf<decltype(it)>::meta);
 	setimage("worldmap4");
-	fullimage({300, 300});
+	scroll({300, 300}, {600, 600});
 	pause();
 }
 

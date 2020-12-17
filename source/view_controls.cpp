@@ -518,7 +518,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 		draw::image(x0, y0, draw::gres(MEZZ), 0, 0);
 		draw::image(x0, y1, sp, current_res_frame, 0);
 	} else if(p->pack == PackCenter)
-		draw::image(x0, y1-32, sp, current_res_frame, 0);
+		draw::image(x0, y1 - 32, sp, current_res_frame, 0);
 	else {
 		draw::state push; setclip(rc);
 		draw::image(x + 1, y + 1, sp, current_res_frame, 0);
@@ -1744,7 +1744,7 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 		current_object = object;
 		execute(add_record_call);
 	}
- 	fore = fore_push;
+	fore = fore_push;
 	return y - y0;
 }
 
@@ -1940,4 +1940,29 @@ void draw::fullimage(point camera) {
 //}
 
 void draw::scroll(point from, point to) {
+	const auto step = 1;
+	auto x0 = from.x;
+	auto y0 = from.y;
+	auto w = getwidth();
+	auto h = getheight();
+	auto x1 = to.x - w / 2;
+	auto y1 = to.y - h / 2;
+	auto lenght = distance({(short)x0, (short)y0}, {(short)x1, (short)y1});
+	if(!lenght)
+		return;
+	auto start = 0;
+	auto dx = x1 - x0;
+	auto dy = y1 - y0;
+	auto camera = from;
+	while(start < lenght && ismodal()) {
+		fullimage(camera);
+		redraw();
+		start += step;
+		short x2 = x0 + dx * start / lenght;
+		short y2 = y0 + dy * start / lenght;
+		camera.x = x2;
+		camera.y = y2;
+	}
+	camera.x = x1;
+	camera.y = y1;
 }
