@@ -7,11 +7,6 @@ namespace draw {
 struct palspr : pma {
 	unsigned char		data[18][16];
 };
-typedef void(*infoproc)(item*);
-void					abilities(int x, int y, creature* pc);
-void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
-void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
-void					background(int rid);
 int						buttonm(int x, int y, int width, const cmd& ev, const char* name);
 int						buttont(int x, int y, int width, const cmd& ev, const char* name);
 void					buttont(int x, int y, int width, const cmd& ev, const char* name, const char* name2);

@@ -89,14 +89,22 @@ static void setblink(color v) {
 }
 
 static void correct(point& p, short x1, short y1, short x2, short y2) {
-	if(p.x > x2)
-		p.x = x2;
-	if(p.y > y2)
-		p.y = y2;
-	if(p.x < x1)
-		p.x = x1;
-	if(p.y < y1)
-		p.y = y1;
+	if(x2 < 0)
+		p.x = -x2 / 2;
+	else {
+		if(p.x > x2)
+			p.x = x2;
+		if(p.x < x1)
+			p.x = x1;
+	}
+	if(y2 < 0)
+		p.x = -y2 / 2;
+	else {
+		if(p.y > y2)
+			p.y = y2;
+		if(p.y < y1)
+			p.y = y1;
+	}
 }
 
 static void update_frame_counter() {
@@ -1906,47 +1914,27 @@ void draw::setimage(const char* id) {
 void draw::fullimage(point camera) {
 	auto sx = draw::getwidth();
 	auto sy = draw::getheight();
-	camera.x -= sx / 2;
-	camera.y -= sy / 2;
-	correct(camera, 0, 0, bitmap.width - sx, bitmap.height - sy);
-	blit(*draw::canvas, 0, 0, 320, 200, 0, bitmap, camera.x, camera.y);
+	auto mx = bitmap.width - sx;
+	auto my = bitmap.height - sy;
+	if(mx < 0 && my < 0) {
+		rectf({0, 0, sx, sy}, colors::black);
+		blit(*draw::canvas, -mx / 2, -my / 2, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+	} else {
+		camera.x -= sx / 2;
+		camera.y -= sy / 2;
+		correct(camera, 0, 0, mx, my);
+		blit(*draw::canvas, 0, 0, sx, sy, 0, bitmap, camera.x, camera.y);
+	}
 }
 
-//void worldmapi::edit() {
-//	if(!bitmap)
-//		return;
-//	auto sdx = getwidth() / 2;
-//	auto sdy = getheight() / 2;
-//	state push;
-//	setbigfont();
-//	fore = colors::white;
-//	openform();
-//	while(ismodal()) {
-//		correct(party, 0, 0, bitmap.width, bitmap.height);
-//		fullimage(party);
-//		domodal();
-//		switch(hot::key) {
-//		case KeyLeft: party.x--; break;
-//		case KeyHome: party.x--; party.y--; break;
-//		case KeyEnd: party.x--; party.y++; break;
-//		case KeyRight: party.x++; break;
-//		case KeyPageUp: party.x++; party.y--; break;
-//		case KeyPageDown: party.x++; party.y++; break;
-//		case KeyUp: party.y--; break;
-//		case KeyDown: party.y++; break;
-//		}
-//	}
-//	closeform();
-//}
-
-void draw::scroll(point from, point to) {
+void draw::fullimage(point from, point to) {
 	const auto step = 1;
 	auto x0 = from.x;
 	auto y0 = from.y;
 	auto w = getwidth();
 	auto h = getheight();
-	auto x1 = to.x - w / 2;
-	auto y1 = to.y - h / 2;
+	auto x1 = to.x;
+	auto y1 = to.y;
 	auto lenght = distance({(short)x0, (short)y0}, {(short)x1, (short)y1});
 	if(!lenght)
 		return;
@@ -1965,4 +1953,18 @@ void draw::scroll(point from, point to) {
 	}
 	camera.x = x1;
 	camera.y = y1;
+}
+
+void draw::fullimage(point from, point to, const char* header) {
+	auto sx = getwidth();
+	auto sy = getheight();
+	state push;
+	setsmallfont();
+	fore = colors::white;
+	fullimage(from, to);
+	screenshoot before;
+	redmarker(sx / 2 - 4, sy / 2 - 4);
+	textb((sx - textw(header)) / 2, sy / 2 + 10, header);
+	draw::screenshoot after;
+	before.blend(after, 1000);
 }

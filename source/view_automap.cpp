@@ -17,7 +17,7 @@ static int gsy(int y) {
 	return y * mpg + mpg;
 }
 
-static void show_marker(int x, int y) {
+void draw::redmarker(int x, int y) {
 	draw::line(x, y, x + mpg, y + mpg, colors::red);
 	draw::line(x + mpg, y, x, y + mpg, colors::red);
 }
@@ -254,7 +254,7 @@ void draw::animation::appear(dungeon& location, short unsigned index, int radius
 		}
 	}
 	render_automap(location, true);
-	show_marker(gsx(x0), gsx(y0));
+	redmarker(gsx(x0), gsx(y0));
 	show_camera_pos();
 	draw::screenshoot after;
 	before.blend(after, 2000);

@@ -1058,7 +1058,12 @@ int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr 
 void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
+typedef void(*infoproc)(item*);
+void					abilities(int x, int y, creature* pc);
 void					adventure();
+void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
+void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
+void					background(int rid);
 void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width);
 bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
@@ -1067,10 +1072,12 @@ bool					dlgask(const char* text);
 bool					edit(const char* title, void* object, const markup* form);
 void					editor();
 void					fullimage(point camera);
+void					fullimage(point from, point to);
+void					fullimage(point from, point to, const char* text);
 void					mainmenu();
 void					options();
 void					pause();
-void					scroll(point from, point to);
+void					redmarker(int x, int y);
 void					setimage(const char* id);
 void					setnext(void(*p)());
 bool					settiles(resource_s id);

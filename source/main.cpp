@@ -339,8 +339,11 @@ static void edit_game() {
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
 	//edit("Player", &it, dginf<decltype(it)>::meta);
-	setimage("worldmap4");
-	scroll({300, 300}, {600, 600});
+	setimage("tavern24");
+	fullimage({0, 0});
+	pause();
+	setimage("worldmap1");
+	fullimage({493, 415}, {1040, 740}, "Small dungeon");
 	pause();
 }
 
