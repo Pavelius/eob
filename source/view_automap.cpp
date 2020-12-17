@@ -228,24 +228,14 @@ void dungeon::automap(bool fow) {
 	draw::pause();
 }
 
-void draw::animation::appear(dungeon& location, short unsigned index, int radius) {
-	render_automap(location, true);
+void dungeon::appear(indext index, int radius) {
+	render_automap(*this, true);
 	draw::screenshoot before;
-	int x0 = gx(index);
-	int y0 = gy(index);
-	for(int y = y0 - radius; y < y0 + radius; y++) {
-		if(y < 0 || y >= mpy)
-			continue;
-		for(int x = x0 - radius; x < x0 + radius; x++) {
-			if(x < 0 || x >= mpx)
-				continue;
-			location.set(location.getindex(x, y), CellExplored);
-		}
-	}
-	render_automap(location, true);
-	redmarker(gsx(x0), gsx(y0));
+	explore(index, radius);
+	render_automap(*this, true);
+	draw::redmarker(gsx(gx(index)), gsx(gy(index)));
 	show_camera_pos();
 	draw::screenshoot after;
 	before.blend(after, 2000);
-	pause();
+	draw::pause();
 }

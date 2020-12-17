@@ -257,5 +257,8 @@
     <ClCompile Include="varianta.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="adventure.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

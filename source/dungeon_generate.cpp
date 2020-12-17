@@ -835,8 +835,8 @@ static void create_crypt(dungeon& e, const sitei& ps) {
 	e.stat.monsters += e.addmonster(ps.crypt.boss, index);
 }
 
-void dungeon::create(indext overland_index, const sitei* site, bool interactive) {
-	auto count = site->getleveltotal();
+void adventurei::create(bool interactive) const {
+	auto count = levels->getleveltotal();
 	if(!count)
 		return;
 	auto dungeons = new dungeon[count];
@@ -844,7 +844,7 @@ void dungeon::create(indext overland_index, const sitei* site, bool interactive)
 		return;
 	auto base = 0;
 	dungeon* previous = 0;
-	for(auto p = site; *p; p++) {
+	for(auto p = levels; *p; p++) {
 		for(auto j = 0; j < p->levels; j++) {
 			auto& e = dungeons[base + j];
 			auto level = base + j + 1;
@@ -854,7 +854,7 @@ void dungeon::create(indext overland_index, const sitei* site, bool interactive)
 			auto last_level = (level == count);
 			while(true) {
 				e.clear();
-				e.overland_index = overland_index;
+				e.overland_index = position;
 				e.head = p->head;
 				e.level = level;
 				e.chance.curse = 5 + p->chance.curse;
@@ -879,7 +879,7 @@ void dungeon::create(indext overland_index, const sitei* site, bool interactive)
 			remove_dead_door(&e);
 			validate_special_items(e);
 			add_spawn_points(e);
-			e.overland_index = overland_index;
+			e.overland_index = position;
 			previous = &e;
 		}
 		base += p->levels;

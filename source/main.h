@@ -866,7 +866,7 @@ struct dungeon {
 		indext			index;
 		constexpr operator bool() const { return owner.operator bool(); }
 	};
-	indext				overland_index;
+	point				overland_index;
 	unsigned char		level;
 	sitei::headi		head;
 	statei				stat;
@@ -883,6 +883,7 @@ struct dungeon {
 	void				add(overlayi* p, item it);
 	creature*			addmonster(monster_s type, indext index, char side, direction_s dir);
 	int					addmonster(monster_s type, indext index, direction_s dir = Up);
+	void				appear(indext index, int radius = 1);
 	bool				allaround(indext index, cell_s t1 = CellWall, cell_s t2 = CellUnknown);
 	void				attack(const combati& ci, creature* enemy) const;
 	void				automap(bool fow);
@@ -892,6 +893,7 @@ struct dungeon {
 	static void			create(indext index, const sitei* site, bool interactive = false);
 	void				dropitem(indext index, item rec, int side);
 	void				dropitem(item* pi, int side = -1);
+	void				explore(indext index, int r = 1);
 	void				fill(indext index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
 	void				formation(indext index, direction_s dr);
@@ -941,7 +943,7 @@ struct dungeon {
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(indext* indicies);
-	bool				read(indext overland_index, indext level);
+	bool				read(point overland_index, indext level);
 	void				remove(indext index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
@@ -960,7 +962,9 @@ struct dungeon {
 };
 struct adventurei {
 	char				name[32];
+	point				position;
 	sitei				levels[8];
+	void				create(bool interactive) const;
 };
 struct fractioni : looti {
 	char				name[32];
@@ -981,10 +985,10 @@ public:
 	void				scroll(point from, point to) const;
 	void				setparty(point v) { party = v; }
 };
-class gamei : public adventurei {
+class gamei {
 	indext				camera_index;
 	direction_s			camera_direction;
-	indext				location_index;
+	point				location_position;
 	indext				location_level;
 	unsigned			rounds;
 	unsigned			rounds_turn;
@@ -996,7 +1000,8 @@ public:
 	void				add(monster_s id) { killed[id]++; }
 	void				attack(indext index, bool ranged);
 	void				endround();
-	void				enter(indext index, indext level);
+	void				enter(point index, short unsigned level);
+	const adventurei*	getadventure() const;
 	void				findsecrets();
 	int					getavatar(race_s race, gender_s gender, class_s cls);
 	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
@@ -1020,7 +1025,6 @@ public:
 	void				setcamera(short unsigned index, direction_s direction = Center);
 	void				thrown(item* itm);
 	bool				read();
-	indext				worldmap();
 	void				write();
 };
 struct answers {
@@ -1048,7 +1052,6 @@ struct menu {
 	operator bool() const { return proc != 0; }
 };
 namespace animation {
-void					appear(dungeon& location, short unsigned index, int radius = 1);
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);

@@ -1,7 +1,7 @@
 #include "main.h"
 #include "archive.h"
 
-INSTDATAC(creature, 32)
+BSDATAC(creature, 32)
 
 static reaction_s current_reaction;
 
@@ -1756,7 +1756,7 @@ bool creature::use(item* pi) {
 				"I know this! Map show me secret door!",
 			};
 			pc->say(maprnd(speech));
-			draw::animation::appear(location, forward_index, 2);
+			location.appear(forward_index, 2);
 		}
 		break;
 	case MageScroll:

@@ -228,6 +228,14 @@ static bool get_secret(short unsigned index, direction_s sight_dir, direction_s 
 	return true;
 }
 
+const adventurei* gamei::getadventure() const {
+	for(auto& e : bsdata<adventurei>()) {
+		if(e.position == location_position)
+			return &e;
+	}
+	return 0;
+}
+
 void gamei::findsecrets() {
 	static const char* speech[] = {
 		"I see something on %1 wall",
@@ -385,15 +393,21 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(indext index, indext level) {
-	location_index = index;
+void gamei::enter(point index, short unsigned level) {
+	location_position = index;
+	auto pa = getadventure();
+	if(!pa)
+		return;
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	if(!location.read(location_index, location_level))
-		return;
+	if(!location.read(location_position, location_level)) {
+		pa->create(false);
+		if(!location.read(location_position, location_level))
+			return;
+	}
 	if(location_level > 1)
-		location_above.read(location_index, location_level - 1);
+		location_above.read(location_position, location_level - 1);
 	draw::settiles(location.head.type);
 	if(camera_index == Blocked)
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
@@ -432,17 +446,11 @@ static bool serialize(bool writemode) {
 	return true;
 }
 
-static char* fname(char* result, indext index, indext level) {
-	zcpy(result, "maps/d");
-	sznum(zend(result), index, 5, "00000", 10);
-	sznum(zend(result), level, 2, "00", 10);
-	zcat(result, ".aum");
-	return result;
-}
-
-static bool serialize(dungeon& e, indext overland_index, indext level, bool write_mode) {
-	char temp[260];
-	io::file file(fname(temp, overland_index, level), write_mode ? StreamWrite : StreamRead);
+static bool serialize(dungeon& e, point position, indext level, bool write_mode) {
+	unsigned index = ((position.y & 0xFFF) << 12) | (position.x & 0xFFF);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("maps/%1.6h%2.2i.aum", index, level);
+	io::file file(temp, write_mode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
 	archive a(file, write_mode);
@@ -454,7 +462,7 @@ void dungeon::write() {
 	serialize(*this, overland_index, level, true);
 }
 
-bool dungeon::read(indext overland_index, indext level) {
+bool dungeon::read(point overland_index, indext level) {
 	return serialize(*this, overland_index, level, false);
 }
 
@@ -468,7 +476,7 @@ void gamei::write() {
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	enter(location_index, location_level);
+	enter(location_position, location_level);
 	return true;
 }
 

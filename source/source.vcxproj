@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="action.cpp" />
+    <ClCompile Include="adventure.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />

@@ -98,8 +98,8 @@ const char* stringbuilder::readvariable(const char* p) {
 void stringbuilder::adduint(unsigned value, int precision, const int radix) {
 	char temp[32]; int i = 0;
 	if(!value) {
-		add("0");
-		return;
+		if(!precision)
+			precision = 1;
 	}
 	while(value) {
 		temp[i++] = (value % radix);
@@ -159,7 +159,8 @@ const char* stringbuilder::readformat(const char* src, const char* vl) {
 			addint(value, pnp, 10);
 		} else if(*src == 'h') {
 			src++;
-			adduint((unsigned)(((int*)vl)[pn - 1]), pnp, 16);
+			auto value = ((int*)vl)[pn - 1];
+			adduint(value, pnp, 16);
 		} else {
 			if(((char**)vl)[pn - 1]) {
 				auto p0 = p;

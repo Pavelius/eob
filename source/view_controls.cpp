@@ -1959,7 +1959,7 @@ void draw::appearmarker(int x, int y) {
 	screenshoot before;
 	redmarker(x - 4, y - 4);
 	draw::screenshoot after;
-	before.blend(after, 1000);
+	before.blend(after, 2000);
 }
 
 void draw::pause() {
@@ -1974,16 +1974,10 @@ void draw::pause() {
 }
 
 static void newgame() {
-	static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
-	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
-	{}};
 	game.setcamera(Blocked);
 	creature::view_party();
 	draw::resetres();
-	dungeon::create(1, first_adventure);
-	game.write();
-	game.enter(1, 1);
+	game.enter({614, 294}, 1);
 	setnext(adventure);
 }
 

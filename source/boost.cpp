@@ -1,6 +1,6 @@
 #include "main.h"
 
-INSTDATAC(boosti, 256)
+BSDATAC(boosti, 256)
 
 void boosti::clear() {
 	memset(this, 0, sizeof(*this));

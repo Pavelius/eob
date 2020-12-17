@@ -286,7 +286,7 @@ void dungeon::fill(indext index, int sx, int sy, cell_s value) {
 
 void dungeon::clear() {
 	memset(this, 0, sizeof(*this));
-	overland_index = Blocked;
+	overland_index = {-1, -1};
 	stat.down.index = Blocked;
 	stat.up.index = Blocked;
 	stat.portal.index = Blocked;
@@ -1093,4 +1093,18 @@ bool dungeon::ismonsternearby(indext i, int r) const {
 		}
 	}
 	return false;
+}
+
+void dungeon::explore(indext index, int r) {
+	int x0 = gx(index);
+	int y0 = gy(index);
+	for(int y = y0 - r; y < y0 + r; y++) {
+		if(y < 0 || y >= mpy)
+			continue;
+		for(int x = x0 - r; x < x0 + r; x++) {
+			if(x < 0 || x >= mpx)
+				continue;
+			set(getindex(x, y), CellExplored);
+		}
+	}
 }

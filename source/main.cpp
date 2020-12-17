@@ -235,14 +235,9 @@ static void test_monster(resource_s rs, int overlay[4]) {
 #endif // DEBUG
 
 static void debug_dungeon1() {
-	static sitei first_adventure[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
-	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}},
-	{}};
 	game.setcamera(Blocked);
-	dungeon::create(1, first_adventure, false);
 	random_heroes();
-	game.enter(1, 1);
+	game.enter({614, 294}, 1);
 	game.write();
 	setnext(adventure);
 }
@@ -283,8 +278,8 @@ static void test_worldmap() {
 }
 
 void edit_game() {
-	test_worldmap();
-	return;
+	//test_worldmap();
+	//return;
 	//item it(SwordLong);
 	//creature it = {};
 	adventurei it = {};
@@ -312,12 +307,23 @@ static void show_monsters() {
 	//test_monster(BLDRAGON, 0);
 }
 
+void test_adventure() {
+	adventurei first_adventure[] = {"Flooded collectors", {614, 294},
+	{{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
+	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}}
+	};
+	auto p = bsdata<adventurei>::add();
+	memcpy(p, &first_adventure, sizeof(first_adventure));
+}
+
 int main(int argc, char* argv[]) {
 	srand(clock());
 	//return 0;
 	//srand(2112);
 #ifdef _DEBUG
 	//util_main();
+	test_adventure();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;

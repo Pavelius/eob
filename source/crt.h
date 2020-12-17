@@ -34,11 +34,11 @@ private:
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
 #define BSDATA(e) template<> e bsdata<e>::elements[]
+#define BSDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define BSINF(e) {#e, bsmeta<e##i>::meta, bsdata<e##i>::source}
 #define BSLNK(R, S) template<> struct bsmeta<R> : bsmeta<S> {}; template<> struct bsdata<R> : bsdata<S> {};
 #define BSMETA(e) template<> const bsreq bsmeta<e>::meta[]
 #define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
-#define INSTDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define FO(c, f) (unsigned)(&((c*)0)->f)
 
