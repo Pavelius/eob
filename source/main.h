@@ -269,6 +269,7 @@ struct variant {
 	creature*			getcreature() const;
 	const char*			getname() const;
 };
+typedef variant conditiona[6];
 struct variantc : adat<variant> {
 	void				cspells(const creature* p, bool expand);
 	int					chooselv(class_s type) const;
@@ -281,7 +282,6 @@ struct spellprogi {
 struct actioni {
 	const char*			name;
 	int					params;
-	variantf			variants;
 };
 struct action {
 	action_s			type;
@@ -588,7 +588,7 @@ struct messagei {
 	};
 	speech_s			type;
 	int					id;
-	variant				variants[5];
+	conditiona			variants;
 	const char*			text;
 	short				next[2];
 	imagei				overlay[4];
@@ -1122,6 +1122,7 @@ NOBSDATA(abilitya)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
+NOBSDATA(messagei::imagei)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)

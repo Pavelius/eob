@@ -8,6 +8,12 @@ template<class T> const char* getnm(const void* object, stringbuilder& sb) {
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
+template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder& sb) {
+	auto p = (messagei::imagei*)object;
+	if(p->res)
+		return bsdata<resourcei>::elements[p->res].name;
+	return p->custom;
+}
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
@@ -192,6 +198,18 @@ static bool visible_levels8(const void* object) {
 	auto p = (adventurei*)object;
 	return p->levels[6].levels != 0;
 }
+static bool visible_condition_2(const void* object) {
+	auto p = (messagei*)object;
+	return p->variants[0].operator bool();
+}
+static bool visible_condition_3(const void* object) {
+	auto p = (messagei*)object;
+	return p->variants[1].operator bool();
+}
+static bool visible_condition_4(const void* object) {
+	auto p = (messagei*)object;
+	return p->variants[2].operator bool();
+}
 static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
@@ -204,7 +222,7 @@ static bool small_items(const void* object, int param) {
 }
 static bool key_items(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
-	return p->image.ground == 8 && p->image.size==0;
+	return p->image.ground == 8 && p->image.size == 0;
 }
 static bool ability_only(const void* object, int param) {
 	return param <= Charisma;
@@ -234,6 +252,10 @@ GENDGINF(varianti)
 DGINF(variant) = {{"Type", DGREQ(type), {getnm<varianti>}},
 {"Value", DGREQ(value)},
 {}};
+static bool choose_conditions(const void* object, array& source, void* pointer) {
+	auto v = (conditiona*)pointer;
+	return true;
+}
 DGINF(point) = {{"x", DGREQ(x)},
 {"y", DGREQ(y)},
 {}};
@@ -384,7 +406,6 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Charisma", DGREQ(data[5])},
 {}};
 DGINF(actioni) = {{"Name", DGREQ(name)},
-{"#chk variants", DGREQ(variants), {getnm<varianti>}},
 {}};
 DGINF(action) = {{"Action", DGREQ(type), {getnm<actioni>}, {0, getnoname}},
 {"Parameter", DGREQ(param), {getnm<variant>, 0, 0, choose_variant}, {visible_parameter, condition_param}},
@@ -396,6 +417,11 @@ DGINF(messagei::imagei) = {{"Resource", DGREQ(res), {getnm<resourcei>, 0, 0, 0, 
 {}};
 DGINF(messagei) = {{"ID", DGREQ(id)},
 {"Type", DGREQ(type), {getnm<speechi>}},
+{"Image", DGREQ(overlay[0]), {getnm<messagei::imagei>}},
+{"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, 0, choose_variant}, {}},
+{"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, 0, choose_variant}, {visible_condition_2}},
+{"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, 0, choose_variant}, {visible_condition_3}},
+{"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, 0, choose_variant}, {visible_condition_4}},
 {"Text", DGREQ(text)},
 {}};
 DGINF(spelli) = {{"Name", DGREQ(name)},

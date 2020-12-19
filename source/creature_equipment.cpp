@@ -1,7 +1,7 @@
 #include "main.h"
 
 struct equipmenti {
-	variant			conditions[4];
+	conditiona		conditions;
 	item			object;
 	wear_s			slot;
 };
