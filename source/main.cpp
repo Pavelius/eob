@@ -237,7 +237,7 @@ static void test_monster(resource_s rs, int overlay[4]) {
 static void debug_dungeon1() {
 	game.setcamera(Blocked);
 	random_heroes();
-	game.enter({614, 294}, 1);
+	game.rideto({614, 294});
 	game.write();
 	setnext(adventure);
 }
@@ -268,13 +268,14 @@ void load_game() {
 }
 
 static void test_worldmap() {
-	setimage("tavern24");
-	fullimage({0, 0});
-	pause();
-	setimage("worldmap1");
-	fullimage({493, 415}, {1040, 740});
-	appearmarker(320 / 2, 200 / 2);
-	pause();
+	//setimage("tavern24");
+	//fullimage({0, 0}, 0);
+	//pause();
+	setimage("worldmap");
+	choosepoint({100, 100});
+	//fullimage({493, 415}, {1040, 740});
+	//appearmarker(320 / 2, 200 / 2);
+	//pause();
 }
 
 void edit_game() {
@@ -282,8 +283,9 @@ void edit_game() {
 	//return;
 	//item it(SwordLong);
 	//creature it = {};
-	adventurei it = {};
+	//adventurei it = {};
 	//messagei::imagei it = {};
+	auto it = bsdata<adventurei>::elements[0];
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
@@ -317,7 +319,14 @@ void test_adventure() {
 	memcpy(p, &first_adventure, sizeof(first_adventure));
 }
 
+static bool test_metadata() {
+	auto ps = dginf<meta_decoy<const char*>::value>::meta;
+	auto pi = dginf<meta_decoy<int>::value>::meta;
+	return ps == pi;
+}
+
 int main(int argc, char* argv[]) {
+	test_metadata();
 	srand(clock());
 	//return 0;
 	//srand(2112);

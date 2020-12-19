@@ -11,6 +11,14 @@ template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
+template<> const char* getnm<point>(const void* object, stringbuilder& sb) {
+	auto p = (point*)object;
+	if(!(*p))
+		sb.add("None");
+	else
+		sb.add("%1i, %2i", p->x, p->y);
+	return sb;
+}
 template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
 	if(!p->name && !p->magic && !p->power)
@@ -65,6 +73,15 @@ static bool choose_variant(const void* object, array& source, void* pointer) {
 	if(!draw::choose(*e.source, e.name,
 		object, &v->value, sizeof(v->value), {e.pgetname}))
 		return false;
+	return true;
+}
+static bool choose_wordmap_point(const void* object, array& source, void* pointer) {
+	auto v = (point*)pointer;
+	draw::setimage("worldmap");
+	auto r = draw::choosepoint(*v);
+	if(!r)
+		return false;
+	*v = r;
 	return true;
 }
 static bool monster_resources(const void* object, int param) {
@@ -185,6 +202,10 @@ static bool small_items(const void* object, int param) {
 	auto p = bsdata<itemi>::elements + param;
 	return p->image.size == 0;
 }
+static bool key_items(const void* object, int param) {
+	auto p = bsdata<itemi>::elements + param;
+	return p->image.ground == 8 && p->image.size==0;
+}
 static bool ability_only(const void* object, int param) {
 	return param <= Charisma;
 }
@@ -206,11 +227,15 @@ GENDGINF(item_feati)
 GENDGINF(intellegencei)
 GENDGINF(genderi)
 GENDGINF(sizei)
+GENDGINF(speechi)
 GENDGINF(usabilityi)
 GENDGINF(weari)
 GENDGINF(varianti)
 DGINF(variant) = {{"Type", DGREQ(type), {getnm<varianti>}},
 {"Value", DGREQ(value)},
+{}};
+DGINF(point) = {{"x", DGREQ(x)},
+{"y", DGREQ(y)},
 {}};
 DGINF(dice) = {{"Count", DGREQ(c)},
 {"Dice", DGREQ(d)},
@@ -325,8 +350,8 @@ DGINF(racei) = {{"Name", DGREQ(name)},
 DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, 0, resourcei::preview, 130}},
 {"Monster 1", DGREQ(habbits[0]), {getnm<monsteri>}},
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
-{"Key 1", DGREQ(keys[0]), {getnm<itemi>, small_items}},
-{"Key 2", DGREQ(keys[1]), {getnm<itemi>, small_items}},
+{"Key 1", DGREQ(keys[0]), {getnm<itemi>, key_items}},
+{"Key 2", DGREQ(keys[1]), {getnm<itemi>, key_items}},
 {"Special 1", DGREQ(special[0]), {getnm<itemi>}},
 {"Special 2", DGREQ(special[1]), {getnm<itemi>}},
 {"Language", DGREQ(language), {getnm<racei>}},
@@ -341,6 +366,7 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {0, DGREQ(crypt)},
 {}};
 DGINF(adventurei) = {{"Name", DGREQ(name)},
+{"Position", DGREQ(position), {getnm<point>, 0, 0, choose_wordmap_point}},
 {"#tab Part 1", DGREQ(levels[0])},
 {"#tab Part 2", DGREQ(levels[1]), {}, {visible_levels2}},
 {"#tab Part 3", DGREQ(levels[2]), {}, {visible_levels3}},
@@ -367,6 +393,9 @@ DGINF(messagei::imagei) = {{"Resource", DGREQ(res), {getnm<resourcei>, 0, 0, 0, 
 {"Frame", DGREQ(id)},
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},
 {"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
+{}};
+DGINF(messagei) = {{"ID", DGREQ(id)},
+{"Type", DGREQ(type)},
 {}};
 DGINF(spelli) = {{"Name", DGREQ(name)},
 {}};

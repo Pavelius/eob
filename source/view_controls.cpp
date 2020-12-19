@@ -662,7 +662,6 @@ static void test_map() {
 	{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
 	{}};
 	first_dialog->choose(true);
-	//game.worldmap();
 }
 
 static void setfocus(void* v, unsigned param = 0) {
@@ -1466,6 +1465,33 @@ bool draw::choose(array source, const char* title, const void* object, void* fie
 	return true;
 }
 
+static void delete_symbol() {
+	auto p = (char*)current_markup->value.ptr(current_object);
+	auto s = current_markup->value.size;
+	p[0] = 0;
+}
+
+static void add_symbol() {
+	auto p = (char*)current_markup->value.ptr(current_object);
+	auto s = current_markup->value.size;
+	auto k = hot::param;
+	auto n = zlen(p);
+	switch(k) {
+	case 8:
+		if(n)
+			p[n - 1] = 0;
+		break;
+	default:
+		if(n <= 128) {
+			if(n < (int)(s - 2)) {
+				p[n] = k;
+				p[n + 1] = 0;
+			}
+		}
+		break;
+	}
+}
+
 static void choose_enum_field() {
 	if(!current_markup->value.source) {
 		if(current_markup->list.choose) {
@@ -1488,8 +1514,11 @@ static void choose_enum_field() {
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
 	auto pv = e.value.ptr((void*)object);
 	if(e.value.isnum()) {
-		auto value = getvalue(pv, e.value.size);
-		sb.add("%1i", value);
+		if(e.value.size <= sizeof(int)) {
+			auto value = getvalue(pv, e.value.size);
+			sb.add("%1i", value);
+		} else
+			sb.add((char*)pv);
 	} else if(e.value.istext()) {
 		auto value = (const char*)getvalue(pv, e.value.size);
 		if(!value)
@@ -1544,7 +1573,10 @@ static void sub_number() {
 }
 
 static void clear_value() {
-	setvalue(current_markup->value.ptr(current_object), current_markup->value.size, 0);
+	if(current_markup->value.size <= sizeof(int))
+		setvalue(current_markup->value.ptr(current_object), current_markup->value.size, 0);
+	else
+		memset(current_markup->value.ptr(current_object), 0, current_markup->value.size);
 }
 
 static void post(const markup& e, void* object, callback proc, int param) {
@@ -1594,9 +1626,14 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 			post(e, object, clear_value, 0);
 		else if(e.value.istext()) {
 
-		} else if(e.value.isnum())
-			event_number(e.value.ptr(object), e.value.size);
-		else if(hot::key == KeyEnter)
+		} else if(e.value.isnum()) {
+			if(e.value.size <= sizeof(int))
+				event_number(e.value.ptr(object), e.value.size);
+			else {
+				if(hot::key == InputSymbol)
+					post(e, object, add_symbol, hot::param);
+			}
+		} else if(hot::key == KeyEnter)
 			post(e, object, choose_enum_field, 0);
 	}
 	textb(rc, title, TextSingleLine);
@@ -1911,7 +1948,41 @@ void draw::setimage(const char* id) {
 	bitmap.read(bitmap_url);
 }
 
-void draw::fullimage(point camera) {
+point draw::choosepoint(point camera) {
+	state push;
+	openform();
+	while(ismodal()) {
+		point origin;
+		correct(camera, 0, 0, bitmap.width, bitmap.height);
+		fullimage(camera, &origin);
+		auto p = camera - origin;
+		setblink(colors::white);
+		pixel(p.x, p.y);
+		pixel(p.x - 1, p.y);
+		pixel(p.x + 1, p.y);
+		pixel(p.x, p.y - 1);
+		pixel(p.x, p.y + 1);
+		domodal();
+		switch(hot::key) {
+		case KeyLeft: camera.x--; break;
+		case KeyHome: camera.x--; camera.y--; break;
+		case KeyEnd: camera.x--; camera.y++; break;
+		case KeyRight: camera.x++; break;
+		case KeyPageUp: camera.x++; camera.y--; break;
+		case KeyPageDown: camera.x++; camera.y++; break;
+		case KeyUp: camera.y--; break;
+		case KeyDown: camera.y++; break;
+		case KeyEnter: breakmodal(1); break;
+		case KeyEscape: breakmodal(-1); break;
+		}
+	}
+	closeform();
+	if(getresult() == -1)
+		return {0, 0};
+	return camera;
+}
+
+void draw::fullimage(point camera, point* origin) {
 	auto sx = draw::getwidth();
 	auto sy = draw::getheight();
 	auto mx = bitmap.width - sx;
@@ -1919,15 +1990,24 @@ void draw::fullimage(point camera) {
 	if(mx < 0 && my < 0) {
 		rectf({0, 0, sx, sy}, colors::black);
 		blit(*draw::canvas, -mx / 2, -my / 2, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+		if(origin)
+			*origin = {0, 0};
 	} else {
 		camera.x -= sx / 2;
 		camera.y -= sy / 2;
 		correct(camera, 0, 0, mx, my);
 		blit(*draw::canvas, 0, 0, sx, sy, 0, bitmap, camera.x, camera.y);
+		if(origin)
+			*origin = camera;
 	}
 }
 
-void draw::fullimage(point from, point to) {
+void draw::fullimage(point from, point to, point* origin) {
+	auto sx = bitmap.width, sy = bitmap.height;
+	correct(from, getwidth() / 2, getheight() / 2,
+		sx - getwidth() / 2, sy - getheight() / 2);
+	correct(to, getwidth() / 2, getheight() / 2,
+		sx - getwidth() / 2, sy - getheight() / 2);
 	const auto step = 1;
 	auto x0 = from.x;
 	auto y0 = from.y;
@@ -1943,7 +2023,7 @@ void draw::fullimage(point from, point to) {
 	auto dy = y1 - y0;
 	auto camera = from;
 	while(start < lenght && ismodal()) {
-		fullimage(camera);
+		fullimage(camera, origin);
 		redraw();
 		start += step;
 		short x2 = x0 + dx * start / lenght;
@@ -1955,9 +2035,11 @@ void draw::fullimage(point from, point to) {
 	camera.y = y1;
 }
 
-void draw::appearmarker(int x, int y) {
+void draw::appearmarker(int x, int y, const char* header) {
 	screenshoot before;
 	redmarker(x - 4, y - 4);
+	if(header)
+		text(x - textw(header) / 2, y + 10, header);
 	draw::screenshoot after;
 	before.blend(after, 2000);
 }

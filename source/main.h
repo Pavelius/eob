@@ -571,6 +571,9 @@ struct selli {
 	constexpr selli(item_s object) : object(object), rarity(Common) {}
 	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
 };
+struct speechi {
+	const char*			name;
+};
 struct messagei {
 	struct imagei {
 		resource_s		res;
@@ -965,9 +968,11 @@ struct adventurei {
 	point				position;
 	sitei				levels[8];
 	void				create(bool interactive) const;
+	void				enter();
 };
 struct fractioni : looti {
 	char				name[32];
+	explicit constexpr operator bool() const { return name[0] != 0; }
 };
 struct companyi {
 	looti				resource;
@@ -985,7 +990,7 @@ public:
 	void				scroll(point from, point to) const;
 	void				setparty(point v) { party = v; }
 };
-class gamei {
+class gamei : companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
 	point				location_position;
@@ -1022,6 +1027,7 @@ public:
 	void				passround();
 	void				passtime(int minutes);
 	bool				question(item* current_item);
+	void				rideto(point overland_position);
 	void				setcamera(short unsigned index, direction_s direction = Center);
 	void				thrown(item* itm);
 	bool				read();
@@ -1064,7 +1070,7 @@ void					update();
 typedef void(*infoproc)(item*);
 void					abilities(int x, int y, creature* pc);
 void					adventure();
-void					appearmarker(int x, int y);
+void					appearmarker(int x, int y, const char* header);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
@@ -1072,11 +1078,12 @@ void*					choose(const array& source, const char* title, const void* object, con
 bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
+point					choosepoint(point camera);
 bool					dlgask(const char* text);
 bool					edit(const char* title, void* object, const markup* form);
 void					editor();
-void					fullimage(point camera);
-void					fullimage(point from, point to);
+void					fullimage(point camera, point* origin);
+void					fullimage(point from, point to, point* origin);
 void					mainmenu();
 void					options();
 void					pause();
@@ -1105,6 +1112,7 @@ NOBSDATA(abilitya)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
+NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)
@@ -1127,6 +1135,7 @@ MNLNK(race_s, racei)
 MNLNK(resource_s, resourcei)
 MNLNK(size_s, sizei)
 MNLNK(spell_s, spelli)
+MNLNK(speech_s, speechi)
 MNLNK(usability_s, usabilityi)
 MNLNK(variant_s, varianti)
 MNLNK(wear_s, weari)

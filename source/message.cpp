@@ -1,5 +1,11 @@
 #include "main.h"
 
+BSDATA(speechi) = {{"Say"},
+{"Ask"},
+};
+assert_enum(speech, Ask)
+INSTELEM(speechi)
+
 static reaction_s current_reaction;
 
 static void trade_creatures(const selli* goods) {

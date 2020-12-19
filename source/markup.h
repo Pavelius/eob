@@ -13,7 +13,7 @@ typedef void(*fnsource)(const void* object, array& source);
 typedef bool(*fnchoose)(const void* object, array& source, void* pointer);
 typedef bool(*fnvisible)(const void* object);
 
-#define DGLNK(R,T) template<> struct dginf<R> : dginf<T> {};
+#define DGLNK(L,T) template<> struct dginf<L> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
 #define DGGEN(R, T1, T2, MS) {dginf<meta_decoy<T1>::value>::meta,\
 bsdata<meta_decoy<T2>::value>::source_ptr,\

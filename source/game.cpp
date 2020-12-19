@@ -30,7 +30,7 @@ void gamei::setcamera(short unsigned index, direction_s direction) {
 }
 
 bool creature::ishero() const {
-	return bsdata<creature>::source.indexof(this)!=-1;
+	return bsdata<creature>::source.indexof(this) != -1;
 }
 
 int	gamei::getindex(const creature* p) const {
@@ -488,4 +488,18 @@ void gamei::leavedungeon() {
 			continue;
 		pc->removeloot(loot);
 	}
+}
+
+void gamei::rideto(point v) {
+	if(location_position == v)
+		return;
+	point origin;
+	draw::setimage("worldmap");
+	draw::fullimage(location_position, v, &origin);
+	location_position = v;
+	auto p = getadventure();
+	auto p1 = p->position - origin;
+	draw::appearmarker(p1.x, p1.y, p->name);
+	sleep(500);
+	enter(location_position, 1);
 }
