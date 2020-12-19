@@ -389,6 +389,5 @@ void creature::create(gender_s gender, race_s race, class_s type, alignment_s al
 		view_ability();
 	else
 		finish();
-	random_equipment();
 	random_name();
 }

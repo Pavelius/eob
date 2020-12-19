@@ -480,6 +480,16 @@ bool gamei::read() {
 	return true;
 }
 
+void gamei::equiping() {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		p->random_equipment();
+		p->enchant(Identify, 1);
+	}
+}
+
 void gamei::leavedungeon() {
 	looti loot = {};
 	for(auto v : party) {

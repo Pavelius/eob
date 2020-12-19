@@ -667,53 +667,6 @@ void creature::raise_level(class_s type) {
 	hits_rolled += hp;
 }
 
-void creature::random_equipment() {
-	if(kind)
-		return;
-	auto cls = getbestclass();
-	auto race = getrace();
-	switch(cls) {
-	case Fighter:
-	case Paladin:
-		switch(race) {
-		case Dwarf:
-			wears[RightHand] = item(AxeBattle);
-			wears[LeftHand] = item(Shield);
-			break;
-		case Halfling:
-			wears[RightHand] = item(SwordShort);
-			break;
-		default:
-			wears[RightHand] = item(SwordLong);
-			break;
-		}
-		wears[Body] = item(ArmorStuddedLeather);
-		break;
-	case Ranger:
-		wears[RightHand] = item(SwordLong);
-		wears[LeftHand] = item(SwordShort);
-		wears[Body] = item(ArmorLeather);
-		break;
-	case Cleric:
-		wears[RightHand] = item(Mace);
-		wears[Body] = item(ArmorLeather);
-		break;
-	case Mage:
-		wears[RightHand] = item(Dagger);
-		wears[Body] = item(Robe);
-		break;
-	default:
-		wears[RightHand] = item(Dagger);
-		wears[Body] = item(ArmorLeather);
-		break;
-	}
-	add(RationIron);
-	if(get(Theif))
-		add(TheifTools);
-	if(get(Fighter))
-		add(Ration);
-}
-
 void creature::prepare_random_spells(class_s type, int level) {
 	adat<spell_s, 64> spells;
 	int maximum_spells = getspellsperlevel(type, level);
@@ -2071,18 +2024,24 @@ void creature::removeloot(looti& result) {
 		if(slot >= Head && slot <= LastBelt)
 			continue;
 		auto type = e.gettype();
+		int value = 0;
 		// All items cost coins, but some cost more
-		auto cost = e.getcost() * 100;
-		if(!cost)
-			cost = 20;
-		result.gold += cost;
+		value = e.getcost() * 100;
+		if(e.is(Valuable))
+			value += 200;
+		result.gold += value;
 		// Some items earn experience
-		cost = 0;
-		switch(type) {
-		case MagicBook: cost = 100; break;
-		case HolyWarriorSymbol: case HolySymbol: cost = 50; break;
-		}
+		value = 0;
+		if(e.is(UseArcane))
+			value += 100;
+		if(e.is(UseDivine))
+			value += 50;
+		result.experience += value;
 		// Some items earn fame
+		value = 0;
+		if(e.is(Famed))
+			value += 1;
+		result.fame += value;
 		// Clear item
 		e.clear();
 	}

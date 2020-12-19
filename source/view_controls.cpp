@@ -57,6 +57,8 @@ static unsigned			frametick_last;
 static infoproc			show_mode;
 static void*			current_focus;
 static unsigned			current_focus_param;
+static const markup*	current_focus_markup;
+static char				current_text[1024];
 static void*			current_object;
 static unsigned			current_size;
 static const markup*	current_markup;
@@ -86,6 +88,22 @@ static void setblink(color v) {
 	fore.r = v.r * m / ci;
 	fore.g = v.g * m / ci;
 	fore.b = v.b * m / ci;
+}
+
+static void save_focus() {
+	if(current_focus && current_focus_markup && current_focus_markup->value.istext())
+		*((const char**)current_focus) = szdup(current_text);
+}
+
+static void update_focus_markup(void* p, const markup* pe) {
+	if(current_focus == p && current_focus_markup!=pe) {
+		auto ps = *((const char**)p);
+		if(ps)
+			zcpy(current_text, ps, sizeof(current_text) - 1);
+		else
+			current_text[0] = 0;
+		current_focus_markup = pe;
+	}
 }
 
 static void correct(point& p, short x1, short y1, short x2, short y2) {
@@ -653,7 +671,7 @@ static render_control* getnextfocus(void* ev, int key, unsigned param) {
 }
 
 static void test_map() {
-	static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"adventure3"}}},
+	static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"tavern16"}}},
 	{Ask, 1, {}, "Enter", {2}},
 	{Ask, 1, {}, "Leave"},
 	{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
@@ -665,8 +683,10 @@ static void test_map() {
 }
 
 static void setfocus(void* v, unsigned param = 0) {
+	save_focus();
 	current_focus = v;
 	current_focus_param = param;
+	current_focus_markup = 0;
 }
 
 static void movenext(int key) {
@@ -1479,10 +1499,7 @@ static void delete_symbol() {
 	p[0] = 0;
 }
 
-static void add_symbol() {
-	auto p = (char*)current_markup->value.ptr(current_object);
-	auto s = current_markup->value.size;
-	auto k = hot::param;
+static void add_symbol(char* p, unsigned size, int k) {
 	auto n = zlen(p);
 	switch(k) {
 	case 8:
@@ -1490,14 +1507,26 @@ static void add_symbol() {
 			p[n - 1] = 0;
 		break;
 	default:
-		if(n <= 128) {
-			if(n < (int)(s - 2)) {
+		if(k <= 128) {
+			if(n < (int)(size - 2)) {
 				p[n] = k;
 				p[n + 1] = 0;
 			}
 		}
 		break;
 	}
+}
+
+static void add_symbol() {
+	add_symbol((char*)current_markup->value.ptr(current_object),
+		current_markup->value.size,
+		hot::param);
+}
+
+static void add_text_symbol() {
+	add_symbol(current_text,
+		sizeof(current_text)-1,
+		hot::param);
 }
 
 static void choose_enum_field() {
@@ -1587,6 +1616,11 @@ static void clear_value() {
 		memset(current_markup->value.ptr(current_object), 0, current_markup->value.size);
 }
 
+static void clear_text_value() {
+	current_text[0] = 0;
+	clear_value();
+}
+
 static void post(const markup& e, void* object, callback proc, int param) {
 	current_markup = &e;
 	current_object = object;
@@ -1615,6 +1649,34 @@ static void event_number(void* object, unsigned size) {
 		current_size = size;
 		execute(inverse);
 	}
+}
+
+
+static int fieldt(const rect& rco, void* object, const markup& e) {
+	state push; setsmallfont();
+	auto pv = e.value.ptr(object);
+	auto title = *((const char**)pv);
+	if(!title)
+		title = "";
+	focusing(rco, pv);
+	update_focus_markup(pv, &e);
+	auto focused = isfocus(pv);
+	if(focused)
+		title = current_text;
+	auto rc = rco; rc.offset(2, 2);
+	form(rco, 1, false, true);
+	auto push_fore = fore;
+	fore = colors::white.mix(colors::black, 208);
+	if(focused) {
+		fore = colors::white;
+		if(hot::key == KeyDelete)
+			post(e, object, clear_text_value, 0);
+		else if(hot::key==InputSymbol)
+			execute(add_text_symbol, hot::param);
+	}
+	textb(rc, title, 0);
+	fore = push_fore;
+	return rco.height();
 }
 
 static int field(const rect& rco, const char* title, void* object, const markup& e) {
@@ -1653,13 +1715,13 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	char temp[260]; stringbuilder sb(temp);
 	if(e.proc.getheader)
 		title = e.proc.getheader(object, sb);
-	if(title) {
-		textb(x + 6, y + 2, title);
-		x += title_width;
-		width -= title_width;
-	}
-	sb.clear(); getname(e, object, sb);
-	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
+		if(title) {
+			textb(x + 6, y + 2, title);
+			x += title_width;
+			width -= title_width;
+		}
+		sb.clear(); getname(e, object, sb);
+		return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -1858,6 +1920,8 @@ class edit_control : contexti {
 			return checkboxes(x, y, width, e, ctx.object, e.value.size);
 		else if(e.value.mask)
 			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
+		else if(e.value.istext())
+			return fieldt({x, y, x + width, y + draw::texth() * 5 + 4}, ctx.object, e);
 		else
 			return field(x, y, width, e.title, ctx.object, ctx.title, e);
 	}

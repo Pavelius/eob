@@ -108,47 +108,28 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 	return p;
 }
 
-static void identify_all_party() {
-	for(auto v : party) {
-		auto p = v.getcreature();
-		if(!p)
-			continue;
-		p->enchant(Identify, 1);
-	}
-}
-
 static void random_heroes() {
-	item rg2(BlueRing, Invisibility);
-	item rg3(RedRing, OfWizardy);
-	item rg4(RedRing, ResistFire);
-	item wp1(AxeBattle, OfSharpness);
-	item wp2(Staff, BurningHands);
 	item pt1(GreenPotion, OfAdvise);
-	item it1(Bracers, Strenght);
-	item it2(Arrow); it2.finish();
+	creature* p;
 	//
-	auto p = add_hero(0, Male, Human, Paladin, LawfulGood);
+	p = add_hero(1, Male, Human, Paladin, LawfulGood);
 	p->set({SwordLong, Fire}, RightHand);
 	p->equip({GreenRing, OfRegeneration});
-	p->equip(Bow);
-	p->equip(it2);
-	p->equip(it1);
+	p->equip({Bracers, Strenght});
 	//
-	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
-	p->set(wp1, RightHand);
-	p->equip(rg2);
+	p = add_hero(0, Male, Dwarf, Fighter, LawfulGood);
+	p->set({AxeBattle, OfSharpness}, RightHand);
+	p->equip({BlueRing, Invisibility});
 	//
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
-	p->setknown(Identify);
-	p->equip(rg3);
-	p->equip(rg4);
-	p->set(wp2, RightHand);
+	//p->setknown(Identify);
+	p->equip({RedRing, OfWizardy});
+	p->equip({RedRing, ResistFire});
+	p->set({Staff, BurningHands}, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
 	p->add(pt1);
 	p->add(pt1);
-	//
-	identify_all_party();
 }
 
 void util_main();
@@ -237,6 +218,7 @@ static void test_monster(resource_s rs, int overlay[4]) {
 static void debug_dungeon1() {
 	game.setcamera(Blocked);
 	random_heroes();
+	game.equiping();
 	game.rideto({614, 294});
 	game.write();
 	setnext(adventure);
@@ -285,12 +267,14 @@ void edit_game() {
 	//creature it = {};
 	//adventurei it = {};
 	//messagei::imagei it = {};
-	auto it = bsdata<adventurei>::elements[0];
+	messagei it = {};
+	it.text = "Male dwarves were often bald and grew thick facial hair, which was sometimes used to display social status. Unusually for humanoids, both sexes naturally grew ample facial hair, though the majority of shield dwarf females shaved their beards off. This hair was often dark in hue, though among shield dwarves blond or red hair was just as common. Gold dwarves took the care of facial hair to an extreme, carefully oiling and grooming it, with some adding perfume and ornamentations.";
+	//auto it = bsdata<adventurei>::elements[0];
 	//auto it = bsdata<classi>::elements[FighterCleric];
 	//auto it = bsdata<racei>::elements[Dwarf];
 	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
 	//auto it = bsdata<itemi>::elements[BluePotion];
-	edit("Player", &it, dginf<decltype(it)>::meta);
+	edit("Text", &it, dginf<decltype(it)>::meta);
 }
 
 callback next_proc;

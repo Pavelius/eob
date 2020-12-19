@@ -163,7 +163,7 @@ static item_s random_item_type(item_s* source, unsigned count) {
 static item_s random_subtype(item_s type) {
 	static item_s potions[] = {RedPotion, BluePotion, GreenPotion};
 	static item_s gems[] = {GreenGem, GreenGem, GreenGem, GreenGem, BlueGem, BlueGem, BlueGem, RedGem, RedGem, PurpleGem};
-	static item_s weapons[] = {AxeBattle, Axe, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff};
+	static item_s weapons[] = {AxeBattle, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff, Bow, Sling};
 	static item_s swords[] = {Dagger, SwordBastard, SwordLong, SwordShort, SwordTwoHanded};
 	static item_s armors[] = {Robe,
 		ArmorLeather, ArmorLeather, ArmorLeather, ArmorLeather,
@@ -203,6 +203,7 @@ static item_s random_type(bool small_size = false) {
 		Necklage,
 		KeyCooper,
 		TheifTools,
+		Arrow,
 		Bones,
 		DungeonMap,
 		PriestScroll, PriestScroll
@@ -211,7 +212,7 @@ static item_s random_type(bool small_size = false) {
 		RedGem,
 		RedRing,
 		KeyCooper, KeyCooper, KeyCooper,
-		TheifTools,
+		TheifTools, Arrow,
 		MagicWand,
 		DungeonMap,
 		PriestScroll, PriestScroll, PriestScroll, PriestScroll,

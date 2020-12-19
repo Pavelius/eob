@@ -203,6 +203,7 @@ enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
 	Natural, Charged, Countable,
+	Valuable, Famed,
 	Unique
 };
 enum attack_s : unsigned char {
@@ -347,7 +348,7 @@ struct intellegencei {
 struct usabilityi {
 	const char*			name;
 };
-struct item_feati {
+struct itemfeati {
 	const char*			name;
 };
 struct varianti {
@@ -609,6 +610,7 @@ struct looti {
 	int					experience;
 	int					fame;
 	int					progress;
+	int					luck;
 };
 class creature {
 	alignment_s			alignment;
@@ -648,7 +650,6 @@ class creature {
 	void				resting(int healed);
 	char				racial_bonus(char* data) const;
 	void				raise_level(class_s type);
-	void				random_equipment();
 	void				random_spells(class_s type, int level, int count);
 	void				update_levelup(bool interactive);
 	void				update_poison(bool interactive);
@@ -756,6 +757,7 @@ public:
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
+	void				random_equipment();
 	void				random_name();
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
@@ -1007,6 +1009,7 @@ public:
 	void				attack(indext index, bool ranged);
 	void				endround();
 	void				enter(point index, short unsigned level);
+	void				equiping();
 	const adventurei*	getadventure() const;
 	void				findsecrets();
 	int					getavatar(race_s race, gender_s gender, class_s cls);
@@ -1136,7 +1139,7 @@ MNLNK(feat_s, feati)
 MNLNK(gender_s, genderi)
 MNLNK(intellegence_s, intellegencei)
 MNLNK(item_s, itemi)
-MNLNK(item_feat_s, item_feati)
+MNLNK(item_feat_s, itemfeati)
 MNLNK(monster_s, monsteri)
 MNLNK(race_s, racei)
 MNLNK(resource_s, resourcei)

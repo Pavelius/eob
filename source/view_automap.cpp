@@ -143,10 +143,14 @@ static void render_overlays(const dungeon& location, bool fog_of_war) {
 		case Up: x1 += mpg / 2; break;
 		}
 		switch(e.type) {
-		case CellPuller: draw::rectf({x1 - 2, y1 - 2, x1 + 2, y1 + 2}, cwall); break;
-		case CellDoorButton: break;
-		case CellSecrectButton: break;
-		default: draw::rectf({x1 - 1, y1 - 1, x1 + 1, y1 + 1}, bwall); break;
+		case CellPuller:
+			draw::rectf({x1 - 2, y1 - 2, x1 + 2, y1 + 2}, cwall);
+			break;
+		case CellCellar:
+		case CellMessage:
+		case CellTrapLauncher:
+			draw::rectf({x1 - 1, y1 - 1, x1 + 1, y1 + 1}, bwall);
+			break;
 		}
 	}
 }

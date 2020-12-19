@@ -223,7 +223,7 @@ GENDGINF(damagei)
 GENDGINF(enchanti)
 GENDGINF(enchantmenti)
 GENDGINF(feati)
-GENDGINF(item_feati)
+GENDGINF(itemfeati)
 GENDGINF(intellegencei)
 GENDGINF(genderi)
 GENDGINF(sizei)
@@ -255,7 +255,7 @@ DGINF(itemi) = {{"Name", DGREQ(name)},
 {"#tab attacks", DGREQ(weapon), {}, {weapon_visible}},
 {"#tab defences", DGREQ(armor), {}, {armor_visible}},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
-{"#chk feats", DGREQ(feats), {getnm<item_feati>}},
+{"#chk feats", DGREQ(feats), {getnm<itemfeati>}},
 {}};
 DGINF(combati) = {{"Attack", DGREQ(attack), {getnm<attacki>}},
 {"Type", DGREQ(type), {getnm<damagei>}},
@@ -395,7 +395,8 @@ DGINF(messagei::imagei) = {{"Resource", DGREQ(res), {getnm<resourcei>, 0, 0, 0, 
 {"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
 {}};
 DGINF(messagei) = {{"ID", DGREQ(id)},
-{"Type", DGREQ(type)},
+{"Type", DGREQ(type), {getnm<speechi>}},
+{"Text", DGREQ(text)},
 {}};
 DGINF(spelli) = {{"Name", DGREQ(name)},
 {}};

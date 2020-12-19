@@ -1,6 +1,6 @@
 #include "main.h"
 
-BSDATA(item_feati) = {{"Use two hands"},
+BSDATA(itemfeati) = {{"Use two hands"},
 {"Light"},
 {"Versatile"},
 {"Ranged"},
@@ -11,7 +11,9 @@ BSDATA(item_feati) = {{"Use two hands"},
 {"Natural"},
 {"Charged"},
 {"Countable"},
+{"Valuable"},
+{"Famed"},
 {"Unique"},
 };
-assert_enum(item_feat, Unique);
-INSTELEM(item_feati);
+assert_enum(itemfeat, Unique)
+INSTELEM(itemfeati)
