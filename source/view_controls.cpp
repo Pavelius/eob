@@ -1653,7 +1653,8 @@ static void event_number(void* object, unsigned size) {
 
 
 static int fieldt(const rect& rco, void* object, const markup& e) {
-	state push; setsmallfont();
+	state push;
+	setsmallfont();
 	auto pv = e.value.ptr(object);
 	auto title = *((const char**)pv);
 	if(!title)
@@ -1665,6 +1666,7 @@ static int fieldt(const rect& rco, void* object, const markup& e) {
 		title = current_text;
 	auto rc = rco; rc.offset(2, 2);
 	form(rco, 1, false, true);
+	setclip(rco);
 	auto push_fore = fore;
 	fore = colors::white.mix(colors::black, 208);
 	if(focused) {
