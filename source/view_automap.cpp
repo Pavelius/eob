@@ -22,6 +22,10 @@ void draw::redmarker(int x, int y) {
 	draw::line(x + mpg, y, x, y + mpg, colors::red);
 }
 
+void draw::textbc(int x, int y, const char* header) {
+	draw::textb(x - draw::textw(header)/2, y, header);
+}
+
 static void show_camera_pos() {
 	draw::state push;
 	draw::fore = colors::red;

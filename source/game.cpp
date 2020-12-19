@@ -490,16 +490,31 @@ void gamei::leavedungeon() {
 	}
 }
 
+void gamei::render_worldmap(void* object) {
+	auto p = ((gamei*)object)->getadventure();
+	if(!p)
+		return;
+	draw::setimage("worldmap");
+	point origin;
+	draw::fullimage(p->position, &origin);
+	point pt = p->position - origin;
+	draw::redmarker(pt.x - 4, pt.y - 4);
+	draw::textbc(pt.x, pt.y + 8, p->name);
+}
+
+void gamei::worldmap() {
+	render_worldmap(this);
+	draw::pause();
+}
+
 void gamei::rideto(point v) {
 	if(location_position == v)
 		return;
-	point origin;
+	// calculate ride time
 	draw::setimage("worldmap");
-	draw::fullimage(location_position, v, &origin);
+	draw::fullimage(location_position, v, 0);
 	location_position = v;
-	auto p = getadventure();
-	auto p1 = p->position - origin;
-	draw::appearmarker(p1.x, p1.y, p->name);
-	sleep(500);
+	draw::appear(render_worldmap, this, 2000);
+	draw::pause();
 	enter(location_position, 1);
 }

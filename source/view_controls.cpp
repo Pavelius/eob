@@ -682,6 +682,9 @@ static item* movenext(item* current, int key) {
 	return (item*)current;
 }
 
+static void show_worldmap() {
+}
+
 void draw::adventure() {
 	creature* pc;
 	if(!game.isalive())
@@ -791,6 +794,9 @@ void draw::adventure() {
 		case Alpha + 'V':
 			location.automap(true);
 			break;
+		case Ctrl + Alpha + 'V':
+			game.worldmap();
+			break;
 		case Alpha + 'F':
 			draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 			break;
@@ -876,8 +882,10 @@ static void standart_domodal() {
 bool draw::ismodal() {
 	render_current = render_objects;
 	domodal = standart_domodal;
-	if(next_proc)
+	if(next_proc) {
+		break_modal = false;
 		return false;
+	}
 	if(!break_modal)
 		return true;
 	break_modal = false;
@@ -2022,7 +2030,7 @@ void draw::fullimage(point from, point to, point* origin) {
 	auto dx = x1 - x0;
 	auto dy = y1 - y0;
 	auto camera = from;
-	while(start < lenght && ismodal()) {
+	while(start <= lenght && ismodal()) {
 		fullimage(camera, origin);
 		redraw();
 		start += step;
@@ -2035,16 +2043,15 @@ void draw::fullimage(point from, point to, point* origin) {
 	camera.y = y1;
 }
 
-void draw::appearmarker(int x, int y, const char* header) {
+void draw::appear(pobject proc, void* object, unsigned duration) {
 	screenshoot before;
-	redmarker(x - 4, y - 4);
-	if(header)
-		text(x - textw(header) / 2, y + 10, header);
+	proc(object);
 	draw::screenshoot after;
-	before.blend(after, 2000);
+	before.blend(after, duration);
 }
 
 void draw::pause() {
+	openform();
 	while(draw::ismodal()) {
 		draw::domodal();
 		switch(hot::key) {
@@ -2053,6 +2060,7 @@ void draw::pause() {
 			return;
 		}
 	}
+	closeform();
 }
 
 static void newgame() {

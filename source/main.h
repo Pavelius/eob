@@ -1001,6 +1001,7 @@ class gamei : companyi {
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
 	unsigned			gold;
+	static void			render_worldmap(void* object);
 public:
 	void				add(monster_s id) { killed[id]++; }
 	void				attack(indext index, bool ranged);
@@ -1031,6 +1032,7 @@ public:
 	void				setcamera(short unsigned index, direction_s direction = Center);
 	void				thrown(item* itm);
 	bool				read();
+	void				worldmap();
 	void				write();
 };
 struct answers {
@@ -1052,8 +1054,10 @@ private:
 	stringbuilder		sc;
 };
 namespace draw {
+typedef void(*pevent)();
+typedef void(*pobject)(void* object);
 struct menu {
-	void(*proc)();
+	pevent				proc;
 	const char*			text;
 	operator bool() const { return proc != 0; }
 };
@@ -1070,6 +1074,8 @@ void					update();
 typedef void(*infoproc)(item*);
 void					abilities(int x, int y, creature* pc);
 void					adventure();
+void					appear(int x, int y, const char* header);
+void					appear(pobject proc, void* object, unsigned duration = 1000);
 void					appearmarker(int x, int y, const char* header);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
@@ -1091,6 +1097,7 @@ void					redmarker(int x, int y);
 void					setimage(const char* id);
 void					setnext(void(*p)());
 bool					settiles(resource_s id);
+void					textbc(int x, int y, const char* header);
 }
 extern gamei			game;
 extern dungeon			location_above;
