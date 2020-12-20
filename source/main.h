@@ -439,9 +439,12 @@ struct racei {
 	usabilitya			usability;
 	skilla				skills;
 };
+struct packi {
+	char				name[16];
+};
 struct resourcei {
-	const char*			name;
-	const char*			path;
+	char				name[16];
+	char				path[16];
 	pack_s				pack;
 	void*				data;
 	bool				isdungeon() const;
@@ -513,6 +516,7 @@ public:
 	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges==charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
+	static bool			choose_enchantment(const void* object, const array& source, void* pointer);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	void				finish();
 	int					get(variant value) const;
@@ -526,6 +530,7 @@ public:
 	int					getdeflect() const;
 	constexpr const itemi& gete() const { return bsdata<itemi>::elements[type]; }
 	const enchantmenti* getenchantment() const;
+	static void*		getenchantptr(const void* object, int index);
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
@@ -577,14 +582,10 @@ struct speechi {
 };
 struct messagei {
 	struct imagei {
-		resource_s		res;
-		short			id;
+		char			custom[16];
 		unsigned		flags;
-		const char*		custom;
-		constexpr imagei() : res(NONE), id(0), flags(0), custom(0) {}
-		constexpr imagei(resource_s res, short id = 0, unsigned flags = 0) : res(res), id(id), flags(flags), custom(0) {}
-		constexpr imagei(const char* custom) : res(OUTTAKE), id(0), custom(custom), flags(0) {}
-		constexpr explicit operator bool() const { return res != 0; }
+		constexpr explicit operator bool() const { return custom[0] != 0; }
+		static int		preview(int x, int y, int width, const void* object);
 	};
 	speech_s			type;
 	int					id;
@@ -1077,14 +1078,12 @@ void					update();
 typedef void(*infoproc)(item*);
 void					abilities(int x, int y, creature* pc);
 void					adventure();
-void					appear(int x, int y, const char* header);
 void					appear(pobject proc, void* object, unsigned duration = 1000);
-void					appearmarker(int x, int y, const char* header);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
 void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width);
-bool					choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
+bool					choose(const array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);

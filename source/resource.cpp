@@ -3,6 +3,7 @@
 using namespace draw;
 
 BSDATA(resourcei) = {{"NONE", 0, PackBackground},
+
 {"BORDER", "art/interface", PackBackground},
 {"OUTTAKE", "art/misc", PackOuttake},
 {"CHARGEN", "art/interface", PackBackground},
@@ -12,7 +13,7 @@ BSDATA(resourcei) = {{"NONE", 0, PackBackground},
 {"ITEMS", "art/misc", PackCenter},
 {"ITEMGS", "art/misc", PackOuttake},
 {"ITEMGL", "art/misc", PackOuttake},
-//
+
 {"BLUE", "art/dungeons", PackDungeon},
 {"BRICK", "art/dungeons", PackDungeon},
 {"CRIMSON", "art/dungeons", PackDungeon},
@@ -23,12 +24,13 @@ BSDATA(resourcei) = {{"NONE", 0, PackBackground},
 {"MEZZ", "art/dungeons", PackDungeon},
 {"SILVER", "art/dungeons", PackDungeon},
 {"XANATHA", "art/dungeons", PackDungeon},
-//
+
 {"MENU", "art/interface", PackBackground},
 {"PLAYFLD", "art/interface", PackBackground},
 {"PORTM", "art/misc", PackCenter},
 {"THROWN", "art/misc", PackInterface},
 {"XSPL", "art/interface", PackInterface},
+
 {"ANKHEG", "art/monsters", PackMonster},
 {"ANT", "art/monsters", PackMonster},
 {"BLDRAGON", "art/monsters", PackMonster},
@@ -82,7 +84,7 @@ void draw::resetres() {
 }
 
 bool resourcei::isdungeon() const {
-	return pack==PackDungeon;
+	return pack == PackDungeon;
 }
 
 bool resourcei::ismonster() const {

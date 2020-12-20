@@ -186,7 +186,7 @@ int	creature::get(ability_s id) const {
 			result += maptbl(widow_spell_bonus, get(Wisdow)) * 5;
 			break;
 		}
-		result += getbonus(id) * 10;
+		result += (getbonus(id) + getbonus(OfLuck)) * 10;
 	} else if(id >= ClimbWalls && id <= ReadLanguages) {
 		auto value = get_theiv_skill(id, type, levels);
 		switch(id) {

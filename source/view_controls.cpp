@@ -513,6 +513,17 @@ static void decrement_frame() {
 	current_res_frame--;
 }
 
+int messagei::imagei::preview(int x, int y, int width, const void* object) {
+	auto p = (messagei::imagei*)object;
+	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
+	border_down(rc);
+	draw::state push; setclip(rc);
+	setimage(p->custom);
+	draw::blit(*draw::canvas, rc.x1, rc.y1, bitmap.width, bitmap.height, 0,
+		bitmap, bitmap.width, bitmap.height);
+	return rc.height();
+}
+
 int resourcei::preview(int x, int y, int width, const void* object) {
 	char temp[260]; stringbuilder sb(temp);
 	auto p = (resourcei*)object;
@@ -1128,35 +1139,18 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 	while(ismodal()) {
 		screen.restore();
 		if(pi) {
-			auto need_border = false;
 			for(int i = 0; i < 4; i++) {
-				if(pi[i].res) {
-					if(pi[i].custom) {
-						need_border = true;
-						setimage(pi[i].custom);
-						if(bitmap)
-							blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi[i].flags, bitmap, 0, 0);
-					} else {
-						auto sp = gres(pi[i].res);
-						auto& fr = sp->get(pi[i].id);
-						if(fr.encode == sprite::RAW) {
-							if(fr.sx <= 160 && fr.sy <= 96) {
-								need_border = true;
-								image(8, 8, sp, pi[i].id, pi[i].flags);
-							} else
-								image(0, 0, sp, pi[i].id, pi[i].flags);
-						} else
-							image(100, 102, sp, pi[i].id, pi[i].flags);
-					}
+				if(pi[i]) {
+					setimage(pi[i].custom);
+					if(bitmap)
+						blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi[i].flags, bitmap, 0, 0);
 				}
 			}
-			if(need_border) {
-				image(0, 0, gres(BORDER), 0, 0);
-				auto push_color = fore;
-				fore = color::create(120, 120, 120);
-				line(8, 7, 167, 7);
-				fore = push_color;
-			}
+			image(0, 0, gres(BORDER), 0, 0);
+			auto push_color = fore;
+			fore = color::create(120, 120, 120);
+			line(8, 7, 167, 7);
+			fore = push_color;
 		}
 		rect rc = {0, 121, 319, 199};
 		form(rc);
@@ -1474,9 +1468,7 @@ void* draw::choose(const array& source, const char* title, const void* object, c
 	return control.choose(title, current, view_width);
 }
 
-bool draw::choose(array source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
-	if(list.source)
-		list.source(object, source);
+bool draw::choose(const array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
 	if(list.choose)
 		return list.choose(object, source, field);
 	auto current_value = (void*)getvalue(field, field_size);
@@ -1485,10 +1477,11 @@ bool draw::choose(array source, const char* title, const void* object, void* fie
 	auto result = choose(source, title, object, current_value, list.getname, list.allow, list.preview, list.view_width);
 	if(!result)
 		return false;
-	if(field_size < sizeof(int))
+	if(field_size < sizeof(int)) {
 		current_value = (void*)source.indexof(result);
-	if(current_value == (void*)0xFFFFFFFF)
-		return false;
+		if(current_value == (void*)0xFFFFFFFF)
+			return false;
+	}
 	setvalue(field, field_size, (int)current_value);
 	return true;
 }
@@ -1562,18 +1555,13 @@ static void getname(const markup& e, const void* object, stringbuilder& sb) {
 			value = "";
 		sb.add(value);
 	} else {
-		array custom_source;
-		auto sr = e.value.source;
-		if(e.list.source) {
-			e.list.source(object, custom_source);
-			sr = &custom_source;
-		}
 		auto value = pv;
-		if(sr) {
+		if(e.value.source) {
 			value = (void*)getvalue(pv, e.value.size);
 			if(e.value.size < sizeof(int))
-				value = sr->ptr((int)value);
-		}
+				value = e.value.source->ptr((int)value);
+		} else if(e.list.getptr)
+			value = e.list.getptr(object, getvalue(pv, e.value.size));
 		auto pfn = e.list.getname;
 		if(value && pfn) {
 			auto pn = pfn((void*)value, sb);
@@ -1654,7 +1642,6 @@ static void event_number(void* object, unsigned size) {
 
 static int fieldt(const rect& rco, void* object, const markup& e) {
 	state push;
-	setsmallfont();
 	auto pv = e.value.ptr(object);
 	auto title = *((const char**)pv);
 	if(!title)
@@ -1696,14 +1683,22 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 		fore = colors::focus;
 		if(hot::key == KeyDelete)
 			post(e, object, clear_value, 0);
-		else if(e.value.istext()) {
-
-		} else if(e.value.isnum()) {
-			if(e.value.size <= sizeof(int))
+		else if(e.value.isnum()) {
+			switch(e.value.size) {
+			case 1: case 2: case 4:
 				event_number(e.value.ptr(object), e.value.size);
-			else {
-				if(hot::key == InputSymbol)
+				break;
+			default:
+				switch(hot::key) {
+				case KeyEnter:
+					if(e.list.preview)
+						post(e, object, choose_enum_field, 0);
+					break;
+				case InputSymbol:
 					post(e, object, add_symbol, hot::param);
+					break;
+				}
+				break;
 			}
 		} else if(hot::key == KeyEnter)
 			post(e, object, choose_enum_field, 0);
@@ -1866,8 +1861,8 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 }
 
 class edit_control : contexti {
-	int					page, page_maximum;
-	const markup*		elements;
+	int				page, page_maximum;
+	const markup*	elements;
 	static void next_page() {
 		((edit_control*)hot::param)->page++;
 		setfocus(0);
@@ -1937,6 +1932,7 @@ public:
 		page(0), page_maximum(0) {
 	}
 	bool edit(const char* title) {
+		state push; setsmallfont();
 		openform();
 		while(ismodal()) {
 			form({0, 0, 320, 200}, 2);
