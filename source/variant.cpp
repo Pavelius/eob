@@ -1,27 +1,38 @@
 #include "main.h"
 
-#define DECL(T) &bsdata<T>::source, getnm<T>, FO(T, name), dginf<T>::meta
+#define FORM(T) {&bsdata<T>::source, getnm<T>, FO(T, name), dginf<T>::meta}
 
 BSDATA(varianti) = {{"None"},
-{"Ability", DECL(abilityi)},
-{"Action"},
-{"Alignment", DECL(alignmenti)},
-{"Class", DECL(classi)},
-{"Creature"},
-{"Damage", DECL(damagei)},
-{"Enchant", DECL(enchanti)},
-{"Feat", DECL(feati)},
-{"Gender", DECL(genderi)},
-{"Item", DECL(itemi)},
-{"Number"},
-{"Race", DECL(racei)},
-{"Reaction"},
-{"Spell", DECL(spelli)},
+{"Ability", "abilities", FORM(abilityi)},
+{"Action", "actions"},
+{"Alignment", "alignments", FORM(alignmenti)},
+{"Class", "classes", FORM(classi)},
+{"Creature", "creatures"},
+{"Damage", "damages", FORM(damagei)},
+{"Dialog", "dialogs", FORM(dialogi), {Editable}},
+{"Enchant", "enchants", FORM(enchanti)},
+{"Feat", "feats", FORM(feati)},
+{"Gender", "genders", FORM(genderi)},
+{"Item", "items", FORM(itemi)},
+{"Number", "numbers"},
+{"Race", "races", FORM(racei)},
+{"Reaction", "reactions"},
+{"Spell", "spells", FORM(spelli)},
 };
 assert_enum(variant, Spell)
 INSTELEM(varianti)
 
 const unsigned creature_players_base = 240;
+
+variant::variant(variant_s v, const void* p) {
+	if(!p) {
+		type = NoVariant;
+		value = 0;
+	} else {
+		type = v;
+		value = bsdata<varianti>::elements[v].form.source->indexof(p);
+	}
+}
 
 variant::variant(const creature* p) {
 	if(!p) {
@@ -46,8 +57,8 @@ creature* variant::getcreature() const {
 
 const char* variant::getname() const {
 	auto p = bsdata<varianti>::elements + type;
-	if(!p->source)
+	if(!p->form.source)
 		return "None";
-	auto pe = p->source->ptr(value);
-	return *((const char**)((char*)pe + p->uname));
+	auto pe = p->form.source->ptr(value);
+	return *((const char**)((char*)pe + p->form.uname));
 }

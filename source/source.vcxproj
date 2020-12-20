@@ -151,6 +151,7 @@
     <ClCompile Include="creature_equipment.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="damage.cpp" />
+    <ClCompile Include="dialog.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />

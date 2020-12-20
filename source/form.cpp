@@ -3,7 +3,7 @@
 
 #define GENDGINF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
 
-template<class T> const char* getnm(const void* object, stringbuilder& sb) {
+template<typename T> const char* getnm(const void* object, stringbuilder& sb) {
 	return ((T*)object)->name;
 }
 template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
@@ -27,6 +27,9 @@ template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder
 }
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
+}
+template<> const char* getnm<dialogi>(const void* object, stringbuilder& sb) {
+	return ((dialogi*)object)->name;
 }
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
@@ -56,10 +59,10 @@ template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 	if(!(*p))
 		return "";
 	auto& e = bsdata<varianti>::elements[p->type];
-	if(e.pgetname) {
-		if(!e.source)
+	if(e.form.pgetname) {
+		if(!e.form.source)
 			return "No source";
-		return e.pgetname(e.source->ptr(p->value), sb);
+		return e.form.pgetname(e.form.source->ptr(p->value), sb);
 	}
 	return "Noname";
 }
@@ -75,7 +78,7 @@ const char* getnoname(const void* object, stringbuilder& sb) {
 }
 static bool variant_selectable(const void* object, int param) {
 	auto p = bsdata<varianti>::elements + param;
-	return p->pgetname != 0;
+	return p->form.pgetname != 0;
 }
 static bool choose_variant(const void* object, const array& source, void* pointer) {
 	auto v = (variant*)pointer;
@@ -83,10 +86,10 @@ static bool choose_variant(const void* object, const array& source, void* pointe
 		object, &v->type, sizeof(v->type), {getnm<varianti>, variant_selectable}))
 		return false;
 	auto& e = bsdata<varianti>::elements[v->type];
-	if(!e.source)
+	if(!e.form.source)
 		return false;
-	if(!draw::choose(*e.source, e.name,
-		object, &v->value, sizeof(v->value), {e.pgetname}))
+	if(!draw::choose(*e.form.source, e.name,
+		object, &v->value, sizeof(v->value), {e.form.pgetname}))
 		return false;
 	return true;
 }
@@ -111,37 +114,45 @@ bool item::choose_enchantment(const void* object, const array& source, void* poi
 		p->subtype = ars.indexof(current);
 	return false;
 }
-static void choose_custom_images(const void* object, const array& source, void* pointer) {
+static bool choose_custom_images(const void* object, const array& source, void* pointer) {
 	typedef messagei::imagei T;
 	auto v = (T*)pointer;
-	array files(sizeof(messagei::imagei));
-	for(io::file::find e("art/custom"); e; e.next()) {
+	array files(sizeof(T));
+	for(io::file::find e(bsdata<packi>::elements[PackCustom].url); e; e.next()) {
 		if(e.name()[0] == '.')
 			continue;
 		auto p = (messagei::imagei*)files.add();
 		szfnamewe(p->custom, e.name());
+		stringbuilder::upper(p->custom);
 	}
-	fnlist plist = {};
-	plist.getname = getnm<T>;
-	if(!draw::choose(files, "Custom images", object,
-		pointer, sizeof(T), plist))
-		return;
+	auto current_index = files.find(v, 0, sizeof(T));
+	void* pc = 0;
+	if(current_index != -1)
+		pc = files.ptr(current_index);
+	pc = draw::choose(files, "Custom images", object, pc,
+		getnm<messagei::imagei>, 0, messagei::imagei::preview, 100);
+	if(!pc)
+		return false;
+	memcpy(v, pc, sizeof(T));
+	return true;
 }
 static bool monster_resources(const void* object, int param) {
 	auto p = bsdata<resourcei>::elements + param;
-	if(!p->path)
-		return false;
-	return strcmp(p->path, "art/monsters") == 0;
+	return p->pack == PackMonster;
 }
 static bool dungeon_resources(const void* object, int param) {
+	if(!param)
+		return true;
 	auto p = bsdata<resourcei>::elements + param;
-	if(!p->path)
-		return false;
-	return strcmp(p->path, "art/dungeons") == 0;
+	return p->pack==PackDungeon;
 }
 static bool allow_item_wears(const void* object, int param) {
 	auto p = bsdata<weari>::elements + param;
 	return p->choose_name != 0;
+}
+static bool unique_items(const void* object, int param) {
+	auto p = bsdata<itemi>::elements + param;
+	return p->feats.is(Unique);
 }
 static bool allow_item_type_no_natural(const void* object, int param) {
 	if(!param)
@@ -276,6 +287,7 @@ GENDGINF(feati)
 GENDGINF(itemfeati)
 GENDGINF(intellegencei)
 GENDGINF(genderi)
+GENDGINF(resourcei)
 GENDGINF(sizei)
 GENDGINF(speechi)
 GENDGINF(spelli)
@@ -326,9 +338,6 @@ DGINF(itemi::weaponi) = {{0, DGINH(combati)},
 DGINF(itemi::armori) = {{"AC", DGREQ(ac)},
 {"Crit. def", DGREQ(critical_deflect)},
 {"Reduction", DGREQ(reduction)},
-{}};
-DGINF(resourcei) = {{"Name", DGREQ(name)},
-{"Path", DGREQ(path)},
 {}};
 DGINF(monsteri) = {{"Name", DGREQ(name)},
 {"Resource", DGREQ(rfile), {getnm<resourcei>, monster_resources, 0, resourcei::preview, 130}},
@@ -407,8 +416,8 @@ DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_reso
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
 {"Key 1", DGREQ(keys[0]), {getnm<itemi>, key_items}},
 {"Key 2", DGREQ(keys[1]), {getnm<itemi>, key_items}},
-{"Special 1", DGREQ(special[0]), {getnm<itemi>}},
-{"Special 2", DGREQ(special[1]), {getnm<itemi>}},
+{"Special 1", DGREQ(special[0]), {getnm<itemi>, unique_items}},
+{"Special 2", DGREQ(special[1]), {getnm<itemi>, unique_items}},
 {"Language", DGREQ(language), {getnm<racei>}},
 {}};
 DGINF(sitei::chancei) = {{"Curse item", DGREQ(curse)},
@@ -443,16 +452,19 @@ DGINF(actioni) = {{"Name", DGREQ(name)},
 DGINF(action) = {{"Action", DGREQ(type), {getnm<actioni>}, {0, getnoname}},
 {"Parameter", DGREQ(param), {getnm<variant>, 0, choose_variant}, {visible_parameter, condition_param}},
 {}};
-DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, 0, messagei::imagei::preview, 130}},
+DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, choose_custom_images, messagei::imagei::preview, 130}},
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},
 {"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
 {}};
 DGINF(messagei) = {{"ID", DGREQ(id)},
 {"Type", DGREQ(type), {getnm<speechi>}},
-{"Image", DGREQ(overlay[0]), {getnm<messagei::imagei>}},
+{"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
 {"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
 {"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {visible_condition_2}},
 {"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {visible_condition_3}},
 {"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {visible_condition_4}},
 {"Text", DGREQ(text)},
+{}};
+DGINF(dialogi) = {{"Image", DGREQ(image), {getnm<messagei::imagei>, 0, choose_custom_images}},
+{"Text", DGREQ(name)},
 {}};

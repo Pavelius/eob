@@ -2,65 +2,79 @@
 
 using namespace draw;
 
-BSDATA(resourcei) = {{"NONE", 0, PackBackground},
+BSDATA(packi) = {{"PackDungeon", "art/dungeons"},
+{"PackMonster", "art/monsters"},
+{"PackOuttake", "art/misc"},
+{"PackInterface", "art/interface"},
+{"PackBackground", "art/interface"},
+{"PackCenter", "art/misc"},
+{"PackCustom", "art/custom"},
+};
+assert_enum(pack, PackCustom)
 
-{"BORDER", "art/interface", PackBackground},
-{"OUTTAKE", "art/misc", PackOuttake},
-{"CHARGEN", "art/interface", PackBackground},
-{"CHARGENB", "art/interface", PackInterface},
-{"COMPASS", "art/interface", PackInterface},
-{"INVENT", "art/interface", PackBackground},
-{"ITEMS", "art/misc", PackCenter},
-{"ITEMGS", "art/misc", PackOuttake},
-{"ITEMGL", "art/misc", PackOuttake},
+BSDATA(resourcei) = {{"NONE", PackBackground},
 
-{"BLUE", "art/dungeons", PackDungeon},
-{"BRICK", "art/dungeons", PackDungeon},
-{"CRIMSON", "art/dungeons", PackDungeon},
-{"DROW", "art/dungeons", PackDungeon},
-{"DUNG", "art/dungeons", PackDungeon},
-{"GREEN", "art/dungeons", PackDungeon},
-{"FOREST", "art/dungeons", PackDungeon},
-{"MEZZ", "art/dungeons", PackDungeon},
-{"SILVER", "art/dungeons", PackDungeon},
-{"XANATHA", "art/dungeons", PackDungeon},
+{"BORDER", PackBackground},
+{"OUTTAKE", PackOuttake},
+{"CHARGEN", PackBackground},
+{"CHARGENB", PackInterface},
+{"COMPASS", PackInterface},
+{"INVENT", PackBackground},
+{"ITEMS", PackCenter},
+{"ITEMGS", PackOuttake},
+{"ITEMGL", PackOuttake},
 
-{"MENU", "art/interface", PackBackground},
-{"PLAYFLD", "art/interface", PackBackground},
-{"PORTM", "art/misc", PackCenter},
-{"THROWN", "art/misc", PackInterface},
-{"XSPL", "art/interface", PackInterface},
+{"BLUE", PackDungeon},
+{"BRICK", PackDungeon},
+{"CRIMSON", PackDungeon},
+{"DROW", PackDungeon},
+{"DUNG", PackDungeon},
+{"GREEN", PackDungeon},
+{"FOREST", PackDungeon},
+{"MEZZ", PackDungeon},
+{"SILVER", PackDungeon},
+{"XANATHA", PackDungeon},
 
-{"ANKHEG", "art/monsters", PackMonster},
-{"ANT", "art/monsters", PackMonster},
-{"BLDRAGON", "art/monsters", PackMonster},
-{"BUGBEAR", "art/monsters", PackMonster},
-{"CLERIC1", "art/monsters", PackMonster},
-{"CLERIC2", "art/monsters", PackMonster},
-{"CLERIC3", "art/monsters", PackMonster},
-{"DRAGON", "art/monsters", PackMonster},
-{"DWARF", "art/monsters", PackMonster},
-{"FLIND", "art/monsters", PackMonster},
-{"GHOUL", "art/monsters", PackMonster},
-{"GOBLIN", "art/monsters", PackMonster},
-{"GUARD1", "art/monsters", PackMonster},
-{"GUARD2", "art/monsters", PackMonster},
-{"KOBOLD", "art/monsters", PackMonster},
-{"KUOTOA", "art/monsters", PackMonster},
-{"LEECH", "art/monsters", PackMonster},
-{"ORC", "art/monsters", PackMonster},
-{"SHADOW", "art/monsters", PackMonster},
-{"SKELETON", "art/monsters", PackMonster},
-{"SKELWAR", "art/monsters", PackMonster},
-{"SPIDER1", "art/monsters", PackMonster},
-{"WIGHT", "art/monsters", PackMonster},
-{"WOLF", "art/monsters", PackMonster},
-{"ZOMBIE", "art/monsters", PackMonster},
+{"MENU", PackBackground},
+{"PLAYFLD", PackBackground},
+{"PORTM", PackCenter},
+{"THROWN", PackInterface},
+{"XSPL", PackInterface},
+
+{"ANKHEG", PackMonster},
+{"ANT", PackMonster},
+{"BLDRAGON", PackMonster},
+{"BUGBEAR", PackMonster},
+{"CLERIC1", PackMonster},
+{"CLERIC2", PackMonster},
+{"CLERIC3", PackMonster},
+{"DRAGON", PackMonster},
+{"DWARF", PackMonster},
+{"FLIND", PackMonster},
+{"GHOUL", PackMonster},
+{"GOBLIN", PackMonster},
+{"GUARD1", PackMonster},
+{"GUARD2", PackMonster},
+{"KOBOLD", PackMonster},
+{"KUOTOA", PackMonster},
+{"LEECH", PackMonster},
+{"ORC", PackMonster},
+{"SHADOW", PackMonster},
+{"SKELETON", PackMonster},
+{"SKELWAR", PackMonster},
+{"SPIDER1", PackMonster},
+{"WIGHT", PackMonster},
+{"WOLF", PackMonster},
+{"ZOMBIE", PackMonster},
 };
 assert_enum(resource, ZOMBIE)
 INSTELEM(resourcei)
 
 void view_dungeon_reset();
+
+const char* resourcei::geturl() const {
+	return bsdata<packi>::elements[pack].url;
+}
 
 sprite* draw::gres(resource_s id) {
 	auto& e = bsdata<resourcei>::elements[id];
@@ -68,7 +82,7 @@ sprite* draw::gres(resource_s id) {
 		if(!id)
 			return 0;
 		char temp[260];
-		e.data = (sprite*)loadb(szurl(temp, e.path, e.name, "pma"));
+		e.data = (sprite*)loadb(szurl(temp, e.geturl(), e.name, "pma"));
 	}
 	return (sprite*)e.data;
 }

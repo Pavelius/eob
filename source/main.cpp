@@ -260,23 +260,6 @@ static void test_worldmap() {
 	//pause();
 }
 
-void edit_game() {
-	//test_worldmap();
-	//return;
-	//item it(SwordLong);
-	//creature it = {};
-	//adventurei it = {};
-	//messagei::imagei it = {};
-	//messagei it = {};
-	//it.text = "Male dwarves were often bald and grew thick facial hair, which was sometimes used to display social status. Unusually for humanoids, both sexes naturally grew ample facial hair, though the majority of shield dwarf females shaved their beards off. This hair was often dark in hue, though among shield dwarves blond or red hair was just as common. Gold dwarves took the care of facial hair to an extreme, carefully oiling and grooming it, with some adding perfume and ornamentations.";
-	//auto it = bsdata<adventurei>::elements[0];
-	//auto it = bsdata<classi>::elements[FighterCleric];
-	//auto it = bsdata<racei>::elements[Dwarf];
-	//auto it = bsdata<monsteri>::elements[SkeletonWarrior];
-	auto it = bsdata<itemi>::elements[SwordLong];
-	edit("Item", &it, dginf<decltype(it)>::meta);
-}
-
 callback next_proc;
 
 void draw::setnext(void(*v)()) {

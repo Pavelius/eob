@@ -65,7 +65,7 @@ static bool cast_on_own_items(spell_s id, int level, creature* caster) {
 	return cast_on_items(id, level, caster, result);
 }
 
-BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {0}},
+BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {}},
 {"Bless", {0, 1}, TargetAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, Instant, SaveHalf, 0, {1, 3}, {2}, 1, 10}, FireThrown},
 {"Cure light Wounds", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {1, 8}}},

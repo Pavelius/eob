@@ -230,22 +230,27 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Class, Creature, Damage,
+	Ability, Action, Alignment, Class, Creature, Damage, Dialog,
 	Enchant, Feat, Gender, Item, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
-	PackInterface, PackBackground, PackCenter
+	PackInterface, PackBackground, PackCenter,
+	PackCustom
 };
-class creature;
-class item;
+enum varflag_s : unsigned char {
+	Editable,
+};
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spellf;
 typedef cflags<feat_s> feata;
-typedef adatc<ability_s, char, LastSkill+1> skilla;
+typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 typedef cflags<variant_s> variantf;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
+class creature;
+class item;
+struct dialogi;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -262,7 +267,9 @@ struct variant {
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
+	variant(variant_s v, const void* p);
 	variant(const creature* v);
+	variant(const dialogi* v) : variant(Dialog, v) {}
 	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
@@ -351,12 +358,17 @@ struct usabilityi {
 struct itemfeati {
 	const char*			name;
 };
-struct varianti {
-	const char*			name;
+struct formi {
 	array*				source;
 	fntext				pgetname;
 	unsigned			uname;
 	const markup*		form;
+};
+struct varianti {
+	const char*			name;
+	const char*			namepl;
+	formi				form;
+	cflags<varflag_s>	flags;
 };
 struct combati {
 	attack_s			attack;
@@ -440,13 +452,14 @@ struct racei {
 	skilla				skills;
 };
 struct packi {
-	char				name[16];
+	const char*			id;
+	const char*			url;
 };
 struct resourcei {
 	char				name[16];
-	char				path[16];
 	pack_s				pack;
 	void*				data;
+	const char*			geturl() const;
 	bool				isdungeon() const;
 	bool				ismonster() const;
 	static int			preview(int x, int y, int width, const void* object);
@@ -590,15 +603,19 @@ struct messagei {
 	speech_s			type;
 	int					id;
 	conditiona			variants;
-	const char*			text;
+	char				text[260];
 	short				next[2];
-	imagei				overlay[4];
+	imagei				overlay;
 	selli*				trade;
 	constexpr explicit operator bool() const { return id != 0; }
 	void				apply() const;
 	bool				isallow() const;
 	void				choose(bool border, int next_id = 1, reaction_s reaction = Indifferent) const;
 	const messagei*		find(int id, bool test_allow) const;
+};
+struct dialogi {
+	messagei::imagei	image;
+	char				name[260];
 };
 class itema : public adat<item*, 48> {
 public:
@@ -973,11 +990,13 @@ struct adventurei {
 	void				create(bool interactive) const;
 	void				enter();
 };
-struct fractioni : looti {
+struct nameablei {
 	char				name[32];
 	explicit constexpr operator bool() const { return name[0] != 0; }
 };
-struct companyi {
+struct fractioni : looti, nameablei {
+};
+struct companyi : nameablei {
 	looti				resource;
 	fractioni			fractions[16];
 };

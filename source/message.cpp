@@ -175,7 +175,7 @@ void messagei::choose(bool border, int next_id, reaction_s reaction) const {
 			need_apply = false;
 			aw.add((int)p, "Next");
 		}
-		auto pe = (messagei*)aw.choosebg(p->text, need_apply ? "What do you do?" : 0, p->overlay, true);
+		auto pe = (messagei*)aw.choosebg(p->text, need_apply ? "What do you do?" : 0, &p->overlay, true);
 		if(!pe)
 			break;
 		if(need_apply)

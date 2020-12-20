@@ -64,6 +64,20 @@ unsigned char stringbuilder::lower(unsigned char u) {
 	return u;
 }
 
+void stringbuilder::lower(char* s) {
+	while(*s) {
+		*s = lower(*s);
+		s++;
+	}
+}
+
+void stringbuilder::upper(char* s) {
+	while(*s) {
+		*s = upper(*s);
+		s++;
+	}
+}
+
 void stringbuilder::addidentifier(const char* identifier) {
 	addv("[-", 0);
 	addv(identifier, 0);

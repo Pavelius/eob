@@ -96,7 +96,7 @@ static void save_focus() {
 }
 
 static void update_focus_markup(void* p, const markup* pe) {
-	if(current_focus == p && current_focus_markup!=pe) {
+	if(current_focus == p && current_focus_markup != pe) {
 		auto ps = *((const char**)p);
 		if(ps)
 			zcpy(current_text, ps, sizeof(current_text) - 1);
@@ -513,14 +513,33 @@ static void decrement_frame() {
 	current_res_frame--;
 }
 
+static void inverse_horizontal() {
+	auto p = (messagei::imagei*)hot::param;
+	p->flags ^= ImageMirrorH;
+}
+
+static void inverse_vertical() {
+	auto p = (messagei::imagei*)hot::param;
+	p->flags ^= ImageMirrorV;
+}
+
 int messagei::imagei::preview(int x, int y, int width, const void* object) {
 	auto p = (messagei::imagei*)object;
-	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
+	setimage(p->custom);
+	auto sx = bitmap.width;
+	auto sy = bitmap.height;
+	if(sx > width)
+		sx = width;
+	if(sy > 200 - y - 4)
+		sy = 200 - y - 4;
+	rect rc = {x, y, x + sx + 1, y + sy + 1};
 	border_down(rc);
 	draw::state push; setclip(rc);
-	setimage(p->custom);
-	draw::blit(*draw::canvas, rc.x1, rc.y1, bitmap.width, bitmap.height, 0,
-		bitmap, bitmap.width, bitmap.height);
+	draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, p->flags, bitmap, 0, 0);
+	switch(hot::key) {
+	case Alpha + 'H': execute(inverse_horizontal, (int)p); break;
+	case Alpha + 'V': execute(inverse_vertical, (int)p); break;
+	}
 	return rc.height();
 }
 
@@ -561,7 +580,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 		draw::image(x + 1, y + 1, sp, current_res_frame, 0);
 	}
 	y1 = rc.y2 + 3;
-	sb.clear(); sb.add("Path: %1", p->path);
+	sb.clear(); sb.add("Path: %1", bsdata<packi>::elements[p->pack].url);
 	textb(x, y1, temp, -1); y1 += texth();
 	if(sp) {
 		sb.clear(); sb.add("Number of sprites: %1i", sp->count);
@@ -1139,13 +1158,9 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 	while(ismodal()) {
 		screen.restore();
 		if(pi) {
-			for(int i = 0; i < 4; i++) {
-				if(pi[i]) {
-					setimage(pi[i].custom);
-					if(bitmap)
-						blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi[i].flags, bitmap, 0, 0);
-				}
-			}
+			setimage(pi->custom);
+			if(bitmap)
+				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi->flags, bitmap, 0, 0);
 			image(0, 0, gres(BORDER), 0, 0);
 			auto push_color = fore;
 			fore = color::create(120, 120, 120);
@@ -1518,7 +1533,7 @@ static void add_symbol() {
 
 static void add_text_symbol() {
 	add_symbol(current_text,
-		sizeof(current_text)-1,
+		sizeof(current_text) - 1,
 		hot::param);
 }
 
@@ -1639,71 +1654,39 @@ static void event_number(void* object, unsigned size) {
 	}
 }
 
-
-static int fieldt(const rect& rco, void* object, const markup& e) {
-	state push;
-	auto pv = e.value.ptr(object);
-	auto title = *((const char**)pv);
-	if(!title)
-		title = "";
-	focusing(rco, pv);
-	update_focus_markup(pv, &e);
-	auto focused = isfocus(pv);
-	if(focused)
-		title = current_text;
-	auto rc = rco; rc.offset(2, 2);
-	form(rco, 1, false, true);
-	setclip(rco);
-	auto push_fore = fore;
-	fore = colors::white.mix(colors::black, 208);
-	if(focused) {
-		fore = colors::white;
-		if(hot::key == KeyDelete)
-			post(e, object, clear_text_value, 0);
-		else if(hot::key==InputSymbol)
-			execute(add_text_symbol, hot::param);
-	}
-	textb(rc, title, 0);
-	fore = push_fore;
-	return rco.height();
-}
-
 static int field(const rect& rco, const char* title, void* object, const markup& e) {
-	if(!title)
-		title = "None";
+	auto rich_edit = rco.height() >= texth() * 3;
+	auto push_fore = fore;
+	fore = colors::white;
+	if(!title || title[0]==0) {
+		if(rich_edit) {
+			fore = fore.mix(colors::gray, 128);
+			title = e.title;
+		} else
+			title = "None";
+	}
 	auto pv = e.value.ptr(object);
-	form(rco);
+	if(rich_edit)
+		form(rco, 1, false, true);
+	else
+		form(rco);
 	focusing(rco, pv);
 	auto rc = rco;
 	rc.offset(3, 2);
 	auto focused = isfocus(pv);
-	auto push_fore = fore;
-	fore = colors::white;
 	if(focused) {
 		fore = colors::focus;
 		if(hot::key == KeyDelete)
 			post(e, object, clear_value, 0);
-		else if(e.value.isnum()) {
-			switch(e.value.size) {
-			case 1: case 2: case 4:
-				event_number(e.value.ptr(object), e.value.size);
-				break;
-			default:
-				switch(hot::key) {
-				case KeyEnter:
-					if(e.list.preview)
-						post(e, object, choose_enum_field, 0);
-					break;
-				case InputSymbol:
-					post(e, object, add_symbol, hot::param);
-					break;
-				}
-				break;
-			}
-		} else if(hot::key == KeyEnter)
-			post(e, object, choose_enum_field, 0);
+		else if(e.list.choose || !e.value.isnum()) {
+			if(hot::key == KeyEnter)
+				post(e, object, choose_enum_field, 0);
+		} else if(e.value.size<=sizeof(int))
+			event_number(e.value.ptr(object), e.value.size);
+		else if(hot::key==InputSymbol)
+			post(e, object, add_symbol, hot::param);
 	}
-	textb(rc, title, TextSingleLine);
+	textb(rc, title, 0);
 	fore = push_fore;
 	return rco.height();
 }
@@ -1712,13 +1695,13 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	char temp[260]; stringbuilder sb(temp);
 	if(e.proc.getheader)
 		title = e.proc.getheader(object, sb);
-		if(title) {
-			textb(x + 6, y + 2, title);
-			x += title_width;
-			width -= title_width;
-		}
-		sb.clear(); getname(e, object, sb);
-		return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
+	if(title) {
+		textb(x + 6, y + 2, title);
+		x += title_width;
+		width -= title_width;
+	}
+	sb.clear(); getname(e, object, sb);
+	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -1918,7 +1901,9 @@ class edit_control : contexti {
 		else if(e.value.mask)
 			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
 		else if(e.value.istext())
-			return fieldt({x, y, x + width, y + draw::texth() * 5 + 4}, ctx.object, e);
+			return 0;
+		else if(e.value.isnum() && e.value.size>sizeof(nameablei::name))
+			return field({x, y, x + width, y + draw::texth() * 5 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e);
 		else
 			return field(x, y, width, e.title, ctx.object, ctx.title, e);
 	}
@@ -1973,24 +1958,24 @@ bool draw::edit(const char* title, void* object, const markup* pm) {
 	return e.edit(title);
 }
 
-static bool variant_selectable(const void* object, int param) {
+static bool variant_editable(const void* object, int param) {
 	auto p = bsdata<varianti>::elements + param;
-	return p->pgetname != 0;
+	return p->flags.is(Editable);
 }
 
 void draw::editor() {
 	varianti* pv = 0;
 	void* p = 0;
 	while(true) {
-		pv = (varianti*)choose(bsdata<varianti>::source, "elements", 0, pv,
-			getnm<varianti>, variant_selectable, 0, 0);
+		pv = (varianti*)choose(bsdata<varianti>::source, "Which item you want to edit?", 0, pv,
+			getnm<varianti>, variant_editable, 0, 0);
 		if(!pv)
 			break;
 		while(true) {
-			p = choose(*pv->source, pv->name, 0, p, pv->pgetname, 0, 0, 0);
+			p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0);
 			if(!p)
 				break;
-			edit(pv->name, p, pv->form);
+			edit(pv->name, p, pv->form.form);
 		}
 	}
 }
@@ -2165,7 +2150,6 @@ static void quit_game() {
 static void settings() {}
 
 extern void load_game();
-extern void edit_game();
 
 void draw::options() {
 	static menu elements[] = {{pray_for_spells, "Pray for spells"},
@@ -2183,7 +2167,7 @@ void draw::options() {
 void draw::mainmenu() {
 	static draw::menu source[] = {{main_new_game, "Create New Game"},
 	{load_game, "Load Saved game"},
-	{edit_game, "Game editor"},
+	{draw::editor, "Game editor"},
 	{quit_game, "Exit game"},
 	{}};
 	choose(source);
