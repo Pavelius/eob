@@ -25,6 +25,9 @@ template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder
 	auto p = (messagei::imagei*)object;
 	return p->custom;
 }
+template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) {
+	return ((adventurei*)object)->name;
+}
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }

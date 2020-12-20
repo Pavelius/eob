@@ -530,8 +530,8 @@ int messagei::imagei::preview(int x, int y, int width, const void* object) {
 	auto sy = bitmap.height;
 	if(sx > width)
 		sx = width;
-	if(sy > 200 - y - 4)
-		sy = 200 - y - 4;
+	if(sy > 184 - y - 4)
+		sy = 184 - y - 4;
 	rect rc = {x, y, x + sx + 1, y + sy + 1};
 	border_down(rc);
 	draw::state push; setclip(rc);
@@ -1357,6 +1357,9 @@ public:
 		if(start < 0)
 			start = 0;
 	}
+	int getcount() const {
+		return maximum;
+	}
 	constexpr choose_control(rowi* source, unsigned maximum, fntext getname, fndraw preview) : source(source),
 		maximum(maximum), start(0), perpage(preview ? 11 : 11 * 2),
 		getname(getname), preview(preview) {
@@ -1406,6 +1409,111 @@ public:
 		return (void*)getresult();
 	}
 };
+
+class list_control {
+	variant_s			type;
+	array&				source;
+	int					start, perpage;
+	fntext				getname;
+	fndraw				preview;
+	static void*		current_element;
+	void correct() {
+		auto m = getmaximum();
+		if(start + perpage > m)
+			start = m - perpage;
+		if(start < 0)
+			start = 0;
+	}
+	static void button_next() {
+		auto p = (list_control*)hot::param;
+		p->start += p->perpage;
+		p->correct();
+	}
+	static void button_prev() {
+		auto p = (list_control*)hot::param;
+		p->start -= p->perpage;
+		p->correct();
+	}
+	static void edit_item() {
+		auto p = (list_control*)hot::param;
+		if(!p->current_element)
+			return;
+		auto& ei = bsdata<varianti>::elements[p->type];
+		edit(ei.name, p->current_element, ei.form.form);
+	}
+	static void button_add() {
+		auto p = (list_control*)hot::param;
+		p->current_element = p->source.add();
+		edit_item();
+	}
+	int getindex(const void* v) const {
+		return source.indexof(v);
+	}
+public:
+	void ensurevisible(const void* v) {
+		auto i = getindex(v);
+		if(i == -1)
+			return;
+		start = (i / perpage)*perpage;
+		auto m = getmaximum();
+		if(start + perpage >= m)
+			start = m - perpage;
+		if(start < 0)
+			start = 0;
+	}
+	int getmaximum() const {
+		return source.getcount();
+	}
+	constexpr list_control(array& source, variant_s type, fntext getname, fndraw preview) : type(type), source(source),
+		start(0), perpage(preview ? 11 : 11 * 2),
+		getname(getname), preview(preview) {
+	}
+	void* choose(const char* title, const void* current_value, int width) const {
+		openform();
+		setfocus((void*)current_value);
+		while(ismodal()) {
+			form({0, 0, 320, 200}, 2);
+			auto x = 4, y = 6;
+			y += headerc(x, y, "Edit", title, 0, (start + perpage - 1) / perpage, (getmaximum() + perpage - 1) / perpage);
+			auto y1 = y;
+			current_element = 0;
+			auto mx = getmaximum();
+			for(auto i = start; i < mx; i++) {
+				char temp[260]; stringbuilder sb(temp);
+				auto pt = source.ptr(i);
+				auto pn = getname(pt, sb);
+				if(!pn)
+					pn = "None";
+				y += button(x, y, width, cmd(edit_item, (int)this, (int)pt), pn) + 3 * 2;
+				if(isfocus(pt))
+					current_element = pt;
+				if(y >= 200 - 16 * 2) {
+					if(preview)
+						break;
+					x += width + 4;
+					y = y1;
+				}
+			}
+			if(preview && current_element) {
+				x += width + 4;
+				preview(x, y1, 320 - 4 - x, current_element);
+			}
+			y = 200 - 12 - 4;
+			x = 4;
+			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+			if(start + perpage < mx)
+				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
+			if(start > 0)
+				x += buttonwb(x, y, "Prev", cmd(button_prev, (int)this, (int)button_prev), KeyPageUp);
+			x += buttonwb(x, y, "Add", cmd(button_add, (int)this, (int)button_add), F3);
+			domodal();
+			navigate(true);
+		}
+		closeform();
+		return (void*)getresult();
+	}
+};
+void* list_control::current_element;
 
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
@@ -1473,17 +1581,26 @@ static unsigned getrows(const array& source, const void* object, rowi* storage, 
 	return count;
 }
 
-void* draw::choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width) {
+void* draw::choose(array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
 	if(!view_width)
 		view_width = 154;
-	rowi storage[512];
-	auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow, pgetname);
-	choose_control control(storage, count, pgetname, preview);
-	control.ensurevisible(current);
-	return control.choose(title, current, view_width);
+	if(can_add) {
+		auto type = varianti::find(&source);
+		if(!type)
+			return 0;
+		list_control control(source, type, pgetname, preview);
+		control.ensurevisible(current);
+		return control.choose(title, current, view_width);
+	} else {
+		rowi storage[512];
+		auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow, pgetname);
+		choose_control control(storage, count, pgetname, preview);
+		control.ensurevisible(current);
+		return control.choose(title, current, view_width);
+	}
 }
 
-bool draw::choose(const array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
+bool draw::choose(array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
 	if(list.choose)
 		return list.choose(object, source, field);
 	auto current_value = (void*)getvalue(field, field_size);
@@ -1964,6 +2081,8 @@ static bool variant_editable(const void* object, int param) {
 }
 
 void draw::editor() {
+	auto push_font = font;
+	setsmallfont();
 	varianti* pv = 0;
 	void* p = 0;
 	while(true) {
@@ -1972,12 +2091,13 @@ void draw::editor() {
 		if(!pv)
 			break;
 		while(true) {
-			p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0);
+			p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0, true);
 			if(!p)
 				break;
 			edit(pv->name, p, pv->form.form);
 		}
 	}
+	font = push_font;
 }
 
 static void paintparty(point camera, point party) {

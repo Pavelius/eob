@@ -5,6 +5,7 @@
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
 {"Action", "actions"},
+{"Adventure", "adventures", FORM(adventurei), {Editable}},
 {"Alignment", "alignments", FORM(alignmenti)},
 {"Class", "classes", FORM(classi)},
 {"Creature", "creatures"},
@@ -61,4 +62,12 @@ const char* variant::getname() const {
 		return "None";
 	auto pe = p->form.source->ptr(value);
 	return *((const char**)((char*)pe + p->form.uname));
+}
+
+variant_s varianti::find(const array* source) {
+	for(auto& e : bsdata<varianti>()) {
+		if(e.form.source == source)
+			return variant_s(&e - bsdata<varianti>::elements);
+	}
+	return NoVariant;
 }

@@ -230,7 +230,7 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Class, Creature, Damage, Dialog,
+	Ability, Action, Adventure, Alignment, Class, Creature, Damage, Dialog,
 	Enchant, Feat, Gender, Item, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
@@ -369,6 +369,7 @@ struct varianti {
 	const char*			namepl;
 	formi				form;
 	cflags<varflag_s>	flags;
+	static variant_s	find(const array* source);
 };
 struct combati {
 	attack_s			attack;
@@ -1101,8 +1102,8 @@ void					appear(pobject proc, void* object, unsigned duration = 1000);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
-void*					choose(const array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width);
-bool					choose(const array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
+void*					choose(array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add = false);
+bool					choose(array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);
