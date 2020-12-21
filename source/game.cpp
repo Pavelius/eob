@@ -158,9 +158,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
-		if(attacker->is(Haste)
-			|| attacker->getbonus(OfSpeed, Legs)
-			|| attacker->getbonus(OfSpeed, Elbow))
+		if(attacker->is(Haste))
 			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
 	}
 	// Remove surprised creatures

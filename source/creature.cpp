@@ -742,7 +742,7 @@ int creature::getspeed() const {
 	r += maptbl(reaction_adjustment, k);
 	r += wears[RightHand].getspeed();
 	r += wears[LeftHand].getspeed();
-	r += getbonus(OfSpeed);
+	r += getbonus(OfSpeed) * 2;
 	if(is(Haste))
 		r += 2;
 	if(is(Blindness))
