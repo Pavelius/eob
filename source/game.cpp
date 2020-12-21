@@ -147,7 +147,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 				if(theif) // RULE: Backstab ability of theif
 					attacker->attack(index_of_monsters, dr, 4, ranged, (theif + 7) / 4);
 				else
-					attacker->attack(index_of_monsters, dr, 1, ranged, 1);
+					attacker->attack(index_of_monsters, dr, 4, ranged, 1);
 			}
 		} else
 			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
