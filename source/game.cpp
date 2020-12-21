@@ -121,24 +121,28 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	location.turnto(index_of_monsters, to(dr, Down), &monster_surprise);
 	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
-	if(ambush == NoAmbush && monster_surprise) {
-		mslog("You catch them surprised!");
+	if(ambush == NoAmbush && monster_surprise)
 		ambush = MonsterAmbush;
-	}
-	if(ambush == PartyAmbush)
-		mslog("You are surprised!");
-	else
+	if(ambush != PartyAmbush)
 		parcipants.select(game.getcamera());
 	if(ambush != MonsterAmbush)
 		parcipants.select(index_of_monsters);
 	parcipants.rollinitiative();
 	// All actions made in initiative order
+	auto surprise_message = 0;
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
 		if(ambush) {
 			// RULE: surprise depends on MoveSilently
 			if(attacker->roll(MoveSilently)) {
+				if(!surprise_message) {
+					if(ambush == PartyAmbush)
+						mslog("You are surprised!");
+					else
+						mslog("You catch them surprised!");
+				}
+				surprise_message++;
 				auto theif = attacker->get(Theif);
 				if(theif) // RULE: Backstab ability of theif
 					attacker->attack(index_of_monsters, dr, 4, ranged, (theif + 7) / 4);
