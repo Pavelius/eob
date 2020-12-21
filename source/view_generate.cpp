@@ -74,8 +74,8 @@ static void genavatar(int x, int y, const cmd& ev) {
 			fore = colors::white;
 			setsmallfont();
 			pc->view_portrait(x + 1, y);
-			char temp[260];	pc->getname(temp, zendof(temp));
-			text(x - 14 + (58 - draw::textw(temp)) / 2, y + 43, temp);
+			auto pn = pc->getname();
+			text(x - 14 + (58 - draw::textw(pn)) / 2, y + 43, pn);
 		} else
 			image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
 	}
@@ -295,8 +295,8 @@ static void apply_change_character() {
 		x = 148; y = 98;
 		genheader();
 		current_player->view_portrait(205, 66);
-		current_player->getname(temp, zendof(temp));
-		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
+		auto pn = current_player->getname();
+		draw::textb(x + (width - draw::textw(pn)) / 2, y, pn); y += draw::texth() + 1;
 		zprint(temp, "%1 %2", getstr(race), getstr(gender));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
 		zprint(temp, getstr(type));

@@ -119,10 +119,8 @@ void creature::update_poison(bool interactive) {
 			hits += xrand(1, 8);
 	}
 	if(hits > 0) {
-		if(interactive) {
-			char temp[260];
-			mslog("%1 feel poison", getname(temp, zendof(temp)));
-		}
+		if(interactive)
+			mslog("%1 feel poison", getname());
 		draw::animation::update();
 		damage(Magic, hits);
 	}
@@ -336,9 +334,9 @@ void creature::say(const char* format, ...) {
 }
 
 void creature::sayv(const char* format, const char* vl) {
-	char name[64]; getname(name, zendof(name));
-	char message[1024]; szprintv(message, zendof(message), format, vl);
-	mslog("%1 \"%2\"", name, message);
+	char message[1024]; stringbuilder sb(message);
+	sb.addv(format, vl);
+	mslog("%1 \"%2\"", getname(), message);
 }
 
 bool creature::canspeak(race_s language) const {
@@ -793,9 +791,8 @@ void creature::update_levelup(bool interactive) {
 			continue;
 		auto tbl = get_experience_table(i);
 		if(exp >= tbl[clv + 1]) {
-			char temp[64];
 			raise_level(i);
-			mslog("%1 gain level of experience", getname(temp, zendof(temp)));
+			mslog("%1 gain level of experience", getname());
 		}
 	}
 }
@@ -817,7 +814,6 @@ void creature::random_name() {
 		return;
 	auto race = getrace();
 	auto gender = getgender();
-	auto need_correct = true;
 	if(race == HalfElf) {
 		// RULE: Half-elves get names mostly elvish than humans
 		if(d100() < 60)
@@ -825,16 +821,7 @@ void creature::random_name() {
 		else
 			race = Human;
 	}
-	if(race == Dwarf)
-		need_correct = false;
-	auto fe = game.getrandom(0, race, gender, -1);
-	if(!fe)
-		fe = game.getrandom(0, NoRace, gender, -1);
-	auto se = game.getrandom(1, race, gender, need_correct ? fe : -1);
-	if(!se)
-		se = game.getrandom(1, NoRace, gender, need_correct ? fe : -1);
-	name[0] = fe;
-	name[1] = se;
+	name = game.getrandom(race, gender);
 }
 
 int creature::get_base_save_throw(ability_s st) const {
@@ -916,21 +903,6 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 			b += maptbl(wisdow_bonus_spells, wisdow - 13)[spell_level - 1];
 	}
 	return b;
-}
-
-void creature::getname(stringbuilder& sb) const {
-	if(kind)
-		sb.add(bsdata<monsteri>::elements[kind].name);
-	else
-		sb.add("%1%2", get_name_part(name[0]), get_name_part(name[1]));
-}
-
-const char* creature::getname(char* result, const char* result_maximum) const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].name;
-	szprint(result, result_maximum, "%1%2",
-		get_name_part(name[0]), get_name_part(name[1]));
-	return result;
 }
 
 int creature::getenchant(variant id, int bonus) const {
@@ -1695,10 +1667,8 @@ bool creature::use(item* pi) {
 					if(d100() < 30)
 						pc->damage(Pierce, dice::roll(1, 6));
 				}
-			} else {
-				char name[32];
-				mslog("Nothing happened, when %1 try use wand", pc->getname(name, zendof(name)));
-			}
+			} else
+				mslog("Nothing happened, when %1 try use wand", pc->getname());
 		}
 		break;
 	case DungeonMap:
@@ -1724,10 +1694,8 @@ bool creature::use(item* pi) {
 			auto cls = (type == MageScroll) ? Mage : Cleric;
 			if(pc->cast(spell_element, cls, iabs(magic)))
 				consume = true;
-			else {
-				char name[64];
-				mslog("Nothing happened, when %1 try use scroll", pc->getname(name, zendof(name)));
-			}
+			else
+				mslog("Nothing happened, when %1 try use scroll", pc->getname());
 		}
 		break;
 	case KeyShelf: case KeySilver: case KeyCooper: case KeySkull: case KeySpider:
@@ -1877,8 +1845,7 @@ void creature::addparty(item i, bool interactive) {
 			e = i;
 			if(interactive) {
 				char t1[260]; stringbuilder s1(t1); i.getname(s1);
-				char t2[260]; stringbuilder s2(t2); p->getname(s2);
-				mslog("%1 gain %2", t2, t1);
+				mslog("%1 gain %2", p->getname(), t1);
 			}
 			return;
 		}
@@ -2045,4 +2012,10 @@ void creature::removeloot(looti& result) {
 		// Clear item
 		e.clear();
 	}
+}
+
+const char* creature::getname() const {
+	if(kind)
+		return bsdata<monsteri>::elements[kind].name;
+	return bsdata<namei>::elements[name].name;
 }

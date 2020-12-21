@@ -348,6 +348,11 @@ struct genderi {
 struct sizei {
 	const char*			name;
 };
+struct namei {
+	race_s				race;
+	gender_s			gender;
+	const char*			name;
+};
 struct intellegencei {
 	const char*			name;
 	char				v1, v2;
@@ -653,7 +658,7 @@ class creature {
 	spellf				active_spells;
 	char				avatar;
 	unsigned			experience;
-	unsigned char		name[2];
+	unsigned short		name;
 	char				str_exeptional;
 	char				drain_energy, drain_strenght, disease_progress;
 	char				pallette;
@@ -733,8 +738,7 @@ public:
 	int					getinitiative() const { return initiative; }
 	item*				getitem(wear_s id) { return &wears[id - FirstInvertory]; }
 	static int			getlevel(spell_s id, class_s type);
-	void				getname(stringbuilder& sb) const;
-	const char*			getname(char* result, const char* result_maximum) const;
+	const char*			getname() const;
 	int					getpallette() const { return pallette; }
 	int					getpartyindex() const;
 	int					getprepare(spell_s v) const { return prepared[v]; }
@@ -1038,7 +1042,7 @@ public:
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);
-	int					getrandom(int type, race_s race, gender_s gender, int prev_name);
+	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
 	int					getside(int side, direction_s dr);
 	int					getsideb(int side, direction_s dr);

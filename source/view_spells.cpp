@@ -109,12 +109,11 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 
 creature* creature::choosehero() {
 	answers elements;
-	char temp[260];
 	for(auto v : party) {
 		auto p = v.getcreature();
 		if(!p)
 			continue;
-		elements.add((int)p, p->getname(temp, zendof(temp)));
+		elements.add((int)p, p->getname());
 	}
 	return (creature*)elements.choosesm("On which hero?", true);
 }
@@ -280,7 +279,6 @@ static void scribe_scroll() {
 }
 
 void creature::scribe(item& it) {
-	char temp[260];
 	auto sv = it.getpower();
 	if(!sv || sv.type!=Spell) {
 		say("This is not magic scroll");
@@ -289,10 +287,10 @@ void creature::scribe(item& it) {
 	auto sp = (spell_s)sv.value;
 	if(roll(LearnSpell)) {
 		setknown(sp);
-		mslog("%1 learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
+		mslog("%1 learn %2 spell", getname(), getstr(sp));
 		addexp(100);
 	} else
-		mslog("%1 don't learn %2 spell", getname(temp, zendof(temp)), getstr(sp));
+		mslog("%1 don't learn %2 spell", getname(), getstr(sp));
 	it.clear();
 }
 

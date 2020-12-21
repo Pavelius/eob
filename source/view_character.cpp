@@ -32,10 +32,9 @@ static int number(int x, int y, const char* name, const combati& v) {
 
 static void sheet_head(int x, int y, creature* pc) {
 	draw::state push; setsmallfont();
-	char temp[260]; pc->getname(temp, zendof(temp));
 	image(x, y, gres(INVENT), 0, 0);
 	pc->view_portrait(x + 4, y + 3);
-	text({x + 38, y + 6, x + 38 + 82, y + 6 + draw::texth()}, temp, AlignCenterCenter);
+	text({x + 38, y + 6, x + 38 + 82, y + 6 + draw::texth()}, pc->getname(), AlignCenterCenter);
 	greenbar({x + 70, y + 16, x + 135, y + 16 + 5}, pc->gethits(), pc->gethitsmaximum());
 	greenbar({x + 70, y + 25, x + 135, y + 25 + 5}, pc->getfood(), pc->getfoodmax());
 }

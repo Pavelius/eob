@@ -142,8 +142,7 @@ short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s 
 }
 
 void creature::say(spell_s id) const {
-	char temp[260];
-	mslog("%1 cast %2", getname(temp, zendof(temp)), getstr(id));
+	mslog("%1 cast %2", getname(), getstr(id));
 }
 
 bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {

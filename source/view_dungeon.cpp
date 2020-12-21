@@ -339,10 +339,10 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	draw::state push;
 	fore = colors::black;
 	setsmallfont();	
-	char temp[260]; pc->getname(temp, zendof(temp));
+	auto pn = pc->getname();
 	image(x, y, gres(INVENT), 1, 0);
 	image(x, y + 24, gres(INVENT), 2, 0);
-	text({x + 1, y + 2, x + 62, y + 2 + draw::texth()}, temp, AlignCenterCenter);
+	text({x + 1, y + 2, x + 62, y + 2 + draw::texth()}, pn, AlignCenterCenter);
 	pc->view_portrait(x + 1, y + 9);
 	// State show
 	rect rc = {x, y, x + 62, y + 49};
@@ -373,7 +373,8 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item
 	handicn(x + 32 + 16, y + 16 + 16, pc, LeftHand, current_item);
 	int hp = pc->gethits();
 	int mhp = pc->gethitsmaximum();
-	zprint(temp, "%1i of %2i", hp, mhp);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("%1i of %2i", hp, mhp);
 	text({x + 2, y + 43, x + 2 + 61, y + 43 + draw::texth()}, temp, AlignCenterCenter);
 	//greenbar({x + 2, y + 42, x + 62 - 1, y + 43 + 5}, hp, mhp);
 	if(flags&Disabled)
