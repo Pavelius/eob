@@ -424,7 +424,7 @@ bool creature::useammo(item_s ammo, wear_s slot, bool use_item) {
 	return true;
 }
 
-void creature::attack(creature* defender, wear_s slot, int bonus) {
+void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier) {
 	combati wi = {}; get(wi, slot, defender);
 	item_s ammo = NoItem;
 	if(wi.weapon)
@@ -466,6 +466,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 		if(rolls >= tohit || rolls >= chance_critical) {
 			auto damage = wi.damage;
 			hits = damage.roll();
+			hits = hits * multiplier;
 			if(getbonus(Fire, slot)) {
 				damage_type = Fire;
 				hits += xrand(1, 6);
@@ -542,7 +543,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus) {
 	useammo(ammo, slot, false);
 }
 
-void creature::attack(short unsigned index, direction_s d, int bonus, bool ranged) {
+void creature::attack(indext index, direction_s d, int bonus, bool ranged, int multiplier) {
 	auto defender = game.getdefender(index, d, this);
 	if(!defender) {
 		// Monster can't respond to ranged attack
@@ -563,15 +564,15 @@ void creature::attack(short unsigned index, direction_s d, int bonus, bool range
 	if(ranged && !wp1.isranged())
 		return;
 	if(wp1.isranged())
-		attack(defender, RightHand, bonus);
+		attack(defender, RightHand, bonus, multiplier);
 	else {
 		if(wp2) {
-			attack(defender, RightHand, bonus + gethitpenalty(-4));
-			attack(defender, LeftHand, bonus + gethitpenalty(-6));
+			attack(defender, RightHand, bonus + gethitpenalty(-4), multiplier);
+			attack(defender, LeftHand, bonus + gethitpenalty(-6), multiplier);
 		} else
-			attack(defender, RightHand, bonus);
+			attack(defender, RightHand, bonus, multiplier);
 		if(wp3)
-			attack(defender, Head, bonus);
+			attack(defender, Head, bonus, multiplier);
 	}
 }
 
@@ -1539,14 +1540,14 @@ bool creature::use(item* pi) {
 	// Weapon is special case
 	if((slot == RightHand || slot == LeftHand)) {
 		if((!(*pi) || pi->ismelee())) {
-			game.attack(forward_index, false);
+			game.attack(forward_index, false, NoAmbush);
 			return true;
 		} else if(pi->isranged()) {
 			auto original = game.getcamera();
 			auto index = location.gettarget(game.getcamera(), game.getdirection());
 			if(index != Blocked) {
 				auto ranged = rangeto(original, index) > 1;
-				game.attack(index, ranged);
+				game.attack(index, ranged, NoAmbush);
 				if(ranged)
 					location.move(index, to(game.getdirection(), Down));
 			}
@@ -1813,15 +1814,17 @@ void creature::interract() {
 	}
 	auto party_index = game.getcamera();
 	auto party_direction = game.getdirection();
+	bool party_ambush = false;
 	switch(reaction) {
 	case Flight:
 		// Just run away
 		location.move(index, party_direction);
 		break;
 	default:
-		mslog("You are under attack!");
-		location.turnto(party_index, to(direction, Down));
-		game.attack(index, false);
+		location.turnto(party_index, to(direction, Down), &party_ambush);
+		location.turnto(index, to(direction, Down));
+		location.formation(index, to(direction, Down));
+		game.attack(index, false, party_ambush ? PartyAmbush : NoAmbush);
 		break;
 	}
 }

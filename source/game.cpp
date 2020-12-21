@@ -14,7 +14,7 @@ variant					party[6];
 dungeon					location_above;
 dungeon					location;
 
-void gamei::setcamera(short unsigned index, direction_s direction) {
+void gamei::setcamera(indext index, direction_s direction) {
 	camera_index = index;
 	if(direction != Center)
 		camera_direction = direction;
@@ -114,21 +114,42 @@ creature* gamei::getdefender(short unsigned index, direction_s dr, creature* att
 	}
 }
 
-void gamei::attack(indext index_of_monsters, bool ranged) {
+void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	creaturea parcipants;
 	auto dr = getdirection();
+	bool monster_surprise = false;
 	location.turnto(index_of_monsters, to(dr, Down));
 	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
-	parcipants.select(index_of_monsters);
-	parcipants.select(game.getcamera());
+	if(ambush == NoAmbush && monster_surprise) {
+		mslog("You catch them surprised!");
+		ambush = MonsterAmbush;
+	}
+	if(ambush == PartyAmbush)
+		mslog("You are surprised!");
+	else
+		parcipants.select(game.getcamera());
+	if(ambush != MonsterAmbush)
+		parcipants.select(index_of_monsters);
 	parcipants.rollinitiative();
 	// All actions made in initiative order
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
 			continue;
-		attacker->attack(index_of_monsters, dr, 0, ranged);
+		if(ambush) {
+			// RULE: surprise depends on MoveSilently
+			if(attacker->roll(MoveSilently)) {
+				auto theif = attacker->get(Theif);
+				if(theif) // RULE: Backstab ability of theif
+					attacker->attack(index_of_monsters, dr, 4, ranged, (theif + 7) / 4);
+				else
+					attacker->attack(index_of_monsters, dr, 1, ranged, 1);
+			}
+		} else
+			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
 	}
+	if(ambush)
+		return;
 	// RULE: Hasted units make second move at end of combat round
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
@@ -136,8 +157,9 @@ void gamei::attack(indext index_of_monsters, bool ranged) {
 		if(attacker->is(Haste)
 			|| attacker->getbonus(OfSpeed, Legs)
 			|| attacker->getbonus(OfSpeed, Elbow))
-			attacker->attack(index_of_monsters, dr, 0, ranged);
+			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
 	}
+	// Remove surprised creatures
 }
 
 void read_message(dungeon* pd, dungeon::overlayi* po);

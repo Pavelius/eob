@@ -1,7 +1,6 @@
 #include "main.h"
 
-BSDATA(racei) = {{"No race"},
-{"Dwarf", {8, 3, 11, 3, 3, 3}, {18, 17, 18, 18, 18, 17}, {0, 0, 1, 0, 0, -1},
+BSDATA(racei) = {{"Dwarf", {8, 3, 11, 3, 3, 3}, {18, 17, 18, 18, 18, 17}, {0, 0, 1, 0, 0, -1},
 {BonusSaveVsPoison, BonusSaveVsSpells, BonusToHitVsGoblinoid, BonusACVsLargeEnemy}, {UseLargeWeapon},
 {{OpenLocks, 10}, {RemoveTraps, 15}, {ClimbWalls, -10}, {ReadLanguages, -10}}},
 {"Elf", {3, 6, 7, 8, 3, 8}, {18, 18, 18, 18, 18, 18}, {0, 1, -1, 0, 0, 0},

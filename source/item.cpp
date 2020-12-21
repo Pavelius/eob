@@ -541,13 +541,6 @@ int item::getarmorpenalty(ability_s skill) const {
 		case ClimbWalls: return 60;
 		case MoveSilently: return 60;
 		}
-	} else if(is(UseLeatherArmor)) {
-		switch(skill) {
-		case OpenLocks: return 10;
-		case RemoveTraps: return 15;
-		case ClimbWalls: return 30;
-		case MoveSilently: return 40;
-		}
 	}
 	return 0;
 }

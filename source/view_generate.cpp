@@ -320,7 +320,7 @@ static void change_character() {
 		} else {
 			(*ptr_player) = bsdata<creature>::add();
 			current_player = ptr_player->getcreature();
-			current_player->create(NoGender, NoRace, NoClass, LawfulGood, true);
+			current_player->create(NoGender, Human, NoClass, LawfulGood, true);
 		}
 		current_player = 0;
 	}

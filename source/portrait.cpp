@@ -96,8 +96,6 @@ int gamei::getavatar(int* result, const int* result_maximum, race_s race, gender
 	auto c = select_avatar(result, result_maximum, race, gender, cls);
 	if(!c)
 		c = select_avatar(result, result_maximum, race, gender, NoClass);
-	if(!c)
-		c = select_avatar(result, result_maximum, NoRace, gender, NoClass);
 	return c;
 }
 

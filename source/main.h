@@ -34,7 +34,6 @@ enum resource_s : unsigned char {
 	Count
 };
 enum race_s : unsigned char {
-	NoRace,
 	Dwarf, Elf, HalfElf, Halfling, Human,
 	Humanoid, Goblinoid, Insectoid, Animal,
 };
@@ -240,6 +239,9 @@ enum pack_s : unsigned char {
 };
 enum varflag_s : unsigned char {
 	Editable,
+};
+enum ambush_s : unsigned char {
+	NoAmbush, MonsterAmbush, PartyAmbush
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spellf;
@@ -679,7 +681,7 @@ class creature {
 	void				update_poison(bool interactive);
 	friend dginf<creature>;
 public:
-	explicit operator bool() const { return race != NoRace; }
+	explicit operator bool() const { return ability[Strenght] != 0; }
 	typedef void		(creature::*apply_proc)(bool);
 	void				activate(spell_s v) { active_spells.set(v); }
 	bool				add(item i);
@@ -690,8 +692,8 @@ public:
 	static void			addparty(item i, bool interactive = false);
 	static void			apply(apply_proc proc, bool interactive = true);
 	void				apply(spell_s id, int level, unsigned duration);
-	void				attack(short unsigned index, direction_s d, int bonus, bool ranged);
-	void				attack(creature* defender, wear_s slot, int bonus);
+	void				attack(indext index, direction_s d, int bonus, bool ranged, int multiplier);
+	void				attack(creature* defender, wear_s slot, int bonus, int multiplier);
 	static void			camp(item& it);
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
@@ -985,7 +987,7 @@ struct dungeon {
 	void				setactive(indext index, bool value, int radius);
 	void				stop(indext index);
 	void				traplaunch(indext index, direction_s dir, item_s show, const combati& e);
-	void				turnto(indext index, direction_s dr);
+	void				turnto(indext index, direction_s dr, bool* surprise = 0);
 	void				write();
 };
 struct adventurei {
@@ -1031,7 +1033,7 @@ class gamei : companyi {
 	static void			render_worldmap(void* object);
 public:
 	void				add(monster_s id) { killed[id]++; }
-	void				attack(indext index, bool ranged);
+	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				endround();
 	void				enter(point index, short unsigned level);
 	void				equiping();
@@ -1057,7 +1059,7 @@ public:
 	void				passtime(int minutes);
 	bool				question(item* current_item);
 	void				rideto(point overland_position);
-	void				setcamera(short unsigned index, direction_s direction = Center);
+	void				setcamera(indext index, direction_s direction = Center);
 	void				thrown(item* itm);
 	bool				read();
 	void				worldmap();

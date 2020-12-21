@@ -403,16 +403,20 @@ bool dungeon::allaround(indext index, cell_s t1, cell_s t2) {
 	return true;
 }
 
-void dungeon::turnto(indext index, direction_s dr) {
+void dungeon::turnto(indext index, direction_s dr, bool* surprise) {
 	if(!dr)
 		return;
-	if(index == game.getcamera())
+	if(index == game.getcamera()) {
+		if(surprise)
+			*surprise = (game.getdirection() != dr);
 		game.setcamera(index, dr);
-	else {
+	} else {
 		creature* result[4]; getmonsters(result, index, game.getdirection());
 		for(auto pc : result) {
 			if(!pc)
 				continue;
+			if(surprise && !(*surprise))
+				*surprise = (pc->getdirection() != dr);
 			pc->set(dr);
 			pc->setmoved(true);
 		}
