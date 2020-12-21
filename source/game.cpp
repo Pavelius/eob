@@ -118,7 +118,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	creaturea parcipants;
 	auto dr = getdirection();
 	bool monster_surprise = false;
-	location.turnto(index_of_monsters, to(dr, Down));
+	location.turnto(index_of_monsters, to(dr, Down), &monster_surprise);
 	location.formation(index_of_monsters, to(dr, Down));
 	draw::animation::update();
 	if(ambush == NoAmbush && monster_surprise) {

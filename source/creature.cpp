@@ -1822,8 +1822,8 @@ void creature::interract() {
 		break;
 	default:
 		location.turnto(party_index, to(direction, Down), &party_ambush);
-		location.turnto(index, to(direction, Down));
-		location.formation(index, to(direction, Down));
+		location.turnto(index, direction);
+		location.formation(index, direction);
 		game.attack(index, false, party_ambush ? PartyAmbush : NoAmbush);
 		break;
 	}
