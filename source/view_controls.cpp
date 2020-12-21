@@ -38,12 +38,9 @@ struct contexti {
 	int					title;
 	constexpr contexti(void* object) : object(object), title(84) {}
 };
-struct rowi {
-	void*				data;
-	int					index;
-};
 }
 
+typedef adat<void*, 512> rowa;
 static render_control	render_objects[48];
 static render_control*	render_current;
 static bool				break_modal;
@@ -1295,93 +1292,116 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 static fntext compare_callback;
 
 static int qsort_compare(const void* v1, const void* v2) {
-	auto p1 = (rowi*)v1;
-	auto p2 = (rowi*)v2;
+	auto p1 = (void**)v1;
+	auto p2 = (void**)v2;
 	char t1[260]; stringbuilder sb1(t1);
-	auto s1 = compare_callback(p1->data, sb1);
+	auto s1 = compare_callback(*p1, sb1);
 	if(!s1)
 		s1 = "";
 	char t2[260]; stringbuilder sb2(t2);
-	auto s2 = compare_callback(p2->data, sb2);
+	auto s2 = compare_callback(*p2, sb2);
 	if(!s2)
 		s2 = "";
 	return strcmp(s1, s2);
 }
 
-static void sort(rowi* storage, unsigned maximum, fntext getname) {
+static void sort(void** storage, unsigned maximum, fntext getname) {
 	compare_callback = getname;
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
 }
 
-class choose_control {
-	rowi*				source;
-	int					start, maximum;
+class choose_control : public rowa {
+	int					origin;
 	fntext				getname;
 	fndraw				preview;
 	int					perpage;
+	variant_s			type;
+	array*				source;
 	static fntext		compare_callback;
 	static void choose_item() {
 		breakmodal(hot::param);
 	}
 	void correct() {
-		if(start + perpage > maximum)
-			start = maximum - perpage;
-		if(start < 0)
-			start = 0;
+		if(origin + perpage > (int)count)
+			origin = count - perpage;
+		if(origin < 0)
+			origin = 0;
 	}
 	static void button_next() {
 		auto p = (choose_control*)hot::param;
-		p->start += p->perpage;
+		p->origin += p->perpage;
 		p->correct();
 	}
 	static void button_prev() {
 		auto p = (choose_control*)hot::param;
-		p->start -= p->perpage;
+		p->origin -= p->perpage;
 		p->correct();
 	}
+	static void edit_item() {
+		auto p = (choose_control*)hot::param;
+		auto pc = getfocus();
+		if(!pc)
+			return;
+		auto& ei = bsdata<varianti>::elements[p->type];
+		edit(ei.name, pc, ei.form.form);
+	}
+	static void button_add() {
+		auto p = (choose_control*)hot::param;
+		if(!p->source)
+			return;
+		auto pc = p->source->add();
+		p->add(pc);
+		setfocus(pc);
+		p->ensurevisible(pc);
+		edit_item();
+	}
 	int getindex(const void* v) const {
-		for(auto i = 0; i < maximum; i++) {
-			if(v == source[i].data)
-				return i;
+		for(auto p : *this) {
+			if(v==p)
+				return &p - data;
 		}
 		return -1;
 	}
 public:
+	void setsource(array* v, variant_s t) {
+		source = v;
+		type = t;
+	}
 	void ensurevisible(const void* v) {
 		auto i = getindex(v);
 		if(i == -1)
 			return;
-		start = (i / perpage)*perpage;
-		if(start + perpage >= maximum)
-			start = maximum - perpage;
-		if(start < 0)
-			start = 0;
+		origin = (i / perpage)*perpage;
+		correct();
 	}
 	int getcount() const {
-		return maximum;
+		return count;
 	}
-	constexpr choose_control(rowi* source, unsigned maximum, fntext getname, fndraw preview) : source(source),
-		maximum(maximum), start(0), perpage(preview ? 11 : 11 * 2),
-		getname(getname), preview(preview) {
+	choose_control(fntext getname, fndraw preview) : origin(0), perpage(preview ? 11 : 11 * 2),
+		getname(getname), preview(preview),
+		type(NoVariant), source(0) {
 	}
 	void* choose(const char* title, const void* current_value, int width) const {
-		if(!source || !maximum)
+		if(!*this && type==NoVariant)
 			return 0;
 		openform();
 		setfocus((void*)current_value);
 		while(ismodal()) {
 			form({0, 0, 320, 200}, 2);
 			auto x = 4, y = 6;
-			y += headerc(x, y, "Choose", title, 0, (start + perpage - 1) / perpage, (maximum + perpage - 1) / perpage);
+			y += headerc(x, y, "Choose", title, 0, (origin + perpage - 1) / perpage, (count + perpage - 1) / perpage);
 			auto y1 = y;
 			void* current_element = 0;
-			for(auto i = start; i < maximum; i++) {
+			for(unsigned i = origin; i < count; i++) {
 				char temp[260]; stringbuilder sb(temp);
-				auto pt = source[i].data;
+				auto pt = data[i];
 				auto pn = getname(pt, sb);
 				if(!pn)
 					pn = "None";
-				y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
+				if(source)
+					y += button(x, y, width, cmd(edit_item, (int)this, (int)pt), pn) + 3 * 2;
+				else
+					y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
 				if(isfocus(pt))
 					current_element = pt;
 				if(y >= 200 - 16 * 2) {
@@ -1398,10 +1418,12 @@ public:
 			y = 200 - 12 - 4;
 			x = 4;
 			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-			if(start + perpage < maximum)
+			if(origin + perpage < (int)count)
 				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
-			if(start > 0)
+			if(origin > 0)
 				x += buttonwb(x, y, "Prev", cmd(button_prev, (int)this, (int)button_prev), KeyPageUp);
+			if(source)
+				x += buttonwb(x, y, "Add", cmd(button_add, (int)this, (int)button_add), F3);
 			domodal();
 			navigate(true);
 		}
@@ -1409,111 +1431,6 @@ public:
 		return (void*)getresult();
 	}
 };
-
-class list_control {
-	variant_s			type;
-	array&				source;
-	int					start, perpage;
-	fntext				getname;
-	fndraw				preview;
-	static void*		current_element;
-	void correct() {
-		auto m = getmaximum();
-		if(start + perpage > m)
-			start = m - perpage;
-		if(start < 0)
-			start = 0;
-	}
-	static void button_next() {
-		auto p = (list_control*)hot::param;
-		p->start += p->perpage;
-		p->correct();
-	}
-	static void button_prev() {
-		auto p = (list_control*)hot::param;
-		p->start -= p->perpage;
-		p->correct();
-	}
-	static void edit_item() {
-		auto p = (list_control*)hot::param;
-		if(!p->current_element)
-			return;
-		auto& ei = bsdata<varianti>::elements[p->type];
-		edit(ei.name, p->current_element, ei.form.form);
-	}
-	static void button_add() {
-		auto p = (list_control*)hot::param;
-		p->current_element = p->source.add();
-		edit_item();
-	}
-	int getindex(const void* v) const {
-		return source.indexof(v);
-	}
-public:
-	void ensurevisible(const void* v) {
-		auto i = getindex(v);
-		if(i == -1)
-			return;
-		start = (i / perpage)*perpage;
-		auto m = getmaximum();
-		if(start + perpage >= m)
-			start = m - perpage;
-		if(start < 0)
-			start = 0;
-	}
-	int getmaximum() const {
-		return source.getcount();
-	}
-	constexpr list_control(array& source, variant_s type, fntext getname, fndraw preview) : type(type), source(source),
-		start(0), perpage(preview ? 11 : 11 * 2),
-		getname(getname), preview(preview) {
-	}
-	void* choose(const char* title, const void* current_value, int width) const {
-		openform();
-		setfocus((void*)current_value);
-		while(ismodal()) {
-			form({0, 0, 320, 200}, 2);
-			auto x = 4, y = 6;
-			y += headerc(x, y, "Edit", title, 0, (start + perpage - 1) / perpage, (getmaximum() + perpage - 1) / perpage);
-			auto y1 = y;
-			current_element = 0;
-			auto mx = getmaximum();
-			for(auto i = start; i < mx; i++) {
-				char temp[260]; stringbuilder sb(temp);
-				auto pt = source.ptr(i);
-				auto pn = getname(pt, sb);
-				if(!pn)
-					pn = "None";
-				y += button(x, y, width, cmd(edit_item, (int)this, (int)pt), pn) + 3 * 2;
-				if(isfocus(pt))
-					current_element = pt;
-				if(y >= 200 - 16 * 2) {
-					if(preview)
-						break;
-					x += width + 4;
-					y = y1;
-				}
-			}
-			if(preview && current_element) {
-				x += width + 4;
-				preview(x, y1, 320 - 4 - x, current_element);
-			}
-			y = 200 - 12 - 4;
-			x = 4;
-			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-			if(start + perpage < mx)
-				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
-			if(start > 0)
-				x += buttonwb(x, y, "Prev", cmd(button_prev, (int)this, (int)button_prev), KeyPageUp);
-			x += buttonwb(x, y, "Add", cmd(button_add, (int)this, (int)button_add), F3);
-			domodal();
-			navigate(true);
-		}
-		closeform();
-		return (void*)getresult();
-	}
-};
-void* list_control::current_element;
 
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
@@ -1562,42 +1479,34 @@ static int getvalue(void* p, unsigned size) {
 	return 0;
 }
 
-static unsigned getrows(const array& source, const void* object, rowi* storage, unsigned maximum, fnallow pallow, fntext getname) {
-	auto p = storage;
-	auto pe = storage + maximum;
+static void getrows(const array& source, const void* object, rowa& result, fnallow pallow, fntext getname) {
+	auto p = result.begin();
+	auto pe = result.endof();
 	auto sm = source.getcount();
 	for(unsigned i = 0; i < sm; i++) {
-		if(pallow && !pallow(object, i))
+		auto ps = source.ptr(i);
+		if(pallow && !pallow(object, ps))
 			continue;
 		if(p < pe) {
-			p->data = source.ptr(i);
-			p->index = i;
+			*p = ps;
 			p++;
 		}
 	}
-	auto count = p - storage;
+	result.count = p - result.data;
 	if(getname)
-		sort(storage, count, getname);
-	return count;
+		sort(result.data, result.count, getname);
 }
 
 void* draw::choose(array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
 	if(!view_width)
 		view_width = 154;
-	if(can_add) {
-		auto type = varianti::find(&source);
-		if(!type)
-			return 0;
-		list_control control(source, type, pgetname, preview);
-		control.ensurevisible(current);
-		return control.choose(title, current, view_width);
-	} else {
-		rowi storage[512];
-		auto count = getrows(source, object, storage, sizeof(storage) / sizeof(storage[0]), pallow, pgetname);
-		choose_control control(storage, count, pgetname, preview);
-		control.ensurevisible(current);
-		return control.choose(title, current, view_width);
-	}
+	auto type = varianti::find(&source);
+	choose_control control(pgetname, preview);
+	if(can_add && type)
+		control.setsource(&source, type);
+	getrows(source, object, control, pallow, pgetname);
+	control.ensurevisible(current);
+	return control.choose(title, current, view_width);
 }
 
 bool draw::choose(array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
@@ -1868,17 +1777,18 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	auto ar = e.value.source;
 	auto gn = e.list.getname;
 	auto pv = e.value.ptr(object);
-	rowi storage[512];
+	rowa storage;
 	auto y0 = y;
 	auto y1 = y0 + 16 * (texth() + 2);
-	auto im = getrows(*ar, object, storage, sizeof(storage) / sizeof(storage[0]),
-		e.list.allow, e.list.getname);
-	if(im > 16)
+	getrows(*ar, object, storage, e.list.allow, e.list.getname);
+	if(storage.count > 16)
 		width = width / 2;
+	auto im = storage.count;
 	for(unsigned i = 0; i < im; i++) {
-		auto v = storage[i].data;
 		char temp[260]; stringbuilder sb(temp);
-		y += checkbox(x, y, gn(v, sb), e, object, 1 << storage[i].index);
+		auto ps = storage[i];
+		auto pi = ar->indexof(ps);
+		y += checkbox(x, y, gn(ps, sb), e, object, 1 << pi);
 		if(y >= 200 - 16 * 2) {
 			y = y0;
 			x += width;
@@ -1929,16 +1839,18 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 	auto pv = e.value.ptr(object);
 	auto y0 = y;
 	auto y1 = 170;
-	rowi storage[512];
-	auto im = getrows(*ar, object, storage, sizeof(storage) / sizeof(storage[0]), e.list.allow, e.list.getname);
+	rowa storage;
+	getrows(*ar, object, storage, e.list.allow, e.list.getname);
+	auto im = storage.count;
 	if(!im)
 		return 0;
 	if(im > 16)
 		width = width / 2;
 	auto element_size = 1;
 	for(unsigned i = 0; i < im; i++) {
-		auto v = storage[i].data;
-		auto pr = (char*)pv + storage[i].index*element_size;
+		auto v = storage[i];
+		auto pi = ar->indexof(v);
+		auto pr = (char*)pv + pi*element_size;
 		auto nv = getvalue(pr, element_size);
 		if(!nv)
 			continue;
@@ -2075,8 +1987,8 @@ bool draw::edit(const char* title, void* object, const markup* pm) {
 	return e.edit(title);
 }
 
-static bool variant_editable(const void* object, int param) {
-	auto p = bsdata<varianti>::elements + param;
+static bool variant_editable(const void* object, const void* pointer) {
+	auto p = (varianti*)pointer;
 	return p->flags.is(Editable);
 }
 

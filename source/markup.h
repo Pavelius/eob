@@ -5,7 +5,7 @@
 
 struct markup;
 
-typedef bool(*fnallow)(const void* object, int index); // Is allow some property
+typedef bool(*fnallow)(const void* object, const void* pointer); // Is allow some pointer value
 typedef void(*fncommand)(void* object); // Object's actions
 typedef int(*fndraw)(int x, int y, int width, const void* object); // Custom draw
 typedef const char* (*fntext)(const void* object, stringbuilder& sb);

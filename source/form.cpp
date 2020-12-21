@@ -79,8 +79,8 @@ void* item::getenchantptr(const void* object, int index) {
 const char* getnoname(const void* object, stringbuilder& sb) {
 	return 0;
 }
-static bool variant_selectable(const void* object, int param) {
-	auto p = bsdata<varianti>::elements + param;
+static bool variant_selectable(const void* object, const void* pointer) {
+	auto p = (varianti*)pointer;
 	return p->form.pgetname != 0;
 }
 static bool choose_variant(const void* object, const array& source, void* pointer) {
@@ -139,28 +139,24 @@ static bool choose_custom_images(const void* object, const array& source, void* 
 	memcpy(v, pc, sizeof(T));
 	return true;
 }
-static bool monster_resources(const void* object, int param) {
-	auto p = bsdata<resourcei>::elements + param;
+static bool monster_resources(const void* object, const void* pointer) {
+	auto p = (resourcei*)pointer;
 	return p->pack == PackMonster;
 }
-static bool dungeon_resources(const void* object, int param) {
-	if(!param)
-		return true;
-	auto p = bsdata<resourcei>::elements + param;
+static bool dungeon_resources(const void* object, const void* pointer) {
+	auto p = (resourcei*)pointer;
 	return p->pack==PackDungeon;
 }
-static bool allow_item_wears(const void* object, int param) {
-	auto p = bsdata<weari>::elements + param;
+static bool allow_item_wears(const void* object, const void* pointer) {
+	auto p = (weari*)pointer;
 	return p->choose_name != 0;
 }
-static bool unique_items(const void* object, int param) {
-	auto p = bsdata<itemi>::elements + param;
+static bool unique_items(const void* object, const void* pointer) {
+	auto p = (itemi*)pointer;
 	return p->feats.is(Unique);
 }
-static bool allow_item_type_no_natural(const void* object, int param) {
-	if(!param)
-		return false;
-	auto p = bsdata<itemi>::elements + param;
+static bool allow_item_type_no_natural(const void* object, const void* pointer) {
+	auto p = (itemi*)pointer;
 	return !p->feats.is(Natural);
 }
 static bool weapon_visible(const void* object) {
@@ -171,8 +167,8 @@ static bool armor_visible(const void* object) {
 	auto p = (itemi*)object;
 	return p->equipment != Backpack;
 }
-static bool allow_countable(const void* object, int param) {
-	auto p = bsdata<itemi>::elements + param;
+static bool allow_countable(const void* object, const void* pointer) {
+	auto p = (itemi*)pointer;
 	return p->feats.is(Countable);
 }
 template<> const char* getnm<weari>(const void* object, stringbuilder& sb) {
@@ -262,15 +258,12 @@ static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto n = bsdata<classi>::elements[c].classes[2];
 	return bsdata<classi>::elements[n].name;
 }
-static bool small_items(const void* object, int param) {
-	auto p = bsdata<itemi>::elements + param;
-	return p->image.size == 0;
-}
-static bool key_items(const void* object, int param) {
-	auto p = bsdata<itemi>::elements + param;
+static bool key_items(const void* object, const void* pointer) {
+	auto p = (itemi*)pointer;
 	return p->image.ground == 8 && p->image.size == 0;
 }
-static bool ability_only(const void* object, int param) {
+static bool ability_only(const void* object, const void* pointer) {
+	auto param = (ability_s)bsdata<abilityi>::source.indexof(pointer);
 	return param <= Charisma;
 }
 static const char* condition_param(const void* object, stringbuilder& sb) {
