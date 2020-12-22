@@ -426,7 +426,7 @@ void gamei::enter(point index, short unsigned level) {
 	location.clear();
 	location_above.clear();
 	if(!location.read(location_position, location_level)) {
-		pa->create(true);
+		pa->create(false);
 		if(!location.read(location_position, location_level))
 			return;
 	}
