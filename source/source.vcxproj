@@ -180,7 +180,7 @@
     <ClCompile Include="markup.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="names.cpp" />
-    <ClCompile Include="place.cpp" />
+    <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portrait.cpp" />
     <ClCompile Include="race.cpp" />

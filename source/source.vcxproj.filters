@@ -266,7 +266,7 @@
     <ClCompile Include="dialog.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="place.cpp">
+    <ClCompile Include="shape.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

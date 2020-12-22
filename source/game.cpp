@@ -426,7 +426,7 @@ void gamei::enter(point index, short unsigned level) {
 	location.clear();
 	location_above.clear();
 	if(!location.read(location_position, location_level)) {
-		pa->create(false);
+		pa->create(true);
 		if(!location.read(location_position, location_level))
 			return;
 	}
@@ -545,10 +545,10 @@ void gamei::rideto(point v) {
 	if(location_position == v)
 		return;
 	// calculate ride time
-	draw::setimage("worldmap");
-	draw::fullimage(location_position, v, 0);
+	//draw::setimage("worldmap");
+	//draw::fullimage(location_position, v, 0);
 	location_position = v;
-	draw::appear(render_worldmap, this, 2000);
-	draw::pause();
+	//draw::appear(render_worldmap, this, 2000);
+	//draw::pause();
 	enter(location_position, 1);
 }

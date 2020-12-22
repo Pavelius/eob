@@ -982,6 +982,30 @@ bool dungeon::is(indext index, int width, int height, cell_s t1) const {
 	return true;
 }
 
+indext dungeon::getvalid(indext index, int width, int height, cell_s v) const {
+	indext i;
+	auto x = gx(index), y = gy(index);
+	for(auto r = 0; r < 20; r++) {
+		for(auto x1 = x - r; x1 < x + r; x1++) {
+			i = getindex(x1, y - r);
+			if(is(i, width, height, v))
+				return i;
+			i = getindex(x1, y + r);
+			if(is(i, width, height, v))
+				return i;
+		}
+		for(auto y1 = y - r; y1 < y + r; y1++) {
+			i = getindex(x - r, y1);
+			if(is(i, width, height, v))
+				return i;
+			i = getindex(x - r, y1);
+			if(is(i, width, height, v))
+				return i;
+		}
+	}
+	return Blocked;
+}
+
 bool dungeon::islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2) const {
 	if(index == Blocked)
 		return false;
@@ -1110,5 +1134,49 @@ void dungeon::explore(indext index, int r) {
 				continue;
 			set(getindex(x, y), CellExplored);
 		}
+	}
+}
+
+void dungeon::set(indext index, shapei& e, unsigned flags, indext* indecies) {
+	int dx, dy;
+	for(auto i = 0; i < 10; i++)
+		indecies[i] = Blocked;
+	if(index == Blocked)
+		return;
+	short x = gx(index), y = gy(index);
+	auto p = e.data;
+	if(flags&CellMirrorH) {
+		dx = -1;
+		p += (e.size.x - 1);
+	} else
+		dx = 1;
+	if(flags&CellMirrorV) {
+		p += e.size.x * (e.size.y - 1);
+		dy = -e.size.x;
+	} else
+		dy = e.size.x;
+	for(auto h = 0; h < e.size.y; h++) {
+		auto p1 = p;
+		for(auto w = 0; w < e.size.x; w++) {
+			auto index = getindex(x + w, y + h);
+			auto symbol = *p1;
+			switch(symbol) {
+			case 'X':
+				set(index, CellWall);
+				break;
+			case '.':
+				set(index, CellPassable);
+				break;
+			case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9':
+				indecies[symbol - '0'] = index;
+				set(index, CellPassable);
+				break;
+			case 'U':
+				break;
+			}
+			p1 += dx;
+		}
+		p += dy;
 	}
 }

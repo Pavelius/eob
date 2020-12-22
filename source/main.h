@@ -21,6 +21,9 @@ const int				scry = 15 * 8;
 const int				mpx = 38;
 const int				mpy = 23;
 
+enum fcell : unsigned {
+	CellMirrorV = 1, CellMirrorH = 2, EmpthyStartIndex = 4,
+};
 enum resource_s : unsigned char {
 	NONE,
 	BORDER, OUTTAKE,
@@ -243,8 +246,9 @@ enum varflag_s : unsigned char {
 enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
 };
-enum place_s : unsigned char {
-	CornerUp, CornerLeft, RoomUp, RoomLeft,
+enum shape_s : unsigned char {
+	CornerV, CornerH, RoomV, RoomH, RoomLargeV, RoomLargeH,
+	DeadEndV, DeadEndH,
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spellf;
@@ -854,12 +858,12 @@ public:
 	void				rollinitiative();
 	void				select(indext index);
 };
-struct placei {
+struct shapei {
 	const char*			id;
 	direction_s			dir;
 	point				size;
-	adat<point, 4>		points;
 	char				data[8 * 8];
+	direction_s			get(direction_s dir, unsigned flags) const;
 };
 struct dungeon {
 	struct overlayi {
@@ -953,15 +957,16 @@ struct dungeon {
 	unsigned			getmonstercount() const;
 	void				getmonsters(creature** result, indext index, direction_s dr);
 	item_s				getkeytype(cell_s keyhole) const;
-	short unsigned		getnearest(indext index, int radius, cell_s t1);
+	indext				getnearest(indext index, int radius, cell_s t1);
 	short unsigned*		getnearestfree(indext* indicies, indext index);
 	direction_s			getpassable(indext index, direction_s* dirs);
-	short unsigned		getsecret() const;
+	indext				getsecret() const;
 	static size_s		getsize(creature** sides);
 	overlayi*			getoverlay(indext index, direction_s dir);
 	overlayi*			getoverlay(const overlayitem& e) { return &overlays[e.storage_index]; }
 	cell_s				gettype(cell_s id);
 	cell_s				gettype(overlayi* po);
+	indext				getvalid(indext index, int width, int height, cell_s v) const;
 	void				hearnoises();
 	bool				is(indext index, cell_flag_s value) const;
 	bool				is(indext index, int width, int height, cell_s v) const;
@@ -994,6 +999,7 @@ struct dungeon {
 	void				set(indext index, cell_flag_s value);
 	void				set(indext index, direction_s dir, cell_s type);
 	void				set(indext index, reaction_s v);
+	void				set(indext index, shapei& e, unsigned flags, indext* indecies);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(indext index, bool value);
 	void				setactive(indext index, bool value, int radius);
