@@ -2,8 +2,8 @@
 
 static struct portraiti {
 	gender_s		gender;
-	race_s			races[8];
-	class_s			classes[8];
+	cflags<race_s>	races;
+	cflags<class_s>	classes;
 } portrait_data[] = {{Male, {Human, Halfling}, {Fighter, Ranger}},
 {Male, {Human}, {Mage, Cleric}},
 {Male, {Human}, {Mage, Cleric}},
@@ -77,30 +77,41 @@ static bool isportrait(int id, gender_s value) {
 		|| portrait_data[id].gender == value;
 }
 
-static int select_avatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
-	int* p = result;
+static int select_avatar(unsigned short* result, race_s race, gender_s gender, class_s cls) {
+	auto p = result;
 	for(auto& e : portrait_data) {
-		if(gender && e.gender != NoGender && e.gender != gender)
+		if(e.gender != NoGender && e.gender != gender)
 			continue;
-		if(race && !zchr(e.races, race))
+		if(!e.races.is(race))
 			continue;
-		if(cls && !zchr(e.classes, cls))
+		if(!e.classes.is(cls))
 			continue;
-		if(p<result_maximum)
-			*p++ = &e - portrait_data;
+		*p++ = &e - portrait_data;
 	}
 	return p - result;
 }
 
-int gamei::getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls) {
-	auto c = select_avatar(result, result_maximum, race, gender, cls);
+static int select_avatar(unsigned short* result, race_s race, gender_s gender) {
+	auto p = result;
+	for(auto& e : portrait_data) {
+		if(e.gender != NoGender && e.gender != gender)
+			continue;
+		if(!e.races.is(race))
+			continue;
+		*p++ = &e - portrait_data;
+	}
+	return p - result;
+}
+
+int gamei::getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls) {
+	auto c = select_avatar(result, race, gender, cls);
 	if(!c)
-		c = select_avatar(result, result_maximum, race, gender, NoClass);
+		c = select_avatar(result, race, gender);
 	return c;
 }
 
 int gamei::getavatar(race_s race, gender_s gender, class_s cls) {
-	int result[64];
-	auto c = getavatar(result, zendof(result), race, gender, cls);
+	short unsigned result[256];
+	auto c = getavatar(result, race, gender, cls);
 	return result[rand() % c];
 }

@@ -266,5 +266,8 @@
     <ClCompile Include="dialog.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="place.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

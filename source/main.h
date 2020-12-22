@@ -243,6 +243,9 @@ enum varflag_s : unsigned char {
 enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
 };
+enum place_s : unsigned char {
+	CornerUp, CornerLeft, RoomUp, RoomLeft,
+};
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spellf;
 typedef cflags<feat_s> feata;
@@ -699,6 +702,8 @@ public:
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
+	static class_s		chooseclass(bool interactive, race_s race);
+	static race_s		chooserace(bool interactive);
 	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
@@ -848,6 +853,13 @@ public:
 	void				match(const messagei& id, bool remove);
 	void				rollinitiative();
 	void				select(indext index);
+};
+struct placei {
+	const char*			id;
+	direction_s			dir;
+	point				size;
+	adat<point, 4>		points;
+	char				data[8 * 8];
 };
 struct dungeon {
 	struct overlayi {
@@ -1040,7 +1052,7 @@ public:
 	const adventurei*	getadventure() const;
 	void				findsecrets();
 	int					getavatar(race_s race, gender_s gender, class_s cls);
-	int					getavatar(int* result, const int* result_maximum, race_s race, gender_s gender, class_s cls);
+	int					getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);

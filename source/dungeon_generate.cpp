@@ -7,12 +7,12 @@ enum flagtype {
 	EmpthyStartIndex = 1,
 };
 
-struct roominfo {
-	short unsigned	index;
+struct roomi {
+	indext			index;
 	direction_s		dir;
 	unsigned		flags;
 };
-static roominfo		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
+static roomi		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
 static unsigned char stack_put; // Вершина стека.
 static unsigned char stack_get; // Низ стека
 
@@ -62,7 +62,7 @@ static void putroom(dungeon* pd, unsigned short index, direction_s dir, unsigned
 	e.flags = flags;
 }
 
-static const roominfo& getroom() {
+static const roomi& getroom() {
 	return rooms[stack_get++];
 }
 

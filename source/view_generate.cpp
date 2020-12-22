@@ -100,7 +100,7 @@ static void genheader(callback proc = 0) {
 	}
 }
 
-static void portraits(int x, int y, int& n, int cur, int count, int max_avatars, int* port) {
+static void portraits(int x, int y, int& n, int cur, int count, int max_avatars, short unsigned* port) {
 	auto ps = draw::gres(PORTM);
 	if(cur < n)
 		n = cur;
@@ -175,8 +175,8 @@ int creature::render_combat(int x, int y, int width, bool use_bold) const {
 }
 
 void creature::view_ability() {
-	adat<int, 64> source;
-	source.count = game.getavatar(source.data, source.endof(), race, gender, type);
+	adat<short unsigned, 256> source;
+	source.count = game.getavatar(source.data, race, gender, type);
 	const int width = 152;
 	char temp[64];
 	int x, y;
@@ -193,7 +193,7 @@ void creature::view_ability() {
 		if(current_portrait < 0)
 			current_portrait = 0;
 		if(current_portrait < (int)source.count)
-			avatar = source.data[current_portrait];
+			avatar = (char)source.data[current_portrait];
 		x = 143; y = 66;
 		genheader();
 		portraits(x + 33, y, org_portrait, current_portrait, 4, source.count, source.data);
@@ -239,7 +239,7 @@ static alignment_s choosealignment(bool interactive, class_s depend) {
 	return (alignment_s)source.choose("Select Alignment:", interactive);
 }
 
-static race_s chooserace(bool interactive) {
+race_s creature::chooserace(bool interactive) {
 	if(interactive) {
 		answers source;
 		for(auto i = Dwarf; i <= Human; i = (race_s)(i + 1))
@@ -255,7 +255,7 @@ static race_s chooserace(bool interactive) {
 	}
 }
 
-static class_s chooseclass(bool interactive, race_s race) {
+class_s creature::chooseclass(bool interactive, race_s race) {
 	answers source;
 	for(auto i = Cleric; i <= MageTheif; i = (class_s)(i + 1)) {
 		if(!creature::isallow(i, race))
@@ -372,10 +372,6 @@ void creature::view_party() {
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
 	if(!gender)
 		gender = choosegender(interactive);
-	if(!race)
-		race = chooserace(interactive);
-	if(!type)
-		type = chooseclass(interactive, race);
 	if(!alignment)
 		alignment = choosealignment(interactive, type);
 	// Basic

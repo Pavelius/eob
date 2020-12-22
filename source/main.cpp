@@ -112,12 +112,12 @@ static void random_heroes() {
 	item pt1(GreenPotion, OfAdvise);
 	creature* p;
 	//
-	p = add_hero(1, Male, Human, Paladin, LawfulGood);
+	p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set({SwordLong, Fire}, RightHand);
 	p->equip({GreenRing, OfRegeneration});
 	p->equip({Bracers, Strenght});
 	//
-	p = add_hero(0, Male, Dwarf, Fighter, LawfulGood);
+	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
 	p->set({AxeBattle, OfSharpness}, RightHand);
 	p->equip({BlueRing, Invisibility});
 	//
