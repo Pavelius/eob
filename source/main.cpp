@@ -278,8 +278,8 @@ static void show_monsters() {
 
 void test_adventure() {
 	adventurei first_adventure[] = {"Flooded collectors", {614, 294},
-	{{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, {StoneGem, StoneDagger}, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, {StoneOrb}, Human}, 2, {10}},
+	{{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
 	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}}
 	};
 	auto p = bsdata<adventurei>::add();

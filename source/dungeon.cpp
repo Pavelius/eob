@@ -530,7 +530,7 @@ race_s dungeon::getlanguage() const {
 	return head.language;
 }
 
-indext dungeon::getindex(int x, int y) const {
+indext dungeon::getindex(int x, int y) {
 	if(x < 0 || x >= mpx || y < 0 || y >= mpy)
 		return Blocked;
 	return (indext)(y * mpx + x);
@@ -1137,7 +1137,7 @@ void dungeon::explore(indext index, int r) {
 	}
 }
 
-void dungeon::set(indext index, shapei& e, unsigned flags, indext* indecies) {
+void dungeon::set(indext index, shapei& e, unsigned flags, indext* indecies, bool run) {
 	int dx, dy;
 	for(auto i = 0; i < 10; i++)
 		indecies[i] = Blocked;
@@ -1162,15 +1162,18 @@ void dungeon::set(indext index, shapei& e, unsigned flags, indext* indecies) {
 			auto symbol = *p1;
 			switch(symbol) {
 			case 'X':
-				set(index, CellWall);
+				if(run)
+					set(index, CellWall);
 				break;
 			case '.':
-				set(index, CellPassable);
+				if(run)
+					set(index, CellPassable);
 				break;
 			case '0': case '1': case '2': case '3': case '4':
 			case '5': case '6': case '7': case '8': case '9':
 				indecies[symbol - '0'] = index;
-				set(index, CellPassable);
+				if(run)
+					set(index, CellPassable);
 				break;
 			case 'U':
 				break;

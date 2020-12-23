@@ -502,7 +502,7 @@ struct sitei {
 		resource_s		type;
 		monster_s		habbits[2]; // Who dwelve here
 		item_s			keys[2]; // Two keys open all doors
-		item_s			special[2]; // Two special items find on this level
+		item_s			special; // Special find some where
 		race_s			language; // All messages in this language
 	};
 	struct crypti {
@@ -893,15 +893,17 @@ struct dungeon {
 		overlayi		portal; // where is portal
 		overlayi		crypt; // where is crypt located
 		overlayi		crypt_button; // where is crypt located
+		overlayi		special; // where is crypt located
 		indext			spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
-		unsigned char	artifacts; // count of powerful items (+4 or hight)
+		unsigned char	artifacts; // count of artifact items
 		unsigned char	rings; // count of magical rings
 		unsigned char	weapons; // count of magical weapons
 		unsigned char	elements; // count of corridors
 		unsigned char	traps; // count of traps
-		unsigned char	special; // count of special items generated
+		unsigned char	bones; // count of bones
+		unsigned char	gems; // count of gems
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
@@ -952,7 +954,7 @@ struct dungeon {
 	unsigned			getitems(item** result, item** result_maximum, indext index, int side = -1);
 	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
 	int					getitemside(item* pi);
-	indext				getindex(int x, int y) const;
+	static indext		getindex(int x, int y);
 	race_s				getlanguage() const;
 	unsigned			getmonstercount() const;
 	void				getmonsters(creature** result, indext index, direction_s dr);
@@ -999,7 +1001,7 @@ struct dungeon {
 	void				set(indext index, cell_flag_s value);
 	void				set(indext index, direction_s dir, cell_s type);
 	void				set(indext index, reaction_s v);
-	void				set(indext index, shapei& e, unsigned flags, indext* indecies);
+	void				set(indext index, shapei& e, unsigned flags, indext* indecies, bool run = true);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(indext index, bool value);
 	void				setactive(indext index, bool value, int radius);

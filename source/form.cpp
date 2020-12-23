@@ -412,8 +412,7 @@ DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_reso
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
 {"Key 1", DGREQ(keys[0]), {getnm<itemi>, key_items}},
 {"Key 2", DGREQ(keys[1]), {getnm<itemi>, key_items}},
-{"Special 1", DGREQ(special[0]), {getnm<itemi>, unique_items}},
-{"Special 2", DGREQ(special[1]), {getnm<itemi>, unique_items}},
+{"Special", DGREQ(special), {getnm<itemi>, unique_items}},
 {"Language", DGREQ(language), {getnm<racei>}},
 {}};
 DGINF(sitei::chancei) = {{"Curse item", DGREQ(curse)},

@@ -254,6 +254,15 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 		if(it.ismagical())
 			pd->stat.rings++;
 		break;
+	case RedGem:
+	case BlueGem:
+	case GreenGem:
+	case PurpleGem:
+		pd->stat.gems++;
+		break;
+	case Bones:
+		pd->stat.bones++;
+		break;
 	default:
 		if(it.isartifact())
 			pd->stat.artifacts++;
@@ -268,16 +277,6 @@ static void items(dungeon* pd, indext index, item_s type, int bonus_chance_magic
 }
 
 static void items(dungeon* pd, indext index, int bonus_chance_magic) {
-	if(bonus_chance_magic > 0) {
-		auto i = pd->stat.special;
-		if(i < sizeof(pd->head.special) / sizeof(pd->head.special[0])
-			&& pd->head.special[i]
-			&& pd->stat.items > i * 10) {
-			items(pd, index, pd->head.special[index], bonus_chance_magic);
-			pd->stat.special++;
-			return;
-		}
-	}
 	items(pd, index, random_type(), bonus_chance_magic);
 }
 
@@ -684,41 +683,40 @@ static void remove_all_overlay(dungeon* pd, indext index) {
 }
 
 static void validate_special_items(dungeon& location) {
-	while(location.stat.special < sizeof(location.head.special) / sizeof(location.head.special[0])) {
-		auto index = location.stat.special;
-		if(!location.head.special[index])
-			break;
-		item it(location.head.special[index]);
-		if(d100() < 50)
-			it.setpower(VeryRare);
-		if(d100() < 10)
-			it.setcursed(1);
-		if(it) {
-			adat<dungeon::overlayi*, 512> source;
-			for(auto& e : location.overlays) {
-				if(!e || e.type != CellCellar)
-					continue;
-				source.add(&e);
-			}
-			if(source) {
-				auto p = source.data[rand() % source.count];
-				location.add(p, it);
-				it.clear();
-			}
+	if(!location.head.special)
+		return;
+	item it(location.head.special);
+	if(d100() < 50)
+		it.setpower(VeryRare);
+	if(d100() < 10)
+		it.setcursed(1);
+	if(it) {
+		adat<dungeon::overlayi*, 512> source;
+		for(auto& e : location.overlays) {
+			if(!e || e.type != CellCellar)
+				continue;
+			source.add(&e);
 		}
-		if(it) {
-			adat<indext, 512> source;
-			for(auto& e : location.items) {
-				if(!e || (e.gettype() != Ration && e.gettype() != RationIron))
-					continue;
-				source.add(e.index);
-			}
-			if(source) {
-				auto i = source.data[rand() % source.count];
-				location.dropitem(i, it, 0);
-			}
+		if(source) {
+			auto p = source.data[rand() % source.count];
+			location.add(p, it);
+			location.stat.special = *p;
+			it.clear();
 		}
-		location.stat.special++;
+	}
+	if(it) {
+		adat<indext, 512> source;
+		for(auto& e : location.items) {
+			if(!e || (e.gettype() != Ration && e.gettype() != RationIron))
+				continue;
+			source.add(e.index);
+		}
+		if(source) {
+			auto i = source.data[rand() % source.count];
+			location.dropitem(i, it, 0);
+			location.stat.special.index = i;
+			location.stat.special.dir = Center;
+		}
 	}
 }
 
