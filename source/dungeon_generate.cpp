@@ -8,9 +8,10 @@ struct roomi {
 	direction_s		dir;
 	unsigned		flags;
 };
-static roomi		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
-static unsigned char stack_put; // Вершина стека.
-static unsigned char stack_get; // Низ стека
+static direction_s		all_around[] = {Left, Right, Up, Down};
+static roomi			rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
+static unsigned char	stack_put; // Вершина стека.
+static unsigned char	stack_get; // Низ стека
 typedef void fnroom(dungeon& e, direction_s dir, const sitei* site, indext* indecies);
 
 typedef void(*dungeon_proc)(dungeon* pd, short unsigned index, direction_s dir, unsigned flags);
@@ -682,15 +683,24 @@ static void remove_all_overlay(dungeon* pd, indext index) {
 	}
 }
 
+static void drop_special_ground(item& it, indext index) {
+	location.dropitem(index, it, 0);
+	location.stat.special.index = index;
+	location.stat.special.dir = Center;
+	it.clear();
+}
+
 static void validate_special_items(dungeon& location) {
 	if(!location.head.special)
+		return;
+	if(location.stat.special)
 		return;
 	item it(location.head.special);
 	if(d100() < 50)
 		it.setpower(VeryRare);
 	if(d100() < 10)
 		it.setcursed(1);
-	if(it) {
+	if(it && it.issmall()) {
 		adat<dungeon::overlayi*, 512> source;
 		for(auto& e : location.overlays) {
 			if(!e || e.type != CellCellar)
@@ -713,11 +723,15 @@ static void validate_special_items(dungeon& location) {
 		}
 		if(source) {
 			auto i = source.data[rand() % source.count];
-			location.dropitem(i, it, 0);
-			location.stat.special.index = i;
-			location.stat.special.dir = Center;
+			drop_special_ground(it, i);
 		}
 	}
+	if(it && location.stat.portal)
+		drop_special_ground(it, location.stat.portal.index);
+	if(it && location.stat.down)
+		drop_special_ground(it, location.stat.down.index);
+	if(it && location.stat.up)
+		drop_special_ground(it, location.stat.up.index);
 }
 
 static void remove_dead_door(dungeon* pd) {
@@ -838,27 +852,24 @@ static void create_crypt(dungeon& e, direction_s dir, const sitei* p, indext* in
 	putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 }
 
-static void create_room(dungeon& e, indext index, shape_s place, const sitei* site, fnroom proc) {
+static void create_room(dungeon& e, indext index, shape_s place, direction_s dir, bool mirror, const sitei* site, fnroom proc, bool place_in_zero_index) {
 	if(index == Blocked)
 		return;
-	auto& ei = bsdata<shapei>::elements[place];
 	indext indecies[10];
-	unsigned flags = 0;
-	if(d100() < 50)
-		flags |= CellMirrorH;
-	if(d100() < 50)
-		flags |= CellMirrorV;
-	e.set(index, ei, flags, indecies);
-	auto dir = ei.get(ei.dir, flags);
+	point size;
+	e.set(index, dir, place, size, indecies, true, d100()<50, place_in_zero_index);
 	proc(e, dir, site, indecies);
 	putroom(&e, indecies[0], dir, EmpthyStartIndex, false);
 }
 
 static void create_room(dungeon& e, shape_s place, const sitei* site, fnroom proc) {
-	auto& ei = bsdata<shapei>::elements[place];
-	short x = xrand(3, mpx - 3 - ei.size.x), y = xrand(3, mpy - 3 - ei.size.y);
-	auto i = e.getvalid(e.getindex(x, y), ei.size.x, ei.size.y, CellUnknown);
-	create_room(e, i, place, site, proc);
+	indext indecies[10]; point size;
+	auto mirror = d100() < 50;
+	auto dir = maprnd(all_around);
+	e.set(0, dir, place, size, indecies, false, mirror);
+	short x = xrand(3, mpx - 3 - size.x), y = xrand(3, mpy - 3 - size.y);
+	auto i = e.getvalid(e.getindex(x, y), size.x, size.y, CellUnknown);
+	create_room(e, i, place, dir, mirror, site, proc, false);
 }
 
 static shape_s random(shape_s v1, shape_s v2) {
@@ -889,13 +900,13 @@ void adventurei::create(bool interactive) const {
 				e.level = level;
 				e.chance.curse = 5 + p->chance.curse;
 				if(start == Blocked)
-					create_room(e, random(DeadEndV, DeadEndH), p, stairs_up);
+					create_room(e, ShapeDeadEnd, p, stairs_up);
 				else
-					create_room(e, start, random(DeadEndV, DeadEndH), p, stairs_up);
+					create_room(e, start, ShapeDeadEnd, maprnd(all_around), false, 0, stairs_up, true);
 				if(!last_level)
-					create_room(e, random(DeadEndV, DeadEndH), p, stairs_down);
+					create_room(e, ShapeDeadEnd, p, stairs_down);
 				if(p->crypt.boss)
-					create_room(e, random(RoomH, RoomV), p, create_crypt);
+					create_room(e, ShapeRoom, p, create_crypt);
 				while(hasrooms()) {
 					auto ev = getroom();
 					corridor(&e, ev.index, ev.dir, ev.flags);

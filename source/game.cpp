@@ -1,6 +1,13 @@
 #include "archive.h"
 #include "main.h"
 
+#ifdef _DEBUG
+const bool visialize_map = true;
+#else
+const bool visialize_map = false;
+#endif // _DEBUG
+
+
 static const char place_sides[4][4] = {{1, 3, 0, 2},
 {0, 1, 2, 3},
 {2, 0, 3, 1},
@@ -426,7 +433,7 @@ void gamei::enter(point index, short unsigned level) {
 	location.clear();
 	location_above.clear();
 	if(!location.read(location_position, location_level)) {
-		pa->create(false);
+		pa->create(visialize_map);
 		if(!location.read(location_position, location_level))
 			return;
 	}
@@ -544,11 +551,15 @@ void gamei::worldmap() {
 void gamei::rideto(point v) {
 	if(location_position == v)
 		return;
-	// calculate ride time
-	//draw::setimage("worldmap");
-	//draw::fullimage(location_position, v, 0);
+	// TODO: calculate ride time
+#ifndef _DEBUG
+	draw::setimage("worldmap");
+	draw::fullimage(location_position, v, 0);
+#endif
 	location_position = v;
-	//draw::appear(render_worldmap, this, 2000);
-	//draw::pause();
+#ifndef _DEBUG
+	draw::appear(render_worldmap, this, 2000);
+	draw::pause();
+#endif
 	enter(location_position, 1);
 }

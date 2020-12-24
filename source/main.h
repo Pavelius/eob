@@ -247,8 +247,7 @@ enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
 };
 enum shape_s : unsigned char {
-	CornerV, CornerH, RoomV, RoomH, RoomLargeV, RoomLargeH,
-	DeadEndV, DeadEndH,
+	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
 typedef short unsigned indext;
 typedef flagable<LastSpellAbility> spellf;
@@ -581,6 +580,7 @@ public:
 	constexpr bool		isnatural() const { return is(Natural); }
 	bool				ispower(variant v) const;
 	constexpr bool		isranged() const { return is(Ranged); }
+	bool				issmall() const;
 	bool				istwohanded() const { return is(TwoHanded); }
 	void				setcharges(int v);
 	void				setcount(int v);
@@ -860,10 +860,9 @@ public:
 };
 struct shapei {
 	const char*			id;
-	direction_s			dir;
-	point				size;
-	char				data[8 * 8];
-	direction_s			get(direction_s dir, unsigned flags) const;
+	point				size_up, size_left;
+	const char*			data_up;
+	const char*			data_left;
 };
 struct dungeon {
 	struct overlayi {
@@ -873,7 +872,7 @@ struct dungeon {
 		indext			index_link; // linked to this location
 		short unsigned	subtype; // depends on value type
 		short unsigned	flags;
-		constexpr explicit operator bool() const { return type != CellUnknown; }
+		constexpr explicit operator bool() const { return index != Blocked; }
 		void			clear();
 		bool			is(overlay_flag_s v) const { return (flags&(1 << v)) != 0; }
 		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
@@ -907,6 +906,7 @@ struct dungeon {
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
+		void			clear();
 	};
 	struct eventi {
 		variant			owner;
@@ -1001,7 +1001,7 @@ struct dungeon {
 	void				set(indext index, cell_flag_s value);
 	void				set(indext index, direction_s dir, cell_s type);
 	void				set(indext index, reaction_s v);
-	void				set(indext index, shapei& e, unsigned flags, indext* indecies, bool run = true);
+	void				set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run = true, bool mirror = false, bool place_from_zero_point = false);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(indext index, bool value);
 	void				setactive(indext index, bool value, int radius);

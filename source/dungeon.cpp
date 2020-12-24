@@ -284,16 +284,22 @@ void dungeon::fill(indext index, int sx, int sy, cell_s value) {
 	}
 }
 
+void dungeon::statei::clear() {
+	memset(this, 0, sizeof(*this));
+	down.index = Blocked;
+	up.index = Blocked;
+	portal.index = Blocked;
+	crypt.index = Blocked;
+	crypt_button.index = Blocked;
+	special.index = Blocked;
+	for(auto& e : spawn)
+		e = Blocked;
+}
+
 void dungeon::clear() {
 	memset(this, 0, sizeof(*this));
+	stat.clear();
 	overland_index = {-1, -1};
-	stat.down.index = Blocked;
-	stat.up.index = Blocked;
-	stat.portal.index = Blocked;
-	stat.crypt.index = Blocked;
-	stat.crypt_button.index = Blocked;
-	for(auto& e : stat.spawn)
-		e = Blocked;
 	for(auto& e : overlays)
 		e.clear();
 }
@@ -1137,27 +1143,69 @@ void dungeon::explore(indext index, int r) {
 	}
 }
 
-void dungeon::set(indext index, shapei& e, unsigned flags, indext* indecies, bool run) {
+void dungeon::set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run, bool mirror, bool place_from_zero_point) {
 	int dx, dy;
+	const char* p;
 	for(auto i = 0; i < 10; i++)
 		indecies[i] = Blocked;
 	if(index == Blocked)
 		return;
 	short x = gx(index), y = gy(index);
-	auto p = e.data;
-	if(flags&CellMirrorH) {
-		dx = -1;
-		p += (e.size.x - 1);
-	} else
+	auto& e = bsdata<shapei>::elements[type];
+	if(place_from_zero_point) {
+		set(0, dir, type, size, indecies, false, mirror, false);
+		if(indecies[0] != Blocked) {
+			x -= gx(indecies[0]);
+			y -= gy(indecies[0]);
+		}
+	}
+	switch(dir) {
+	case Left:
+		size = e.size_left;
+		p = e.data_left;
 		dx = 1;
-	if(flags&CellMirrorV) {
-		p += e.size.x * (e.size.y - 1);
-		dy = -e.size.x;
-	} else
-		dy = e.size.x;
-	for(auto h = 0; h < e.size.y; h++) {
+		if(mirror) {
+			p += size.x * (size.y - 1);
+			dy = -size.x;
+		} else
+			dy = size.x;
+		break;
+	case Right:
+		size = e.size_left;
+		p = e.data_left + (size.x - 1);
+		dx = -1;
+		if(mirror) {
+			p += size.x * (size.y - 1);
+			dy = -size.x;
+		} else
+			dy = size.x;
+		break;
+	case Up:
+		size = e.size_up;
+		p = e.data_up;
+		dy = size.x;
+		if(mirror) {
+			p += size.x - 1;
+			dx = -1;
+		} else
+			dx = 1;
+		break;
+	case Down:
+		size = e.size_up;
+		p = e.data_up + e.size_up.x * (size.y - 1);
+		dy = -size.x;
+		if(mirror) {
+			p += size.x - 1;
+			dx = -1;
+		} else
+			dx = 1;
+		break;
+	default:
+		return;
+	}
+	for(auto h = 0; h < size.y; h++) {
 		auto p1 = p;
-		for(auto w = 0; w < e.size.x; w++) {
+		for(auto w = 0; w < size.x; w++) {
 			auto index = getindex(x + w, y + h);
 			auto symbol = *p1;
 			switch(symbol) {

@@ -628,3 +628,7 @@ bool item::ispower(variant v) const {
 		return false;
 	return p->power == v;
 }
+
+bool item::issmall() const {
+	return gete().image.size == 0;
+}
