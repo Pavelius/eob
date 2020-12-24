@@ -269,5 +269,11 @@
     <ClCompile Include="shape.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="encounter.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="chat.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

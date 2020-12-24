@@ -2,7 +2,7 @@
 #include "main.h"
 
 #ifdef _DEBUG
-const bool visialize_map = true;
+const bool visialize_map = false;
 #else
 const bool visialize_map = false;
 #endif // _DEBUG
@@ -562,4 +562,102 @@ void gamei::rideto(point v) {
 	draw::pause();
 #endif
 	enter(location_position, 1);
+}
+
+bool gamei::is(variant id) const {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		if(p->ismatch(id))
+			return true;
+	}
+	return false;
+}
+
+void gamei::addexp(morale_s id, unsigned value) {
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		if(p->is(id))
+			p->addexp(value);
+	}
+}
+
+int	gamei::getaverage(ability_s id) const {
+	auto total = 0, count = 0;
+	for(auto v : party) {
+		auto p = v.getcreature();
+		if(!p)
+			continue;
+		if(!p->isready())
+			continue;
+		total += p->get(id);
+		count++;
+	}
+	if(!count)
+		return 0;
+	return total / count;
+}
+
+bool gamei::roll(int value) {
+	auto dice = xrand(1, 20);
+	return value < dice;
+}
+
+bool gamei::apply(action_s id, encounteri& e, bool run) {
+	auto leader = e.getbest(Intellegence);
+	if(!leader)
+		return false;
+	itema items;
+	e.next = 0;
+	switch(id) {
+	case Lie:
+		if(!leader->isthinkable())
+			return false;
+		if(is(LawfulGood))
+			return false;
+		if(run) {
+			if(roll(getaverage(Charisma))) {
+				addexp(Chaotic, 10);
+				addexp(Evil, 20);
+				e.set(Friendly);
+			} else
+				e.next = -1;
+		}
+		break;
+	case Bribe:
+		if(!leader->isthinkable())
+			return false;
+		items.select();
+		items.forsale(false);
+		if(!items)
+			return false;
+		if(run) {
+			items[0]->clear();
+			e.set(Indifferent);
+		}
+		break;
+	case Trade:
+		if(!leader->isthinkable())
+			return false;
+		break;
+	case Talk:
+		if(!leader->isthinkable())
+			return false;
+		if(run) {
+
+		}
+		break;
+	case Attack:
+		if(run) {
+			e.set(Hostile);
+			addexp(Evil, 20);
+		}
+		break;
+	default:
+		return false;
+	}
+	return true;
 }

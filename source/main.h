@@ -44,6 +44,9 @@ enum alignment_s : unsigned char {
 	LawfulGood, NeutralGood, ChaoticGood, LawfulNeutral, TrueNeutral, ChaoticNeutral, LawfulEvil, NeutralEvil, ChaoticEvil,
 	FirstAlignment = LawfulGood, LastAlignment = ChaoticEvil,
 };
+enum morale_s : unsigned char {
+	Lawful, Good, Neutral, Chaotic, Evil,
+};
 enum gender_s : unsigned char {
 	NoGender,
 	Male, Female,
@@ -214,17 +217,17 @@ enum attack_s : unsigned char {
 	OnHit, OnAllHit, OnCriticalHit,
 };
 enum reaction_s : unsigned char {
-	Indifferent, Friendly, Flight, Cautious, Threatening, Hostile,
+	Indifferent, Friendly, /*Flight, Cautious,*/ Threatening, Hostile,
 };
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
-	NoAction,
+	Greeting, Lie, Trade, Bribe, Talk, Smithing, Attack,
+	FailLie,
 	HealParty, RessurectBones,
-	StartCombat, LeaveAway, WinCombat, GainExperience, Trade,
+	StartCombat, LeaveAway, WinCombat, GainExperience,
 	DeathSave, TrapDamage,
-	PartyHas, PartyNotHas, PlayerHas, PlayerNotHas,
 	AddItem, RemoveItem,
 };
 enum speech_s : unsigned char {
@@ -232,8 +235,8 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Adventure, Alignment, Class, Creature, Damage, Dialog,
-	Enchant, Feat, Gender, Item, Number, Race, Reaction, Spell,
+	Ability, Action, Adventure, Alignment, Class, Cleveress, Creature, Damage, Dialog,
+	Enchant, Feat, Gender, Item, Morale, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -267,6 +270,7 @@ struct variant {
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
+	constexpr variant(const intellegence_s v) : type(Cleveress), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
 	constexpr variant(const feat_s v) : type(Feat), value(v) {}
@@ -291,6 +295,8 @@ struct variantc : adat<variant> {
 	void				matchsl(class_s type, int level);
 	void				sort();
 };
+struct varianta : adat<variant, 12> {
+};
 struct spellprogi {
 	char				elements[21][10];
 };
@@ -311,8 +317,13 @@ struct abilityi {
 struct abilitya {
 	char				data[Charisma + 1];
 };
+struct moralei {
+	const char*			name;
+};
 struct alignmenti {
 	const char*			name;
+	morale_s			law;
+	morale_s			morale;
 	adat<class_s, 8>	restricted;
 };
 struct attacki {
@@ -651,7 +662,7 @@ class creature {
 	gender_s			gender;
 	class_s				type;
 	monster_s			kind;
-	short unsigned		index;
+	indext				index;
 	unsigned char		side;
 	direction_s			direction;
 	feata				feats;
@@ -712,7 +723,6 @@ public:
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	void				enchant(spell_s id, int level);
-	void				encounter(reaction_s id);
 	void				equip(item it);
 	item*				find(item_s v) const;
 	void				finish();
@@ -769,8 +779,10 @@ public:
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				haveforsale() const;
 	void				interract();
-	bool				is(spell_s v) const;
+	bool				is(intellegence_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
+	bool				is(morale_s v) const;
+	bool				is(spell_s v) const;
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				isaffect(variant v) const;
 	static bool			isallow(class_s id, race_s r);
@@ -786,6 +798,7 @@ public:
 	bool				ismatch(const messagei& v) const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
+	bool				isthinkable() const;
 	bool				isuse(const item v) const;
 	void				kill();
 	void				poison(save_s save, char save_bonus = 0);
@@ -853,10 +866,13 @@ public:
 class creaturea : public adat<creature*, 12> {
 public:
 	creature*			getbest(ability_s v);
+	void				kill();
+	void				leave();
 	void				match(variant v, bool remove);
 	void				match(const messagei& id, bool remove);
 	void				rollinitiative();
 	void				select(indext index);
+	void				set(reaction_s v);
 };
 struct shapei {
 	const char*			id;
@@ -1027,17 +1043,11 @@ struct companyi : nameablei {
 	looti				resource;
 	fractioni			fractions[16];
 };
-class worldmapi {
-	char				name[32];
-	point				camera;
-	point				party;
-	void				paint(point camera) const;
-public:
-	void				edit();
-	point				getparty() const { return party; }
-	void				read(const char* url);
-	void				scroll(point from, point to) const;
-	void				setparty(point v) { party = v; }
+struct encounteri : public creaturea {
+	reaction_s			reaction;
+	indext				index;
+	int					next;
+	void				set(reaction_s v);
 };
 class gamei : companyi {
 	indext				camera_index;
@@ -1053,12 +1063,15 @@ class gamei : companyi {
 	static void			render_worldmap(void* object);
 public:
 	void				add(monster_s id) { killed[id]++; }
+	void				addexp(morale_s id, unsigned v);
+	bool				apply(action_s id, encounteri& e, bool run);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				endround();
 	void				enter(point index, short unsigned level);
 	void				equiping();
 	const adventurei*	getadventure() const;
 	void				findsecrets();
+	int					getaverage(ability_s v) const;
 	int					getavatar(race_s race, gender_s gender, class_s cls);
 	int					getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
@@ -1072,11 +1085,13 @@ public:
 	int					getindex(const creature* p) const;
 	creature*			getvalid(creature* pc, class_s type) const;
 	wear_s				getwear(const item* itm) const;
+	bool				is(variant v) const;
 	static bool			isalive();
 	void				leavedungeon();
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
+	static bool			roll(int value);
 	bool				question(item* current_item);
 	void				rideto(point overland_position);
 	void				setcamera(indext index, direction_s direction = Center);
@@ -1084,6 +1099,11 @@ public:
 	bool				read();
 	void				worldmap();
 	void				write();
+};
+struct chati {
+	action_s			action;
+	conditiona			conditions;
+	const char*			text;
 };
 struct answers {
 	struct element {
@@ -1186,6 +1206,7 @@ MNLNK(gender_s, genderi)
 MNLNK(intellegence_s, intellegencei)
 MNLNK(item_s, itemi)
 MNLNK(item_feat_s, itemfeati)
+MNLNK(morale_s, moralei)
 MNLNK(monster_s, monsteri)
 MNLNK(race_s, racei)
 MNLNK(resource_s, resourcei)

@@ -34,6 +34,9 @@ template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<dialogi>(const void* object, stringbuilder& sb) {
 	return ((dialogi*)object)->name;
 }
+template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
+	return ((moralei*)object)->name;
+}
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
 }
@@ -282,6 +285,7 @@ GENDGINF(enchantmenti)
 GENDGINF(feati)
 GENDGINF(itemfeati)
 GENDGINF(intellegencei)
+GENDGINF(moralei)
 GENDGINF(genderi)
 GENDGINF(resourcei)
 GENDGINF(sizei)

@@ -1775,8 +1775,8 @@ void creature::setmoved(bool value) {
 
 reaction_s creature::rollreaction(int bonus) const {
 	static reaction_s indifferent[19] = {Friendly, Friendly,
-		Cautious, Cautious, Cautious, Cautious, Cautious, Cautious,
-		Threatening, Threatening, Threatening, Threatening, Threatening, Threatening,
+		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
+		Hostile, Hostile, Hostile, Hostile, Hostile, Hostile,
 		Hostile, Hostile, Hostile, Hostile, Hostile};
 	auto cha = getparty(Charisma);
 	bonus += maptbl(charisma_reaction_bonus, cha);
@@ -1799,34 +1799,6 @@ int	creature::getparty(ability_s v) {
 	if(!count)
 		return 0;
 	return total / count;
-}
-
-void creature::interract() {
-	auto old_reaction = reaction;
-	auto new_reaction = reaction;
-	if(reaction == Indifferent)
-		new_reaction = rollreaction(0);
-	if(old_reaction != new_reaction) {
-		location.set(index, new_reaction);
-		encounter(new_reaction);
-		if(!*this)
-			return;
-	}
-	auto party_index = game.getcamera();
-	auto party_direction = game.getdirection();
-	bool party_ambush = false;
-	switch(reaction) {
-	case Flight:
-		// Just run away
-		location.move(index, party_direction);
-		break;
-	default:
-		location.turnto(party_index, to(direction, Down), &party_ambush);
-		location.turnto(index, direction);
-		location.formation(index, direction);
-		game.attack(index, false, party_ambush ? PartyAmbush : NoAmbush);
-		break;
-	}
 }
 
 void creature::apply(apply_proc proc, bool interactive) {
@@ -1939,11 +1911,13 @@ bool creature::ismatch(const variant v) const {
 		default: return true;
 		}
 	case Class: return get((class_s)v.value) > 0;
+	case Cleveress: return is((intellegence_s)v.value);
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Item: return have((item_s)v.value);
-	case Spell: return isknown((spell_s)v.value);
+	case Morale: return is((morale_s)v.value);
 	case Reaction: return getcomreaction() == (reaction_s)v.value;
+	case Spell: return isknown((spell_s)v.value);
 	}
 	return false;
 }
@@ -2021,4 +1995,19 @@ const char* creature::getname() const {
 	if(kind)
 		return bsdata<monsteri>::elements[kind].name;
 	return bsdata<namei>::elements[name].name;
+}
+
+bool creature::is(morale_s v) const {
+	auto& e = bsdata<alignmenti>::elements[alignment];
+	return e.morale == v || e.law == v;
+}
+
+bool creature::is(intellegence_s v) const {
+	auto i = get(Intellegence);
+	return i >= bsdata<intellegencei>::elements[v].v1 && i <= bsdata<intellegencei>::elements[v].v2;
+}
+
+bool creature::isthinkable() const {
+	auto i = get(Intellegence);
+	return i > bsdata<intellegencei>::elements[Semi].v2;
 }

@@ -17,5 +17,5 @@ BSDATA(actioni) = {{"Nothing to do", 0},
 {"Add item"},
 {"Remove item"},
 };
-assert_enum(action, RemoveItem)
+//assert_enum(action, RemoveItem)
 INSTELEM(actioni)

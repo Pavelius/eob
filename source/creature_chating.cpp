@@ -14,15 +14,33 @@ static messagei standart_dialog[] = {{Say, 1, {Friendly}, "\"Welcome friends!\""
 {Say, 4, {StartCombat}, "\"You lier! Prepare to die!\""},
 {}};
 
-void creature::encounter(reaction_s id) {
-	auto ins = get(Intellegence);
-	if(ins < 6)
-		return;
-	switch(id) {
-	case Cautious:
+void creature::interract() {
+	auto new_reaction = reaction;
+	auto party_index = game.getcamera();
+	auto party_direction = game.getdirection();
+	bool party_ambush = false;
+	location.turnto(index, direction);
+	location.formation(index, direction);
+	location.turnto(party_index, to(direction, Down), &party_ambush);
+	encounteri encounter;
+	encounter.set(reaction);
+	if(encounter.reaction == Indifferent)
+		encounter.set(rollreaction(0));
+	encounter.select(index);
+	if(encounter.reaction == Indifferent || encounter.reaction == Friendly) {
+		party_ambush = false;
+		standart_dialog->choose(false, 1, encounter.reaction);
+	}
+	switch(encounter.reaction) {
 	case Friendly:
-		location.turnto(game.getcamera(), to(direction, Down));
-		standart_dialog->choose(false, 1, id);
+		encounter.leave();
+		game.addexp(Good, 50);
+		break;
+	case Indifferent:
+		encounter.leave();
+		break;
+	default:
+		game.attack(index, false, party_ambush ? PartyAmbush : NoAmbush);
 		break;
 	}
 }

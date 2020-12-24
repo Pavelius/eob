@@ -71,3 +71,18 @@ void creaturea::rollinitiative() {
 	}
 	qsort(data, count, sizeof(data[0]), compare_parcipants);
 }
+
+void creaturea::set(reaction_s v) {
+	for(auto pc : *this)
+		pc->set(v);
+}
+
+void creaturea::leave() {
+	for(auto pc : *this)
+		pc->clear();
+}
+
+void creaturea::kill() {
+	for(auto pc : *this)
+		pc->kill();
+}
