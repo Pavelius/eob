@@ -51,7 +51,7 @@ static void apply_variant(variant id, const selli* trade) {
 				p->set(Hostile);
 			break;
 		case GainExperience:
-			creature::addexp(500, 0);
+			game.addexpc(500, 0);
 			break;
 		case HealParty:
 			creature::apply(&creature::heal);

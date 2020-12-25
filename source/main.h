@@ -706,7 +706,6 @@ public:
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
-	static void			addexp(int value, int killing_hit_dice);
 	static void			addparty(item i, bool interactive = false);
 	static void			apply(apply_proc proc, bool interactive = true);
 	void				apply(spell_s id, int level, unsigned duration);
@@ -778,7 +777,6 @@ public:
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethits()); }
 	bool				haveforsale() const;
-	void				interract();
 	bool				is(intellegence_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(morale_s v) const;
@@ -796,9 +794,9 @@ public:
 	bool				ishero() const;
 	bool				ismatch(const variant id) const;
 	bool				ismatch(const messagei& v) const;
+	bool				ismindless() const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
-	bool				isthinkable() const;
 	bool				isuse(const item v) const;
 	void				kill();
 	void				poison(save_s save, char save_bonus = 0);
@@ -865,11 +863,12 @@ public:
 };
 class creaturea : public adat<creature*, 12> {
 public:
-	creature*			getbest(ability_s v);
+	creature*			getbest(ability_s v) const;
 	void				kill();
 	void				leave();
 	void				match(variant v, bool remove);
 	void				match(const messagei& id, bool remove);
+	void				resolve();
 	void				rollinitiative();
 	void				select(indext index);
 	void				set(reaction_s v);
@@ -1045,8 +1044,11 @@ struct companyi : nameablei {
 };
 struct encounteri : public creaturea {
 	reaction_s			reaction;
-	indext				index;
-	int					next;
+	action_s			next;
+	constexpr encounteri() : creaturea(), reaction(Indifferent), next(Greeting) {}
+	creature*			getleader() const;
+	bool				match(const conditiona& e) const;
+	void				dialog();
 	void				set(reaction_s v);
 };
 class gamei : companyi {
@@ -1064,6 +1066,7 @@ class gamei : companyi {
 public:
 	void				add(monster_s id) { killed[id]++; }
 	void				addexp(morale_s id, unsigned v);
+	void				addexpc(unsigned v, int killing_hit_dice);
 	bool				apply(action_s id, encounteri& e, bool run);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				endround();
@@ -1085,6 +1088,7 @@ public:
 	int					getindex(const creature* p) const;
 	creature*			getvalid(creature* pc, class_s type) const;
 	wear_s				getwear(const item* itm) const;
+	void				interract(indext index);
 	bool				is(variant v) const;
 	static bool			isalive();
 	void				leavedungeon();
@@ -1099,11 +1103,6 @@ public:
 	bool				read();
 	void				worldmap();
 	void				write();
-};
-struct chati {
-	action_s			action;
-	conditiona			conditions;
-	const char*			text;
 };
 struct answers {
 	struct element {

@@ -188,9 +188,6 @@
     <ClCompile Include="duration.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="creature_chating.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="boost.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -270,9 +267,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="encounter.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="chat.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

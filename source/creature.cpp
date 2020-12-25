@@ -1108,7 +1108,7 @@ void creature::kill() {
 	// Add experience
 	auto hitd = gethd();
 	auto value = getawards();
-	addexp(value, hitd);
+	game.addexpc(value, hitd);
 	// Drop items
 	auto index = getindex();
 	auto side = getside();
@@ -1123,28 +1123,6 @@ void creature::kill() {
 	}
 	game.add(kind);
 	clear();
-}
-
-void creature::addexp(int value, int killing_hit_dice) {
-	int count = 0;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(pc && pc->isready())
-			count++;
-	}
-	if(count) {
-		int value_per_member = imax(1, value / count);
-		for(auto v : party) {
-			auto pc = v.getcreature();
-			if(pc && pc->isready()) {
-				pc->addexp(value_per_member);
-				if(killing_hit_dice) {
-					if(pc->get(Fighter) || pc->get(Paladin) || pc->get(Ranger))
-						pc->addexp(10 * killing_hit_dice);
-				}
-			}
-		}
-	}
 }
 
 bool creature::use(ability_s skill, indext index, int bonus, bool* firsttime, int exp, bool interactive) {
@@ -1704,7 +1682,7 @@ bool creature::use(item* pi) {
 		if(po && (po->type == CellKeyHole1 || po->type == CellKeyHole2)) {
 			if(location.getkeytype(po->type) == type) {
 				location.setactive(po, true);
-				creature::addexp(100, 0);
+				game.addexpc(100, 0);
 				mslog("You open lock");
 			} else {
 				pc->say("This does not fit");
@@ -2007,7 +1985,7 @@ bool creature::is(intellegence_s v) const {
 	return i >= bsdata<intellegencei>::elements[v].v1 && i <= bsdata<intellegencei>::elements[v].v2;
 }
 
-bool creature::isthinkable() const {
+bool creature::ismindless() const {
 	auto i = get(Intellegence);
-	return i > bsdata<intellegencei>::elements[Semi].v2;
+	return i <= bsdata<intellegencei>::elements[Semi].v2;
 }

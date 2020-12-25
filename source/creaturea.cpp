@@ -10,7 +10,7 @@ void creaturea::match(variant id, bool remove) {
 	count = ps - data;
 }
 
-creature* creaturea::getbest(ability_s v) {
+creature* creaturea::getbest(ability_s v) const {
 	auto pc = (creature*)0;
 	auto v2 = -1;
 	for(auto p : *this) {
@@ -19,7 +19,7 @@ creature* creaturea::getbest(ability_s v) {
 			continue;
 		if(v2 == -1 || v1 > v2) {
 			v2 = v1;
-			pc = p;
+			pc = const_cast<creature*>(p);
 		}
 	}
 	return pc;
@@ -80,6 +80,15 @@ void creaturea::set(reaction_s v) {
 void creaturea::leave() {
 	for(auto pc : *this)
 		pc->clear();
+}
+
+void creaturea::resolve() {
+	auto award = 0;
+	for(auto pc : *this) {
+		award += pc->getawards();
+		pc->clear();
+	}
+	game.addexpc(award, 0);
 }
 
 void creaturea::kill() {

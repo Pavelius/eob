@@ -194,7 +194,7 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 	}
 	switch(location.gettype(po)) {
 	case CellSecrectButton:
-		creature::addexp(500, 0);
+		game.addexpc(500, 0);
 		location.set(to(index, dr), CellPassable);
 		location.remove(po);
 		pc->say("This is secret door");
@@ -358,7 +358,7 @@ void gamei::passround() {
 			if(free_direct)
 				location.move(monster_index, free_direct);
 		} else if(to(monster_index, monster_direct) == party_index)
-			e.interract();
+			game.interract(monster_index);
 		else if(d100() < 45) {
 			auto next_index = to(monster_index, monster_direct);
 			if(location.isblocked(next_index) || d100() < 30) {
@@ -585,6 +585,28 @@ void gamei::addexp(morale_s id, unsigned value) {
 	}
 }
 
+void gamei::addexpc(unsigned value, int killing_hit_dice) {
+	unsigned count = 0;
+	for(auto v : party) {
+		auto pc = v.getcreature();
+		if(pc && pc->isready())
+			count++;
+	}
+	if(count) {
+		int value_per_member = imax((unsigned)1, value / count);
+		for(auto v : party) {
+			auto pc = v.getcreature();
+			if(pc && pc->isready()) {
+				pc->addexp(value_per_member);
+				if(killing_hit_dice) {
+					if(pc->get(Fighter) || pc->get(Paladin) || pc->get(Ranger))
+						pc->addexp(10 * killing_hit_dice);
+				}
+			}
+		}
+	}
+}
+
 int	gamei::getaverage(ability_s id) const {
 	auto total = 0, count = 0;
 	for(auto v : party) {
@@ -604,60 +626,4 @@ int	gamei::getaverage(ability_s id) const {
 bool gamei::roll(int value) {
 	auto dice = xrand(1, 20);
 	return value < dice;
-}
-
-bool gamei::apply(action_s id, encounteri& e, bool run) {
-	auto leader = e.getbest(Intellegence);
-	if(!leader)
-		return false;
-	itema items;
-	e.next = 0;
-	switch(id) {
-	case Lie:
-		if(!leader->isthinkable())
-			return false;
-		if(is(LawfulGood))
-			return false;
-		if(run) {
-			if(roll(getaverage(Charisma))) {
-				addexp(Chaotic, 10);
-				addexp(Evil, 20);
-				e.set(Friendly);
-			} else
-				e.next = -1;
-		}
-		break;
-	case Bribe:
-		if(!leader->isthinkable())
-			return false;
-		items.select();
-		items.forsale(false);
-		if(!items)
-			return false;
-		if(run) {
-			items[0]->clear();
-			e.set(Indifferent);
-		}
-		break;
-	case Trade:
-		if(!leader->isthinkable())
-			return false;
-		break;
-	case Talk:
-		if(!leader->isthinkable())
-			return false;
-		if(run) {
-
-		}
-		break;
-	case Attack:
-		if(run) {
-			e.set(Hostile);
-			addexp(Evil, 20);
-		}
-		break;
-	default:
-		return false;
-	}
-	return true;
 }
