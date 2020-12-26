@@ -706,7 +706,6 @@ static void test_map() {
 	{Ask, 2, {}, "Talk", {3}},
 	{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
 	{}};
-	first_dialog->choose(true);
 }
 
 static void setfocus(void* v, unsigned param = 0) {
@@ -1343,7 +1342,7 @@ class choose_control : public rowa {
 		if(!pc)
 			return;
 		auto& ei = bsdata<varianti>::elements[p->type];
-		edit(ei.name, pc, ei.form.form);
+		edit(ei.name, pc, ei.form.form, false);
 	}
 	static void button_add() {
 		auto p = (choose_control*)hot::param;
@@ -1540,9 +1539,11 @@ static void add_symbol(char* p, unsigned size, int k) {
 		if(n)
 			p[n - 1] = 0;
 		break;
+	case 13: case 10:
+		break;
 	default:
 		if(k <= 128) {
-			if(n < (int)(size - 2)) {
+			if(n < (int)(size - 1)) {
 				p[n] = k;
 				p[n + 1] = 0;
 			}
@@ -1573,7 +1574,7 @@ static void choose_enum_field() {
 		} else {
 			edit(current_markup->title,
 				current_markup->value.ptr(current_object),
-				current_markup->value.type);
+				current_markup->value.type, false);
 		}
 	} else {
 		choose(*current_markup->value.source, current_markup->title,
@@ -1892,7 +1893,7 @@ class edit_control : contexti {
 		for(auto p = elements; *p; p++) {
 			if(!p->ispage())
 				continue;
-			if(p->proc.visible && !p->proc.visible(object))
+			if(!p->isvisible(object))
 				continue;
 			if(ps < pe)
 				*ps++ = p;
@@ -1919,7 +1920,7 @@ class edit_control : contexti {
 		return y - y0;
 	}
 	static int element(int x, int y, int width, const contexti& ctx, const markup& e) {
-		if(e.proc.visible && !e.proc.visible(ctx.object))
+		if(!e.isvisible(ctx.object))
 			return 0;
 		if(e.isgroup()) {
 			contexti c1 = ctx;
@@ -1945,7 +1946,7 @@ public:
 	constexpr edit_control(void* object, const markup* pm) : contexti(object), elements(pm),
 		page(0), page_maximum(0) {
 	}
-	bool edit(const char* title) {
+	bool edit(const char* title, bool cancel_button) {
 		state push; setsmallfont();
 		openform();
 		while(ismodal()) {
@@ -1968,8 +1969,11 @@ public:
 				y += group(x, y, width, *this, pm);
 			// Footer
 			x = 4; y = 200 - 12 - 4;
-			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-			x += buttonwb(x, y, "OK", buttonok, Ctrl + Alpha + 'S');
+			if(cancel_button) {
+				x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+				x += buttonwb(x, y, "OK", buttonok, Ctrl + Alpha + 'S');
+			} else
+				x += buttonwb(x, y, "OK", buttonok, KeyEscape);
 			if(page > 0)
 				x += buttonwb(x, y, "Prev", cmd(prev_page, (int)this, (int)prev_page), KeyPageUp);
 			if(page < page_maximum - 1)
@@ -1982,9 +1986,9 @@ public:
 	}
 };
 
-bool draw::edit(const char* title, void* object, const markup* pm) {
+bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_button) {
 	edit_control e(object, pm);
-	return e.edit(title);
+	return e.edit(title, cancel_button);
 }
 
 static bool variant_editable(const void* object, const void* pointer) {
@@ -1995,20 +1999,23 @@ static bool variant_editable(const void* object, const void* pointer) {
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	varianti* pv = 0;
-	void* p = 0;
-	while(true) {
-		pv = (varianti*)choose(bsdata<varianti>::source, "Which item you want to edit?", 0, pv,
-			getnm<varianti>, variant_editable, 0, 0);
-		if(!pv)
-			break;
-		while(true) {
-			p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0, true);
-			if(!p)
-				break;
-			edit(pv->name, p, pv->form.form);
-		}
-	}
+	//varianti* pv = 0;
+	//void* p = 0;
+	//while(true) {
+	//	pv = (varianti*)choose(bsdata<varianti>::source, "Which item you want to edit?", 0, pv,
+	//		getnm<varianti>, variant_editable, 0, 0);
+	//	if(!pv)
+	//		break;
+	//	while(true) {
+	//		p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0, true);
+	//		if(!p)
+	//			break;
+	//		edit(pv->name, p, pv->form.form);
+	//	}
+	//}
+	game.companyi::read("default");
+	edit("Company", &game, dginf<companyi>::meta, false);
+	game.companyi::write("default");
 	font = push_font;
 }
 
@@ -2143,10 +2150,12 @@ void draw::pause() {
 }
 
 static void newgame() {
+	game.clear();
+	game.companyi::read("default");
 	game.setcamera(Blocked);
 	creature::view_party();
 	draw::resetres();
-	game.enter({614, 294}, 1);
+	game.enter(game.start, 1);
 	setnext(adventure);
 }
 

@@ -404,7 +404,10 @@ bool item::isartifact() const {
 }
 
 bool item::ismagical() const {
-	return getmagic() != 0;
+	auto pe = getenchantment();
+	if(!pe)
+		return false;
+	return pe->rarity > Common;
 }
 
 int	item::getac() const {

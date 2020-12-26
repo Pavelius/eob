@@ -9,6 +9,16 @@ void itema::select() {
 	}
 }
 
+void itema::select(pitem proc, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		if((p->*proc)() != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void itema::forsale(bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
@@ -20,4 +30,10 @@ void itema::forsale(bool remove) {
 		*ps++ = p;
 	}
 	count = ps - data;
+}
+
+item* itema::random() {
+	if(!count)
+		return 0;
+	return data[rand() % count];
 }

@@ -216,12 +216,12 @@ static void test_monster(resource_s rs, int overlay[4]) {
 #endif // DEBUG
 
 static void debug_dungeon1() {
+	game.companyi::read("default");
 	game.setcamera(Blocked);
 	random_heroes();
 	game.equiping();
 	game.rideto({614, 294});
 	game.write();
-	setnext(adventure);
 }
 
 static void debug_dungeon2() {
@@ -236,17 +236,16 @@ static void debug_dungeon2() {
 
 void load_game() {
 	draw::resetres();
-	if(false)
-		debug_dungeon2();
-	else {
-		if(game.read())
-			setnext(adventure);
-		else {
+	//debug_dungeon2();
+	//return;
+	if(!game.read()) {
 #ifdef _DEBUG
-			debug_dungeon1();
+		debug_dungeon1();
+#else
+		return;
 #endif // _DEBUG
-		}
 	}
+	setnext(adventure);
 }
 
 static void test_worldmap() {
@@ -276,17 +275,14 @@ static void show_monsters() {
 	//test_monster(BLDRAGON, 0);
 }
 
-void test_adventure() {
-	adventurei first_adventure[] = {"Flooded collectors", {614, 294},
-	{{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
-	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}}
-	};
-	auto p = bsdata<adventurei>::add();
-	memcpy(p, &first_adventure, sizeof(first_adventure));
-}
-
 static bool test_metadata() {
+	companyi::adventurei ea;
+	zcpy(ea.history[0], "Collectors is rust!");
+	auto p1 = (companyi::historyi*)((companyi::adventurei*)0);
+	auto p3 = (companyi::historyi*)((companyi::adventurei*)0);
+	auto p2 = static_cast<companyi::nameablei*>((companyi::adventurei*)0);
+	auto ph = static_cast<companyi::historyi*>(&ea);
+	auto pa = dginf<companyi::adventurei>::meta + 2;
 	auto ps = dginf<meta_decoy<const char*>::value>::meta;
 	auto pi = dginf<meta_decoy<int>::value>::meta;
 	return ps == pi;
@@ -299,7 +295,6 @@ int main(int argc, char* argv[]) {
 	//srand(2112);
 #ifdef _DEBUG
 	//util_main();
-	test_adventure();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;

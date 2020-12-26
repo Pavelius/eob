@@ -137,7 +137,6 @@
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="action.cpp" />
-    <ClCompile Include="adventure.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
@@ -145,6 +144,7 @@
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="company.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="creature_equipment.cpp" />
@@ -168,6 +168,7 @@
     </ClCompile>
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
+    <ClCompile Include="fraction.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="geometry.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="markup.cpp" />
     <ClCompile Include="monster.cpp" />
+    <ClCompile Include="nameable.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />

@@ -3,8 +3,6 @@
 
 BSDATAC(creature, 32)
 
-static reaction_s current_reaction;
-
 const char* get_name_part(short rec);
 
 static const int monsters_thac0[] = {
@@ -1787,25 +1785,6 @@ void creature::apply(apply_proc proc, bool interactive) {
 	}
 }
 
-void creature::addparty(item i, bool interactive) {
-	for(auto ev : party) {
-		auto p = ev.getcreature();
-		if(!p)
-			continue;
-		for(auto& e : p->wears) {
-			if(e)
-				continue;
-			e = i;
-			if(interactive) {
-				char t1[260]; stringbuilder s1(t1); i.getname(s1);
-				mslog("%1 gain %2", p->getname(), t1);
-			}
-			return;
-		}
-	}
-	location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
-}
-
 bool creature::usequick() {
 	item* pi = 0;
 	if(!wears[RightHand])
@@ -1869,32 +1848,17 @@ bool creature::haveforsale() const {
 	return items.getcount() > 0;
 }
 
-void creature::setcom(reaction_s v) {
-	current_reaction = v;
-}
-
-reaction_s creature::getcomreaction() {
-	return current_reaction;
-}
-
 bool creature::ismatch(const variant v) const {
 	switch(v.type) {
 	case Alignment: return getalignment() == v.value;
 	case Ability: return get((ability_s)v.value) > 0;
-	case Action:
-		switch(v.value) {
-		case HealParty: return gethits() < gethitsmaximum();
-		case RessurectBones: return have(Bones);
-		case Trade: return haveforsale();
-		default: return true;
-		}
 	case Class: return get((class_s)v.value) > 0;
 	case Cleveress: return is((intellegence_s)v.value);
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Item: return have((item_s)v.value);
 	case Morale: return is((morale_s)v.value);
-	case Reaction: return getcomreaction() == (reaction_s)v.value;
+	case Reaction: return reaction == (reaction_s)v.value;
 	case Spell: return isknown((spell_s)v.value);
 	}
 	return false;

@@ -225,17 +225,14 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	Greeting, Lie, Trade, Bribe, Talk, Smithing, Attack,
 	FailLie,
-	HealParty, RessurectBones,
-	StartCombat, LeaveAway, WinCombat, GainExperience,
-	DeathSave, TrapDamage,
-	AddItem, RemoveItem,
+	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
 enum speech_s : unsigned char {
 	Say, Ask,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Adventure, Alignment, Class, Cleveress, Creature, Damage, Dialog,
+	Ability, Action, Alignment, Class, Cleveress, Creature, Damage, Dialog,
 	Enchant, Feat, Gender, Item, Morale, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
@@ -302,12 +299,7 @@ struct spellprogi {
 };
 struct actioni {
 	const char*			name;
-	int					params;
-};
-struct action {
-	action_s			type;
-	variant				param;
-	int					number;
+	bool				talk;
 };
 struct abilityi {
 	const char*			name;
@@ -634,19 +626,21 @@ struct messagei {
 	imagei				overlay;
 	selli*				trade;
 	constexpr explicit operator bool() const { return id != 0; }
-	void				apply() const;
-	bool				isallow() const;
-	void				choose(bool border, int next_id = 1, reaction_s reaction = Indifferent) const;
-	const messagei*		find(int id, bool test_allow) const;
 };
 struct dialogi {
 	messagei::imagei	image;
 	char				name[260];
 };
 class itema : public adat<item*, 48> {
+	typedef bool (item::*pitem)() const;
+	void				select(pitem proc, bool keep);
 public:
 	item*				choose(const char* format, bool cancel_button);
+	void				cursed(bool keep) { select(&item::iscursed, keep); }
+	void				identified(bool keep) { select(&item::isidentified, keep); }
+	void				magical(bool keep) { select(&item::ismagical, keep); }
 	void				forsale(bool remove);
+	item*				random();
 	void				select();
 };
 struct looti {
@@ -706,7 +700,6 @@ public:
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
-	static void			addparty(item i, bool interactive = false);
 	static void			apply(apply_proc proc, bool interactive = true);
 	void				apply(spell_s id, int level, unsigned duration);
 	void				attack(indext index, direction_s d, int bonus, bool ranged, int multiplier);
@@ -742,7 +735,6 @@ public:
 	class_s				getclass() const { return type; }
 	static class_s		getclass(class_s id, int index);
 	int					getclasscount() const;
-	static reaction_s	getcomreaction();
 	direction_s			getdirection() const;
 	int					getenchant(variant id, int bonus) const;
 	int					getexperience() const { return experience; }
@@ -843,7 +835,6 @@ public:
 	void				setmoved(bool value);
 	void				setprepare(spell_s id, char v) { prepared[id] = v; }
 	void				setside(int value);
-	static void			setcom(reaction_s v);
 	bool				setweapon(item_s v, int charges);
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
@@ -976,6 +967,7 @@ struct dungeon {
 	item_s				getkeytype(cell_s keyhole) const;
 	indext				getnearest(indext index, int radius, cell_s t1);
 	short unsigned*		getnearestfree(indext* indicies, indext index);
+	const char*			getnavigation(indext index) const;
 	direction_s			getpassable(indext index, direction_s* dirs);
 	indext				getsecret() const;
 	static size_s		getsize(creature** sides);
@@ -992,6 +984,7 @@ struct dungeon {
 	bool				isblocked(indext index) const;
 	bool				isblocked(indext index, int side) const;
 	bool				islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2 = CellUnknown) const;
+	bool				islying(indext index, item_s type) const;
 	bool				ismatch(indext index, cell_s t1, cell_s t2);
 	bool				ismonster(indext index) const;
 	bool				ismonsternearby(indext i, int r = 3) const;
@@ -1025,37 +1018,49 @@ struct dungeon {
 	void				turnto(indext index, direction_s dr, bool* surprise = 0);
 	void				write();
 };
-struct adventurei {
-	char				name[32];
-	point				position;
-	sitei				levels[8];
-	void				create(bool interactive) const;
-	void				enter();
-};
 struct nameablei {
 	char				name[32];
 	explicit constexpr operator bool() const { return name[0] != 0; }
-};
-struct fractioni : looti, nameablei {
+	void				setname(const char* name, ...) { setnamev(name, xva_start(name)); }
+	void				setnamev(const char* value, const char* format);
 };
 struct companyi : nameablei {
-	looti				resource;
-	fractioni			fractions[16];
+	static constexpr unsigned history_max = 12;
+	struct historyi {
+		char			history[history_max][256];
+		unsigned char	history_progress;
+		unsigned		gethistorymax() const;
+	};
+	struct adventurei : nameablei, historyi {
+		point			position;
+		sitei			levels[8];
+		void			create(bool interactive) const;
+	};
+	struct fractioni : looti, nameablei {
+	};
+	point				start;
+	looti				resources;
+	fractioni			fractions[8];
+	adventurei			adventures[13];
+	adventurei*			getadventure(point position);
+	bool				read(const char* name);
+	void				write(const char* name);
 };
 struct encounteri : public creaturea {
 	reaction_s			reaction;
 	action_s			next;
 	constexpr encounteri() : creaturea(), reaction(Indifferent), next(Greeting) {}
+	bool				apply(action_s id, bool run);
 	creature*			getleader() const;
 	bool				match(const conditiona& e) const;
 	void				dialog();
 	void				set(reaction_s v);
 };
-class gamei : companyi {
+class gamei : public companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
 	point				location_position;
-	indext				location_level;
+	unsigned short		location_level;
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
@@ -1065,14 +1070,15 @@ class gamei : companyi {
 	static void			render_worldmap(void* object);
 public:
 	void				add(monster_s id) { killed[id]++; }
+	void				additem(item i, bool interactive);
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
-	bool				apply(action_s id, encounteri& e, bool run);
 	void				attack(indext index, bool ranged, ambush_s ambush);
+	void				clear();
 	void				endround();
 	void				enter(point index, short unsigned level);
 	void				equiping();
-	const adventurei*	getadventure() const;
+	adventurei*			getadventure() { return companyi::getadventure(location_position); }
 	void				findsecrets();
 	int					getaverage(ability_s v) const;
 	int					getavatar(race_s race, gender_s gender, class_s cls);
@@ -1153,7 +1159,7 @@ void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);
 bool					dlgask(const char* text);
-bool					edit(const char* title, void* object, const markup* form);
+bool					edit(const char* title, void* object, const markup* form, bool cancel_button);
 void					editor();
 void					fullimage(point camera, point* origin);
 void					fullimage(point from, point to, point* origin);
@@ -1181,11 +1187,14 @@ direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
-NOBSDATA(action)
 NOBSDATA(abilitya)
+NOBSDATA(companyi::adventurei)
+NOBSDATA(companyi::fractioni)
+NOBSDATA(companyi::historyi)
 NOBSDATA(dice)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
+NOBSDATA(looti)
 NOBSDATA(messagei::imagei)
 NOBSDATA(point)
 NOBSDATA(sitei)

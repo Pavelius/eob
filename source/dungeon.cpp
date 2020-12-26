@@ -247,8 +247,7 @@ void dungeon::setactive(overlayi* po, bool value) {
 						mslog("You hear door closed nearby");
 					break;
 				}
-			}
-			else
+			} else
 				setactive(po->index, value, 1);
 			break;
 		case CellDoorButton:
@@ -1230,4 +1229,36 @@ void dungeon::set(indext index, direction_s dir, shape_s type, point& size, inde
 		}
 		p += dy;
 	}
+}
+
+const char* dungeon::getnavigation(indext index) const {
+	static const char* names[] = {"north-west", "northen", "north-east",
+		"western", "central", "easten",
+		"south-west", "southern", "south-east"
+	};
+	if(index == Blocked)
+		return "unknown";
+	int x = gx(index) / (mpx / 3);
+	int y = gy(index) / (mpy / 3);
+	return names[y * 3 + x];
+}
+
+bool dungeon::islying(indext index, item_s type) const {
+	for(auto& e : cellar_items) {
+		if(!e)
+			continue;
+		if(e.storage_index != index)
+			continue;
+		if(e.gettype() == type)
+			return true;
+	}
+	for(auto& e : items) {
+		if(!e)
+			continue;
+		if(e.index != index)
+			continue;
+		if(e.gettype() == type)
+			return true;
+	}
+	return false;
 }

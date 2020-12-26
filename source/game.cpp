@@ -135,12 +135,12 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	if(ambush != MonsterAmbush)
 		parcipants.select(index_of_monsters);
 	parcipants.rollinitiative();
-	// All actions made in initiative order
-	auto surprise_message = 0;
-	for(auto attacker : parcipants) {
-		if(!attacker->isready())
-			continue;
-		if(ambush) {
+	// Ambush
+	if(ambush) {
+		auto surprise_message = 0;
+		for(auto attacker : parcipants) {
+			if(!attacker->isready())
+				continue;
 			// RULE: surprise depends on MoveSilently
 			if(attacker->roll(MoveSilently) || attacker->is(Invisibility)) {
 				if(!surprise_message) {
@@ -156,11 +156,14 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 				else
 					attacker->attack(index_of_monsters, dr, 4, ranged, 1);
 			}
-		} else
-			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
+		}
 	}
-	if(ambush)
-		return;
+	// Standart attack
+	for(auto attacker : parcipants) {
+		if(!attacker->isready())
+			continue;
+		attacker->attack(index_of_monsters, dr, 0, ranged, 1);
+	}
 	// RULE: Hasted units make second move at end of combat round
 	for(auto attacker : parcipants) {
 		if(!attacker->isready())
@@ -168,7 +171,6 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 		if(attacker->is(Haste))
 			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
 	}
-	// Remove surprised creatures
 }
 
 void read_message(dungeon* pd, dungeon::overlayi* po);
@@ -257,14 +259,6 @@ static bool get_secret(short unsigned index, direction_s sight_dir, direction_s 
 		return false;
 	secret_dir = rotate_dir;
 	return true;
-}
-
-const adventurei* gamei::getadventure() const {
-	for(auto& e : bsdata<adventurei>()) {
-		if(e.position == location_position)
-			return &e;
-	}
-	return 0;
 }
 
 void gamei::findsecrets() {
@@ -489,6 +483,44 @@ static bool serialize(dungeon& e, point position, indext level, bool write_mode)
 	return true;
 }
 
+static bool serialize(const char* name, companyi& e, bool write_mode) {
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("modules/%1.gmd", name);
+	io::file file(temp, write_mode ? StreamWrite : StreamRead);
+	if(!file)
+		return false;
+	archive a(file, write_mode);
+	a.set(e);
+	return true;
+}
+
+void companyi::write(const char* name) {
+	serialize(name, *this, true);
+}
+
+bool companyi::read(const char* name) {
+	auto result = serialize(name, *this, false);
+#ifdef _DEBUG
+	if(!result) {
+		static sitei sites[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+		{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
+		{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
+		};
+		setname("Western heartlands");
+		start = {614, 294};
+		auto pa = adventures;
+		pa->setname("Flooded collectors");
+		pa->position = {614, 294};
+		zcpy(pa->history[0], "Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
+		zcpy(pa->history[1], "Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
+		zcpy(pa->history[2], "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
+		memcpy(pa->levels, sites, sizeof(sites));
+		result = true;
+	}
+#endif // _DEBUG
+	return result;
+}
+
 void dungeon::write() {
 	serialize(*this, overland_index, level, true);
 }
@@ -626,4 +658,24 @@ int	gamei::getaverage(ability_s id) const {
 bool gamei::roll(int value) {
 	auto dice = xrand(1, 20);
 	return value < dice;
+}
+
+void gamei::additem(item i, bool interactive) {
+	for(auto ev : party) {
+		auto p = ev.getcreature();
+		if(!p)
+			continue;
+		if(p->add(i)) {
+			if(interactive) {
+				char t1[260]; stringbuilder s1(t1); i.getname(s1);
+				mslog("%1 gain %2", p->getname(), t1);
+			}
+			return;
+		}
+	}
+	location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
+}
+
+void gamei::clear() {
+	memset(this, 0, sizeof(*this));
 }

@@ -25,8 +25,8 @@ template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder
 	auto p = (messagei::imagei*)object;
 	return p->custom;
 }
-template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) {
-	return ((adventurei*)object)->name;
+template<> const char* getnm<companyi::adventurei>(const void* object, stringbuilder& sb) {
+	return ((companyi::adventurei*)object)->name;
 }
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
@@ -47,6 +47,17 @@ template<> const char* getnm<point>(const void* object, stringbuilder& sb) {
 	else
 		sb.add("%1i, %2i", p->x, p->y);
 	return sb;
+}
+template<> const char* getnm<companyi::historyi>(const void* object, stringbuilder& sb) {
+	auto p = (companyi::historyi*)object;
+	auto m = p->gethistorymax();
+	if(!m)
+		return "None";
+	sb.add("Have %1i stages", m);
+	return sb;
+}
+template<> const char* getnm<companyi::fractioni>(const void* object, stringbuilder& sb) {
+	return ((companyi::fractioni*)object)->name;
 }
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
@@ -108,6 +119,10 @@ static bool choose_wordmap_point(const void* object, const array& source, void* 
 	*v = r;
 	return true;
 }
+static bool choose_history(const void* object, const array& source, void* pointer) {
+	auto v = (companyi::historyi*)pointer;
+	return draw::edit("History", v, dginf<meta_decoy<decltype(v)>::value>::meta, false);
+}
 bool item::choose_enchantment(const void* object, const array& source, void* pointer) {
 	auto p = (item*)object;
 	auto& ei = p->gete();
@@ -148,7 +163,7 @@ static bool monster_resources(const void* object, const void* pointer) {
 }
 static bool dungeon_resources(const void* object, const void* pointer) {
 	auto p = (resourcei*)pointer;
-	return p->pack==PackDungeon;
+	return p->pack == PackDungeon;
 }
 static bool allow_item_wears(const void* object, const void* pointer) {
 	auto p = (weari*)pointer;
@@ -183,11 +198,6 @@ template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
 	p->print(sb);
 	return sb;
 }
-static bool visible_parameter(const void* object) {
-	auto p = (action*)object;
-	return bsdata<actioni>::elements[p->type].params >= 1;
-}
-
 static bool visible_class1(const void* object) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
@@ -199,61 +209,41 @@ static const char* getclass1(const void* object, stringbuilder& sb) {
 	auto n = bsdata<classi>::elements[c].classes[0];
 	return bsdata<classi>::elements[n].name;
 }
+static bool visible_fraction(const void* object, const void* pointer) {
+	auto p = ((companyi::fractioni*)pointer) - 1;
+	return p->operator bool();
+}
+static bool visible_adventure(const void* object, const void* pointer) {
+	auto p = ((companyi::adventurei*)pointer) - 1;
+	return p->operator bool();
+}
+static bool visible_level(const void* object, const void* pointer) {
+	auto p = ((sitei*)pointer) - 1;
+	return p->levels != 0;
+}
+static bool visible_condition(const void* object, const void* pointer) {
+	auto p = ((variant*)pointer) - 1;
+	return p->operator bool();
+}
+static bool visible_history(const void* object, const void* pointer) {
+	auto p = ((char*)pointer) - sizeof(companyi::historyi::history[0]);
+	return *p!=0;
+}
 static bool visible_class2(const void* object) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
 	return bsdata<classi>::elements[c].classes[1] != 0;
-}
-static const char* getclass2(const void* object, stringbuilder& sb) {
-	auto p = (creature*)object;
-	auto c = p->getclass();
-	auto n = bsdata<classi>::elements[c].classes[1];
-	return bsdata<classi>::elements[n].name;
 }
 static bool visible_class3(const void* object) {
 	auto p = (creature*)object;
 	auto c = p->getclass();
 	return bsdata<classi>::elements[c].classes[2] != 0;
 }
-static bool visible_levels2(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[0].levels != 0;
-}
-static bool visible_levels3(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[1].levels != 0;
-}
-static bool visible_levels4(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[2].levels != 0;
-}
-static bool visible_levels5(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[3].levels != 0;
-}
-static bool visible_levels6(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[4].levels != 0;
-}
-static bool visible_levels7(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[5].levels != 0;
-}
-static bool visible_levels8(const void* object) {
-	auto p = (adventurei*)object;
-	return p->levels[6].levels != 0;
-}
-static bool visible_condition_2(const void* object) {
-	auto p = (messagei*)object;
-	return p->variants[0].operator bool();
-}
-static bool visible_condition_3(const void* object) {
-	auto p = (messagei*)object;
-	return p->variants[1].operator bool();
-}
-static bool visible_condition_4(const void* object) {
-	auto p = (messagei*)object;
-	return p->variants[2].operator bool();
+static const char* getclass2(const void* object, stringbuilder& sb) {
+	auto p = (creature*)object;
+	auto c = p->getclass();
+	auto n = bsdata<classi>::elements[c].classes[1];
+	return bsdata<classi>::elements[n].name;
 }
 static const char* getclass3(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
@@ -268,13 +258,6 @@ static bool key_items(const void* object, const void* pointer) {
 static bool ability_only(const void* object, const void* pointer) {
 	auto param = (ability_s)bsdata<abilityi>::source.indexof(pointer);
 	return param <= Charisma;
-}
-static const char* condition_param(const void* object, stringbuilder& sb) {
-	auto p = (action*)object;
-	auto n = p->param.type;
-	if(!n)
-		return "Parameter";
-	return bsdata<varianti>::elements[n].name;
 }
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
@@ -332,7 +315,7 @@ DGINF(combati) = {{"Attack", DGREQ(attack), {getnm<attacki>}},
 {"Crit. mul", DGREQ(critical_multiplier)},
 {"Crit. rng", DGREQ(critical_range)},
 {}};
-DGINF(itemi::weaponi) = {{0, DGINH(combati)},
+DGINF(itemi::weaponi) = {{0, DGINH(combati, attack)},
 {"Damage L+", DGREQ(damage_large), {getnm<dice>}},
 {}};
 DGINF(itemi::armori) = {{"AC", DGREQ(ac)},
@@ -428,16 +411,32 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {"Levels", DGREQ(levels)},
 {0, DGREQ(crypt)},
 {}};
-DGINF(adventurei) = {{"Name", DGREQ(name)},
+DGINF(companyi::historyi) = {{"Stage 1", DGREQ(history[0])},
+{"Stage 2", DGREQ(history[1]), {},  {0, 0, 0, visible_history}},
+{"Stage 3", DGREQ(history[2]), {}, {0, 0, 0, visible_history}},
+{"Stage 4", DGREQ(history[3]), {}, {0, 0, 0, visible_history}},
+{"#div", DGREQ(history[4]), {}, {0, 0, 0, visible_history}},
+{"Stage 5", DGREQ(history[4]), {}, {0, 0, 0, visible_history}},
+{"Stage 6", DGREQ(history[5]), {}, {0, 0, 0, visible_history}},
+{"Stage 7", DGREQ(history[6]), {}, {0, 0, 0, visible_history}},
+{"Stage 8", DGREQ(history[7]), {}, {0, 0, 0, visible_history}},
+{"#div", DGREQ(history[8]), {}, {0, 0, 0, visible_history}},
+{"Stage 9", DGREQ(history[8]), {}, {0, 0, 0, visible_history}},
+{"Stage 10", DGREQ(history[9]), {}, {0, 0, 0, visible_history}},
+{"Stage 11", DGREQ(history[10]), {}, {0, 0, 0, visible_history}},
+{"Stage 12", DGREQ(history[11]), {}, {0, 0, 0, visible_history}},
+{}};
+DGINF(companyi::adventurei) = {{"Name", DGREQ(name)},
 {"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
+{"History", DGINH(companyi::historyi, history), {getnm<companyi::historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
-{"#tab Part 2", DGREQ(levels[1]), {}, {visible_levels2}},
-{"#tab Part 3", DGREQ(levels[2]), {}, {visible_levels3}},
-{"#tab Part 4", DGREQ(levels[3]), {}, {visible_levels4}},
-{"#tab Part 5", DGREQ(levels[4]), {}, {visible_levels5}},
-{"#tab Part 6", DGREQ(levels[5]), {}, {visible_levels6}},
-{"#tab Part 7", DGREQ(levels[6]), {}, {visible_levels7}},
-{"#tab Part 8", DGREQ(levels[7]), {}, {visible_levels8}},
+{"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 3", DGREQ(levels[2]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 4", DGREQ(levels[3]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 5", DGREQ(levels[4]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 6", DGREQ(levels[5]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 7", DGREQ(levels[6]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 8", DGREQ(levels[7]), {}, {0, 0, 0, visible_level}},
 {}};
 DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Dexterity", DGREQ(data[1])},
@@ -448,8 +447,41 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {}};
 DGINF(actioni) = {{"Name", DGREQ(name)},
 {}};
-DGINF(action) = {{"Action", DGREQ(type), {getnm<actioni>}, {0, getnoname}},
-{"Parameter", DGREQ(param), {getnm<variant>, 0, choose_variant}, {visible_parameter, condition_param}},
+DGINF(looti) = {{"Gold", DGREQ(gold)},
+{"Experience", DGREQ(experience)},
+{"Fame", DGREQ(fame)},
+{"Progress", DGREQ(progress)},
+{"Luck", DGREQ(luck)},
+{}};
+DGINF(companyi::fractioni) = {{"Name", DGREQ(name)},
+{"Loot", DGINH(looti, gold)},
+{}};
+DGINF(companyi) = {{"Name", DGREQ(name)},
+{"Start", DGREQ(start), {getnm<point>, 0, choose_wordmap_point}},
+{"loot", DGREQ(resources)},
+{"#div Fractions"},
+{"Fraction 1", DGREQ(fractions[0]), {getnm<companyi::fractioni>}},
+{"Fraction 2", DGREQ(fractions[1]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 3", DGREQ(fractions[2]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 4", DGREQ(fractions[3]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 5", DGREQ(fractions[4]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 6", DGREQ(fractions[5]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 7", DGREQ(fractions[6]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 8", DGREQ(fractions[7]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"#div Adventures"},
+{"Adventure 1", DGREQ(adventures[0]), {getnm<companyi::adventurei>}},
+{"Adventure 2", DGREQ(adventures[1]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 3", DGREQ(adventures[2]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 4", DGREQ(adventures[3]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 5", DGREQ(adventures[4]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 6", DGREQ(adventures[5]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 7", DGREQ(adventures[6]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 8", DGREQ(adventures[7]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 9", DGREQ(adventures[8]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 10", DGREQ(adventures[9]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 11", DGREQ(adventures[10]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 12", DGREQ(adventures[11]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 13", DGREQ(adventures[12]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
 {}};
 DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, choose_custom_images, messagei::imagei::preview, 130}},
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},
@@ -459,9 +491,9 @@ DGINF(messagei) = {{"ID", DGREQ(id)},
 {"Type", DGREQ(type), {getnm<speechi>}},
 {"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
 {"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
-{"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {visible_condition_2}},
-{"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {visible_condition_3}},
-{"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {visible_condition_4}},
+{"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
+{"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
+{"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
 {"Text", DGREQ(text)},
 {}};
 DGINF(dialogi) = {{"Image", DGREQ(image), {getnm<messagei::imagei>, 0, choose_custom_images}},

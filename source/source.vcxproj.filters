@@ -254,9 +254,6 @@
     <ClCompile Include="varianta.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="adventure.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="creature_equipment.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -267,6 +264,15 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="encounter.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="company.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="fraction.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="nameable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

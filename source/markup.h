@@ -12,6 +12,7 @@ typedef const char* (*fntext)(const void* object, stringbuilder& sb);
 typedef bool(*fnchoose)(const void* object, const array& source, void* pointer);
 typedef void*(*fnptr)(const void* object, int index);
 typedef bool(*fnvisible)(const void* object);
+typedef bool(*fnvisiblex)(const void* object, const void* pointer);
 
 #define DGLNK(L,T) template<> struct dginf<L> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
@@ -20,9 +21,9 @@ bsdata<meta_decoy<T2>::value>::source_ptr,\
 (unsigned)&((data_type*)0)->R,\
 sizeof(data_type::R),\
 MS}
-#define DGINH(R) {dginf<meta_decoy<R>::value>::meta,\
+#define DGINH(R,F) {dginf<meta_decoy<R>::value>::meta,\
 0,\
-(unsigned)static_cast<R*>((data_type*)0),\
+(unsigned)&((data_type*)0)->F,\
 sizeof(R),\
 0}
 #define DGREQ(R) DGGEN(R, decltype(data_type::R), decltype(data_type::R), 0)
@@ -40,6 +41,7 @@ struct fnelement {
 	fnvisible			visible;
 	fntext				getheader;
 	fncommand			execute;
+	fnvisiblex			visiblex;
 };
 template<class T> struct dginf {
 	typedef T			data_type;
@@ -71,6 +73,7 @@ struct markup {
 	bool				isdecortext() const { return value.type==0; }
 	bool				isgroup() const { return value.type!=0 && !list.getname && !value.istext() && !value.isnum(); }
 	bool				ispage() const { return title && title[0]=='#'; }
+	bool				isvisible(const void* object) const;
 };
 DGLNK(char, int)
 DGLNK(short, int)

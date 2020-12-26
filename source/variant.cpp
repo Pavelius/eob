@@ -5,7 +5,6 @@
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
 {"Action", "actions"},
-{"Adventure", "adventures", FORM(adventurei), {Editable}},
 {"Alignment", "alignments", FORM(alignmenti)},
 {"Class", "classes", FORM(classi)},
 {"Cleaveress", "cleveress"},

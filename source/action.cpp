@@ -7,7 +7,14 @@ BSDATA(actioni) = {{"Creeting"},
 {"Talk"},
 {"Repair"},
 {"Attack"},
-{"FailLie"},
+{"Fail lie roll"},
+{"Talk about artifact", true},
+{"Talk about cursed item", true},
+{"Talk about magic item", true},
+{"Talk about magic loot on the ground", true},
+{"Talk about magic loot in cellar", true},
+{"Talk about history this place", true},
+{"Rumor", true},
 };
-assert_enum(action, FailLie)
+assert_enum(action, TalkRumor)
 INSTELEM(actioni)
