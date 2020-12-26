@@ -560,6 +560,7 @@ public:
 	constexpr const itemi& gete() const { return bsdata<itemi>::elements[type]; }
 	const enchantmenti* getenchantment() const;
 	static void*		getenchantptr(const void* object, int index);
+	wear_s				getequiped() const;
 	int					getmagic() const;
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
@@ -696,13 +697,11 @@ class creature {
 	friend dginf<creature>;
 public:
 	explicit operator bool() const { return ability[Strenght] != 0; }
-	typedef void		(creature::*apply_proc)(bool);
 	void				activate(spell_s v) { active_spells.set(v); }
 	bool				add(item i);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
-	static void			apply(apply_proc proc, bool interactive = true);
 	void				apply(spell_s id, int level, unsigned duration);
 	void				attack(indext index, direction_s d, int bonus, bool ranged, int multiplier);
 	void				attack(creature* defender, wear_s slot, int bonus, int multiplier);
@@ -713,7 +712,6 @@ public:
 	bool				canspeak(race_s language) const;
 	static class_s		chooseclass(bool interactive, race_s race);
 	static race_s		chooserace(bool interactive);
-	static creature*	choosehero();
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	void				enchant(spell_s id, int level);
@@ -758,10 +756,10 @@ public:
 	int					getprepare(spell_s v) const { return prepared[v]; }
 	race_s				getrace() const { return race; }
 	reaction_s			getreaction() const { return reaction; }
-	static int			getparty(ability_s v);
 	resource_s			getres() const;
 	int					getside() const;
 	size_s				getsize() const;
+	wear_s				getslot(const item* p) const;
 	int					getspecialist(item_s weapon) const;
 	int					getspeed() const;
 	int					getspellsperlevel(class_s type, int spell_level) const;
@@ -856,7 +854,10 @@ public:
 };
 class creaturea : public adat<creature*, 12> {
 public:
+	creature*			choose() const;
+	int					getaverage(ability_s v) const;
 	creature*			getbest(ability_s v) const;
+	creature*			getmostdamaged() const;
 	void				kill();
 	void				leave();
 	void				match(variant v, bool remove);
@@ -1043,6 +1044,7 @@ struct companyi : nameablei {
 	looti				resources;
 	fractioni			fractions[8];
 	adventurei			adventures[13];
+	creature			characters[4+13];
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
 	void				write(const char* name);
@@ -1196,6 +1198,7 @@ NOBSDATA(companyi::adventurei)
 NOBSDATA(companyi::fractioni)
 NOBSDATA(companyi::historyi)
 NOBSDATA(dice)
+NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(looti)

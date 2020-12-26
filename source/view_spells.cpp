@@ -107,13 +107,6 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 	return height;
 }
 
-creature* creature::choosehero() {
-	answers elements;
-	for(auto p : party)
-		elements.add((int)p, p->getname());
-	return (creature*)elements.choosesm("On which hero?", true);
-}
-
 int variantc::chooselv(class_s type) const {
 	draw::screenshoot screen;
 	draw::state push;

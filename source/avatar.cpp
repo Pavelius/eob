@@ -6,13 +6,13 @@ static struct portraiti {
 	cflags<class_s>	classes;
 } portrait_data[] = {{Male, {Human, Halfling}, {Fighter, Ranger}},
 {Male, {Human}, {Mage, Cleric}},
-{Male, {Human}, {Mage, Cleric}},
+{Male, {Human}, {Mage, Cleric, Ranger}},
 {Male, {Human, Halfling}, {Theif}},
 {Male, {Elf}, {Theif, Mage, Fighter, Ranger}},
 {Male, {Elf}, {Theif, Fighter, Ranger}},
 {Male, {Dwarf}, {Cleric, Fighter}},
 {Male, {Human}, {Theif, Mage, Ranger}},
-{Male, {Human, Halfling}, {Theif, Fighter}},
+{Male, {Human, Halfling}, {Theif, Fighter, Ranger, Cleric}},
 {NoGender, {Halfling}, {Theif, Fighter}},
 //
 {Male, {Elf, HalfElf}, {Mage}},

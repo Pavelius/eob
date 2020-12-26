@@ -40,6 +40,13 @@ template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
 }
+template<> const char* getnm<item>(const void* object, stringbuilder& sb) {
+	auto p = (item*)object;
+	item it = *p;
+	it.setidentified(1);
+	it.getname(sb);
+	return sb;
+}
 template<> const char* getnm<point>(const void* object, stringbuilder& sb) {
 	auto p = (point*)object;
 	if(!(*p))
@@ -83,6 +90,10 @@ template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 	}
 	return "Noname";
 }
+template<> const char* getnm<creature>(const void* object, stringbuilder& sb) {
+	auto p = (creature*)object;
+	return p->getname();
+}
 void* item::getenchantptr(const void* object, int index) {
 	auto p = (item*)object;
 	auto& ei = p->gete();
@@ -122,6 +133,10 @@ static bool choose_wordmap_point(const void* object, const array& source, void* 
 static bool choose_history(const void* object, const array& source, void* pointer) {
 	auto v = (companyi::historyi*)pointer;
 	return draw::edit("History", v, dginf<meta_decoy<decltype(v)>::value>::meta, false);
+}
+static bool edit_character(const void* object, const array& source, void* pointer) {
+	auto v = (creature*)pointer;
+	return draw::edit("Character", v, dginf<meta_decoy<decltype(v)>::value>::meta, false);
 }
 bool item::choose_enchantment(const void* object, const array& source, void* pointer) {
 	auto p = (item*)object;
@@ -175,7 +190,13 @@ static bool unique_items(const void* object, const void* pointer) {
 }
 static bool allow_item_type_no_natural(const void* object, const void* pointer) {
 	auto p = (itemi*)pointer;
-	return !p->feats.is(Natural);
+	if(p->feats.is(Natural))
+		return false;
+	auto pi = (item*)object;
+	auto slot = pi->getequiped();
+	if(slot != Backpack && p->equipment != slot)
+		return false;
+	return true;
 }
 static bool weapon_visible(const void* object) {
 	auto p = (itemi*)object;
@@ -367,7 +388,20 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
 {"Hits roll", DGREQ(hits_rolled)},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
-//item				wears[LastInvertory + 1];
+{"#div equipment"},
+{"Head", DGREQ(wears[Head]), {getnm<item>}},
+{"Neck", DGREQ(wears[Neck]), {getnm<item>}},
+{"Body", DGREQ(wears[Body]), {getnm<item>}},
+{"Right hand", DGREQ(wears[RightHand]), {getnm<item>}},
+{"Left hand", DGREQ(wears[LeftHand]), {getnm<item>}},
+{"Right ring", DGREQ(wears[RightRing]), {getnm<item>}},
+{"Left ring", DGREQ(wears[LeftRing]), {getnm<item>}},
+{"Elbow", DGREQ(wears[Elbow]), {getnm<item>}},
+{"Legs", DGREQ(wears[Legs]), {getnm<item>}},
+{"Quiver", DGREQ(wears[Quiver]), {getnm<item>}},
+{"Belt 1", DGREQ(wears[FirstBelt]), {getnm<item>}},
+{"Belt 2", DGREQ(wears[SecondBelt]), {getnm<item>}},
+{"Belt 3", DGREQ(wears[LastBelt]), {getnm<item>}},
 //char				spells[LastSpellAbility + 1];
 //char				prepared[LastSpellAbility + 1];
 //spella			known_spells;
@@ -482,6 +516,8 @@ DGINF(companyi) = {{"Name", DGREQ(name)},
 {"Adventure 11", DGREQ(adventures[10]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
 {"Adventure 12", DGREQ(adventures[11]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
 {"Adventure 13", DGREQ(adventures[12]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"#div Characters"},
+{"Character 1", DGREQ(characters[4]), {getnm<creature>, 0, edit_character}},
 {}};
 DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, choose_custom_images, messagei::imagei::preview, 130}},
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},

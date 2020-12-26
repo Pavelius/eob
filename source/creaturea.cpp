@@ -25,6 +25,19 @@ creature* creaturea::getbest(ability_s v) const {
 	return pc;
 }
 
+int	creaturea::getaverage(ability_s v) const {
+	auto total = 0, count = 0;
+	for(auto p : *this) {
+		if(!p || !p->isready())
+			continue;
+		total += p->get(v);
+		count++;
+	}
+	if(!count)
+		return 0;
+	return total / count;
+}
+
 void creaturea::match(const messagei& id, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
@@ -72,20 +85,20 @@ void creaturea::rollinitiative() {
 }
 
 void creaturea::set(reaction_s v) {
-	for(auto pc : *this)
-		pc->set(v);
+	for(auto p : *this)
+		p->set(v);
 }
 
 void creaturea::leave() {
-	for(auto pc : *this)
-		pc->clear();
+	for(auto p : *this)
+		p->clear();
 }
 
 void creaturea::resolve() {
 	auto award = 0;
-	for(auto pc : *this) {
-		award += pc->getawards();
-		pc->clear();
+	for(auto p : *this) {
+		award += p->getawards();
+		p->clear();
 	}
 	game.addexpc(award, 0);
 }
@@ -93,4 +106,30 @@ void creaturea::resolve() {
 void creaturea::kill() {
 	for(auto pc : *this)
 		pc->kill();
+}
+
+creature* creaturea::getmostdamaged() const {
+	creature* result = 0;
+	int difference = 0;
+	for(auto p : *this) {
+		if(!p)
+			continue;
+		int hp = p->gethits();
+		int mhp = p->gethitsmaximum();
+		if(hp == mhp)
+			continue;
+		auto n = mhp - hp;
+		if(n > difference) {
+			result = p;
+			difference = n;
+		}
+	}
+	return result;
+}
+
+creature* creaturea::choose() const {
+	answers elements;
+	for(auto p : *this)
+		elements.add((int)p, p->getname());
+	return (creature*)elements.choosesm("On which hero?", true);
 }

@@ -613,6 +613,9 @@ creature* item::getowner() const {
 	if((void*)this >= location.monsters
 		&& (void*)this < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
 		return location.monsters + ((creature*)this - location.monsters);
+	if((void*)this >= game.characters
+		&& (void*)this < &game.characters[sizeof(game.characters) / sizeof(game.characters[0])])
+		return game.characters + ((creature*)this - game.characters);
 	if((void*)this >= bsdata<creature>::elements
 		&& (void*)this < bsdata<creature>::source.end())
 		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
@@ -634,4 +637,11 @@ bool item::ispower(variant v) const {
 
 bool item::issmall() const {
 	return gete().image.size == 0;
+}
+
+wear_s item::getequiped() const {
+	auto p = getowner();
+	if(p)
+		return p->getslot(this);
+	return Backpack;
 }

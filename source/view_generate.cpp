@@ -310,19 +310,20 @@ static void apply_change_character() {
 }
 
 static void change_character() {
-	//auto ptr_player = (variant*)hot::param;
-	//if(ptr_player >= party
-	//	&& ptr_player <= party + sizeof(party) / sizeof(party[0])) {
-	//	if(*ptr_player && ptr_player->getcreature()) {
-	//		current_player = ptr_player->getcreature();
-	//		apply_change_character();
-	//	} else {
-	//		(*ptr_player) = bsdata<creature>::add();
-	//		current_player = ptr_player->getcreature();
-	//		current_player->create(NoGender, Human, NoClass, LawfulGood, true);
-	//	}
-	//	current_player = 0;
-	//}
+	auto ptr_player = (creature**)hot::param;
+	if(*ptr_player) {
+		current_player = *ptr_player;
+		apply_change_character();
+	} else {
+		(*ptr_player) = bsdata<creature>::add();
+		current_player = *ptr_player;
+		auto gender = choosegender(true);
+		auto race = creature::chooserace(true);
+		auto type = creature::chooseclass(true, race);
+		auto alignment = choosealignment(true, type);
+		current_player->create(gender, race, type, alignment, true);
+	}
+	current_player = 0;
 }
 
 int answers::choose(const char* title_string) const {
@@ -369,11 +370,6 @@ void creature::view_party() {
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
-	if(!gender)
-		gender = choosegender(interactive);
-	if(!alignment)
-		alignment = choosealignment(interactive, type);
-	// Basic
 	set(gender);
 	set(race);
 	set(type);

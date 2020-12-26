@@ -1336,30 +1336,11 @@ bool creature::setweapon(item_s v, int charges) {
 	return true;
 }
 
-creature* get_most_damaged() {
-	creature* result = 0;
-	int difference = 0;
-	for(auto p : party) {
-		if(!p)
-			continue;
-		int hp = p->gethits();
-		int mhp = p->gethitsmaximum();
-		if(hp == mhp)
-			continue;
-		auto n = mhp - hp;
-		if(n > difference) {
-			result = p;
-			difference = n;
-		}
-	}
-	return result;
-}
-
 static void try_autocast(creature* pc) {
 	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry, CureSeriousWounds};
 	for(auto e : healing_spells) {
 		while(pc->get(e) > 0) {
-			auto target = get_most_damaged();
+			auto target = party.getmostdamaged();
 			if(!target)
 				break;
 			pc->cast(e, Cleric, 0, target);
@@ -1750,33 +1731,12 @@ reaction_s creature::rollreaction(int bonus) const {
 		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
 		Hostile, Hostile, Hostile, Hostile, Hostile, Hostile,
 		Hostile, Hostile, Hostile, Hostile, Hostile};
-	auto cha = getparty(Charisma);
+	auto cha = party.getaverage(Charisma);
 	bonus += maptbl(charisma_reaction_bonus, cha);
 	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));
 	auto result_table = indifferent;
 	return result_table[result - 2];
-}
-
-int	creature::getparty(ability_s v) {
-	auto total = 0;
-	auto count = 0;
-	for(auto p : party) {
-		if(!p || !p->isready())
-			continue;
-		total += p->get(v);
-		count++;
-	}
-	if(!count)
-		return 0;
-	return total / count;
-}
-
-void creature::apply(apply_proc proc, bool interactive) {
-	for(auto p : party) {
-		if(p)
-			(p->*proc)(interactive);
-	}
 }
 
 bool creature::usequick() {
@@ -1947,4 +1907,10 @@ bool creature::is(intellegence_s v) const {
 bool creature::ismindless() const {
 	auto i = get(Intellegence);
 	return i <= bsdata<intellegencei>::elements[Semi].v2;
+}
+
+wear_s creature::getslot(const item* p) const {
+	if(p >= wears && p < wears + LastInvertory)
+		return (wear_s)(p - wears);
+	return Backpack;
 }

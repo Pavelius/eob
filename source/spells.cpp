@@ -182,7 +182,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAlly:
 		if(!target)
-			target = choosehero();
+			target = party.choose();
 		if(!target)
 			return false;
 		say(id);
@@ -235,7 +235,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAllyItems:
 		if(!target)
-			target = choosehero();
+			target = party.choose();
 		if(!target)
 			return false;
 		say(id);

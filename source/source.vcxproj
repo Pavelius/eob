@@ -178,7 +178,7 @@
     <ClCompile Include="names.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />
-    <ClCompile Include="portrait.cpp" />
+    <ClCompile Include="avatar.cpp" />
     <ClCompile Include="race.cpp" />
     <ClCompile Include="resource.cpp" />
     <ClCompile Include="scale.c" />

@@ -101,35 +101,34 @@ static void test_dungeon2(resource_s type) {
 	location.finish(CellPassable);
 }
 
-static creature* add_hero(int n, gender_s gender, race_s race, class_s type, alignment_s alignment) {
+static creature* add_hero(gender_s gender, race_s race, class_s type, alignment_s alignment) {
 	auto p = bsdata<creature>::add();
 	p->create(gender, race, type, alignment);
-	party[n] = p;
+	party.add(p);
 	return p;
 }
 
 static void random_heroes() {
-	item pt1(GreenPotion, OfAdvise);
 	creature* p;
 	//
-	p = add_hero(0, Male, Human, Paladin, LawfulGood);
+	p = add_hero(Male, Human, Paladin, LawfulGood);
 	p->set({SwordLong, Fire}, RightHand);
 	p->equip({GreenRing, OfRegeneration});
 	p->equip({Bracers, Strenght});
 	//
-	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
+	p = add_hero(Male, Dwarf, Fighter, LawfulGood);
 	p->set({AxeBattle, OfSharpness}, RightHand);
 	p->equip({BlueRing, Invisibility});
 	//
-	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
+	p = add_hero(Female, Elf, MageTheif, ChaoticGood);
 	//p->setknown(Identify);
 	p->equip({RedRing, OfWizardy});
 	p->equip({RedRing, ResistFire});
 	p->set({Staff, BurningHands}, RightHand);
 	//
-	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add(pt1);
-	p->add(pt1);
+	p = add_hero(Male, Dwarf, Cleric, LawfulGood);
+	p->add({GreenPotion, OfAdvise});
+	p->add({GreenPotion, OfAdvise});
 }
 
 void util_main();
