@@ -257,9 +257,6 @@
     <ClCompile Include="creature_equipment.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="dialog.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="shape.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -267,9 +264,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="company.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="fraction.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="nameable.cpp">

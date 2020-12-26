@@ -232,7 +232,7 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Class, Cleveress, Creature, Damage, Dialog,
+	Ability, Action, Alignment, Class, Cleveress, Creature, Damage,
 	Enchant, Feat, Gender, Item, Morale, Number, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
@@ -278,7 +278,6 @@ struct variant {
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
 	variant(variant_s v, const void* p);
 	variant(const creature* v);
-	variant(const dialogi* v) : variant(Dialog, v) {}
 	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }

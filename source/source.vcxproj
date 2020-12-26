@@ -150,7 +150,6 @@
     <ClCompile Include="creature_equipment.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="damage.cpp" />
-    <ClCompile Include="dialog.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -168,7 +167,6 @@
     </ClCompile>
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
-    <ClCompile Include="fraction.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="geometry.cpp" />

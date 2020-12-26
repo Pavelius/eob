@@ -886,6 +886,9 @@ void companyi::adventurei::create(bool interactive) const {
 	auto base = 0;
 	dungeon* previous = 0;
 	for(auto p = levels; *p; p++) {
+		auto special_item_level = -1;
+		if(p->head.special)
+			special_item_level = rand() % p->levels;
 		for(auto j = 0; j < p->levels; j++) {
 			auto& e = dungeons[base + j];
 			auto level = base + j + 1;
@@ -897,6 +900,8 @@ void companyi::adventurei::create(bool interactive) const {
 				e.clear();
 				e.overland_index = position;
 				e.head = p->head;
+				if(special_item_level != j)
+					e.head.special = NoItem;
 				e.level = level;
 				e.chance.curse = 5 + p->chance.curse;
 				if(start == Blocked)
@@ -919,7 +924,8 @@ void companyi::adventurei::create(bool interactive) const {
 					break;
 			}
 			remove_dead_door(&e);
-			validate_special_items(e);
+			if(j==special_item_level)
+				validate_special_items(e);
 			add_spawn_points(e);
 			e.overland_index = position;
 			previous = &e;

@@ -1991,28 +1991,9 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 	return e.edit(title, cancel_button);
 }
 
-static bool variant_editable(const void* object, const void* pointer) {
-	auto p = (varianti*)pointer;
-	return p->flags.is(Editable);
-}
-
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	//varianti* pv = 0;
-	//void* p = 0;
-	//while(true) {
-	//	pv = (varianti*)choose(bsdata<varianti>::source, "Which item you want to edit?", 0, pv,
-	//		getnm<varianti>, variant_editable, 0, 0);
-	//	if(!pv)
-	//		break;
-	//	while(true) {
-	//		p = choose(*pv->form.source, pv->name, 0, p, pv->form.pgetname, 0, 0, 0, true);
-	//		if(!p)
-	//			break;
-	//		edit(pv->name, p, pv->form.form);
-	//	}
-	//}
 	game.companyi::read("default");
 	edit("Company", &game, dginf<companyi>::meta, false);
 	game.companyi::write("default");
