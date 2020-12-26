@@ -1240,8 +1240,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 
 void read_message(dungeon* pd, dungeon::overlayi* po) {
 	creature* pc = 0;
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p || !p->isready())
 			continue;
 		if(!pc)
@@ -1340,17 +1339,16 @@ bool creature::setweapon(item_s v, int charges) {
 creature* get_most_damaged() {
 	creature* result = 0;
 	int difference = 0;
-	for(auto v : party) {
-		auto e = v.getcreature();
-		if(!e)
+	for(auto p : party) {
+		if(!p)
 			continue;
-		int hp = e->gethits();
-		int mhp = e->gethitsmaximum();
+		int hp = p->gethits();
+		int mhp = p->gethitsmaximum();
 		if(hp == mhp)
 			continue;
 		auto n = mhp - hp;
 		if(n > difference) {
-			result = e;
+			result = p;
 			difference = n;
 		}
 	}
@@ -1443,28 +1441,26 @@ void creature::resting(int healed) {
 }
 
 void creature::camp(item& it) {
-	for(auto v : party) {
-		auto e = v.getcreature();
-		if(!e)
+	for(auto p : party) {
+		if(!p)
 			continue;
-		if(!e->isready())
+		if(!p->isready())
 			continue;
-		try_autocast(e);
+		try_autocast(p);
 	}
 	game.passtime(60 * 8);
 	auto food = it.gettype();
 	auto poisoned = it.iscursed();
 	if(poisoned)
 		mslog("Food was poisoned!");
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc)
+	for(auto p : party) {
+		if(!p)
 			continue;
 		// RULE: Ring of healing get addition healing
 		int healed = 0;
 		if(poisoned) {
 			// RULE: Cursed food add weak poison
-			pc->add(Poison, Instant, NoSave);
+			p->add(Poison, Instant, NoSave);
 		} else {
 			switch(food) {
 			case Ration:
@@ -1475,7 +1471,7 @@ void creature::camp(item& it) {
 				break;
 			}
 		}
-		pc->resting(healed);
+		p->resting(healed);
 	}
 }
 
@@ -1765,9 +1761,8 @@ reaction_s creature::rollreaction(int bonus) const {
 int	creature::getparty(ability_s v) {
 	auto total = 0;
 	auto count = 0;
-	for(auto ev : party) {
-		auto p = ev.getcreature();
-		if(!p || !(*p) || !p->isready())
+	for(auto p : party) {
+		if(!p || !p->isready())
 			continue;
 		total += p->get(v);
 		count++;
@@ -1778,8 +1773,7 @@ int	creature::getparty(ability_s v) {
 }
 
 void creature::apply(apply_proc proc, bool interactive) {
-	for(auto ev : party) {
-		auto p = ev.getcreature();
+	for(auto p : party) {
 		if(p)
 			(p->*proc)(interactive);
 	}

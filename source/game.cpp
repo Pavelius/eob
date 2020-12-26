@@ -2,7 +2,7 @@
 #include "main.h"
 
 #ifdef _DEBUG
-const bool visialize_map = true;
+const bool visialize_map = false;
 #else
 const bool visialize_map = false;
 #endif // _DEBUG
@@ -17,7 +17,7 @@ static const char* name_direction[] = {"floor",
 "left", "forward", "right", "rear"};
 
 gamei					game;
-variant					party[6];
+creaturea				party;
 dungeon					location_above;
 dungeon					location;
 
@@ -43,12 +43,7 @@ bool creature::ishero() const {
 int	gamei::getindex(const creature* p) const {
 	if(!this)
 		return -1;
-	variant v = p;
-	for(unsigned i = 0; i < sizeof(party) / sizeof(party[0]); i++) {
-		if(party[i] == v)
-			return i;
-	}
-	return -1;
+	return party.indexof(const_cast<creature*>(p));
 }
 
 static int find_index(int** items, int* itm) {
@@ -94,14 +89,13 @@ static creature* get_best_enemy(creature** quarter, int* indecies) {
 
 void gamei::getheroes(creature** result, direction_s dr) {
 	result[0] = result[1] = result[2] = result[3] = 0;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc || pc->gethits() <= 0)
+	for(auto p : party) {
+		if(!p || p->gethits() <= 0)
 			continue;
-		int side = pc->getside();
+		int side = p->getside();
 		if(side > 3)
 			continue;
-		result[side] = pc;
+		result[side] = p;
 	}
 }
 
@@ -266,18 +260,21 @@ void gamei::findsecrets() {
 		"I see something on %1 wall",
 		"There is button to the %1",
 	};
+	static const char* forest_speech[] = {
+		"I see something on %1 trees",
+		"Trees on the %1 side seems to be unstable",
+	};
 	direction_s secret_dir = Center;
 	auto index = game.getcamera();
 	auto dir = game.getdirection();
 	if(!get_secret(index, dir, Left, secret_dir)
 		&& !get_secret(index, dir, Right, secret_dir))
 		return;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc || !pc->isready())
+	for(auto p : party) {
+		if(!p || !p->isready())
 			continue;
-		if(pc->roll(DetectSecrets)) {
-			pc->say(maprnd(speech), name_direction[secret_dir]);
+		if(p->roll(DetectSecrets)) {
+			p->say(maprnd(speech), name_direction[secret_dir]);
 			break;
 		}
 	}
@@ -307,7 +304,7 @@ creature* gamei::getvalid(creature* pc, class_s type) const {
 		i = 0;
 	auto stop = i;
 	while(true) {
-		auto p = party[i].getcreature();
+		auto p = party[i];
 		if(p && p->iscast(type))
 			return p;
 		if(++i >= (int)(sizeof(party) / sizeof(party[0])))
@@ -318,8 +315,7 @@ creature* gamei::getvalid(creature* pc, class_s type) const {
 }
 
 bool gamei::isalive() {
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(p && p->isready())
 			return true;
 	}
@@ -370,10 +366,9 @@ void gamei::passround() {
 		if(e)
 			e.update(false);
 	}
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(pc)
-			pc->update(true);
+	for(auto p : party) {
+		if(p)
+			p->update(true);
 	}
 	// Every round update
 	creature::update_boost();
@@ -383,10 +378,9 @@ void gamei::passround() {
 			if(e)
 				e.update_turn(false);
 		}
-		for(auto v : party) {
-			auto pc = v.getcreature();
-			if(pc)
-				pc->update_turn(true);
+		for(auto p : party) {
+			if(p)
+				p->update_turn(true);
 		}
 		rounds_turn += 10;
 	}
@@ -396,10 +390,9 @@ void gamei::passround() {
 			if(e)
 				e.update_hour(false);
 		}
-		for(auto v : party) {
-			auto pc = v.getcreature();
-			if(pc)
-				pc->update_hour(true);
+		for(auto p : party) {
+			if(p)
+				p->update_hour(true);
 		}
 		rounds_hour += 60;
 		location.passhour();
@@ -464,8 +457,11 @@ static bool serialize(bool writemode) {
 		return false;
 	if(!a.version(0, 1))
 		return false;
+	if(writemode)
+		game.preserial(true);
 	a.set(game);
-	a.set(party);
+	if(!writemode)
+		game.preserial(false);
 	a.set(bsdata<creature>::source);
 	a.set(bsdata<boosti>::source);
 	return true;
@@ -544,8 +540,7 @@ bool gamei::read() {
 }
 
 void gamei::equiping() {
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		p->random_equipment();
@@ -555,11 +550,10 @@ void gamei::equiping() {
 
 void gamei::leavedungeon() {
 	looti loot = {};
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc)
+	for(auto p : party) {
+		if(!p)
 			continue;
-		pc->removeloot(loot);
+		p->removeloot(loot);
 	}
 }
 
@@ -597,8 +591,7 @@ void gamei::rideto(point v) {
 }
 
 bool gamei::is(variant id) const {
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		if(p->ismatch(id))
@@ -608,8 +601,7 @@ bool gamei::is(variant id) const {
 }
 
 void gamei::addexp(morale_s id, unsigned value) {
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		if(p->is(id))
@@ -619,20 +611,18 @@ void gamei::addexp(morale_s id, unsigned value) {
 
 void gamei::addexpc(unsigned value, int killing_hit_dice) {
 	unsigned count = 0;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(pc && pc->isready())
+	for(auto p : party) {
+		if(p && p->isready())
 			count++;
 	}
 	if(count) {
 		int value_per_member = imax((unsigned)1, value / count);
-		for(auto v : party) {
-			auto pc = v.getcreature();
-			if(pc && pc->isready()) {
-				pc->addexp(value_per_member);
+		for(auto p : party) {
+			if(p && p->isready()) {
+				p->addexp(value_per_member);
 				if(killing_hit_dice) {
-					if(pc->get(Fighter) || pc->get(Paladin) || pc->get(Ranger))
-						pc->addexp(10 * killing_hit_dice);
+					if(p->get(Fighter) || p->get(Paladin) || p->get(Ranger))
+						p->addexp(10 * killing_hit_dice);
 				}
 			}
 		}
@@ -641,8 +631,7 @@ void gamei::addexpc(unsigned value, int killing_hit_dice) {
 
 int	gamei::getaverage(ability_s id) const {
 	auto total = 0, count = 0;
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		if(!p->isready())
@@ -661,8 +650,7 @@ bool gamei::roll(int value) {
 }
 
 void gamei::additem(item i, bool interactive) {
-	for(auto ev : party) {
-		auto p = ev.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		if(p->add(i)) {
@@ -678,4 +666,15 @@ void gamei::additem(item i, bool interactive) {
 
 void gamei::clear() {
 	memset(this, 0, sizeof(*this));
+}
+
+void gamei::preserial(bool writemode) {
+	if(writemode) {
+		for(auto i = 0; i < 6; i++)
+			players[i] = party[i];
+	} else {
+		party.clear();
+		for(auto i = 0; i < 6; i++)
+			party.add(players[i].getcreature());
+	}
 }

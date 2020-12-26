@@ -44,8 +44,7 @@ static bool cast_on_items(spell_s id, int level, creature* caster, itema& result
 
 static bool cast_on_party_items(spell_s id, int level, creature* caster) {
 	itema result;
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		p->select(result);
@@ -175,8 +174,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		break;
 	case TargetAllAlly:
 		say(id);
-		for(auto v : party) {
-			auto p = v.getcreature();
+		for(auto p : party) {
 			if(!p)
 				continue;
 			p->apply(id, level, 0);

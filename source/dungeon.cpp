@@ -570,8 +570,7 @@ void dungeon::traplaunch(indext index, direction_s dir, item_s show, const comba
 				stop = true;
 			}
 		}
-		for(auto v : party) {
-			auto p = v.getcreature();
+		for(auto p: party) {
 			if(p && p->getindex() == index) {
 				attack(ci, p);
 				stop = true;
@@ -600,8 +599,7 @@ void dungeon::passround() {
 			continue;
 		map[i]++;
 	}
-	for(auto v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(!p || !(*p))
 			continue;
 		auto i = p->getindex();
@@ -733,14 +731,13 @@ void dungeon::move(indext index, direction_s dr) {
 }
 
 static void falling_damage() {
-	for(auto v : party) {
-		auto e = v.getcreature();
-		if(!e)
+	for(auto p : party) {
+		if(!p)
 			continue;
 		// RULE: Climb walls helps when you drop down in pits
-		if(e->roll(ClimbWalls))
+		if(p->roll(ClimbWalls))
 			continue;
-		e->damage(Bludgeon, dice::roll(3, 6));
+		p->damage(Bludgeon, dice::roll(3, 6));
 	}
 }
 
@@ -767,14 +764,13 @@ void dungeon::hearnoises() {
 	door_index = to(door_index, dir);
 	if(door_index == Blocked)
 		return;
-	for(auto v : party) {
-		auto pc = v.getcreature();
-		if(!pc || !pc->isready())
+	for(auto p : party) {
+		if(!p || !p->isready())
 			continue;
 		auto exp = 0;
-		if(pc->get(Theif))
+		if(p->get(Theif))
 			exp = 30;
-		if(pc->use(HearNoise, door_index, 0, 0, exp, false)) {
+		if(p->use(HearNoise, door_index, 0, 0, exp, false)) {
 			creature* sides[4]; location.getmonsters(sides, door_index, Center);
 			int count = 0;
 			for(auto e : sides) {
@@ -783,13 +779,13 @@ void dungeon::hearnoises() {
 			}
 			if(count) {
 				if(count == 1 && sides[0] && sides[0]->getsize() >= Large)
-					pc->say("There is something large behind this door", count);
+					p->say("There is something large behind this door", count);
 				else if(count > 2)
-					pc->say("Behind this door hide %1i creatures", count);
+					p->say("Behind this door hide %1i creatures", count);
 				else
-					pc->say("Behind this door creature", count);
+					p->say("Behind this door creature", count);
 			} else
-				pc->say("Nobody is behide this door");
+				p->say("Nobody is behide this door");
 			break;
 		}
 	}

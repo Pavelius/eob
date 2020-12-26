@@ -23,10 +23,9 @@ static void new_game() {
 }
 
 static void delete_character() {
-	for(auto& v : party) {
-		auto p = v.getcreature();
+	for(auto p : party) {
 		if(p == current_player)
-			v.clear();
+			p->clear();
 	}
 	current_player->clear();
 	breakmodal(0);
@@ -268,7 +267,7 @@ class_s creature::chooseclass(bool interactive, race_s race) {
 
 static bool is_party_created() {
 	for(int i = 0; i < 4; i++) {
-		auto p = party[i].getcreature();
+		auto p = party[i];
 		if(!p)
 			return false;
 		if(!*p)
@@ -311,19 +310,19 @@ static void apply_change_character() {
 }
 
 static void change_character() {
-	auto ptr_player = (variant*)hot::param;
-	if(ptr_player >= party
-		&& ptr_player <= party + sizeof(party) / sizeof(party[0])) {
-		if(*ptr_player && ptr_player->getcreature()) {
-			current_player = ptr_player->getcreature();
-			apply_change_character();
-		} else {
-			(*ptr_player) = bsdata<creature>::add();
-			current_player = ptr_player->getcreature();
-			current_player->create(NoGender, Human, NoClass, LawfulGood, true);
-		}
-		current_player = 0;
-	}
+	//auto ptr_player = (variant*)hot::param;
+	//if(ptr_player >= party
+	//	&& ptr_player <= party + sizeof(party) / sizeof(party[0])) {
+	//	if(*ptr_player && ptr_player->getcreature()) {
+	//		current_player = ptr_player->getcreature();
+	//		apply_change_character();
+	//	} else {
+	//		(*ptr_player) = bsdata<creature>::add();
+	//		current_player = ptr_player->getcreature();
+	//		current_player->create(NoGender, Human, NoClass, LawfulGood, true);
+	//	}
+	//	current_player = 0;
+	//}
 }
 
 int answers::choose(const char* title_string) const {

@@ -1068,8 +1068,10 @@ class gamei : public companyi {
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
 	unsigned			gold;
+	variant				players[6];
 	static void			render_worldmap(void* object);
 public:
+	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
 	void				additem(item i, bool interactive);
 	void				addexp(morale_s id, unsigned v);
@@ -1102,6 +1104,7 @@ public:
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
+	void				preserial(bool writemode);
 	static bool			roll(int value);
 	bool				question(item* current_item);
 	void				rideto(point overland_position);
@@ -1176,7 +1179,7 @@ void					textbc(int x, int y, const char* header);
 extern gamei			game;
 extern dungeon			location_above;
 extern dungeon			location;
-extern variant			party[6];
+extern creaturea		party;
 inline int				gx(indext index) { return index % mpx; }
 inline int				gy(indext index) { return index / mpx; }
 indext					to(indext index, direction_s d);

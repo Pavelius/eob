@@ -1,8 +1,7 @@
 #include "main.h"
 
 void itema::select() {
-	for(auto pv : party) {
-		auto p = pv.getcreature();
+	for(auto p : party) {
 		if(!p)
 			continue;
 		p->select(*this);

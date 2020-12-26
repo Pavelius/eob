@@ -37,8 +37,7 @@ void creaturea::match(const messagei& id, bool remove) {
 
 void creaturea::select(indext index) {
 	if(game.getcamera() == index) {
-		for(auto v : party) {
-			auto p = v.getcreature();
+		for(auto p : party) {
 			if(!p || !p->isready())
 				continue;
 			add(p);
