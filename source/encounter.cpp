@@ -6,11 +6,15 @@ struct chati {
 	const char*			text;
 };
 
-static chati messages[] = {{Greeting, {Indifferent}, "\"Who is you? How you get there?\""},
-{Greeting, {Indifferent}, "\"Who is there? How you dig so deep?\""},
-{Greeting, {Indifferent}, "\"What a ... Who is you?\""},
+static chati messages[] = {{Greeting, {Indifferent, Ave}, "\"Who is you? How you get there?\""},
+{Greeting, {Indifferent, Low}, "\"Who is there? How you dig so deep?\""},
+{Greeting, {Indifferent, Low}, "\"Whatta you doing here? And a who is you?\""},
+{Greeting, {Indifferent, Low}, "\"What a ... Who is you?\""},
+{Greeting, {Indifferent}, "%1 is glazing at you. But not attack, carefully watching."},
 {Greeting, {Friendly, High}, "\"Welcome, my very best friends! I so glad to see you! What can I do for you?\""},
-{Greeting, {Friendly}, "\"Welcome friends, I am at your service! What can I do for your?\""},
+{Greeting, {Friendly, Ave}, "\"Welcome friends, I am at your service! What can I do for your?\""},
+{Greeting, {Friendly, Low}, "\"Welcome strangers, me and my friends like you. Whata me can do for you?\""},
+{Greeting, {Friendly}, "%1 is glazing at you. But not attack, carefully watching."},
 {FailLie, {}, "\"You are liers! Prepare to die!!\""},
 {TalkArtifact, {}, "\"I heard, that famous %1 lies in %2 part of this place. Find it as fast as possible.\""},
 {TalkMagic, {}, "\"Wait a minute, one item from your equipment seems familiar to me. It's a %1 and it's magical.\""},
@@ -21,7 +25,7 @@ static chati messages[] = {{Greeting, {Indifferent}, "\"Who is you? How you get 
 {TalkRumor, {}, "\"Dark side is strong.\""},
 };
 static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack};
-static cflags<action_s> friendly_actions = {Trade, Talk, Smithing};
+static cflags<action_s> friendly_actions = {Trade, Talk, Smithing, Pet};
 static item_s common_trade[] = {Ration, KeySilver, BluePotion};
 
 static const chati* find(action_s id, encounteri& scene, const aref<chati>& source) {
@@ -58,10 +62,15 @@ static void prompt(encounteri& scene, const char* title, const cflags<action_s>&
 }
 
 static void prompt(encounteri& scene, action_s id, const aref<chati>& dialogs, const cflags<action_s>& actions) {
+	auto leader = scene.getleader();
+	if(!leader)
+		return;
 	auto p = find(id, scene, dialogs);
 	if(!p)
 		return;
-	prompt(scene, p->text, actions);
+	char temp[512]; stringbuilder sb(temp);
+	sb.add(p->text, leader->getname());
+	prompt(scene, temp, actions);
 }
 
 static void chatting(encounteri& scene, const aref<chati>& dialogs) {
@@ -177,6 +186,10 @@ static bool talk_subject(action_s id, encounteri& scene, bool run) {
 			game.addexpc(500, 0);
 		}
 		break;
+	case TalkRumor:
+		if(run) {
+		}
+		break;
 	default:
 		return false;
 	}
@@ -230,7 +243,7 @@ bool encounteri::apply(action_s id, bool run) {
 		if(leader->ismindless())
 			return false;
 		items.select();
-		items.forsale(false);
+		items.forsale(true);
 		if(!items)
 			return false;
 		if(run) {
@@ -247,6 +260,10 @@ bool encounteri::apply(action_s id, bool run) {
 		break;
 	case Trade:
 		if(leader->ismindless())
+			return false;
+		items.select();
+		items.forsale(true);
+		if(!items)
 			return false;
 		if(run) {
 			auto pi = items.choose("Sell which item?", false);
@@ -267,8 +284,23 @@ bool encounteri::apply(action_s id, bool run) {
 			game.addexp(Evil, 30);
 		}
 		break;
-	//case Smithing:
-	//	break;
+	case Pet:
+		if(!leader->ismindless())
+			return false;
+		if(run) {
+		}
+		break;
+	case Smithing:
+		if(leader->ismindless())
+			return false;
+		items.select();
+		items.broken(true);
+		if(!items)
+			return false;
+		if(run) {
+
+		}
+		break;
 	default:
 		return false;
 	}
@@ -289,9 +321,9 @@ void gamei::interract(indext monster_index) {
 	location.formation(monster_index, direction);
 	location.turnto(party_index, to(direction, Down), &party_ambush);
 	encounter.set(leader->getreaction());
-	//if(encounter.reaction == Indifferent)
-	//	encounter.set(leader->rollreaction(0));
-	encounter.set(Friendly);
+	if(encounter.reaction == Indifferent)
+		encounter.set(leader->rollreaction(0));
+	//encounter.set(Friendly);
 	if(encounter.reaction == Indifferent || encounter.reaction == Friendly) {
 		party_ambush = false;
 		encounter.dialog();

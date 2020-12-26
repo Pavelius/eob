@@ -223,7 +223,7 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
-	Greeting, Lie, Trade, Bribe, Talk, Smithing, Attack,
+	Greeting, Lie, Trade, Bribe, Talk, Smithing, Attack, Pet,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -542,7 +542,7 @@ public:
 	item(item_s type, rarity_s rarity);
 	item(item_s type, variant power);
 	constexpr explicit operator bool() const { return type != NoItem; }
-	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges==charges; }
+	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges == charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
 	static bool			choose_enchantment(const void* object, const array& source, void* pointer);
@@ -575,6 +575,7 @@ public:
 	bool				isartifact() const;
 	constexpr bool		isbroken() const { return broken != 0; }
 	constexpr bool		ischarged() const { return is(Charged); }
+	constexpr bool		iscost() const { return gete().cost > 0; }
 	constexpr bool		iscursed() const { return cursed != 0; }
 	constexpr bool		isidentified() const { return identified != 0; }
 	bool				ismagical() const;
@@ -634,11 +635,13 @@ class itema : public adat<item*, 48> {
 	typedef bool (item::*pitem)() const;
 	void				select(pitem proc, bool keep);
 public:
+	void				broken(bool keep) { select(&item::isbroken, keep); }
 	item*				choose(const char* format, bool cancel_button);
+	void				cost(bool keep) { select(&item::iscost, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }
 	void				identified(bool keep) { select(&item::isidentified, keep); }
 	void				magical(bool keep) { select(&item::ismagical, keep); }
-	void				forsale(bool remove);
+	void				forsale(bool keep);
 	item*				random();
 	void				select();
 };
@@ -943,7 +946,6 @@ struct dungeon {
 	void				clear();
 	void				clearboost();
 	bool				create(rect& rc, int w, int h) const;
-	static void			create(indext index, const sitei* site, bool interactive = false);
 	void				dropitem(indext index, item rec, int side);
 	void				dropitem(item* pi, int side = -1);
 	void				explore(indext index, int r = 1);

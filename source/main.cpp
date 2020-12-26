@@ -220,7 +220,7 @@ static void debug_dungeon1() {
 	game.setcamera(Blocked);
 	random_heroes();
 	game.equiping();
-	game.rideto({614, 294});
+	game.rideto(game.start);
 	game.write();
 }
 
@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
 	//return 0;
 	//srand(2112);
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;

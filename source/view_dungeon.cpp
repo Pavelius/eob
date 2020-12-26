@@ -480,7 +480,8 @@ bool draw::settiles(resource_s type) {
 	// Некоторые ньюансы
 	switch(type) {
 	case FOREST:
-		set_tile(CellWall, 1);
+		for(auto i = CellPit; i<=CellDoorButton; i = (cell_s)(i+1))
+			set_tile(i, -1, -1, 0);
 		break;
 	case BLUE:
 		set_tile(CellDoor, 3, -1, -1, 1);

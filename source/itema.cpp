@@ -19,13 +19,13 @@ void itema::select(pitem proc, bool keep) {
 	count = ps - data;
 }
 
-void itema::forsale(bool remove) {
+void itema::forsale(bool keep) {
 	auto ps = data;
 	for(auto p : *this) {
 		auto value = p->getcost() > 0;
 		if(p->isidentified() && p->ismagical())
 			value = false;
-		if(value == remove)
+		if(value != keep)
 			continue;
 		*ps++ = p;
 	}

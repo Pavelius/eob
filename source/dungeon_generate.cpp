@@ -330,6 +330,8 @@ static void monster(dungeon* pd, indext index, direction_s dir, unsigned flags) 
 }
 
 static void prison(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(need_crypt_button(pd, index, dir, flags))
 		return;
 	auto i1 = to(index, dir);
@@ -356,6 +358,8 @@ static void prison(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 }
 
 static void treasure(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(need_crypt_button(pd, index, dir, flags))
 		return;
 	auto i1 = to(index, dir);
@@ -389,6 +393,8 @@ static void treasure(dungeon* pd, indext index, direction_s dir, unsigned flags)
 }
 
 static void decoration(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(need_crypt_button(pd, index, dir, flags))
 		return;
 	auto i1 = to(index, dir);
@@ -400,6 +406,8 @@ static void decoration(dungeon* pd, indext index, direction_s dir, unsigned flag
 }
 
 static void portal(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(pd->stat.portal.index != Blocked)
 		return;
 	auto i1 = to(index, dir);
@@ -415,6 +423,8 @@ static void portal(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 }
 
 static void message(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(pd->stat.messages > MessageHabbits)
 		return;
 	auto i1 = to(index, dir);
@@ -467,6 +477,8 @@ static bool room(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 }
 
 static bool door(dungeon* pd, indext index, direction_s dir, bool has_button, bool has_button_on_other_side) {
+	if(pd->head.type == FOREST)
+		return true;
 	auto i1 = to(index, dir);
 	switch(pd->get(i1)) {
 	case CellWall:
@@ -503,6 +515,8 @@ static short unsigned find_index(dungeon* pd, indext index, direction_s dir) {
 }
 
 static void trap(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	auto dr = to(dir, Left);
 	auto i1 = find_index(pd, index, dr);
 	if(i1 == Blocked) {
@@ -527,6 +541,8 @@ static int random_cellar_count() {
 }
 
 static void cellar(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+	if(pd->head.type == FOREST)
+		return;
 	if(need_crypt_button(pd, index, dir, flags))
 		return;
 	auto i1 = to(index, dir);

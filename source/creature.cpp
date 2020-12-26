@@ -1844,7 +1844,7 @@ void creature::select(itema& result) {
 bool creature::haveforsale() const {
 	itema items;
 	const_cast<creature*>(this)->select(items);
-	items.forsale(false);
+	items.forsale(true);
 	return items.getcount() > 0;
 }
 
@@ -1946,7 +1946,8 @@ bool creature::is(morale_s v) const {
 
 bool creature::is(intellegence_s v) const {
 	auto i = get(Intellegence);
-	return i >= bsdata<intellegencei>::elements[v].v1 && i <= bsdata<intellegencei>::elements[v].v2;
+	return i >= bsdata<intellegencei>::elements[v].v1
+		&& i <= bsdata<intellegencei>::elements[v].v2;
 }
 
 bool creature::ismindless() const {
