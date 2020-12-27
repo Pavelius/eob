@@ -521,13 +521,18 @@ struct imagei {
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct messagei {
-	short unsigned		id;
+	struct aski {
+		conditiona		variants;
+		textable		text;
+		short unsigned	next[2];
+		constexpr explicit operator bool() const { return text.operator bool(); }
+	};
 	conditiona			variants;
 	textable			text;
-	short				next[2];
 	imagei				overlay;
-	selli*				trade;
-	constexpr explicit operator bool() const { return id != 0; }
+	short unsigned		next;
+	aski				actions[8];
+	constexpr explicit operator bool() const { return text.operator bool(); }
 };
 struct sitei {
 	struct headi {
@@ -1058,6 +1063,7 @@ struct companyi : nameablei {
 	fractioni			fractions[8];
 	adventurei			adventures[13];
 	creature			characters[4+13];
+	messagei			messages[64];
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
 	void				write(const char* name);
@@ -1119,6 +1125,7 @@ public:
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
+	void				play(short unsigned id);
 	void				preserial(bool writemode);
 	static bool			roll(int value);
 	bool				question(item* current_item);
@@ -1216,6 +1223,8 @@ NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(looti)
+NOBSDATA(messagei)
+NOBSDATA(messagei::aski)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)

@@ -1278,7 +1278,6 @@ int	draw::text(rect rc, const char* string, unsigned state) {
 		return dy;
 	} else {
 		int w1 = rc.width();
-		//while(y1 < rc.y2)
 		while(true) {
 			int w;
 			int c = textbc(string, w1, &w);

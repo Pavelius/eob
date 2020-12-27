@@ -80,6 +80,9 @@ static draw::surface	bitmap;
 char					bitmap_url[260];
 callback				draw::domodal;
 static textedit			current_text;
+static void*			current_edit;
+static int				current_c1;
+static point			current_p1;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -436,6 +439,43 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 		rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, colors::black, 192);
 }
 
+static int texti(rect rc, const char* string, unsigned state, int i1, point& p1) {
+	p1.x = rc.x1; p1.y = rc.y1;
+	auto ps = string;
+	int x1 = rc.x1;
+	int y1 = rc.y1 + alignedh(rc, string, state);
+	int dy = texth();
+	if(state&TextSingleLine) {
+		draw::state push;
+		setclip(rc);
+		auto w = draw::textw(string);
+		auto b = aligned(x1, rc.width(), state, w);
+		p1.x = b + i1*textw('A');
+		p1.y = y1;
+		text(b, y1, string, -1, state);
+		return dy;
+	} else {
+		int w1 = rc.width();
+		while(true) {
+			int w;
+			int c = textbc(string, w1, &w);
+			if(!c)
+				break;
+			auto b = aligned(x1, w1, state, w);
+			auto c1 = i1 - (string - ps);
+			if(c1 <= c) {
+				p1.x = b + c1*textw('A');
+				p1.y = y1;
+			} else
+				c1 -= c;
+			text(b, y1, string, c, state);
+			y1 += dy;
+			string = skiptr(string + c);
+		}
+		return y1 - rc.y1;
+	}
+}
+
 void draw::textb(int x, int y, const char* string, int count) {
 	if(true) {
 		state push;
@@ -445,12 +485,23 @@ void draw::textb(int x, int y, const char* string, int count) {
 	text(x, y, string);
 }
 
-int draw::textb(rect rc, const char* string, unsigned flags) {
+static int textbi(rect rc, const char* string, unsigned flags, int i1, point& p1) {
 	if(true) {
 		draw::state push;
 		fore = colors::black;
 		rect rc1 = rc; rc1.move(1, 1);
 		text(rc1, string, flags);
+	}
+	return texti(rc, string, flags, i1, p1);
+}
+
+int draw::textb(rect rc, const char* string, unsigned flags) {
+	if(true) {
+		draw::state push;
+		fore = colors::black;
+		rect rc1 = rc; rc1.move(1, 1);
+		point p1;
+		texti(rc1, string, flags, 0, p1);
 	}
 	return text(rc, string, flags);
 }
@@ -1533,19 +1584,21 @@ static void delete_symbol() {
 }
 
 static void add_symbol(char* p, unsigned size, int k) {
-	auto n = zlen(p);
+	auto m = zlen(p);
+	if(current_c1 > m)
+		current_c1 = m;
 	switch(k) {
 	case 8:
-		if(n)
-			p[n - 1] = 0;
+		if(current_c1 > 0)
+			p[--current_c1] = 0;
 		break;
 	case 13: case 10:
 		break;
 	default:
 		if(k <= 128) {
-			if(n < (int)(size - 1)) {
-				p[n] = k;
-				p[n + 1] = 0;
+			if(current_c1 < (int)(size - 1)) {
+				p[current_c1++] = k;
+				p[current_c1] = 0;
 			}
 		}
 		break;
@@ -1638,6 +1691,10 @@ static void sub_number() {
 	add_number(current_object, current_size, 1, 10, 0);
 }
 
+static void move_cursor() {
+	auto n = hot::param;
+}
+
 static void clear_value() {
 	if(current_markup->value.size <= sizeof(int))
 		setvalue(current_markup->value.ptr(current_object), current_markup->value.size, 0);
@@ -1682,11 +1739,11 @@ static void event_number(void* object, unsigned size) {
 
 static int field(const rect& rco, const char* title, void* object, const markup& e, unsigned flags) {
 	auto rich_edit = rco.height() >= texth() * 2;
-	auto push_fore = fore;
-	fore = colors::white;
+	auto push_fore = draw::fore;
+	draw::fore = colors::white;
 	if(!title || title[0] == 0) {
 		if(rich_edit) {
-			fore = fore.mix(colors::gray, 128);
+			draw::fore = draw::fore.mix(colors::gray, 128);
 			title = e.title;
 		} else
 			title = "None";
@@ -1700,21 +1757,42 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	auto rc = rco;
 	rc.offset(3, 2);
 	auto focused = isfocus(pv);
+	auto edit_text = false;
 	if(focused) {
-		fore = colors::focus;
 		if(hot::key == KeyDelete)
 			post(e, object, clear_value, 0);
 		else if(e.list.choose || !e.value.isnum()) {
 			if(hot::key == KeyEnter)
 				post(e, object, choose_enum_field, 0);
-		} else if(e.value.size <= sizeof(int))
+		} else if(e.value.size <= sizeof(int)) {
+			edit_text = true;
 			event_number(e.value.ptr(object), e.value.size);
-		else if(hot::key == InputSymbol)
-			post(e, object, add_symbol, hot::param);
+		} else {
+			edit_text = true;
+			if(hot::key == InputSymbol)
+				post(e, object, add_symbol, hot::param);
+		}
+		if(current_edit != pv) {
+			current_c1 = zlen(title);
+			current_edit = pv;
+		}
+		if(!edit_text)
+			fore = colors::focus;
+		else {
+			switch(hot::key) {
+			case KeyLeft: post(e, object, move_cursor, -1); break;
+			case KeyRight:post(e, object, move_cursor, 1); break;
+			}
+		}
 	}
-	textb(rc, title, flags);
-	fore = push_fore;
-	return rco.height();
+	if(edit_text && focused && current_c1) {
+		textbi(rc, title, flags, current_c1, current_p1);
+		if((frametick / 10) % 2)
+			line(current_p1.x, current_p1.y - 1, current_p1.x, current_p1.y + texth());
+	} else
+		textb(rc, title, flags);
+	draw::fore = push_fore;
+	return rco.height() + 2;
 }
 
 static int field(int x, int y, int width, const char* title, void* object, int title_width, const markup& e) {
@@ -1911,10 +1989,7 @@ class edit_control : contexti {
 		for(auto f = form; *f; f++) {
 			if(f->ispage())
 				break;
-			auto h = element(x, y, width, ctx, *f);
-			if(!h)
-				continue;
-			y += h + 2;
+			y += element(x, y, width, ctx, *f);
 		}
 		return y - y0;
 	}
@@ -1971,7 +2046,7 @@ public:
 			x = 4; y = 200 - 12 - 4;
 			if(cancel_button) {
 				x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-				x += buttonwb(x, y, "OK", buttonok, Ctrl + Alpha + 'S');
+				x += buttonwb(x, y, "OK", buttonok, KeyEnter);
 			} else
 				x += buttonwb(x, y, "OK", buttonok, KeyEscape);
 			if(page > 0)
@@ -1994,11 +2069,11 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	messagei it = {};
-	draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
-	//game.companyi::read("default");
-	//edit("Company", &game, dginf<companyi>::meta, false);
-	//game.companyi::write("default");
+	//messagei it = {};
+	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
+	game.companyi::read("default");
+	edit("Company", &game, dginf<companyi>::meta, false);
+	game.companyi::write("default");
 	font = push_font;
 }
 
