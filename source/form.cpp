@@ -21,8 +21,8 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 	sb[0] = sb.upper(sb[0]);
 	return sb;
 }
-template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder& sb) {
-	auto p = (messagei::imagei*)object;
+template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
+	auto p = (imagei*)object;
 	return p->custom.get();
 }
 template<> const char* getnm<companyi::adventurei>(const void* object, stringbuilder& sb) {
@@ -151,13 +151,13 @@ bool item::choose_enchantment(void* object, const array& source, void* pointer) 
 	return false;
 }
 static bool choose_custom_images(void* object, const array& source, void* pointer) {
-	typedef messagei::imagei T;
+	typedef imagei T;
 	auto v = (T*)pointer;
 	array files(sizeof(T));
 	for(io::file::find e(bsdata<packi>::elements[PackCustom].url); e; e.next()) {
 		if(e.name()[0] == '.')
 			continue;
-		auto p = (messagei::imagei*)files.add();
+		auto p = (imagei*)files.add();
 		char temp[260]; szfnamewe(temp, e.name());
 		stringbuilder::lower(temp);
 		p->custom.set(temp);
@@ -167,7 +167,7 @@ static bool choose_custom_images(void* object, const array& source, void* pointe
 	if(current_index != -1)
 		pc = files.ptr(current_index);
 	pc = draw::choose(files, "Custom images", object, pc,
-		getnm<messagei::imagei>, 0, messagei::imagei::preview, 100);
+		getnm<imagei>, 0, imagei::preview, 100);
 	if(!pc)
 		return false;
 	memcpy(v, pc, sizeof(T));
@@ -559,11 +559,9 @@ DGINF(companyi) = {{"Name", DGREQ(name)},
 {"#div Characters"},
 {"Character 1", DGREQ(characters[4]), {getnm<creature>, 0, edit_character}},
 {}};
-DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, choose_custom_images, messagei::imagei::preview, 130}},
-{"Mirror vertical", DGCHK(flags, ImageMirrorV)},
-{"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
+DGINF(imagei) = {{0, DGREQ(custom), {getnm<resourcei>, 0, choose_custom_images, imagei::preview, 130}},
 {}};
-DGINF(messagei) = {{"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
+DGINF(messagei) = {{"Image", DGREQ(overlay)},
 {"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
 {"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},

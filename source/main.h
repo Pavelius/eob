@@ -514,13 +514,13 @@ struct selli {
 	constexpr selli(item_s object) : object(object), rarity(Common) {}
 	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
 };
+struct imagei {
+	textable			custom;
+	unsigned			flags;
+	constexpr explicit operator bool() const { return custom.operator bool(); }
+	static int			preview(int x, int y, int width, const void* object);
+};
 struct messagei {
-	struct imagei {
-		textable		custom;
-		unsigned		flags;
-		constexpr explicit operator bool() const { return custom.operator bool(); }
-		static int		preview(int x, int y, int width, const void* object);
-	};
 	short unsigned		id;
 	conditiona			variants;
 	textable			text;
@@ -545,7 +545,7 @@ struct sitei {
 		char			curse;
 	};
 	struct eventi {
-		messagei::imagei image;
+		imagei			image;
 		textable		text;
 	};
 	headi				head;
@@ -1139,7 +1139,7 @@ struct answers {
 	void				add(int id, const char* name);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, const char* footer, const messagei::imagei* pi = 0, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, const char* footer, const imagei* pi = 0, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
@@ -1211,11 +1211,11 @@ NOBSDATA(companyi::adventurei)
 NOBSDATA(companyi::fractioni)
 NOBSDATA(companyi::historyi)
 NOBSDATA(dice)
+NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(looti)
-NOBSDATA(messagei::imagei)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)

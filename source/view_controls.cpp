@@ -504,17 +504,17 @@ static void decrement_frame() {
 }
 
 static void inverse_horizontal() {
-	auto p = (messagei::imagei*)hot::param;
+	auto p = (imagei*)hot::param;
 	p->flags ^= ImageMirrorH;
 }
 
 static void inverse_vertical() {
-	auto p = (messagei::imagei*)hot::param;
+	auto p = (imagei*)hot::param;
 	p->flags ^= ImageMirrorV;
 }
 
-int messagei::imagei::preview(int x, int y, int width, const void* object) {
-	auto p = (messagei::imagei*)object;
+int imagei::preview(int x, int y, int width, const void* object) {
+	auto p = (imagei*)object;
 	setimage(p->custom.get());
 	auto sx = bitmap.width;
 	auto sy = bitmap.height;
@@ -1128,7 +1128,7 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, const char* footer, const messagei::imagei* pi, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, const char* footer, const imagei* pi, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
