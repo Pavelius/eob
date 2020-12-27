@@ -1496,7 +1496,7 @@ static void getrows(const array& source, const void* object, rowa& result, fnall
 		sort(result.data, result.count, getname);
 }
 
-void* draw::choose(array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
+void* draw::choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
 	if(!view_width)
 		view_width = 154;
 	auto type = varianti::find(&source);
@@ -1508,7 +1508,7 @@ void* draw::choose(array& source, const char* title, const void* object, const v
 	return control.choose(title, current, view_width);
 }
 
-bool draw::choose(array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list) {
+bool draw::choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list) {
 	if(list.choose)
 		return list.choose(object, source, field);
 	auto current_value = (void*)getvalue(field, field_size);
@@ -1523,6 +1523,8 @@ bool draw::choose(array& source, const char* title, const void* object, void* fi
 			return false;
 	}
 	setvalue(field, field_size, (int)current_value);
+	if(list.update)
+		list.update(object);
 	return true;
 }
 

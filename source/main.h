@@ -459,6 +459,7 @@ struct monsteri {
 	bool				is(feat_s id) const;
 };
 struct racei {
+	char				characters;
 	const char*			name;
 	abilitya			minimum;
 	abilitya			maximum;
@@ -545,7 +546,7 @@ public:
 	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges == charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
-	static bool			choose_enchantment(const void* object, const array& source, void* pointer);
+	static bool			choose_enchantment(void* object, const array& source, void* pointer);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	void				finish();
 	int					get(variant value) const;
@@ -710,7 +711,8 @@ public:
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
 	bool				canspeak(race_s language) const;
-	static class_s		chooseclass(bool interactive, race_s race);
+	static alignment_s	choosealignment(bool interactive, class_s depend);
+	static class_s		chooseclass(bool interactive, race_s depend);
 	static race_s		chooserace(bool interactive);
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
@@ -803,7 +805,7 @@ public:
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
-	void				roll_ability();
+	void				random_ability();
 	reaction_s			rollreaction(int bonus) const;
 	void				say(spell_s id) const;
 	void				say(const char* format, ...);
@@ -841,9 +843,11 @@ public:
 	void				uncurse(bool interactive);
 	void				update(const boosti& e);
 	void				update(bool interactive);
-	void				update_turn(bool interactive);
-	void				update_hour(bool interactive);
 	static void			update_boost();
+	static void			update_class(void* object);
+	void				update_hour(bool interactive);
+	static void			update_race(void* object);
+	void				update_turn(bool interactive);
 	bool				use(ability_s id, indext index, int bonus, bool* firsttime, int exp, bool interactive);
 	static bool			use(item* pi);
 	bool				useammo(item_s ammo, wear_s slot, bool use_item);
@@ -1159,8 +1163,8 @@ void					appear(pobject proc, void* object, unsigned duration = 1000);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
-void*					choose(array& source, const char* title, const void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add = false);
-bool					choose(array& source, const char* title, const void* object, void* field, unsigned field_size, const fnlist& list);
+void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add = false);
+bool					choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);

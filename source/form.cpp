@@ -108,7 +108,7 @@ static bool variant_selectable(const void* object, const void* pointer) {
 	auto p = (varianti*)pointer;
 	return p->form.pgetname != 0;
 }
-static bool choose_variant(const void* object, const array& source, void* pointer) {
+static bool choose_variant(void* object, const array& source, void* pointer) {
 	auto v = (variant*)pointer;
 	if(!draw::choose(bsdata<varianti>::source, "Type",
 		object, &v->type, sizeof(v->type), {getnm<varianti>, variant_selectable}))
@@ -121,7 +121,7 @@ static bool choose_variant(const void* object, const array& source, void* pointe
 		return false;
 	return true;
 }
-static bool choose_wordmap_point(const void* object, const array& source, void* pointer) {
+static bool choose_wordmap_point(void* object, const array& source, void* pointer) {
 	auto v = (point*)pointer;
 	draw::setimage("worldmap");
 	auto r = draw::choosepoint(*v);
@@ -130,15 +130,15 @@ static bool choose_wordmap_point(const void* object, const array& source, void* 
 	*v = r;
 	return true;
 }
-static bool choose_history(const void* object, const array& source, void* pointer) {
+static bool choose_history(void* object, const array& source, void* pointer) {
 	auto v = (companyi::historyi*)pointer;
 	return draw::edit("History", v, dginf<meta_decoy<decltype(v)>::value>::meta, false);
 }
-static bool edit_character(const void* object, const array& source, void* pointer) {
+static bool edit_character(void* object, const array& source, void* pointer) {
 	auto v = (creature*)pointer;
 	return draw::edit("Character", v, dginf<meta_decoy<decltype(v)>::value>::meta, false);
 }
-bool item::choose_enchantment(const void* object, const array& source, void* pointer) {
+bool item::choose_enchantment(void* object, const array& source, void* pointer) {
 	auto p = (item*)object;
 	auto& ei = p->gete();
 	if(!ei.enchantments)
@@ -150,7 +150,7 @@ bool item::choose_enchantment(const void* object, const array& source, void* poi
 		p->subtype = ars.indexof(current);
 	return false;
 }
-static bool choose_custom_images(const void* object, const array& source, void* pointer) {
+static bool choose_custom_images(void* object, const array& source, void* pointer) {
 	typedef messagei::imagei T;
 	auto v = (T*)pointer;
 	array files(sizeof(T));
@@ -248,7 +248,7 @@ static bool visible_condition(const void* object, const void* pointer) {
 }
 static bool visible_history(const void* object, const void* pointer) {
 	auto p = ((char*)pointer) - sizeof(companyi::historyi::history[0]);
-	return *p!=0;
+	return *p != 0;
 }
 static bool visible_class2(const void* object) {
 	auto p = (creature*)object;
@@ -279,6 +279,47 @@ static bool key_items(const void* object, const void* pointer) {
 static bool ability_only(const void* object, const void* pointer) {
 	auto param = (ability_s)bsdata<abilityi>::source.indexof(pointer);
 	return param <= Charisma;
+}
+void creature::update_race(void* object) {
+	auto p = (creature*)object;
+	if(!p->isallow(p->type, p->race))
+		p->type = chooseclass(false, p->race);
+	if(!p->isallow(p->alignment, p->type))
+		p->alignment = choosealignment(false, p->type);
+	p->random_name();
+	p->random_ability();
+	p->finish();
+}
+void creature::update_class(void* object) {
+	auto p = (creature*)object;
+	if(!p->isallow(p->alignment, p->type))
+		p->alignment = choosealignment(false, p->type);
+	p->random_name();
+	p->random_ability();
+	p->finish();
+}
+static void update_name(void* object) {
+	auto p = (creature*)object;
+	p->random_name();
+}
+static bool allow_class(const void* object, const void* pointer) {
+	if(!pointer)
+		return false;
+	auto p = (creature*)object;
+	auto v = (class_s)((classi*)pointer - bsdata<classi>::elements);
+	return p->isallow(v, p->getrace());
+}
+static bool allow_alignment(const void* object, const void* pointer) {
+	if(!pointer)
+		return false;
+	auto p = (creature*)object;
+	auto v = (alignment_s)((alignmenti*)pointer - bsdata<alignmenti>::elements);
+	return p->isallow(v, p->getclass());
+}
+static bool allow_race(const void* object, const void* pointer) {
+	auto p = (creature*)object;
+	auto pe = (racei*)pointer;
+	return pe->characters != 0;
 }
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
@@ -368,11 +409,10 @@ DGINF(monsteri) = {{"Name", DGREQ(name)},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 {}};
-DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>}},
-{"Gender", DGREQ(gender), {getnm<genderi>}},
-{"Alignment", DGREQ(alignment), {getnm<alignmenti>}},
-{"Monster", DGREQ(kind), {getnm<monsteri>}},
-{"Class", DGREQ(type), {getnm<classi>}},
+DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, creature::update_race}},
+{"Gender", DGREQ(gender), {getnm<genderi>, 0, 0, 0, 0, 0, update_name}},
+{"Class", DGREQ(type), {getnm<classi>, allow_class, 0, 0, 0, 0, creature::update_class}},
+{"Alignment", DGREQ(alignment), {getnm<alignmenti>, allow_alignment}},
 {"Level 1", DGREQ(levels[0]), {}, {visible_class1, getclass1}},
 {"Level 2", DGREQ(levels[1]), {}, {visible_class2, getclass2}},
 {"Level 3", DGREQ(levels[2]), {}, {visible_class3, getclass3}},
@@ -446,31 +486,31 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {0, DGREQ(crypt)},
 {}};
 DGINF(companyi::historyi) = {{"Stage 1", DGREQ(history[0])},
-{"Stage 2", DGREQ(history[1]), {},  {0, 0, 0, visible_history}},
-{"Stage 3", DGREQ(history[2]), {}, {0, 0, 0, visible_history}},
-{"Stage 4", DGREQ(history[3]), {}, {0, 0, 0, visible_history}},
-{"#div", DGREQ(history[4]), {}, {0, 0, 0, visible_history}},
-{"Stage 5", DGREQ(history[4]), {}, {0, 0, 0, visible_history}},
-{"Stage 6", DGREQ(history[5]), {}, {0, 0, 0, visible_history}},
-{"Stage 7", DGREQ(history[6]), {}, {0, 0, 0, visible_history}},
-{"Stage 8", DGREQ(history[7]), {}, {0, 0, 0, visible_history}},
-{"#div", DGREQ(history[8]), {}, {0, 0, 0, visible_history}},
-{"Stage 9", DGREQ(history[8]), {}, {0, 0, 0, visible_history}},
-{"Stage 10", DGREQ(history[9]), {}, {0, 0, 0, visible_history}},
-{"Stage 11", DGREQ(history[10]), {}, {0, 0, 0, visible_history}},
-{"Stage 12", DGREQ(history[11]), {}, {0, 0, 0, visible_history}},
+{"Stage 2", DGREQ(history[1]), {}, {0, 0, visible_history}},
+{"Stage 3", DGREQ(history[2]), {}, {0, 0, visible_history}},
+{"Stage 4", DGREQ(history[3]), {}, {0, 0, visible_history}},
+{"#div", DGREQ(history[4]), {}, {0, 0, visible_history}},
+{"Stage 5", DGREQ(history[4]), {}, {0, 0, visible_history}},
+{"Stage 6", DGREQ(history[5]), {}, {0, 0, visible_history}},
+{"Stage 7", DGREQ(history[6]), {}, {0, 0, visible_history}},
+{"Stage 8", DGREQ(history[7]), {}, {0, 0, visible_history}},
+{"#div", DGREQ(history[8]), {}, {0, 0, visible_history}},
+{"Stage 9", DGREQ(history[8]), {}, {0, 0, visible_history}},
+{"Stage 10", DGREQ(history[9]), {}, {0, 0, visible_history}},
+{"Stage 11", DGREQ(history[10]), {}, {0, 0, visible_history}},
+{"Stage 12", DGREQ(history[11]), {}, {0, 0, visible_history}},
 {}};
 DGINF(companyi::adventurei) = {{"Name", DGREQ(name)},
 {"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
 {"History", DGINH(companyi::historyi, history), {getnm<companyi::historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
-{"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 3", DGREQ(levels[2]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 4", DGREQ(levels[3]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 5", DGREQ(levels[4]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 6", DGREQ(levels[5]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 7", DGREQ(levels[6]), {}, {0, 0, 0, visible_level}},
-{"#tab Part 8", DGREQ(levels[7]), {}, {0, 0, 0, visible_level}},
+{"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, visible_level}},
+{"#tab Part 3", DGREQ(levels[2]), {}, {0, 0, visible_level}},
+{"#tab Part 4", DGREQ(levels[3]), {}, {0, 0, visible_level}},
+{"#tab Part 5", DGREQ(levels[4]), {}, {0, 0, visible_level}},
+{"#tab Part 6", DGREQ(levels[5]), {}, {0, 0, visible_level}},
+{"#tab Part 7", DGREQ(levels[6]), {}, {0, 0, visible_level}},
+{"#tab Part 8", DGREQ(levels[7]), {}, {0, 0, visible_level}},
 {}};
 DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Dexterity", DGREQ(data[1])},
@@ -495,27 +535,27 @@ DGINF(companyi) = {{"Name", DGREQ(name)},
 {"loot", DGREQ(resources)},
 {"#div Fractions"},
 {"Fraction 1", DGREQ(fractions[0]), {getnm<companyi::fractioni>}},
-{"Fraction 2", DGREQ(fractions[1]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 3", DGREQ(fractions[2]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 4", DGREQ(fractions[3]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 5", DGREQ(fractions[4]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 6", DGREQ(fractions[5]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 7", DGREQ(fractions[6]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
-{"Fraction 8", DGREQ(fractions[7]), {getnm<companyi::fractioni>}, {0, 0, 0, visible_fraction}},
+{"Fraction 2", DGREQ(fractions[1]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 3", DGREQ(fractions[2]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 4", DGREQ(fractions[3]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 5", DGREQ(fractions[4]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 6", DGREQ(fractions[5]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 7", DGREQ(fractions[6]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
+{"Fraction 8", DGREQ(fractions[7]), {getnm<companyi::fractioni>}, {0, 0, visible_fraction}},
 {"#div Adventures"},
 {"Adventure 1", DGREQ(adventures[0]), {getnm<companyi::adventurei>}},
-{"Adventure 2", DGREQ(adventures[1]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 3", DGREQ(adventures[2]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 4", DGREQ(adventures[3]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 5", DGREQ(adventures[4]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 6", DGREQ(adventures[5]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 7", DGREQ(adventures[6]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 8", DGREQ(adventures[7]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 9", DGREQ(adventures[8]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 10", DGREQ(adventures[9]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 11", DGREQ(adventures[10]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 12", DGREQ(adventures[11]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
-{"Adventure 13", DGREQ(adventures[12]), {getnm<companyi::adventurei>}, {0, 0, 0, visible_adventure}},
+{"Adventure 2", DGREQ(adventures[1]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 3", DGREQ(adventures[2]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 4", DGREQ(adventures[3]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 5", DGREQ(adventures[4]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 6", DGREQ(adventures[5]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 7", DGREQ(adventures[6]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 8", DGREQ(adventures[7]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 9", DGREQ(adventures[8]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 10", DGREQ(adventures[9]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 11", DGREQ(adventures[10]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 12", DGREQ(adventures[11]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
+{"Adventure 13", DGREQ(adventures[12]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
 {"#div Characters"},
 {"Character 1", DGREQ(characters[4]), {getnm<creature>, 0, edit_character}},
 {}};
@@ -527,9 +567,9 @@ DGINF(messagei) = {{"ID", DGREQ(id)},
 {"Type", DGREQ(type), {getnm<speechi>}},
 {"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
 {"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
-{"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
-{"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
-{"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, 0, visible_condition}},
+{"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Text", DGREQ(text)},
 {}};
 DGINF(dialogi) = {{"Image", DGREQ(image), {getnm<messagei::imagei>, 0, choose_custom_images}},

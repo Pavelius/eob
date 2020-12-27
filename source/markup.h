@@ -9,10 +9,9 @@ typedef bool(*fnallow)(const void* object, const void* pointer); // Is allow som
 typedef void(*fncommand)(void* object); // Object's actions
 typedef int(*fndraw)(int x, int y, int width, const void* object); // Custom draw
 typedef const char* (*fntext)(const void* object, stringbuilder& sb);
-typedef bool(*fnchoose)(const void* object, const array& source, void* pointer);
+typedef bool(*fnchoose)(void* object, const array& source, void* pointer);
 typedef void*(*fnptr)(const void* object, int index);
 typedef bool(*fnvisible)(const void* object);
-typedef bool(*fnvisiblex)(const void* object, const void* pointer);
 
 #define DGLNK(L,T) template<> struct dginf<L> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
@@ -36,12 +35,12 @@ struct fnlist {
 	fndraw				preview;
 	int					view_width;
 	fnptr				getptr;
+	fncommand			update;
 };
 struct fnelement {
 	fnvisible			visible;
 	fntext				getheader;
-	fncommand			execute;
-	fnvisiblex			visiblex;
+	fnallow				visiblex;
 };
 template<class T> struct dginf {
 	typedef T			data_type;

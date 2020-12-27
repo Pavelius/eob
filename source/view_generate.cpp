@@ -14,7 +14,7 @@ static void next_portrait() {
 }
 
 static void roll_character() {
-	current_player->roll_ability();
+	current_player->random_ability();
 	current_player->finish();
 }
 
@@ -227,14 +227,13 @@ static gender_s choosegender(bool interactive) {
 	}
 }
 
-static alignment_s choosealignment(bool interactive, class_s depend) {
+alignment_s creature::choosealignment(bool interactive, class_s depend) {
 	answers source;
 	for(auto i = FirstAlignment; i <= LastAlignment; i = (alignment_s)(i + 1)) {
 		if(!creature::isallow(i, depend))
 			continue;
 		source.add(i, getstr(i));
 	}
-	//source.sort();
 	return (alignment_s)source.choose("Select Alignment:", interactive);
 }
 
@@ -320,7 +319,7 @@ static void change_character() {
 		auto gender = choosegender(true);
 		auto race = creature::chooserace(true);
 		auto type = creature::chooseclass(true, race);
-		auto alignment = choosealignment(true, type);
+		auto alignment = creature::choosealignment(true, type);
 		current_player->create(gender, race, type, alignment, true);
 	}
 	current_player = 0;
@@ -374,7 +373,7 @@ void creature::create(gender_s gender, race_s race, class_s type, alignment_s al
 	set(race);
 	set(type);
 	set(alignment);
-	roll_ability();
+	random_ability();
 	setavatar(game.getavatar(race, gender, getclass(type, 0)));
 	if(interactive)
 		view_ability();

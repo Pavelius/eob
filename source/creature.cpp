@@ -1262,7 +1262,7 @@ static int compare_char(const void* p1, const void* p2) {
 	return *((char*)p2) - *((char*)p1);
 }
 
-void creature::roll_ability() {
+void creature::random_ability() {
 	char result[8];
 	for(auto& e : result)
 		e = xrand(1, 6) + xrand(1, 6) + xrand(1, 6);
