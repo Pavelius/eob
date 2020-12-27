@@ -141,9 +141,9 @@ void color::read(const void* p1, int x, int bpp, const void* pallette) {
 	case 8:
 		p = (unsigned char*)p1 + x;
 		p = (unsigned char*)&((unsigned char*)pallette)[(*p) * 4];
-		r = p[0];
+		r = p[2];
 		g = p[1];
-		b = p[2];
+		b = p[0];
 		a = 255;
 		break;
 	case 32:

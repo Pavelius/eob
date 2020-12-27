@@ -499,6 +499,28 @@ struct spelli {
 	item_s				throw_effect;
 	const char*			talk[3];
 };
+struct selli {
+	item_s				object;
+	rarity_s			rarity;
+	constexpr selli(item_s object) : object(object), rarity(Common) {}
+	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
+};
+struct messagei {
+	struct imagei {
+		char			custom[16];
+		unsigned		flags;
+		constexpr explicit operator bool() const { return custom[0] != 0; }
+		static int		preview(int x, int y, int width, const void* object);
+	};
+	speech_s			type;
+	int					id;
+	conditiona			variants;
+	char				text[260];
+	short				next[2];
+	imagei				overlay;
+	selli*				trade;
+	constexpr explicit operator bool() const { return id != 0; }
+};
 struct sitei {
 	struct headi {
 		resource_s		type;
@@ -514,10 +536,14 @@ struct sitei {
 	struct chancei {
 		char			curse;
 	};
+	struct eventi {
+		messagei::imagei image;
+	};
 	headi				head;
 	char				levels;
 	chancei				chance;
 	crypti				crypt;
+	eventi				events[8];
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
 };
@@ -604,30 +630,8 @@ struct boosti {
 	constexpr explicit operator bool() const { return id.type != NoVariant; }
 	void				clear();
 };
-struct selli {
-	item_s				object;
-	rarity_s			rarity;
-	constexpr selli(item_s object) : object(object), rarity(Common) {}
-	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
-};
 struct speechi {
 	const char*			name;
-};
-struct messagei {
-	struct imagei {
-		char			custom[16];
-		unsigned		flags;
-		constexpr explicit operator bool() const { return custom[0] != 0; }
-		static int		preview(int x, int y, int width, const void* object);
-	};
-	speech_s			type;
-	int					id;
-	conditiona			variants;
-	char				text[260];
-	short				next[2];
-	imagei				overlay;
-	selli*				trade;
-	constexpr explicit operator bool() const { return id != 0; }
 };
 struct dialogi {
 	messagei::imagei	image;
@@ -1211,6 +1215,7 @@ NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)
+NOBSDATA(sitei::eventi)
 NOBSDATA(sitei::headi)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)

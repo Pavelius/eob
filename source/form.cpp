@@ -464,6 +464,8 @@ DGINF(racei) = {{"Name", DGREQ(name)},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 {"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 {}};
+DGINF(sitei::eventi) = {{"Resource", DGREQ(image)},
+{}};
 DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_resources, 0, resourcei::preview, 130}},
 {"Monster 1", DGREQ(habbits[0]), {getnm<monsteri>}},
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
@@ -480,6 +482,7 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {0, DGREQ(chance)},
 {"Levels", DGREQ(levels)},
 {0, DGREQ(crypt)},
+//{0, DGREQ(events)},
 {}};
 DGINF(companyi::historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 2", DGREQ(history[1]), {}, {0, 0, visible_history}},

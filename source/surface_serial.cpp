@@ -49,6 +49,7 @@ void draw::write(const char* url, unsigned char* bits, int width, int height, in
 		bmi.color_used = 256;
 		if(!pallette)
 			return;
+		bmf.bits += bmi.color_used * sizeof(color);
 		break;
 	default:
 		bmi.color_used = 0;
@@ -107,10 +108,8 @@ bool draw::surface::read(const char* url, color* pallette, int need_bpp) {
 }
 
 static struct bmp_bitmap_plugin : public draw::surface::plugin {
-
 	bmp_bitmap_plugin() : plugin("bmp", "BMP images\0*.bmp\0") {
 	}
-
 	bool decode(unsigned char* output, int output_bpp, const unsigned char* input, unsigned input_size) override {
 		int width, height, input_bpp;
 		if(!output)
@@ -134,7 +133,6 @@ static struct bmp_bitmap_plugin : public draw::surface::plugin {
 		}
 		return true;
 	}
-
 	bool inspect(int& width, int& height, int& bpp, const unsigned char* input, unsigned size) override {
 		if(input[1] != 0x4D || input[0] != 0x42)
 			return false;
@@ -144,5 +142,4 @@ static struct bmp_bitmap_plugin : public draw::surface::plugin {
 		bpp = pi->bpp;
 		return true;
 	}
-
 } instance;

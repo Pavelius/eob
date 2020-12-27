@@ -1996,9 +1996,11 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	game.companyi::read("default");
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
+	messagei::imagei it = {};
+	draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
+	//game.companyi::read("default");
+	//edit("Company", &game, dginf<companyi>::meta, false);
+	//game.companyi::write("default");
 	font = push_font;
 }
 

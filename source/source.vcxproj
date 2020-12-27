@@ -159,8 +159,12 @@
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="enchant.cpp" />
     <ClCompile Include="encounter.cpp" />
-    <ClCompile Include="eob3_util.cpp" />
-    <ClCompile Include="eob_util.cpp" />
+    <ClCompile Include="eob3_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="eob_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="game.cpp" />
@@ -188,7 +192,9 @@
     <ClCompile Include="message.cpp" />
     <ClCompile Include="varianta.cpp" />
     <ClCompile Include="spells.cpp" />
-    <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="sprite_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="string_value.cpp" />
     <ClCompile Include="surface_serial.cpp" />
