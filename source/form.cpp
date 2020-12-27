@@ -445,10 +445,6 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, 
 //char				spells[LastSpellAbility + 1];
 //char				prepared[LastSpellAbility + 1];
 //spella			known_spells;
-//char				avatar;
-//unsigned			experience;
-//unsigned char		name[2];
-//reaction_s		reaction;
 {}};
 DGINF(classi) = {{"Name", DGREQ(name)},
 {"Playable", DGREQ(playable)},

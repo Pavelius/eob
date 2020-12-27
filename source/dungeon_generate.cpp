@@ -249,6 +249,12 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 		if(d100() < 40)
 			it.setbroken(1);
 		break;
+	case BluePotion:
+	case RedPotion:
+	case GreenPotion:
+		if(rarity == Common && !it.iscursed() && d100() < 60)
+			it.setidentified(1);
+		break;
 	case RedRing:
 	case BlueRing:
 	case GreenRing:
