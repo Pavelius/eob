@@ -55,7 +55,7 @@ struct markitem {
 	unsigned			mask;
 	//
 	constexpr bool		isnum() const { return type == dginf<int>::meta; }
-	constexpr bool		isreference() const { return source!=0; }
+	constexpr bool		isreference() const { return source != 0; }
 	constexpr bool		istext() const { return type == dginf<const char*>::meta; }
 	void*				ptr(void* object) const { return (char*)object + offset; }
 };
@@ -69,9 +69,9 @@ struct markup {
 	//
 	bool				is(const char* id) const;
 	bool				ischeckboxes() const { return is("chk"); }
-	bool				isdecortext() const { return value.type==0; }
-	bool				isgroup() const { return value.type!=0 && !list.getname && !value.istext() && !value.isnum(); }
-	bool				ispage() const { return title && title[0]=='#'; }
+	bool				isdecortext() const { return value.type == 0; }
+	bool				isgroup() const { return value.type != 0 && !list.getname && !value.istext() && !value.isnum(); }
+	bool				ispage() const { return title && title[0] == '#'; }
 	bool				isvisible(const void* object) const;
 };
 DGLNK(char, int)

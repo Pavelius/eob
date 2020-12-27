@@ -29,9 +29,25 @@ bool archive::version(short major, short minor) {
 }
 
 void archive::set(array& value) {
-	set(value.count);
-	if(writemode)
-		source.write(value.data, value.size*value.count);
-	else
-		source.read(value.data, value.size*value.count);
+	if(value.isgrowable()) {
+		if(writemode) {
+			source.write(&value.size, sizeof(value.size));
+			source.write(&value.count, sizeof(value.count));
+			source.write(value.data, value.size*value.count);
+		} else {
+			value.clear();
+			source.read(&value.size, sizeof(value.size));
+			unsigned count = 0;
+			source.read(&count, sizeof(count));
+			value.reserve(count);
+			value.count = count;
+			source.read(value.data, value.size*value.count);
+		}
+	} else {
+		set(value.count);
+		if(writemode)
+			source.write(value.data, value.size*value.count);
+		else
+			source.read(value.data, value.size*value.count);
+	}
 }

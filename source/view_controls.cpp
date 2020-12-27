@@ -36,7 +36,16 @@ namespace {
 struct contexti {
 	void*				object;
 	int					title;
-	constexpr contexti(void* object) : object(object), title(84) {}
+	const char*			header;
+	const char*	getheader(const markup& e) const {
+		if(e.title)
+			return e.title;
+		return header;
+	}
+	constexpr contexti(void* object) : object(object), title(84), header(0) {}
+};
+struct textedit {
+	char				data[1024];
 };
 }
 
@@ -55,7 +64,6 @@ static infoproc			show_mode;
 static void*			current_focus;
 static unsigned			current_focus_param;
 static const markup*	current_focus_markup;
-static char				current_text[1024];
 static void*			current_object;
 static unsigned			current_size;
 static const markup*	current_markup;
@@ -71,6 +79,7 @@ extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_s
 static draw::surface	bitmap;
 char					bitmap_url[260];
 callback				draw::domodal;
+static textedit			current_text;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -85,22 +94,6 @@ static void setblink(color v) {
 	fore.r = v.r * m / ci;
 	fore.g = v.g * m / ci;
 	fore.b = v.b * m / ci;
-}
-
-static void save_focus() {
-	if(current_focus && current_focus_markup && current_focus_markup->value.istext())
-		*((const char**)current_focus) = szdup(current_text);
-}
-
-static void update_focus_markup(void* p, const markup* pe) {
-	if(current_focus == p && current_focus_markup != pe) {
-		auto ps = *((const char**)p);
-		if(ps)
-			zcpy(current_text, ps, sizeof(current_text) - 1);
-		else
-			current_text[0] = 0;
-		current_focus_markup = pe;
-	}
 }
 
 static void correct(point& p, short x1, short y1, short x2, short y2) {
@@ -522,7 +515,7 @@ static void inverse_vertical() {
 
 int messagei::imagei::preview(int x, int y, int width, const void* object) {
 	auto p = (messagei::imagei*)object;
-	setimage(p->custom);
+	setimage(p->custom.get());
 	auto sx = bitmap.width;
 	auto sy = bitmap.height;
 	if(sx > width)
@@ -698,18 +691,9 @@ static render_control* getnextfocus(void* ev, int key, unsigned param) {
 }
 
 static void test_map() {
-	static messagei first_dialog[] = {{Say, 1, {}, "You walk to noise tavern with bad reputation.", {}, {{"tavern16"}}},
-	{Ask, 1, {}, "Enter", {2}},
-	{Ask, 1, {}, "Leave"},
-	{Say, 2, {}, "Dirty rogue make deal to get stone amulet from old tomb below the ground.", {}, {{"rogue"}}},
-	{Ask, 2, {}, "Accept"},
-	{Ask, 2, {}, "Talk", {3}},
-	{Say, 3, {}, "\"Are you professionals or amators? Professionals don't ask a questions.\"", {2}, {"rogue"}},
-	{}};
 }
 
 static void setfocus(void* v, unsigned param = 0) {
-	save_focus();
 	current_focus = v;
 	current_focus_param = param;
 	current_focus_markup = 0;
@@ -1154,7 +1138,7 @@ int answers::choosebg(const char* title, const char* footer, const messagei::ima
 	while(ismodal()) {
 		screen.restore();
 		if(pi) {
-			setimage(pi->custom);
+			setimage(pi->custom.get());
 			if(bitmap)
 				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi->flags, bitmap, 0, 0);
 			image(0, 0, gres(BORDER), 0, 0);
@@ -1356,7 +1340,7 @@ class choose_control : public rowa {
 	}
 	int getindex(const void* v) const {
 		for(auto p : *this) {
-			if(v==p)
+			if(v == p)
 				return &p - data;
 		}
 		return -1;
@@ -1381,7 +1365,7 @@ public:
 		type(NoVariant), source(0) {
 	}
 	void* choose(const char* title, const void* current_value, int width) const {
-		if(!*this && type==NoVariant)
+		if(!*this && type == NoVariant)
 			return 0;
 		openform();
 		setfocus((void*)current_value);
@@ -1528,6 +1512,20 @@ bool draw::choose(array& source, const char* title, void* object, void* field, u
 	return true;
 }
 
+DGINF(textedit) = {{"Enter text", DGREQ(data)},
+{}};
+
+bool textable::edit(void* object, const array& source, void* pointer) {
+	auto v = (textable*)pointer;
+	memset(&current_text, 0, sizeof(current_text));
+	stringbuilder sb(current_text.data);
+	sb.add(v->get());
+	if(!draw::edit("Text", &current_text, dginf<meta_decoy<decltype(current_text)>::value>::meta, true))
+		return false;
+	v->set(current_text.data);
+	return true;
+}
+
 static void delete_symbol() {
 	auto p = (char*)current_markup->value.ptr(current_object);
 	auto s = current_markup->value.size;
@@ -1561,8 +1559,8 @@ static void add_symbol() {
 }
 
 static void add_text_symbol() {
-	add_symbol(current_text,
-		sizeof(current_text) - 1,
+	add_symbol(current_text.data,
+		sizeof(current_text.data) - 1,
 		hot::param);
 }
 
@@ -1586,35 +1584,34 @@ static void choose_enum_field() {
 }
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
-	auto pv = e.value.ptr((void*)object);
-	if(e.value.isnum()) {
-		if(e.value.size <= sizeof(int)) {
-			auto value = getvalue(pv, e.value.size);
-			sb.add("%1i", value);
-		} else
-			sb.add((char*)pv);
-	} else if(e.value.istext()) {
-		auto value = (const char*)getvalue(pv, e.value.size);
-		if(!value)
-			value = "";
-		sb.add(value);
-	} else {
-		auto value = pv;
-		if(e.value.source) {
-			value = (void*)getvalue(pv, e.value.size);
-			if(e.value.size < sizeof(int))
-				value = e.value.source->ptr((int)value);
-		} else if(e.list.getptr)
-			value = e.list.getptr(object, getvalue(pv, e.value.size));
-		auto pfn = e.list.getname;
-		if(value && pfn) {
+	auto value = e.value.ptr((void*)object);
+	if(e.value.source) {
+		value = (void*)getvalue(value, e.value.size);
+		if(e.value.size < sizeof(int))
+			value = e.value.source->ptr((int)value);
+	} else if(e.list.getptr)
+		value = e.list.getptr(object, getvalue(value, e.value.size));
+	auto pfn = e.list.getname;
+	if(pfn) {
+		if(value) {
 			auto pn = pfn((void*)value, sb);
 			if(pn && pn != sb)
 				sb.add(pn);
 		}
-		if(!sb || !sb[0])
-			sb.add("None");
+	} else if(e.value.istext()) {
+		auto p = (const char*)getvalue(value, e.value.size);
+		if(!p)
+			p = "";
+		sb.add(p);
+	} else if(e.value.isnum()) {
+		if(e.value.size <= sizeof(int)) {
+			auto v = getvalue(value, e.value.size);
+			sb.add("%1i", v);
+		} else
+			sb.add((char*)value);
 	}
+	if(!sb || !sb[0])
+		sb.add("None");
 }
 
 static void add_number(void* p, unsigned size, int r, int d, int v) {
@@ -1649,7 +1646,7 @@ static void clear_value() {
 }
 
 static void clear_text_value() {
-	current_text[0] = 0;
+	current_text.data[0] = 0;
 	clear_value();
 }
 
@@ -1683,11 +1680,11 @@ static void event_number(void* object, unsigned size) {
 	}
 }
 
-static int field(const rect& rco, const char* title, void* object, const markup& e) {
-	auto rich_edit = rco.height() >= texth() * 3;
+static int field(const rect& rco, const char* title, void* object, const markup& e, unsigned flags) {
+	auto rich_edit = rco.height() >= texth() * 2;
 	auto push_fore = fore;
 	fore = colors::white;
-	if(!title || title[0]==0) {
+	if(!title || title[0] == 0) {
 		if(rich_edit) {
 			fore = fore.mix(colors::gray, 128);
 			title = e.title;
@@ -1710,12 +1707,12 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 		else if(e.list.choose || !e.value.isnum()) {
 			if(hot::key == KeyEnter)
 				post(e, object, choose_enum_field, 0);
-		} else if(e.value.size<=sizeof(int))
+		} else if(e.value.size <= sizeof(int))
 			event_number(e.value.ptr(object), e.value.size);
-		else if(hot::key==InputSymbol)
+		else if(hot::key == InputSymbol)
 			post(e, object, add_symbol, hot::param);
 	}
-	textb(rc, title, 0);
+	textb(rc, title, flags);
 	fore = push_fore;
 	return rco.height();
 }
@@ -1730,7 +1727,7 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 		width -= title_width;
 	}
 	sb.clear(); getname(e, object, sb);
-	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e);
+	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e, TextSingleLine);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -1926,6 +1923,7 @@ class edit_control : contexti {
 			return 0;
 		if(e.isgroup()) {
 			contexti c1 = ctx;
+			c1.header = ctx.getheader(e);
 			c1.object = e.value.ptr(ctx.object);
 			return group(x, y, width, c1, e.value.type);
 		} else if(e.ischeckboxes())
@@ -1934,10 +1932,10 @@ class edit_control : contexti {
 			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
 		else if(e.value.istext())
 			return 0;
-		else if(e.value.isnum() && e.value.size>sizeof(nameablei::name))
-			return field({x, y, x + width, y + draw::texth() * 5 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e);
+		else if(e.value.isnum() && e.value.size > sizeof(nameablei::name))
+			return field({x, y, x + width, y + draw::texth() * 5 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e, 0);
 		else
-			return field(x, y, width, e.title, ctx.object, ctx.title, e);
+			return field(x, y, width, ctx.getheader(e), ctx.object, ctx.title, e);
 	}
 	const char* gettitle(const markup* pm) const {
 		if(!pm || !pm->title || pm->title[0] != '#')
@@ -1996,7 +1994,7 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	messagei::imagei it = {};
+	messagei it = {};
 	draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
 	//game.companyi::read("default");
 	//edit("Company", &game, dginf<companyi>::meta, false);

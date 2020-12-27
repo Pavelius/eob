@@ -23,7 +23,7 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 }
 template<> const char* getnm<messagei::imagei>(const void* object, stringbuilder& sb) {
 	auto p = (messagei::imagei*)object;
-	return p->custom;
+	return p->custom.get();
 }
 template<> const char* getnm<companyi::adventurei>(const void* object, stringbuilder& sb) {
 	return ((companyi::adventurei*)object)->name;
@@ -31,14 +31,14 @@ template<> const char* getnm<companyi::adventurei>(const void* object, stringbui
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
-template<> const char* getnm<dialogi>(const void* object, stringbuilder& sb) {
-	return ((dialogi*)object)->name;
-}
 template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 	return ((moralei*)object)->name;
 }
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
+}
+template<> const char* getnm<textable>(const void* object, stringbuilder& sb) {
+	return ((textable*)object)->get();
 }
 template<> const char* getnm<item>(const void* object, stringbuilder& sb) {
 	auto p = (item*)object;
@@ -158,8 +158,9 @@ static bool choose_custom_images(void* object, const array& source, void* pointe
 		if(e.name()[0] == '.')
 			continue;
 		auto p = (messagei::imagei*)files.add();
-		szfnamewe(p->custom, e.name());
-		stringbuilder::upper(p->custom);
+		char temp[260]; szfnamewe(temp, e.name());
+		stringbuilder::lower(temp);
+		p->custom.set(temp);
 	}
 	auto current_index = files.find(v, 0, sizeof(T));
 	void* pc = 0;
@@ -349,6 +350,8 @@ static bool choose_conditions(const void* object, array& source, void* pointer) 
 DGINF(point) = {{"x", DGREQ(x)},
 {"y", DGREQ(y)},
 {}};
+DGINF(textable) = {{0, DGREQ(id), {getnm<textable>, 0, textable::edit}},
+{}};
 DGINF(dice) = {{"Count", DGREQ(c)},
 {"Dice", DGREQ(d)},
 {"Modifier", DGREQ(b)},
@@ -488,12 +491,10 @@ DGINF(companyi::historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 2", DGREQ(history[1]), {}, {0, 0, visible_history}},
 {"Stage 3", DGREQ(history[2]), {}, {0, 0, visible_history}},
 {"Stage 4", DGREQ(history[3]), {}, {0, 0, visible_history}},
-{"#div", DGREQ(history[4]), {}, {0, 0, visible_history}},
 {"Stage 5", DGREQ(history[4]), {}, {0, 0, visible_history}},
 {"Stage 6", DGREQ(history[5]), {}, {0, 0, visible_history}},
 {"Stage 7", DGREQ(history[6]), {}, {0, 0, visible_history}},
 {"Stage 8", DGREQ(history[7]), {}, {0, 0, visible_history}},
-{"#div", DGREQ(history[8]), {}, {0, 0, visible_history}},
 {"Stage 9", DGREQ(history[8]), {}, {0, 0, visible_history}},
 {"Stage 10", DGREQ(history[9]), {}, {0, 0, visible_history}},
 {"Stage 11", DGREQ(history[10]), {}, {0, 0, visible_history}},
@@ -562,15 +563,10 @@ DGINF(messagei::imagei) = {{"Resource", DGREQ(custom), {getnm<resourcei>, 0, cho
 {"Mirror vertical", DGCHK(flags, ImageMirrorV)},
 {"Mirror horizontal", DGCHK(flags, ImageMirrorH)},
 {}};
-DGINF(messagei) = {{"ID", DGREQ(id)},
-{"Type", DGREQ(type), {getnm<speechi>}},
-{"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
+DGINF(messagei) = {{"Image", DGREQ(overlay), {getnm<messagei::imagei>, 0, choose_custom_images, messagei::imagei::preview, 170}},
 {"Cond.1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
 {"Cond.2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Cond.3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Cond.4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Text", DGREQ(text)},
-{}};
-DGINF(dialogi) = {{"Image", DGREQ(image), {getnm<messagei::imagei>, 0, choose_custom_images}},
-{"Text", DGREQ(name)},
 {}};

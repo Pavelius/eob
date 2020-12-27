@@ -190,6 +190,7 @@
     <ClCompile Include="size.cpp" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="message.cpp" />
+    <ClCompile Include="textable.cpp" />
     <ClCompile Include="varianta.cpp" />
     <ClCompile Include="spells.cpp" />
     <ClCompile Include="sprite_util.cpp">
@@ -198,7 +199,6 @@
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="string_value.cpp" />
     <ClCompile Include="surface_serial.cpp" />
-    <ClCompile Include="szdup.cpp" />
     <ClCompile Include="usability.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="view_automap.cpp" />

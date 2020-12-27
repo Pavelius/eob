@@ -275,20 +275,11 @@ static void show_monsters() {
 }
 
 static bool test_metadata() {
-	companyi::adventurei ea;
-	zcpy(ea.history[0], "Collectors is rust!");
-	auto p1 = (companyi::historyi*)((companyi::adventurei*)0);
-	auto p3 = (companyi::historyi*)((companyi::adventurei*)0);
-	auto p2 = static_cast<companyi::nameablei*>((companyi::adventurei*)0);
-	auto ph = static_cast<companyi::historyi*>(&ea);
-	auto pa = dginf<companyi::adventurei>::meta + 2;
-	auto ps = dginf<meta_decoy<const char*>::value>::meta;
-	auto pi = dginf<meta_decoy<int>::value>::meta;
-	return ps == pi;
+	return true;
 }
 
 int main(int argc, char* argv[]) {
-	test_metadata();
+	textable::initialize();
 	srand(clock());
 	//return 0;
 	//srand(2112);

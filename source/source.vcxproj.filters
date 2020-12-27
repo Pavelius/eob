@@ -143,9 +143,6 @@
     <ClCompile Include="point.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="szdup.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
     <ClCompile Include="draw.cpp">
       <Filter>Интерфейс</Filter>
     </ClCompile>
@@ -267,6 +264,9 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="avatar.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="textable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

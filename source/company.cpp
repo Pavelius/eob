@@ -2,7 +2,7 @@
 
 unsigned companyi::historyi::gethistorymax() const {
 	for(unsigned i = 0; i < history_max; i++)
-		if(!history[i][0])
+		if(!history[i])
 			return i;
 	return history_max;
 }

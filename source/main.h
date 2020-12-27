@@ -293,6 +293,15 @@ struct variantc : adat<variant> {
 };
 struct varianta : adat<variant, 12> {
 };
+struct textable {
+	unsigned			id;
+	constexpr explicit operator bool() const { return id != 0; }
+	static bool			edit(void* object, const array& source, void* pointer);
+	const char*			get() const;
+	static void			initialize();
+	void				set(const char* v);
+	static array		strings;
+};
 struct spellprogi {
 	char				elements[21][10];
 };
@@ -507,15 +516,14 @@ struct selli {
 };
 struct messagei {
 	struct imagei {
-		char			custom[16];
+		textable		custom;
 		unsigned		flags;
-		constexpr explicit operator bool() const { return custom[0] != 0; }
+		constexpr explicit operator bool() const { return custom.operator bool(); }
 		static int		preview(int x, int y, int width, const void* object);
 	};
-	speech_s			type;
-	int					id;
+	short unsigned		id;
 	conditiona			variants;
-	char				text[260];
+	textable			text;
 	short				next[2];
 	imagei				overlay;
 	selli*				trade;
@@ -538,12 +546,13 @@ struct sitei {
 	};
 	struct eventi {
 		messagei::imagei image;
+		textable		text;
 	};
 	headi				head;
 	char				levels;
 	chancei				chance;
 	crypti				crypt;
-	eventi				events[8];
+	eventi				events[12];
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
 };
@@ -632,10 +641,6 @@ struct boosti {
 };
 struct speechi {
 	const char*			name;
-};
-struct dialogi {
-	messagei::imagei	image;
-	char				name[260];
 };
 class itema : public adat<item*, 48> {
 	typedef bool (item::*pitem)() const;
@@ -1037,7 +1042,7 @@ struct nameablei {
 struct companyi : nameablei {
 	static constexpr unsigned history_max = 12;
 	struct historyi {
-		char			history[history_max][256];
+		textable		history[history_max];
 		unsigned char	history_progress;
 		unsigned		gethistorymax() const;
 	};
@@ -1217,6 +1222,7 @@ NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)
 NOBSDATA(sitei::eventi)
 NOBSDATA(sitei::headi)
+NOBSDATA(textable)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
