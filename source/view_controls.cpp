@@ -566,7 +566,7 @@ static void inverse_vertical() {
 
 int imagei::preview(int x, int y, int width, const void* object) {
 	auto p = (imagei*)object;
-	setimage(p->custom.get());
+	setimage(p->custom);
 	auto sx = bitmap.width;
 	auto sy = bitmap.height;
 	if(sx > width)
@@ -1189,7 +1189,7 @@ int answers::choosebg(const char* title, const char* footer, const imagei* pi, b
 	while(ismodal()) {
 		screen.restore();
 		if(pi) {
-			setimage(pi->custom.get());
+			setimage(pi->custom);
 			if(bitmap)
 				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi->flags, bitmap, 0, 0);
 			image(0, 0, gres(BORDER), 0, 0);
@@ -1570,10 +1570,10 @@ bool textable::edit(void* object, const array& source, void* pointer) {
 	auto v = (textable*)pointer;
 	memset(&current_text, 0, sizeof(current_text));
 	stringbuilder sb(current_text.data);
-	sb.add(v->get());
+	sb.add(*v);
 	if(!draw::edit("Text", &current_text, dginf<meta_decoy<decltype(current_text)>::value>::meta, true))
 		return false;
-	v->set(current_text.data);
+	*v = current_text.data;
 	return true;
 }
 
@@ -2069,11 +2069,11 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	//messagei it = {};
-	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
-	game.companyi::read("default");
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
+	buildingi it = {};
+	draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
+	//game.companyi::read("default");
+	//edit("Company", &game, dginf<companyi>::meta, false);
+	//game.companyi::write("default");
 	font = push_font;
 }
 

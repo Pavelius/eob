@@ -464,7 +464,7 @@ static bool serialize(bool writemode) {
 		game.preserial(false);
 	a.set(bsdata<creature>::source);
 	a.set(bsdata<boosti>::source);
-	a.set(textable::strings);
+	a.set(textable::getstrings());
 	return true;
 }
 
@@ -488,7 +488,7 @@ static bool serialize(const char* name, companyi& e, bool write_mode) {
 		return false;
 	archive a(file, write_mode);
 	a.set(e);
-	a.set(textable::strings);
+	a.set(textable::getstrings());
 	return true;
 }
 
@@ -509,9 +509,9 @@ bool companyi::read(const char* name) {
 		auto pa = adventures;
 		pa->setname("Flooded collectors");
 		pa->position = {614, 294};
-		pa->history[0].set("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
-		pa->history[1].set("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
-		pa->history[2].set("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
+		pa->history[0] = "Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.";
+		pa->history[1] = "Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!";
+		pa->history[2] = "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.";
 		memcpy(pa->levels, sites, sizeof(sites));
 		result = true;
 	}

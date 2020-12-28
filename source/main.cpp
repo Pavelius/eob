@@ -279,7 +279,6 @@ static bool test_metadata() {
 }
 
 int main(int argc, char* argv[]) {
-	textable::initialize();
 	srand(clock());
 	//return 0;
 	//srand(2112);

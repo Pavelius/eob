@@ -23,7 +23,7 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 }
 template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 	auto p = (imagei*)object;
-	return p->custom.get();
+	return p->custom;
 }
 template<> const char* getnm<companyi::adventurei>(const void* object, stringbuilder& sb) {
 	return ((companyi::adventurei*)object)->name;
@@ -38,7 +38,7 @@ template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
 }
 template<> const char* getnm<textable>(const void* object, stringbuilder& sb) {
-	return ((textable*)object)->get();
+	return *((textable*)object);
 }
 template<> const char* getnm<item>(const void* object, stringbuilder& sb) {
 	auto p = (item*)object;
@@ -93,6 +93,15 @@ template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<creature>(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
 	return p->getname();
+}
+template<> const char* getnm<weari>(const void* object, stringbuilder& sb) {
+	auto p = (weari*)object;
+	return p->choose_name;
+}
+template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
+	auto p = (dice*)object;
+	p->print(sb);
+	return sb;
 }
 void* item::getenchantptr(const void* object, int index) {
 	auto p = (item*)object;
@@ -160,7 +169,7 @@ static bool choose_custom_images(void* object, const array& source, void* pointe
 		auto p = (imagei*)files.add();
 		char temp[260]; szfnamewe(temp, e.name());
 		stringbuilder::lower(temp);
-		p->custom.set(temp);
+		p->custom = temp;
 	}
 	auto current_index = files.find(v, 0, sizeof(T));
 	void* pc = 0;
@@ -210,15 +219,6 @@ static bool armor_visible(const void* object) {
 static bool allow_countable(const void* object, const void* pointer) {
 	auto p = (itemi*)pointer;
 	return p->feats.is(Countable);
-}
-template<> const char* getnm<weari>(const void* object, stringbuilder& sb) {
-	auto p = (weari*)object;
-	return p->choose_name;
-}
-template<> const char* getnm<dice>(const void* object, stringbuilder& sb) {
-	auto p = (dice*)object;
-	p->print(sb);
-	return sb;
 }
 static bool visible_class1(const void* object) {
 	auto p = (creature*)object;
@@ -347,8 +347,7 @@ static bool choose_conditions(const void* object, array& source, void* pointer) 
 	auto v = (conditiona*)pointer;
 	return true;
 }
-DGINF(point) = {{"x", DGREQ(x)},
-{"y", DGREQ(y)},
+DGINF(point) = {{0, DGREQ(x), {getnm<point>, 0, choose_wordmap_point}},
 {}};
 DGINF(textable) = {{0, DGREQ(id), {getnm<textable>, 0, textable::edit}},
 {}};
@@ -501,7 +500,7 @@ DGINF(companyi::historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 12", DGREQ(history[11]), {}, {0, 0, visible_history}},
 {}};
 DGINF(companyi::adventurei) = {{"Name", DGREQ(name)},
-{"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
+{"Position", DGREQ(position)},
 {"History", DGINH(companyi::historyi, history), {getnm<companyi::historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
 {"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, visible_level}},
@@ -531,7 +530,7 @@ DGINF(companyi::fractioni) = {{"Name", DGREQ(name)},
 {"Loot", DGINH(looti, gold)},
 {}};
 DGINF(companyi) = {{"Name", DGREQ(name)},
-{"Start", DGREQ(start), {getnm<point>, 0, choose_wordmap_point}},
+{"Start", DGREQ(start)},
 {"loot", DGREQ(resources)},
 {"#div Fractions"},
 {"Fraction 1", DGREQ(fractions[0]), {getnm<companyi::fractioni>}},
@@ -579,4 +578,8 @@ DGINF(messagei) = {{"Image", DGREQ(overlay)},
 {"6)", DGREQ(actions[5])},
 {"7)", DGREQ(actions[6])},
 {"8)", DGREQ(actions[7])},
+{}};
+DGINF(buildingi) = {{"Name", DGREQ(name)},
+{"Image", DGREQ(image)},
+{"#chk Actions", DGREQ(actions), {getnm<actioni>}},
 {}};

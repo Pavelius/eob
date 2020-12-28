@@ -249,9 +249,13 @@ enum ambush_s : unsigned char {
 enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
+enum building_s : unsigned char {
+	Armory, Prison, Tavern, Temple,
+};
 typedef short unsigned indext;
-typedef flagable<LastSpellAbility> spellf;
+typedef cflags<action_s> actiona;
 typedef cflags<feat_s> feata;
+typedef flagable<LastSpellAbility> spellf;
 typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 typedef cflags<variant_s> variantf;
@@ -295,12 +299,12 @@ struct varianta : adat<variant, 12> {
 };
 struct textable {
 	unsigned			id;
+	constexpr textable() : id(0) {}
+	textable(const char* v);
 	constexpr explicit operator bool() const { return id != 0; }
+	operator const char*() const;
 	static bool			edit(void* object, const array& source, void* pointer);
-	const char*			get() const;
-	static void			initialize();
-	void				set(const char* v);
-	static array		strings;
+	static array&		getstrings();
 };
 struct spellprogi {
 	char				elements[21][10];
@@ -533,6 +537,12 @@ struct messagei {
 	short unsigned		next;
 	aski				actions[8];
 	constexpr explicit operator bool() const { return text.operator bool(); }
+};
+struct buildingi {
+	textable			name;
+	imagei				image;
+	actiona				actions;
+	shape_s				shape;
 };
 struct sitei {
 	struct headi {

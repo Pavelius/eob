@@ -1,15 +1,14 @@
 #include "main.h"
 
-array textable::strings;
-
 static bool has(const char* value) {
-	return textable::strings.indexof(value) != -1;
+	return textable::getstrings().indexof(value) != -1;
 }
 
 static const char* find(const char* text, int textc) {
 	auto c = text[0];
-	auto data = textable::strings.begin();
-	auto count = textable::strings.getcount();
+	auto& strings = textable::getstrings();
+	auto data = strings.begin();
+	auto count = strings.getcount();
 	int m = count - textc;
 	if(m < 0)
 		return 0;
@@ -30,6 +29,11 @@ static const char* find(const char* text, int textc) {
 static const char* add(const char* text, int textc) {
 	if(!text || text[0]==0)
 		return 0;
+	auto& strings = textable::getstrings();
+	if(strings.getcount() == 0) {
+		auto p = (char*)strings.add();
+		p[0] = 0;
+	}
 	if(has(text))
 		return text;
 	if(textc == -1)
@@ -37,29 +41,23 @@ static const char* add(const char* text, int textc) {
 	auto r = find(text, textc);
 	if(r)
 		return r;
-	auto count = textable::strings.getcount();
-	textable::strings.reserve(count + textc + 1);
-	auto result = (char*)textable::strings.ptr(count);
+	auto count = strings.getcount();
+	strings.reserve(count + textc + 1);
+	auto result = (char*)strings.ptr(count);
 	memcpy(result, text, textc * sizeof(text[0]));
 	result[textc] = 0;
-	textable::strings.setcount(count + textc + 1);
+	strings.setcount(count + textc + 1);
 	return result;
 }
 
-const char* textable::get() const {
-	if(!id)
-		return "";
-	return (char*)strings.ptr(id);
+textable::operator const char *() const {
+	return id ? (char*)getstrings().ptr(id) : "";
 }
 
-void textable::set(const char* v) {
-	if(!v || v[0] == 0)
-		id = 0;
-	else
-		id = strings.indexof(add(v, -1));
+textable::textable(const char* v) : id((!v || v[0] == 0) ? 0 : getstrings().indexof(add(v,-1))) {
 }
 
-void textable::initialize() {
-	strings.setup(1);
-	add("None", 4);
+array& textable::getstrings() {
+	static array source(sizeof(char));
+	return source;
 }
