@@ -143,7 +143,7 @@ enum item_s : unsigned char {
 	Robe, ArmorLeather, ArmorStuddedLeather, ArmorScale, ArmorChain, ArmorBanded, ArmorPlate,
 	Helm, Shield, Boots,
 	Bracers,
-	Necklage, NecklageRich, Jewelry,
+	Necklage, NecklageRich, NecklageVeryRich,
 	Arrow, Dart, Stone,
 	Bones, DungeonMap,
 	HolySymbol, HolyWarriorSymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
@@ -252,6 +252,9 @@ enum shape_s : unsigned char {
 };
 enum building_s : unsigned char {
 	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Shop, Stable, Stock, Tavern, Temple, WizardTower,
+};
+enum good_s : unsigned char {
+	Armors, Food, Jewelry, Mercenaries, Scrolls, Weapons,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actiona;
@@ -647,6 +650,7 @@ struct buildingi {
 	const char*			image;
 	const char*			description;
 	actiona				actions;
+	flagable<LastItem>	items;
 	shape_s				shape;
 };
 struct settlementi {
@@ -655,7 +659,9 @@ struct settlementi {
 	point				position;
 	textable			description;
 	cflags<buildingi>	buildings;
-	item				armory[8];
+	item				armory[4];
+	spellf				spells;
+	item_s				imports[2], exports[2];
 	constexpr explicit operator bool() const { return name.operator bool(); }
 };
 struct boosti {

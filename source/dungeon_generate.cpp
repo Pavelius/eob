@@ -170,7 +170,7 @@ static item_s random_subtype(item_s type) {
 		ArmorChain, ArmorBanded, ArmorPlate,
 	};
 	static item_s rings[] = {RedRing, BlueRing, GreenRing};
-	static item_s necklages[] = {Necklage, Necklage, Necklage, Necklage, NecklageRich, NecklageRich, Jewelry};
+	static item_s necklages[] = {Necklage, Necklage, Necklage, Necklage, NecklageRich, NecklageRich, NecklageVeryRich};
 	static item_s scrolls[] = {PriestScroll, MageScroll, MageScroll, MageScroll};
 	static item_s tools[] = {HolySymbol, MagicBook, TheifTools, TheifTools, TheifTools};
 	switch(type) {
