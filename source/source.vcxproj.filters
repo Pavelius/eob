@@ -272,5 +272,8 @@
     <ClCompile Include="building.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="settlement.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

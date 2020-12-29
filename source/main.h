@@ -217,14 +217,14 @@ enum attack_s : unsigned char {
 	OnHit, OnAllHit, OnCriticalHit,
 };
 enum reaction_s : unsigned char {
-	Indifferent, Friendly, /*Flight, Cautious,*/ Threatening, Hostile,
+	Indifferent, Friendly, /*Flight, Cautious, Threatening*/ Hostile,
 };
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
 	Greeting,
-	Gambling, Lie, Trade, Bribe, Talk, Smithing, Attack, Pet,
+	Drink, Gambling, Leave, Lie, Rest, Trade, Bribe, Talk, Smithing, Attack, Pet,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -254,7 +254,7 @@ enum building_s : unsigned char {
 	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Shop, Stable, Stock, Tavern, Temple, WizardTower,
 };
 enum good_s : unsigned char {
-	Armors, Food, Jewelry, Mercenaries, Scrolls, Weapons,
+	Fish, Fruits, Corns, Furs, Iron, Meat, Jewelry, Ore, Pergaments, Weapons, Wine, Woods,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actiona;
@@ -523,9 +523,9 @@ struct selli {
 	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
 };
 struct imagei {
-	textable			custom;
+	char				custom[16];
 	unsigned			flags;
-	constexpr explicit operator bool() const { return custom.operator bool(); }
+	constexpr explicit operator bool() const { return custom[0]!=0; }
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct messagei {
@@ -647,22 +647,30 @@ public:
 };
 struct buildingi {
 	const char*			name;
-	const char*			image;
+	imagei				image;
 	const char*			description;
 	actiona				actions;
 	flagable<LastItem>	items;
 	shape_s				shape;
+	bool				is(action_s v) const { return actions.is(v); }
 };
 struct settlementi {
 	textable			name;
 	imagei				image;
 	point				position;
 	textable			description;
-	cflags<buildingi>	buildings;
+	cflags<building_s>	buildings;
 	item				armory[4];
 	spellf				spells;
 	item_s				imports[2], exports[2];
+	unsigned char		prosperty;
 	constexpr explicit operator bool() const { return name.operator bool(); }
+	void				adventure();
+	building_s			enter() const;
+	action_s			enter(building_s id) const;
+	const char*			getname() const { return name; }
+	rarity_s			getrarity() const;
+	constexpr bool		is(building_s v) const { return buildings.is(v); }
 };
 struct boosti {
 	variant				owner, id;
@@ -1265,6 +1273,7 @@ NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
 MNLNK(attack_s, attacki)
+MNLNK(building_s, buildingi)
 MNLNK(class_s, classi)
 MNLNK(action_s, actioni)
 MNLNK(damage_s, damagei)

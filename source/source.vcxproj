@@ -181,6 +181,7 @@
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="nameable.cpp" />
     <ClCompile Include="names.cpp" />
+    <ClCompile Include="settlement.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="avatar.cpp" />

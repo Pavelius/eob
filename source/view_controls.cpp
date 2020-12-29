@@ -1203,6 +1203,10 @@ int answers::choosebg(const char* title, const char* footer, const imagei* pi, b
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
+		if(footer) {
+			text(x, y, footer);
+			y += texth() + 1;
+		}
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
@@ -2072,8 +2076,9 @@ void draw::editor() {
 	//settlementi it = {};
 	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
 	game.companyi::read("default");
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
+	game.settlements[0].adventure();
+	//edit("Company", &game, dginf<companyi>::meta, false);
+	//game.companyi::write("default");
 	font = push_font;
 }
 

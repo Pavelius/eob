@@ -169,7 +169,7 @@ static bool choose_custom_images(void* object, const array& source, void* pointe
 		auto p = (imagei*)files.add();
 		char temp[260]; szfnamewe(temp, e.name());
 		stringbuilder::lower(temp);
-		p->custom = temp;
+		zcpy(p->custom, temp, sizeof(p->custom)-1);
 	}
 	auto current_index = files.find(v, 0, sizeof(T));
 	void* pc = 0;
@@ -593,6 +593,7 @@ DGINF(settlementi) = {{"Name", DGREQ(name)},
 {"Image", DGREQ(image)},
 {"Position", DGREQ(position)},
 {"Description", DGREQ(description)},
+{"Prosperty", DGREQ(prosperty)},
 {"Import 1", DGREQ(imports[0]), {getnm<itemi>}},
 {"Import 2", DGREQ(imports[1]), {getnm<itemi>}},
 {"Export 1", DGREQ(exports[0]), {getnm<itemi>}},
