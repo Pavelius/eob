@@ -187,8 +187,6 @@ static bool talk_subject(action_s id, encounteri& scene, bool run) {
 		}
 		break;
 	case TalkRumor:
-		if(run) {
-		}
 		break;
 	default:
 		return false;

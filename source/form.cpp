@@ -235,6 +235,10 @@ static bool visible_fraction(const void* object, const void* pointer) {
 	auto p = ((companyi::fractioni*)pointer) - 1;
 	return p->operator bool();
 }
+static bool visible_settlement(const void* object, const void* pointer) {
+	auto p = ((settlementi*)pointer) - 1;
+	return p->operator bool();
+}
 static bool visible_adventure(const void* object, const void* pointer) {
 	auto p = ((companyi::adventurei*)pointer) - 1;
 	return p->operator bool();
@@ -325,6 +329,7 @@ static bool allow_race(const void* object, const void* pointer) {
 GENDGINF(abilityi)
 GENDGINF(alignmenti)
 GENDGINF(attacki)
+GENDGINF(buildingi)
 GENDGINF(damagei)
 GENDGINF(enchanti)
 GENDGINF(enchantmenti)
@@ -557,6 +562,11 @@ DGINF(companyi) = {{"Name", DGREQ(name)},
 {"Adventure 13", DGREQ(adventures[12]), {getnm<companyi::adventurei>}, {0, 0, visible_adventure}},
 {"#div Characters"},
 {"Character 1", DGREQ(characters[4]), {getnm<creature>, 0, edit_character}},
+{"#div Settlements"},
+{"Settlement 1", DGREQ(settlements[0]), {getnm<settlementi>}},
+{"Settlement 2", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
+{"Settlement 3", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
+{"Settlement 4", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
 {}};
 DGINF(imagei) = {{0, DGREQ(custom), {getnm<imagei>, 0, choose_custom_images, imagei::preview, 130}},
 {}};
@@ -579,7 +589,14 @@ DGINF(messagei) = {{"Image", DGREQ(overlay)},
 {"7)", DGREQ(actions[6])},
 {"8)", DGREQ(actions[7])},
 {}};
-DGINF(buildingi) = {{"Name", DGREQ(name)},
+DGINF(settlementi) = {{"Name", DGREQ(name)},
 {"Image", DGREQ(image)},
-{"#chk Actions", DGREQ(actions), {getnm<actioni>}},
+{"Position", DGREQ(position)},
+{"Description", DGREQ(description)},
+{"#chk Buildings", DGREQ(buildings), {getnm<buildingi>}},
+{"#div Items"},
+{"Weapon 1", DGREQ(armory[0]), {getnm<item>}},
+{"Weapon 2", DGREQ(armory[1]), {getnm<item>}},
+{"Weapon 3", DGREQ(armory[2]), {getnm<item>}},
+{"Weapon 4", DGREQ(armory[3]), {getnm<item>}},
 {}};

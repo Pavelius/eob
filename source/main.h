@@ -223,7 +223,8 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
-	Greeting, Lie, Trade, Bribe, Talk, Smithing, Attack, Pet,
+	Greeting,
+	Gambling, Lie, Trade, Bribe, Talk, Smithing, Attack, Pet,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -250,7 +251,7 @@ enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
 enum building_s : unsigned char {
-	Armory, Prison, Tavern, Temple,
+	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Shop, Stable, Stock, Tavern, Temple, WizardTower,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actiona;
@@ -538,12 +539,6 @@ struct messagei {
 	aski				actions[8];
 	constexpr explicit operator bool() const { return text.operator bool(); }
 };
-struct buildingi {
-	textable			name;
-	imagei				image;
-	actiona				actions;
-	shape_s				shape;
-};
 struct sitei {
 	struct headi {
 		resource_s		type;
@@ -646,6 +641,22 @@ public:
 	void				setpower(variant power);
 	bool				stack(item& v);
 	void				use() { setcount(getcount() - 1); }
+};
+struct buildingi {
+	const char*			name;
+	const char*			image;
+	const char*			description;
+	actiona				actions;
+	shape_s				shape;
+};
+struct settlementi {
+	textable			name;
+	imagei				image;
+	point				position;
+	textable			description;
+	cflags<buildingi>	buildings;
+	item				armory[8];
+	constexpr explicit operator bool() const { return name.operator bool(); }
 };
 struct boosti {
 	variant				owner, id;
@@ -1073,6 +1084,7 @@ struct companyi : nameablei {
 	fractioni			fractions[8];
 	adventurei			adventures[13];
 	creature			characters[4+13];
+	settlementi			settlements[13];
 	messagei			messages[64];
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
@@ -1236,6 +1248,7 @@ NOBSDATA(looti)
 NOBSDATA(messagei)
 NOBSDATA(messagei::aski)
 NOBSDATA(point)
+NOBSDATA(settlementi)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)

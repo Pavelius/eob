@@ -269,5 +269,8 @@
     <ClCompile Include="textable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="building.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

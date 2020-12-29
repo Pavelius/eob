@@ -1,6 +1,7 @@
 #include "main.h"
 
 BSDATA(actioni) = {{"Creeting"},
+{"Gamble"},
 {"Lie"},
 {"Trade"},
 {"Bribe"},
