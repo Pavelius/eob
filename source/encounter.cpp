@@ -25,7 +25,7 @@ static chati messages[] = {{Greeting, {Indifferent, Ave}, "\"Who is you? How you
 {TalkRumor, {}, "\"Dark side is strong.\""},
 };
 static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack};
-static cflags<action_s> friendly_actions = {Trade, Talk, Smithing, Pet};
+static cflags<action_s> friendly_actions = {Trade, Talk, Repair, Pet};
 static item_s common_trade[] = {Ration, KeySilver, BluePotion};
 
 static const chati* find(action_s id, encounteri& scene, const aref<chati>& source) {
@@ -288,7 +288,7 @@ bool encounteri::apply(action_s id, bool run) {
 		if(run) {
 		}
 		break;
-	case Smithing:
+	case Repair:
 		if(leader->ismindless())
 			return false;
 		items.select();

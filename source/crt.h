@@ -198,6 +198,7 @@ public:
 	constexpr void			clear() { data = 0; }
 	constexpr bool			is(const T id) const { return (data & (1 << id)) != 0; }
 	constexpr bool			is(const cflags& e) const { return (data & e.data) == data; }
+	constexpr bool			oneof(const cflags& e) const { return (data & e.data) != 0; }
 	constexpr void			remove(T id) { data &= ~(1 << id); }
 };
 // Abstract pair element

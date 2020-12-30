@@ -57,6 +57,49 @@ building_s settlementi::enter() const {
 void settlementi::adventure() {
 	while(true) {
 		auto b = enter();
-		enter(b);
+		auto a = enter(b);
+		switch(a) {
+		case Buy:
+			break;
+		case Sell:
+			break;
+		}
 	}
+}
+
+static bool isallow(item_s v, const goodf& goods) {
+	auto& ei = bsdata<itemi>::elements[v];
+	return ei.goods.oneof(goods);
+}
+
+static void create(item* pi, const goodf& goods) {
+	for(auto i = item_s(1); i <= LastItem; i = (item_s)(i + 1)) {
+		if(!isallow(i, goods))
+			continue;
+		*pi = i;
+		pi->finish();
+		pi++;
+	}
+}
+
+bool settlementi::apply(building_s b, action_s a, bool run) {
+	auto& ei = bsdata<buildingi>::elements[b];
+	item genitems[LastItem + 1];
+	itema items;
+	switch(a) {
+	case Buy:
+		create(genitems, ei.goods);
+		break;
+	case Sell:
+		items.select();
+		break;
+	case Drink:
+	case Talk:
+		break;
+	case Leave:
+		break;
+	default:
+		return false;
+	}
+	return true;
 }

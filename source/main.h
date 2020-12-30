@@ -224,7 +224,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Drink, Gambling, Leave, Lie, Rest, Trade, Bribe, Talk, Smithing, Attack, Pet,
+	Attack, Bribe, Buy, Drink, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Pet,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -254,7 +254,8 @@ enum building_s : unsigned char {
 	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Shop, Stable, Stock, Tavern, Temple, WizardTower,
 };
 enum good_s : unsigned char {
-	Fish, Fruits, Corns, Furs, Iron, Meat, Jewelry, Ore, Pergaments, Weapons, Wine, Woods,
+	Corns, Cotton, Fish, Furs, Herbs, Iron, Jewelry,
+	Leather, Meat, Ore, Papers, Potions, Weapons, Wine, Woods,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actiona;
@@ -263,6 +264,7 @@ typedef flagable<LastSpellAbility> spellf;
 typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 typedef cflags<variant_s> variantf;
+typedef cflags<good_s> goodf;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 class creature;
 class item;
@@ -439,6 +441,7 @@ struct itemi {
 	const char*			name;
 	portraiti			image;
 	char				cost;
+	goodf				goods;
 	wear_s				equipment;
 	usabilitya			usability;
 	cflags<item_feat_s>	feats;
@@ -619,6 +622,7 @@ public:
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return gete().equipment; }
+	constexpr bool		is(good_s v) const { return gete().goods.is(v); }
 	constexpr bool		is(usability_s v) const { return gete().usability.is(v); }
 	constexpr bool		is(item_feat_s v) const { return gete().feats.is(v); }
 	constexpr bool		is(item_s v) const { return type == v; }
@@ -650,7 +654,7 @@ struct buildingi {
 	imagei				image;
 	const char*			description;
 	actiona				actions;
-	flagable<LastItem>	items;
+	goodf				goods;
 	shape_s				shape;
 	bool				is(action_s v) const { return actions.is(v); }
 };
@@ -666,6 +670,7 @@ struct settlementi {
 	unsigned char		prosperty;
 	constexpr explicit operator bool() const { return name.operator bool(); }
 	void				adventure();
+	bool				apply(building_s b, action_s a, bool run);
 	building_s			enter() const;
 	action_s			enter(building_s id) const;
 	const char*			getname() const { return name; }
@@ -691,6 +696,7 @@ public:
 	void				cost(bool keep) { select(&item::iscost, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }
 	void				identified(bool keep) { select(&item::isidentified, keep); }
+	void				is(good_s v, bool keep);
 	void				magical(bool keep) { select(&item::ismagical, keep); }
 	void				forsale(bool keep);
 	item*				random();

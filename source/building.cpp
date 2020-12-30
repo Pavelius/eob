@@ -1,7 +1,7 @@
 #include "main.h"
 
 BSDATA(buildingi) = {{"Arena", {}},
-{"Armory", {}},
+{"Armory", {"forge"}, "This place is full of weapon for sale. You can buy new weapon or sell.", {Buy, Sell}, {Weapons}},
 {"Bank"},
 {"Brothel"},
 {"Library", {""}, ""},

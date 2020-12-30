@@ -8,6 +8,16 @@ void itema::select() {
 	}
 }
 
+void itema::is(good_s v, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->is(v) != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void itema::select(pitem proc, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {
