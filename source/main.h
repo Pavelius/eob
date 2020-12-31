@@ -21,6 +21,9 @@ const int				scry = 15 * 8;
 const int				mpx = 38;
 const int				mpy = 23;
 
+enum coin_s {
+	GP = 1
+};
 enum fcell : unsigned {
 	CellMirrorV = 1, CellMirrorH = 2, EmpthyStartIndex = 4,
 };
@@ -439,7 +442,9 @@ struct itemi {
 		item_s			shoot;
 	};
 	const char*			name;
+	rarity_s			rarity;
 	portraiti			image;
+	unsigned			costgp;
 	char				cost;
 	goodf				goods;
 	wear_s				equipment;
@@ -527,7 +532,6 @@ struct selli {
 };
 struct imagei {
 	char				custom[16];
-	unsigned			flags;
 	constexpr explicit operator bool() const { return custom[0]!=0; }
 	static int			preview(int x, int y, int width, const void* object);
 };
@@ -606,6 +610,7 @@ public:
 	item_s				getammo() const { return gete().ammo; }
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcost() const;
+	int					getcostgp() const { return gete().costgp; }
 	int					getcount() const;
 	int					getcharges() const { return charges; }
 	int					getdeflect() const;
@@ -618,6 +623,7 @@ public:
 	creature*			getowner() const;
 	int					getportrait() const;
 	variant				getpower() const;
+	constexpr rarity_s	getrarity() const { return gete().rarity; }
 	static rarity_s		getrandomrarity(int level);
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
@@ -630,6 +636,7 @@ public:
 	constexpr bool		isbroken() const { return broken != 0; }
 	constexpr bool		ischarged() const { return is(Charged); }
 	constexpr bool		iscost() const { return gete().cost > 0; }
+	constexpr bool		iscostgp() const { return gete().costgp > 0; }
 	constexpr bool		iscursed() const { return cursed != 0; }
 	constexpr bool		isidentified() const { return identified != 0; }
 	bool				ismagical() const;
@@ -666,13 +673,13 @@ struct settlementi {
 	cflags<building_s>	buildings;
 	item				armory[4];
 	spellf				spells;
-	item_s				imports[2], exports[2];
+	good_s				imports, exports;
 	unsigned char		prosperty;
 	constexpr explicit operator bool() const { return name.operator bool(); }
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
 	building_s			enter() const;
-	action_s			enter(building_s id) const;
+	action_s			enter(building_s id);
 	const char*			getname() const { return name; }
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
@@ -691,16 +698,20 @@ class itema : public adat<item*, 48> {
 	typedef bool (item::*pitem)() const;
 	void				select(pitem proc, bool keep);
 public:
+	void				allow(rarity_s v, bool keep);
 	void				broken(bool keep) { select(&item::isbroken, keep); }
-	item*				choose(const char* format, bool cancel_button);
+	item*				choose(const char* format, bool cancel_button, fngetname panel = 0);
 	void				cost(bool keep) { select(&item::iscost, keep); }
+	void				costgp(bool keep) { select(&item::iscostgp, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }
 	void				identified(bool keep) { select(&item::isidentified, keep); }
 	void				is(good_s v, bool keep);
 	void				magical(bool keep) { select(&item::ismagical, keep); }
+	void				maxcost(int v, bool keep);
 	void				forsale(bool keep);
 	item*				random();
 	void				select();
+	void				sort();
 };
 struct looti {
 	int					gold;
@@ -708,6 +719,7 @@ struct looti {
 	int					fame;
 	int					progress;
 	int					luck;
+	void				correct();
 };
 class creature {
 	alignment_s			alignment;

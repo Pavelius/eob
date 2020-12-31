@@ -21,14 +21,17 @@ rarity_s settlementi::getrarity() const {
 	return rarity_items[getlevel(prosperty)];
 }
 
-action_s settlementi::enter(building_s id) const {
+action_s settlementi::enter(building_s id) {
 	auto& ei = bsdata<buildingi>::elements[id];
 	sb.clear();
 	sb.add(ei.description);
 	answers aw;
 	for(auto i = action_s(0); i <= Pet; i = (action_s)(i + 1)) {
-		if(ei.is(i))
-			aw.add(i, bsdata<actioni>::elements[i].name);
+		if(!ei.is(i))
+			continue;
+		if(!apply(id, i, false))
+			continue;
+		aw.add(i, bsdata<actioni>::elements[i].name);
 	}
 	aw.sort();
 	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
@@ -58,12 +61,7 @@ void settlementi::adventure() {
 	while(true) {
 		auto b = enter();
 		auto a = enter(b);
-		switch(a) {
-		case Buy:
-			break;
-		case Sell:
-			break;
-		}
+		apply(b, a, true);
 	}
 }
 
@@ -72,23 +70,70 @@ static bool isallow(item_s v, const goodf& goods) {
 	return ei.goods.oneof(goods);
 }
 
-static void create(item* pi, const goodf& goods) {
+static void create(adat<item>& pi, const goodf& goods) {
 	for(auto i = item_s(1); i <= LastItem; i = (item_s)(i + 1)) {
 		if(!isallow(i, goods))
 			continue;
-		*pi = i;
-		pi->finish();
-		pi++;
+		auto p = pi.add();
+		*p = i;
+		p->finish();
 	}
+}
+
+static void create(itema& result, adat<item>& source) {
+	for(auto& e : source) {
+		auto p = result.add();
+		*p = &e;
+	}
+}
+
+static bool confirm(const char* text) {
+	answers aw;
+	aw.add(1, "Yes");
+	aw.add(0, "No");
+	return aw.choosebg(text, 0) != 0;
+}
+
+static const char* buy_panel(void* object, stringbuilder& sb) {
+	auto p = (item*)object;
+	sb.addn("Item price: %1i gp", p->getcostgp());
+	sb.addn("Party have: %1i gp", game.resources.gold);
+	return sb;
+}
+
+static bool buy_items(itema& items) {
+	items.sort();
+	auto p = items.choose("Which item to buy?", true, buy_panel);
+	if(!p)
+		return false;
+	auto cost = p->getcostgp();
+	sb.clear();
+	sb.add("Do you really want to buy ");
+	p->getname(sb);
+	sb.adds("for %1i gold coins?", cost);
+	if(!confirm(sb))
+		return false;
+	game.resources.gold -= cost;
+	game.resources.correct();
+	game.additem(*p, false);
+	return true;
 }
 
 bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
-	item genitems[LastItem + 1];
+	adat<item> genitems;
 	itema items;
 	switch(a) {
 	case Buy:
 		create(genitems, ei.goods);
+		create(items, genitems);
+		items.costgp(true);
+		items.allow(getrarity(), true);
+		items.maxcost(game.resources.gold, true);
+		if(!items)
+			return false;
+		if(run)
+			return buy_items(items);
 		break;
 	case Sell:
 		items.select();

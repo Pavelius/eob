@@ -663,7 +663,8 @@ void gamei::additem(item i, bool interactive) {
 			return;
 		}
 	}
-	location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
+	if(location)
+		location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
 }
 
 void gamei::clear() {

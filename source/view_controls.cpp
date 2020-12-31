@@ -44,6 +44,17 @@ struct contexti {
 	}
 	constexpr contexti(void* object) : object(object), title(84), header(0) {}
 };
+struct parami {
+	int					origin;
+	int					maximum;
+	int					perpage;
+	void correct() {
+		if(origin + perpage > maximum)
+			origin = maximum - perpage;
+		if(origin < 0)
+			origin = 0;
+	}
+};
 struct textedit {
 	char				data[1024];
 };
@@ -554,16 +565,6 @@ static void decrement_frame() {
 	current_res_frame--;
 }
 
-static void inverse_horizontal() {
-	auto p = (imagei*)hot::param;
-	p->flags ^= ImageMirrorH;
-}
-
-static void inverse_vertical() {
-	auto p = (imagei*)hot::param;
-	p->flags ^= ImageMirrorV;
-}
-
 int imagei::preview(int x, int y, int width, const void* object) {
 	auto p = (imagei*)object;
 	setimage(p->custom);
@@ -576,11 +577,7 @@ int imagei::preview(int x, int y, int width, const void* object) {
 	rect rc = {x, y, x + sx + 1, y + sy + 1};
 	border_down(rc);
 	draw::state push; setclip(rc);
-	draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, p->flags, bitmap, 0, 0);
-	switch(hot::key) {
-	case Alpha + 'H': execute(inverse_horizontal, (int)p); break;
-	case Alpha + 'V': execute(inverse_vertical, (int)p); break;
-	}
+	draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, 0, bitmap, 0, 0);
 	return rc.height();
 }
 
@@ -1160,7 +1157,23 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0) {
+static void buttonb(const rect& r1, const char* title, void* ev, unsigned key = 0, callback proc = 0) {
+	focusing(r1, ev);
+	auto isfocused = isfocus(ev);
+	if((isfocused && hot::key == KeyEnter)
+		|| (key && hot::key == key))
+		focus_pressed = ev;
+	else if(hot::key == InputKeyUp && focus_pressed == ev) {
+		focus_pressed = 0;
+		if(!proc)
+			proc = buttonparam;
+		execute(buttonparam, (int)ev);
+	}
+	form(r1, 1, isfocused, focus_pressed == ev);
+	text(r1.x1 + 4, r1.y1 + 2, title);
+}
+
+static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0, int param = 0) {
 	auto w = textw(title);
 	rect r1 = {x, y, x + w + 6, y + texth() + 3};
 	focusing(r1, ev);
@@ -1172,7 +1185,7 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 		focus_pressed = 0;
 		if(!proc)
 			proc = buttonparam;
-		execute(buttonparam, (int)ev);
+		execute(proc, param);
 	}
 	form(r1, 1, isfocused, focus_pressed == ev);
 	text(r1.x1 + 4, r1.y1 + 2, title);
@@ -1188,11 +1201,12 @@ int answers::choosebg(const char* title, const char* footer, const imagei* pi, b
 	openform();
 	while(ismodal()) {
 		screen.restore();
-		if(pi) {
+		if(pi)
 			setimage(pi->custom);
-			if(bitmap)
-				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, pi->flags, bitmap, 0, 0);
-			image(0, 0, gres(BORDER), 0, 0);
+		if(bitmap)
+			blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+		image(0, 0, gres(BORDER), 0, 0);
+		if(true) {
 			auto push_color = fore;
 			fore = color::create(120, 120, 120);
 			line(8, 7, 167, 7);
@@ -1211,9 +1225,9 @@ int answers::choosebg(const char* title, const char* footer, const imagei* pi, b
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
 			if(horizontal_buttons)
-				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i);
+				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i, 0, (int)&elements.data[i]);
 			else {
-				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i);
+				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i, 0, (int)&elements.data[i]);
 				y += texth() + 5;
 			}
 		}
@@ -1227,7 +1241,23 @@ int answers::choosebg(const char* title, const char* footer, const imagei* pi, b
 	return p->id;
 }
 
-item* itema::choose(const char* title, bool cancel_button) {
+static void nextpage() {
+	auto p = (parami*)hot::param;
+	p->origin += p->perpage;
+	p->correct();
+	setfocus(0, 0);
+}
+
+static void prevpage() {
+	auto p = (parami*)hot::param;
+	p->origin -= p->perpage;
+	p->correct();
+	setfocus(0, 0);
+}
+
+item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
+	parami param = {};
+	param.maximum = getcount();
 	char temp[260]; stringbuilder sb(temp);
 	draw::animation::render(0);
 	draw::screenshoot screen;
@@ -1237,21 +1267,42 @@ item* itema::choose(const char* title, bool cancel_button) {
 	openform();
 	while(ismodal()) {
 		screen.restore();
-		rect rc = {0, 0, 180, 176};
+		rect rc = {0, 0, 180, 199};
+		rect r1 = {181, 162, 319, 199};
 		form(rc);
-		rc.offset(6, 4);
+		form(r1);
+		rc.offset(10, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
-		auto x = rc.x1 - 2, y = rc.y1;
-		for(unsigned i = 0; i < count; i++) {
-			sb.clear();
-			data[i]->getname(sb);
-			buttonw(x, y, temp, data[i], Alpha + '1' + i);
-			y += texth() + 4;
+		auto x = rc.x1 - 4, y = rc.y1;
+		auto x2 = rc.x2 + 4;
+		unsigned i = param.origin;
+		while(i < count) {
+			sb.clear(); data[i]->getname(sb);
+			buttonb({x, y, x2, y + texth() + 3}, temp, data[i], Alpha + '1' + i);
+			y += texth() + 5;
+			if(y >= 180)
+				break;
+			i++;
 		}
-		if(cancel_button) {
-			if(hot::key == KeyEscape)
-				breakmodal(0);
+		if(panel) {
+			auto pi = (item*)getfocus();
+			if(indexof(pi) != -1) {
+				sb.clear();
+				auto p = panel(pi, sb);
+				if(sb) {
+					r1.offset(4, 4);
+					text(r1, p);
+				}
+			}
 		}
+		param.perpage = i - param.origin;
+		y = 200 - texth() - 6;
+		if((param.origin + param.perpage) < param.maximum)
+			x += buttonw(x, y, "Next", nextpage, KeyPageDown, nextpage, (int)&param);
+		if(param.origin > 0)
+			x += buttonw(x, y, "Prev", prevpage, KeyPageUp, prevpage, (int)&param);
+		if(cancel_button)
+			x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape, buttoncancel, 0);
 		domodal();
 		navigate();
 	}
@@ -2076,6 +2127,7 @@ void draw::editor() {
 	//settlementi it = {};
 	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
 	game.companyi::read("default");
+	game.resources.gold = 200;
 	game.settlements[0].adventure();
 	//edit("Company", &game, dginf<companyi>::meta, false);
 	//game.companyi::write("default");
