@@ -666,26 +666,6 @@ struct buildingi {
 	shape_s				shape;
 	bool				is(action_s v) const { return actions.is(v); }
 };
-struct settlementi {
-	textable			name;
-	imagei				image;
-	point				position;
-	textable			description;
-	cflags<building_s>	buildings;
-	item				wands[8];
-	spellf				spells;
-	good_s				imports, exports;
-	unsigned char		prosperty;
-	constexpr explicit operator bool() const { return name.operator bool(); }
-	void				adventure();
-	bool				apply(building_s b, action_s a, bool run);
-	building_s			enter() const;
-	action_s			enter(building_s id);
-	const char*			getname() const { return name; }
-	rarity_s			getrarity() const;
-	constexpr bool		is(building_s v) const { return buildings.is(v); }
-	void				makeitems();
-};
 struct boosti {
 	variant				owner, id;
 	unsigned			round;
@@ -1120,6 +1100,26 @@ struct companyi : nameablei {
 	};
 	struct fractioni : looti, nameablei {
 	};
+	struct settlementi {
+		textable		name;
+		imagei			image;
+		point			position;
+		textable		description;
+		cflags<building_s>	buildings;
+		item			wands[8];
+		spellf			spells;
+		good_s			imports, exports;
+		unsigned char	prosperty;
+		constexpr explicit operator bool() const { return name.operator bool(); }
+		void			adventure();
+		bool			apply(building_s b, action_s a, bool run);
+		building_s		enter() const;
+		action_s		enter(building_s id);
+		const char*		getname() const { return name; }
+		rarity_s		getrarity() const;
+		constexpr bool	is(building_s v) const { return buildings.is(v); }
+		void			makeitems();
+	};
 	point				start;
 	looti				resources;
 	fractioni			fractions[8];
@@ -1289,6 +1289,7 @@ NOBSDATA(abilitya)
 NOBSDATA(companyi::adventurei)
 NOBSDATA(companyi::fractioni)
 NOBSDATA(companyi::historyi)
+NOBSDATA(companyi::settlementi)
 NOBSDATA(dice)
 NOBSDATA(imagei)
 NOBSDATA(item)
@@ -1298,7 +1299,6 @@ NOBSDATA(looti)
 NOBSDATA(messagei)
 NOBSDATA(messagei::aski)
 NOBSDATA(point)
-NOBSDATA(settlementi)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)

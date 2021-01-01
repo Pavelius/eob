@@ -1863,10 +1863,12 @@ void creature::removeloot(looti& result) {
 		auto slot = (wear_s)(&e - wears);
 		if(slot >= Head && slot <= LastBelt)
 			continue;
-		auto type = e.gettype();
+		auto good = e.gete().goods;
+		if(good == Weapons)
+			continue;
 		int value = 0;
 		// All items cost coins, but some cost more
-		value = e.getcost() * 100;
+		value = e.getcostgp();
 		if(e.is(Valuable))
 			value += 200;
 		result.gold += value;

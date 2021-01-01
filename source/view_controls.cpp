@@ -1196,22 +1196,28 @@ int answers::choosebg(const char* title, const char* footer, const char* pi, boo
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
-	fore = colors::white;
 	openform();
 	setimage(pi);
+	auto full_screen = (bitmap.width == 320) && (bitmap.height == 200);
 	while(ismodal()) {
 		screen.restore();
-		if(bitmap)
-			blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
-		image(0, 0, gres(BORDER), 0, 0);
-		if(true) {
-			auto push_color = fore;
-			fore = color::create(120, 120, 120);
-			line(8, 7, 167, 7);
-			fore = push_color;
-		}
+		fore = colors::white;
 		rect rc = {0, 121, 319, 199};
-		form(rc);
+		if(bitmap) {
+			if(full_screen)
+				blit(*draw::canvas, 0, 0, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+			else {
+				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+				image(0, 0, gres(BORDER), 0, 0);
+				if(true) {
+					auto push_color = fore;
+					fore = color::create(120, 120, 120);
+					line(8, 7, 167, 7);
+					fore = push_color;
+				}
+				form(rc);
+			}
+		}
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
