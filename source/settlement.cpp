@@ -35,7 +35,7 @@ action_s settlementi::enter(building_s id) {
 	}
 	aw.sort();
 	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
-	return (action_s)aw.choosebg(prompt_text, "What you want to do?", &ei.image);
+	return (action_s)aw.choosebg(prompt_text, "What you want to do?", ei.image);
 }
 
 building_s settlementi::enter() const {
@@ -54,7 +54,7 @@ building_s settlementi::enter() const {
 			aw.add(i, bsdata<buildingi>::elements[i].name);
 	}
 	aw.sort();
-	return (building_s)aw.choosebg(prompt_text, "Witch way you want to go?", &image);
+	return (building_s)aw.choosebg(prompt_text, "Witch way you want to go?", image);
 }
 
 void settlementi::adventure() {
@@ -67,7 +67,7 @@ void settlementi::adventure() {
 
 static bool isallow(item_s v, const goodf& goods) {
 	auto& ei = bsdata<itemi>::elements[v];
-	return ei.goods.oneof(goods);
+	return goods.is(ei.goods);
 }
 
 static void create(adat<item>& pi, const goodf& goods) {
@@ -113,22 +113,83 @@ static bool buy_items(itema& items) {
 	sb.adds("for %1i gold coins?", cost);
 	if(!confirm(sb))
 		return false;
-	game.resources.gold -= cost;
-	game.resources.correct();
+	game.pay(cost);
 	game.additem(*p, false);
 	return true;
+}
+
+static bool sell_items(itema& items) {
+	items.sort();
+	auto p = items.choose("Which item to sell?", true, buy_panel);
+	if(!p)
+		return false;
+	auto cost = p->getcostgp();
+	sb.clear();
+	sb.add("Do you really want to sell ");
+	p->getname(sb);
+	sb.adds("for %1i gold coins as trade in?", cost);
+	if(!confirm(sb))
+		return false;
+	game.resources.gold += cost;
+	game.resources.correct();
+	p->clear();
+	return true;
+}
+
+static void showmessage() {
+	answers aw;
+	aw.add(1, "Next");
+	aw.choosebg(sb, 0);
+	sb.clear();
+}
+
+static void drink_and_seat(building_s b, action_s a, int coins) {
+	sb.clear();
+	sb.add("\"Good, day!\" - bartender sad - \"Cost for drinking would be %1i gold coins. Do you want pay?\"", coins);
+	if(!confirm(sb)) {
+		sb.clear();
+		sb.add("\"Very well. So get out of here, and not waste my time!\"");
+		showmessage();
+	}
+}
+
+static void gambling(creaturea& creatures) {
+	static int bits[] = {10, 20, 50, 100, 300, 500, 1000, 2000};
+	sb.clear();
+	sb.add("Do you want to play cards, dice or thimblerig? If you do, take your bid and try to win.");
+	answers aw;
+	aw.add(0, "Stop");
+	for(auto b : bits) {
+		if(game.resources.gold>=b)
+			aw.add(b, "%1i", b);
+	}
+	draw::imagestate push_img("gambling1");
+	auto b = aw.choosebg(sb, "How match you bet?", 0, true); sb.clear();
+	auto p = creatures.getbest(Charisma);
+	auto gv = p->get(Charisma);
+	if(game.roll(gv)) {
+		p->addexp(50);
+		sb.add("%1 win game and gain %2i coins.", p->getname(), b);
+		game.resources.gold += b;
+		showmessage();
+	} else {
+		sb.add("%1 lose game and lose %2i coins. Luck is not on you side today.", p->getname(), b);
+		game.pay(b);
+		showmessage();
+	}
 }
 
 bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
+	creaturea creatures;
 	itema items;
 	switch(a) {
 	case Buy:
 		create(genitems, ei.goods);
 		create(items, genitems);
 		items.costgp(true);
-		items.allow(getrarity(), true);
+		items.match(getrarity(), true);
 		items.maxcost(game.resources.gold, true);
 		if(!items)
 			return false;
@@ -137,9 +198,26 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Sell:
 		items.select();
+		items.costgp(true);
+		items.match(ei.goods, true);
+		if(!items)
+			return false;
+		if(run)
+			return sell_items(items);
 		break;
 	case Drink:
+		if(run)
+			drink_and_seat(b, a, 3);
+		break;
 	case Talk:
+		break;
+	case Gambling:
+		creatures.select();
+		creatures.match(Chaotic, true);
+		if(!creatures)
+			return false;
+		if(run)
+			gambling(creatures);
 		break;
 	case Leave:
 		break;

@@ -3,19 +3,6 @@
 using namespace draw;
 
 namespace draw {
-struct render_control {
-	void*				av;
-	unsigned			param;
-	rect				rc;
-	void clear() { memset(this, 0, sizeof(*this)); }
-};
-struct fxt {
-	short int			filesize;			// the size of the file
-	short int			charoffset[128];	// the offset of the pixel data from the beginning of the file, the index is the ascii value
-	unsigned char		height;				// the height of a character in pixel
-	unsigned char		width;				// the width of a character in pixel
-	unsigned char		data[1];			// the pixel data, one byte per line 
-};
 }
 namespace colors {
 static color			dark = color::create(52, 52, 80);
@@ -33,6 +20,19 @@ color					text = color::create(64, 64, 64);
 }
 }
 namespace {
+struct render_control {
+	void*				av;
+	unsigned			param;
+	rect				rc;
+	void clear() { memset(this, 0, sizeof(*this)); }
+};
+struct fxt {
+	short int			filesize;			// the size of the file
+	short int			charoffset[128];	// the offset of the pixel data from the beginning of the file, the index is the ascii value
+	unsigned char		height;				// the height of a character in pixel
+	unsigned char		width;				// the width of a character in pixel
+	unsigned char		data[1];			// the pixel data, one byte per line 
+};
 struct contexti {
 	void*				object;
 	int					title;
@@ -88,7 +88,7 @@ static const void*		focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 static draw::surface	bitmap;
-char					bitmap_url[260];
+static char				bitmap_url[260];
 callback				draw::domodal;
 static textedit			current_text;
 static void*			current_edit;
@@ -407,6 +407,17 @@ void mslogv(const char* format, const char* vl) {
 
 void mslog(const char* format, ...) {
 	mslogv(format, xva_start(format));
+}
+
+imagestate::imagestate(const char* id) {
+	name[0] = 0;
+	if(id && id[0])
+		zcpy(name, getimage(), sizeof(name) - 1);
+	setimage(id);
+}
+
+imagestate::~imagestate() {
+	setimage(name);
 }
 
 void draw::logs() {
@@ -1192,17 +1203,16 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return w + 8;
 }
 
-int answers::choosebg(const char* title, const char* footer, const imagei* pi, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, const char* footer, const char* pi, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
 	fore = colors::white;
 	openform();
+	setimage(pi);
 	while(ismodal()) {
 		screen.restore();
-		if(pi)
-			setimage(pi->custom);
 		if(bitmap)
 			blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
 		image(0, 0, gres(BORDER), 0, 0);
@@ -1604,7 +1614,7 @@ bool draw::choose(array& source, const char* title, void* object, void* field, u
 	auto current_value = (void*)getvalue(field, field_size);
 	if(field_size < sizeof(int))
 		current_value = source.ptr((int)current_value);
-	auto result = choose(source, title, object, current_value, list.getname, list.allow, list.preview, list.view_width);
+	auto result = choose(source, title, object, current_value, list.getname, list.match, list.preview, list.view_width);
 	if(!result)
 		return false;
 	if(field_size < sizeof(int)) {
@@ -1913,7 +1923,7 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 	rowa storage;
 	auto y0 = y;
 	auto y1 = y0 + 16 * (texth() + 2);
-	getrows(*ar, object, storage, e.list.allow, e.list.getname);
+	getrows(*ar, object, storage, e.list.match, e.list.getname);
 	if(storage.count > 16)
 		width = width / 2;
 	auto im = storage.count;
@@ -1932,7 +1942,7 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 
 static void add_record(const markup& e, void* object) {
 	auto value = draw::choose(*e.value.source, e.title, object, 0,
-		e.list.getname, e.list.allow, e.list.preview, e.list.view_width);
+		e.list.getname, e.list.match, e.list.preview, e.list.view_width);
 	auto index = e.value.source->indexof(value);
 	if(index == -1)
 		return;
@@ -1973,7 +1983,7 @@ static int tableadatc(int x, int y, int width, const markup& e, void* object, un
 	auto y0 = y;
 	auto y1 = 170;
 	rowa storage;
-	getrows(*ar, object, storage, e.list.allow, e.list.getname);
+	getrows(*ar, object, storage, e.list.match, e.list.getname);
 	auto im = storage.count;
 	if(!im)
 		return 0;
@@ -2121,11 +2131,14 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 	return e.edit(title, cancel_button);
 }
 
+void random_heroes();
+
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
 	//settlementi it = {};
 	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
+	random_heroes();
 	game.companyi::read("default");
 	game.resources.gold = 200;
 	game.settlements[0].adventure();
@@ -2149,12 +2162,18 @@ static void paintparty(point camera, point party) {
 }
 
 void draw::setimage(const char* id) {
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("art/custom/%-1.bmp", id);
-	if(strcmp(bitmap_url, temp) == 0)
+	if(!id || id[0] == 0)
 		return;
-	zcpy(bitmap_url, temp);
-	bitmap.read(bitmap_url);
+	if(strcmp(bitmap_url, id) == 0)
+		return;
+	zcpy(bitmap_url, id);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("art/custom/%-1.bmp", bitmap_url);
+	bitmap.read(temp);
+}
+
+const char* draw::getimage() {
+	return bitmap_url;
 }
 
 point draw::choosepoint(point camera) {

@@ -108,7 +108,7 @@ static creature* add_hero(gender_s gender, race_s race, class_s type, alignment_
 	return p;
 }
 
-static void random_heroes() {
+void random_heroes() {
 	creature* p;
 	//
 	p = add_hero(Male, Human, Paladin, LawfulGood);

@@ -227,7 +227,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Drink, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Pet,
+	Attack, Bribe, Buy, Drink, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -254,20 +254,19 @@ enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
 enum building_s : unsigned char {
-	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Shop, Stable, Stock, Tavern, Temple, WizardTower,
+	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
 };
 enum good_s : unsigned char {
-	Corns, Cotton, Fish, Furs, Herbs, Iron, Jewelry,
-	Leather, Meat, Ore, Papers, Potions, Weapons, Wine, Woods,
+	Armors, Books, Clothes, Devices, Food, Jewelry, Papers, Potions, Tools, Weapons
 };
 typedef short unsigned indext;
-typedef cflags<action_s> actiona;
+typedef cflags<action_s> actionf;
+typedef cflags<good_s> goodf;
+typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
 typedef flagable<LastSpellAbility> spellf;
 typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
-typedef cflags<variant_s> variantf;
-typedef cflags<good_s> goodf;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 class creature;
 class item;
@@ -286,6 +285,7 @@ struct variant {
 	constexpr variant(const feat_s v) : type(Feat), value(v) {}
 	constexpr variant(const gender_s v) : type(Gender), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
+	constexpr variant(const morale_s v) : type(Morale), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
@@ -325,7 +325,7 @@ struct actioni {
 struct abilityi {
 	const char*			name;
 	const char*			present;
-	cflags<class_s>		allow;
+	cflags<class_s>		match;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -446,7 +446,7 @@ struct itemi {
 	portraiti			image;
 	unsigned			costgp;
 	char				cost;
-	goodf				goods;
+	good_s				goods;
 	wear_s				equipment;
 	usabilitya			usability;
 	cflags<item_feat_s>	feats;
@@ -533,6 +533,7 @@ struct selli {
 struct imagei {
 	char				custom[16];
 	constexpr explicit operator bool() const { return custom[0]!=0; }
+	constexpr operator const char*() const { return custom; }
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct messagei {
@@ -628,7 +629,7 @@ public:
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return gete().equipment; }
-	constexpr bool		is(good_s v) const { return gete().goods.is(v); }
+	constexpr bool		is(good_s v) const { return gete().goods==v; }
 	constexpr bool		is(usability_s v) const { return gete().usability.is(v); }
 	constexpr bool		is(item_feat_s v) const { return gete().feats.is(v); }
 	constexpr bool		is(item_s v) const { return type == v; }
@@ -660,7 +661,7 @@ struct buildingi {
 	const char*			name;
 	imagei				image;
 	const char*			description;
-	actiona				actions;
+	actionf				actions;
 	goodf				goods;
 	shape_s				shape;
 	bool				is(action_s v) const { return actions.is(v); }
@@ -698,7 +699,6 @@ class itema : public adat<item*, 48> {
 	typedef bool (item::*pitem)() const;
 	void				select(pitem proc, bool keep);
 public:
-	void				allow(rarity_s v, bool keep);
 	void				broken(bool keep) { select(&item::isbroken, keep); }
 	item*				choose(const char* format, bool cancel_button, fngetname panel = 0);
 	void				cost(bool keep) { select(&item::iscost, keep); }
@@ -707,6 +707,8 @@ public:
 	void				identified(bool keep) { select(&item::isidentified, keep); }
 	void				is(good_s v, bool keep);
 	void				magical(bool keep) { select(&item::ismagical, keep); }
+	void				match(rarity_s v, bool keep);
+	void				match(const goodf& e, bool keep);
 	void				maxcost(int v, bool keep);
 	void				forsale(bool keep);
 	item*				random();
@@ -931,12 +933,18 @@ public:
 	creature*			getmostdamaged() const;
 	void				kill();
 	void				leave();
-	void				match(variant v, bool remove);
+	void				match(variant v, bool keep);
 	void				match(const messagei& id, bool remove);
 	void				resolve();
 	void				rollinitiative();
+	void				select();
 	void				select(indext index);
 	void				set(reaction_s v);
+};
+struct chati {
+	action_s			action;
+	conditiona			conditions;
+	const char*			text;
 };
 struct shapei {
 	const char*			id;
@@ -1179,6 +1187,7 @@ public:
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
+	void				pay(int coins);
 	void				play(short unsigned id);
 	void				preserial(bool writemode);
 	static bool			roll(int value);
@@ -1197,10 +1206,11 @@ struct answers {
 	};
 	answers();
 	adat<element, 32>	elements;
-	void				add(int id, const char* name);
+	void				add(int id, const char* name, ...) { addv(id, name, xva_start(name)); }
+	void				addv(int id, const char* name, const char* format);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, const char* footer, const imagei* pi = 0, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, const char* footer, const char* pi = 0, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
@@ -1215,6 +1225,12 @@ struct menu {
 	pevent				proc;
 	const char*			text;
 	operator bool() const { return proc != 0; }
+};
+class imagestate {
+	char				name[32];
+public:
+	imagestate(const char* id);
+	~imagestate();
 };
 namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
@@ -1243,6 +1259,7 @@ bool					edit(const char* title, void* object, const markup* form, bool cancel_b
 void					editor();
 void					fullimage(point camera, point* origin);
 void					fullimage(point from, point to, point* origin);
+const char*				getimage();
 void					mainmenu();
 void					options();
 void					pause();

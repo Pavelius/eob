@@ -1,9 +1,9 @@
 #include "main.h"
 
-void creaturea::match(variant id, bool remove) {
+void creaturea::match(variant id, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {
-		if(p->ismatch(id) == remove)
+		if(p->ismatch(id) != keep)
 			continue;
 		*ps++ = p;
 	}
@@ -48,14 +48,18 @@ void creaturea::match(const messagei& id, bool remove) {
 	count = ps - data;
 }
 
+void creaturea::select() {
+	for(auto p : party) {
+		if(!p || !p->isready())
+			continue;
+		add(p);
+	}
+}
+
 void creaturea::select(indext index) {
-	if(game.getcamera() == index) {
-		for(auto p : party) {
-			if(!p || !p->isready())
-				continue;
-			add(p);
-		}
-	} else {
+	if(game.getcamera() == index)
+		select();
+	else {
 		creature* monster_data[4];
 		location.getmonsters(monster_data, index, Right);
 		for(auto p : monster_data) {

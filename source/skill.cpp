@@ -113,7 +113,7 @@ static int get_theiv_skill(ability_s id, class_s type, const char* levels) {
 			continue;
 		auto e = bsdata<classi>::elements[type].classes.data[i];
 		auto m = 0;
-		if(bsdata<abilityi>::elements[id].allow && !bsdata<abilityi>::elements[id].allow.is(e))
+		if(bsdata<abilityi>::elements[id].match && !bsdata<abilityi>::elements[id].match.is(e))
 			m = default_theive_skills[id - ClimbWalls][0];
 		else {
 			if(n > 17)
@@ -128,10 +128,10 @@ static int get_theiv_skill(ability_s id, class_s type, const char* levels) {
 
 static bool allow_skill(ability_s id, class_s type) {
 	auto& si = bsdata<abilityi>::elements[id];
-	if(!si.allow)
+	if(!si.match)
 		return true;
 	for(auto e : bsdata<classi>::elements[type].classes) {
-		if(si.allow.is(e))
+		if(si.match.is(e))
 			return true;
 	}
 	return false;

@@ -18,10 +18,21 @@ void itema::is(good_s v, bool keep) {
 	count = ps - data;
 }
 
-void itema::allow(rarity_s v, bool keep) {
+void itema::match(rarity_s v, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {
 		auto result = (p->getrarity() <= v);
+		if(result != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
+void itema::match(const goodf& e, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		auto result = e.is(p->gete().goods);
 		if(result != keep)
 			continue;
 		*ps++ = p;

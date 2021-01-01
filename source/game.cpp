@@ -513,6 +513,8 @@ bool companyi::read(const char* name) {
 		pa->history[1] = "Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!";
 		pa->history[2] = "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.";
 		memcpy(pa->levels, sites, sizeof(sites));
+		auto ps = settlements;
+		ps->position = {418, 400};
 		result = true;
 	}
 #endif // _DEBUG
@@ -680,4 +682,9 @@ void gamei::preserial(bool writemode) {
 		for(auto i = 0; i < 6; i++)
 			party.add(players[i].getcreature());
 	}
+}
+
+void gamei::pay(int coins) {
+	resources.gold -= coins;
+	resources.correct();
 }

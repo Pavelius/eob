@@ -6,10 +6,10 @@ int compare(const void* v1, const void* v2) {
 
 answers::answers() : sc(buffer) {}
 
-void answers::add(int id, const char* text) {
+void answers::addv(int id, const char* text, const char* format) {
 	auto p = elements.add();
 	p->id = id;
-	p->text = sc.get(); sc.add(text); sc.addsz();
+	p->text = sc.get(); sc.addv(text, format); sc.addsz();
 }
 
 void answers::sort() {

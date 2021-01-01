@@ -30,7 +30,7 @@ sizeof(R),\
 
 struct fnlist {
 	fntext				getname;
-	fnallow				allow;
+	fnallow				match;
 	fnchoose			choose;
 	fndraw				preview;
 	int					view_width;
