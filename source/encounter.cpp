@@ -131,13 +131,13 @@ static bool talk_subject(action_s id, encounteri& scene, bool run) {
 	const char* speech_text = p->text;
 	switch(id) {
 	case TalkArtifact:
-		if(!location.stat.special)
+		if(!location.stat.wands)
 			return false;
-		if(!location.islying(location.stat.special.index, location.head.special))
+		if(!location.islying(location.stat.wands.index, location.head.wands))
 			return false;
 		if(run) {
-			subject_name = bsdata<itemi>::elements[location.head.special].name;
-			dungeon_part = location.getnavigation(location.stat.special.index);
+			subject_name = bsdata<itemi>::elements[location.head.wands].name;
+			dungeon_part = location.getnavigation(location.stat.wands.index);
 		}
 		break;
 	case TalkMagic:

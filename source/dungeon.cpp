@@ -290,7 +290,7 @@ void dungeon::statei::clear() {
 	portal.index = Blocked;
 	crypt.index = Blocked;
 	crypt_button.index = Blocked;
-	special.index = Blocked;
+	wands.index = Blocked;
 	for(auto& e : spawn)
 		e = Blocked;
 }

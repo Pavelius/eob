@@ -58,6 +58,7 @@ building_s settlementi::enter() const {
 }
 
 void settlementi::adventure() {
+	makeitems();
 	while(true) {
 		auto b = enter();
 		auto a = enter(b);
@@ -73,6 +74,9 @@ static bool isallow(item_s v, const goodf& goods) {
 static void create(adat<item>& pi, const goodf& goods) {
 	for(auto i = item_s(1); i <= LastItem; i = (item_s)(i + 1)) {
 		if(!isallow(i, goods))
+			continue;
+		if(bsdata<itemi>::elements[i].enchantments
+			&& bsdata<itemi>::elements[i].enchantments[0].power)
 			continue;
 		auto p = pi.add();
 		*p = i;
@@ -188,6 +192,12 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 	case Buy:
 		create(genitems, ei.goods);
 		create(items, genitems);
+		if(ei.goods.is(Devices)) {
+			for(auto& e : wands) {
+				if(e)
+					items.add(&e);
+			}
+		}
 		items.costgp(true);
 		items.match(getrarity(), true);
 		items.maxcost(game.resources.gold, true);
@@ -211,6 +221,8 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Talk:
 		break;
+	case Travel:
+		break;
 	case Gambling:
 		creatures.select();
 		creatures.match(Chaotic, true);
@@ -225,4 +237,21 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		return false;
 	}
 	return true;
+}
+
+void settlementi::makeitems() {
+	adat<rarity_s, 16> source;
+	auto m = getrarity();
+	for(auto i = Common; i <= m; i = (rarity_s)(i + 1))
+		source.add(i);
+	if(!source)
+		return;
+	for(auto& e : wands) {
+		if(e)
+			continue;
+		e = item(MagicWand);
+		auto i = source.data[rand() % source.getcount()];
+		e.setpower(i);
+		e.setidentified(1);
+	}
 }

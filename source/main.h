@@ -555,7 +555,7 @@ struct sitei {
 		resource_s		type;
 		monster_s		habbits[2]; // Who dwelve here
 		item_s			keys[2]; // Two keys open all doors
-		item_s			special; // Special find some where
+		item_s			wands; // Special find some where
 		race_s			language; // All messages in this language
 	};
 	struct crypti {
@@ -672,7 +672,7 @@ struct settlementi {
 	point				position;
 	textable			description;
 	cflags<building_s>	buildings;
-	item				armory[4];
+	item				wands[8];
 	spellf				spells;
 	good_s				imports, exports;
 	unsigned char		prosperty;
@@ -684,6 +684,7 @@ struct settlementi {
 	const char*			getname() const { return name; }
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
+	void				makeitems();
 };
 struct boosti {
 	variant				owner, id;
@@ -980,7 +981,7 @@ struct dungeon {
 		overlayi		portal; // where is portal
 		overlayi		crypt; // where is crypt located
 		overlayi		crypt_button; // where is crypt located
-		overlayi		special; // where is crypt located
+		overlayi		wands; // where is crypt located
 		indext			spawn[2]; // new monster appera here
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms

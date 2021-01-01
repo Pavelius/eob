@@ -514,7 +514,7 @@ bool companyi::read(const char* name) {
 		pa->history[2] = "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.";
 		memcpy(pa->levels, sites, sizeof(sites));
 		auto ps = settlements;
-		ps->position = {418, 400};
+		ps->position = {495, 404};
 		result = true;
 	}
 #endif // _DEBUG

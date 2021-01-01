@@ -1168,23 +1168,8 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static void buttonb(const rect& r1, const char* title, void* ev, unsigned key = 0, callback proc = 0) {
-	focusing(r1, ev);
-	auto isfocused = isfocus(ev);
-	if((isfocused && hot::key == KeyEnter)
-		|| (key && hot::key == key))
-		focus_pressed = ev;
-	else if(hot::key == InputKeyUp && focus_pressed == ev) {
-		focus_pressed = 0;
-		if(!proc)
-			proc = buttonparam;
-		execute(buttonparam, (int)ev);
-	}
-	form(r1, 1, isfocused, focus_pressed == ev);
-	text(r1.x1 + 4, r1.y1 + 2, title);
-}
-
 static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0, int param = 0) {
+	auto push_fore = fore;
 	auto w = textw(title);
 	rect r1 = {x, y, x + w + 6, y + texth() + 3};
 	focusing(r1, ev);
@@ -1198,8 +1183,11 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 			proc = buttonparam;
 		execute(proc, param);
 	}
-	form(r1, 1, isfocused, focus_pressed == ev);
-	text(r1.x1 + 4, r1.y1 + 2, title);
+	form(r1, 1, false, focus_pressed == ev);
+	if(isfocused)
+		fore = colors::focus;
+	textb(r1.x1 + 4, r1.y1 + 2, title);
+	fore = push_fore;
 	return w + 8;
 }
 
@@ -1251,18 +1239,38 @@ int answers::choosebg(const char* title, const char* footer, const char* pi, boo
 	return p->id;
 }
 
+static bool buttonr(rect rc, void* element, const char* name) {
+	draw::state push;
+	form(rc);
+	focusing(rc, element);
+	auto run = false;
+	unsigned flags = 0;
+	if(isfocus(element)) {
+		flags |= Focused;
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	setclip(rc);
+	rc.offset(3, 2);
+	textb(rc, name, flags | TextSingleLine);
+	return run;
+}
+
 static void nextpage() {
 	auto p = (parami*)hot::param;
 	p->origin += p->perpage;
 	p->correct();
-	setfocus(0, 0);
+	if(!isfocus(nextpage) || (p->origin+p->perpage>=p->maximum))
+		setfocus(0, 0);
 }
 
 static void prevpage() {
 	auto p = (parami*)hot::param;
 	p->origin -= p->perpage;
 	p->correct();
-	setfocus(0, 0);
+	if(!isfocus(prevpage) || !p->origin)
+		setfocus(0, 0);
 }
 
 item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
@@ -1288,7 +1296,8 @@ item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
 		unsigned i = param.origin;
 		while(i < count) {
 			sb.clear(); data[i]->getname(sb);
-			buttonb({x, y, x2, y + texth() + 3}, temp, data[i], Alpha + '1' + i);
+			if(buttonr({x, y, x2, y + texth() + 4}, data[i], temp))
+				execute(buttonparam, (int)data[i]);
 			y += texth() + 5;
 			if(y >= 180)
 				break;
@@ -1342,12 +1351,6 @@ int draw::button(int x, int y, int width, const cmd& ev, const char* name, int k
 	if(run)
 		ev.execute();
 	return draw::texth();
-}
-
-static int buttonwb(int x, int y, const char* title, const cmd& proc, unsigned key = 0) {
-	auto w = textw(title) + 3 * 2;
-	button(x, y, w, proc, title, key);
-	return w + 2;
 }
 
 static bool buttontxt(int x, int& y, int width, void* focus, const char* name, int key) {
@@ -1409,128 +1412,6 @@ static void sort(void** storage, unsigned maximum, fntext getname) {
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
 }
 
-class choose_control : public rowa {
-	int					origin;
-	fntext				getname;
-	fndraw				preview;
-	int					perpage;
-	variant_s			type;
-	array*				source;
-	static fntext		compare_callback;
-	static void choose_item() {
-		breakmodal(hot::param);
-	}
-	void correct() {
-		if(origin + perpage > (int)count)
-			origin = count - perpage;
-		if(origin < 0)
-			origin = 0;
-	}
-	static void button_next() {
-		auto p = (choose_control*)hot::param;
-		p->origin += p->perpage;
-		p->correct();
-	}
-	static void button_prev() {
-		auto p = (choose_control*)hot::param;
-		p->origin -= p->perpage;
-		p->correct();
-	}
-	static void edit_item() {
-		auto p = (choose_control*)hot::param;
-		auto pc = getfocus();
-		if(!pc)
-			return;
-		auto& ei = bsdata<varianti>::elements[p->type];
-		edit(ei.name, pc, ei.form.form, false);
-	}
-	static void button_add() {
-		auto p = (choose_control*)hot::param;
-		if(!p->source)
-			return;
-		auto pc = p->source->add();
-		p->add(pc);
-		setfocus(pc);
-		p->ensurevisible(pc);
-		edit_item();
-	}
-	int getindex(const void* v) const {
-		for(auto p : *this) {
-			if(v == p)
-				return &p - data;
-		}
-		return -1;
-	}
-public:
-	void setsource(array* v, variant_s t) {
-		source = v;
-		type = t;
-	}
-	void ensurevisible(const void* v) {
-		auto i = getindex(v);
-		if(i == -1)
-			return;
-		origin = (i / perpage)*perpage;
-		correct();
-	}
-	int getcount() const {
-		return count;
-	}
-	choose_control(fntext getname, fndraw preview) : origin(0), perpage(preview ? 11 : 11 * 2),
-		getname(getname), preview(preview),
-		type(NoVariant), source(0) {
-	}
-	void* choose(const char* title, const void* current_value, int width) const {
-		if(!*this && type == NoVariant)
-			return 0;
-		openform();
-		setfocus((void*)current_value);
-		while(ismodal()) {
-			form({0, 0, 320, 200}, 2);
-			auto x = 4, y = 6;
-			y += headerc(x, y, "Choose", title, 0, (origin + perpage - 1) / perpage, (count + perpage - 1) / perpage);
-			auto y1 = y;
-			void* current_element = 0;
-			for(unsigned i = origin; i < count; i++) {
-				char temp[260]; stringbuilder sb(temp);
-				auto pt = data[i];
-				auto pn = getname(pt, sb);
-				if(!pn)
-					pn = "None";
-				if(source)
-					y += button(x, y, width, cmd(edit_item, (int)this, (int)pt), pn) + 3 * 2;
-				else
-					y += button(x, y, width, cmd(choose_item, (int)pt, (int)pt), pn) + 3 * 2;
-				if(isfocus(pt))
-					current_element = pt;
-				if(y >= 200 - 16 * 2) {
-					if(preview)
-						break;
-					x += width + 4;
-					y = y1;
-				}
-			}
-			if(preview && current_element) {
-				x += width + 4;
-				preview(x, y1, 320 - 4 - x, current_element);
-			}
-			y = 200 - 12 - 4;
-			x = 4;
-			x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-			if(origin + perpage < (int)count)
-				x += buttonwb(x, y, "Next", cmd(button_next, (int)this, (int)button_next), KeyPageDown);
-			if(origin > 0)
-				x += buttonwb(x, y, "Prev", cmd(button_prev, (int)this, (int)button_prev), KeyPageUp);
-			if(source)
-				x += buttonwb(x, y, "Add", cmd(button_add, (int)this, (int)button_add), F3);
-			domodal();
-			navigate(true);
-		}
-		closeform();
-		return (void*)getresult();
-	}
-};
-
 void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 	openform();
 	while(ismodal()) {
@@ -1550,7 +1431,7 @@ void draw::chooseopt(const menu* source, unsigned count, const char* title) {
 		}
 		auto y = 200 - 12 - 4;
 		auto x = 4;
-		x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
+		x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape, buttoncancel);
 		domodal();
 		navigate(true);
 	}
@@ -1596,16 +1477,72 @@ static void getrows(const array& source, const void* object, rowa& result, fnall
 		sort(result.data, result.count, getname);
 }
 
+static void choose_item() {
+	breakmodal(hot::param);
+}
+
+static void* choose_element(const char* title, const void* current_value, int width, void** data, unsigned data_count, fntext getname, fndraw preview) {
+	openform();
+	auto columns = 2;
+	if(preview)
+		columns = 1;
+	parami params = {};
+	params.maximum = data_count;
+	params.perpage = ((200 - 6 - 16 - 6) / (texth() + 6))*columns;
+	for(unsigned i = 0; i < data_count; i++) {
+		if(data[i] == current_value)
+			params.origin = i;
+	}
+	params.correct();
+	setfocus((void*)current_value);
+	while(ismodal()) {
+		form({0, 0, 320, 200}, 2);
+		auto x = 4, y = 6;
+		y += headerc(x, y, "Choose", title, 0, (params.origin + params.perpage - 1) / params.perpage, (params.maximum + params.perpage - 1) / params.perpage);
+		auto y1 = y;
+		void* current_element = 0;
+		for(auto i = params.origin; i < params.maximum; i++) {
+			char temp[260]; stringbuilder sb(temp);
+			auto pt = data[i];
+			auto pn = getname(pt, sb);
+			if(!pn)
+				pn = "None";
+			rect rc = {x, y, x + width, y + texth() + 4};
+			if(buttonr(rc, pt, pn))
+				draw::execute(choose_item, (int)pt);
+			y += rc.height() + 2;
+			if(isfocus(pt))
+				current_element = pt;
+			if(y >= 200 - 16 * 2) {
+				if(preview || x > 4)
+					break;
+				x += width + 4;
+				y = y1;
+			}
+		}
+		if(preview && current_element) {
+			x += width + 4;
+			preview(x, y1, 320 - 4 - x, current_element);
+		}
+		y = 200 - 12 - 4;
+		x = 4;
+		x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape);
+		if(params.origin + params.perpage < params.maximum)
+			x += buttonw(x, y, "Next", nextpage, KeyPageDown, nextpage, (int)&params);
+		if(params.origin > 0)
+			x += buttonw(x, y, "Prev", prevpage, KeyPageUp, prevpage, (int)&params);
+		domodal();
+		navigate(true);
+	}
+	closeform();
+	return (void*)getresult();
+}
+
 void* draw::choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
 	if(!view_width)
 		view_width = 154;
-	auto type = varianti::find(&source);
-	choose_control control(pgetname, preview);
-	if(can_add && type)
-		control.setsource(&source, type);
-	getrows(source, object, control, pallow, pgetname);
-	control.ensurevisible(current);
-	return control.choose(title, current, view_width);
+	rowa rows; getrows(source, object, rows, pallow, pgetname);
+	return choose_element(title, current, view_width, rows.data, rows.count, pgetname, preview);
 }
 
 bool draw::choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list) {
@@ -2110,14 +2047,14 @@ public:
 			// Footer
 			x = 4; y = 200 - 12 - 4;
 			if(cancel_button) {
-				x += buttonwb(x, y, "Cancel", buttoncancel, KeyEscape);
-				x += buttonwb(x, y, "OK", buttonok, KeyEnter);
+				x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape, buttoncancel);
+				x += buttonw(x, y, "OK", buttonok, KeyEnter, buttonok);
 			} else
-				x += buttonwb(x, y, "OK", buttonok, KeyEscape);
+				x += buttonw(x, y, "OK", buttonok, KeyEscape, buttonok);
 			if(page > 0)
-				x += buttonwb(x, y, "Prev", cmd(prev_page, (int)this, (int)prev_page), KeyPageUp);
+				x += buttonw(x, y, "Prev", prev_page, KeyPageUp, prev_page, (int)this);
 			if(page < page_maximum - 1)
-				x += buttonwb(x, y, "Next", cmd(next_page, (int)this, (int)next_page), KeyPageDown);
+				x += buttonw(x, y, "Next", next_page, KeyPageDown, next_page, (int)this);
 			domodal();
 			navigate(false);
 		}

@@ -247,6 +247,10 @@ static bool visible_level(const void* object, const void* pointer) {
 	auto p = ((sitei*)pointer) - 1;
 	return p->levels != 0;
 }
+static bool visible_specal(const void* object, const void* pointer) {
+	auto p = ((item*)pointer) - 1;
+	return p->operator bool();
+}
 static bool visible_condition(const void* object, const void* pointer) {
 	auto p = ((variant*)pointer) - 1;
 	return p->operator bool();
@@ -478,7 +482,7 @@ DGINF(sitei::headi) = {{"Resource", DGREQ(type), {getnm<resourcei>, dungeon_reso
 {"Monster 2", DGREQ(habbits[1]), {getnm<monsteri>}},
 {"Key 1", DGREQ(keys[0]), {getnm<itemi>, key_items}},
 {"Key 2", DGREQ(keys[1]), {getnm<itemi>, key_items}},
-{"Special", DGREQ(special), {getnm<itemi>, unique_items}},
+{"Special", DGREQ(wands), {getnm<itemi>, unique_items}},
 {"Language", DGREQ(language), {getnm<racei>}},
 {}};
 DGINF(sitei::chancei) = {{"Curse item", DGREQ(curse)},
@@ -564,9 +568,9 @@ DGINF(companyi) = {{"Name", DGREQ(name)},
 {"Character 1", DGREQ(characters[4]), {getnm<creature>, 0, edit_character}},
 {"#div Settlements"},
 {"Settlement 1", DGREQ(settlements[0]), {getnm<settlementi>}},
-{"Settlement 2", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
-{"Settlement 3", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
-{"Settlement 4", DGREQ(settlements[0]), {getnm<settlementi>}, {0, 0, visible_settlement}},
+{"Settlement 2", DGREQ(settlements[1]), {getnm<settlementi>}, {0, 0, visible_settlement}},
+{"Settlement 3", DGREQ(settlements[2]), {getnm<settlementi>}, {0, 0, visible_settlement}},
+{"Settlement 4", DGREQ(settlements[3]), {getnm<settlementi>}, {0, 0, visible_settlement}},
 {}};
 DGINF(imagei) = {{0, DGREQ(custom), {getnm<imagei>, 0, choose_custom_images, imagei::preview, 130}},
 {}};
@@ -595,4 +599,13 @@ DGINF(settlementi) = {{"Name", DGREQ(name)},
 {"Description", DGREQ(description)},
 {"Prosperty", DGREQ(prosperty)},
 {"#chk Buildings", DGREQ(buildings), {getnm<buildingi>}},
+{"#div Items"},
+{"Item 1", DGREQ(wands[0]), {getnm<item>}},
+{"Item 1", DGREQ(wands[1]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[2]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[3]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[4]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[5]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[6]), {getnm<item>}, {0, 0, visible_specal}},
+{"Item 1", DGREQ(wands[7]), {getnm<item>}, {0, 0, visible_specal}},
 {}};

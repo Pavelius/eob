@@ -707,17 +707,17 @@ static void remove_all_overlay(dungeon* pd, indext index) {
 
 static void drop_special_ground(item& it, indext index) {
 	location.dropitem(index, it, 0);
-	location.stat.special.index = index;
-	location.stat.special.dir = Center;
+	location.stat.wands.index = index;
+	location.stat.wands.dir = Center;
 	it.clear();
 }
 
 static void validate_special_items(dungeon& location) {
-	if(!location.head.special)
+	if(!location.head.wands)
 		return;
-	if(location.stat.special)
+	if(location.stat.wands)
 		return;
-	item it(location.head.special);
+	item it(location.head.wands);
 	if(d100() < 50)
 		it.setpower(VeryRare);
 	if(d100() < 10)
@@ -732,7 +732,7 @@ static void validate_special_items(dungeon& location) {
 		if(source) {
 			auto p = source.data[rand() % source.count];
 			location.add(p, it);
-			location.stat.special = *p;
+			location.stat.wands = *p;
 			it.clear();
 		}
 	}
@@ -909,7 +909,7 @@ void companyi::adventurei::create(bool interactive) const {
 	dungeon* previous = 0;
 	for(auto p = levels; *p; p++) {
 		auto special_item_level = -1;
-		if(p->head.special)
+		if(p->head.wands)
 			special_item_level = rand() % p->levels;
 		for(auto j = 0; j < p->levels; j++) {
 			auto& e = dungeons[base + j];
@@ -923,7 +923,7 @@ void companyi::adventurei::create(bool interactive) const {
 				e.overland_index = position;
 				e.head = p->head;
 				if(special_item_level != j)
-					e.head.special = NoItem;
+					e.head.wands = NoItem;
 				e.level = level;
 				e.chance.curse = 5 + p->chance.curse;
 				if(start == Blocked)
