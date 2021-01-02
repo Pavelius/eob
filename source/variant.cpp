@@ -5,6 +5,7 @@
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
 {"Action", "actions"},
+{"Adventure", "adventures", FORM(adventurei)},
 {"Alignment", "alignments", FORM(alignmenti)},
 {"Building", "buildings", FORM(buildingi)},
 {"Class", "classes", FORM(classi)},
@@ -18,6 +19,7 @@ BSDATA(varianti) = {{"None"},
 {"Morale", "morals", FORM(moralei)},
 {"Race", "races", FORM(racei)},
 {"Reaction", "reactions"},
+{"Settlement", "settlements", FORM(settlementi)},
 {"Spell", "spells", FORM(spelli)},
 };
 assert_enum(variant, Spell)
@@ -35,16 +37,28 @@ variant::variant(variant_s v, const void* p) {
 	}
 }
 
-variant::variant(const creature* p) {
+variant::variant(const void* p) {
 	if(!p) {
 		type = NoVariant;
 		value = 0;
-	} else if(p->ishero()) {
+	} else if(bsdata<creature>::source.indexof(p)!=-1) {
 		type = Creature;
 		value = creature_players_base + bsdata<creature>::source.indexof(p);
-	} else {
+	} else if(p>=location.monsters && p<=(location.monsters + sizeof(location.monsters)/sizeof(location.monsters[0]))) {
 		type = Creature;
-		value = p - location.monsters;
+		value = (creature*)p - location.monsters;
+	} else {
+		type = NoVariant;
+		value = 0;
+		for(auto i = (variant_s)1; i <= Spell; i = (variant_s)(i + 1)) {
+			if(!bsdata<varianti>::elements[i].form.source)
+				continue;
+			if(bsdata<varianti>::elements[i].form.source->indexof(p) != -1) {
+				type = i;
+				value = bsdata<varianti>::elements[i].form.source->indexof(p);
+				break;
+			}
+		}
 	}
 }
 

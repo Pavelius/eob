@@ -1,6 +1,7 @@
 #include "main.h"
 
-BSDATA(buildingi) = {{"Arena", {}},
+BSDATA(buildingi) = {{"Outside", {"adventure3"}, "", {Travel}},
+{"Arena", {}},
 {"Armory", {"forge"}, "This place is full of weapon for sale. You can buy new weapon or sell.", {Buy, Sell}, {Armors, Weapons}},
 {"Bank"},
 {"Brothel"},

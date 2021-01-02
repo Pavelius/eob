@@ -236,8 +236,8 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Building, Class, Cleveress, Creature, Damage,
-	Enchant, Feat, Gender, Item, Morale, Race, Reaction, Spell,
+	Ability, Action, Adventure, Alignment, Building, Class, Cleveress, Creature, Damage,
+	Enchant, Feat, Gender, Item, Morale, Race, Reaction, Settlement, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -254,6 +254,7 @@ enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
 enum building_s : unsigned char {
+	Outdoor,
 	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
 };
 enum good_s : unsigned char {
@@ -291,7 +292,7 @@ struct variant {
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
 	variant(variant_s v, const void* p);
-	variant(const creature* v);
+	variant(const void* v);
 	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
@@ -1110,8 +1111,10 @@ struct settlementi : textable {
 struct fractioni : looti, textable {
 };
 struct companyi : textable {
+	imagei				world;
 	point				start;
 	looti				resources;
+	int					pixels_per_day;
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
 	void				write(const char* name);
@@ -1129,6 +1132,7 @@ struct encounteri : public creaturea {
 class gamei : public companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
+	point				size;
 	point				location_position;
 	unsigned short		location_level;
 	unsigned			rounds;
@@ -1183,6 +1187,7 @@ public:
 	void				startgame();
 	void				thrown(item* itm);
 	bool				read();
+	void				updatesize();
 	void				worldmap();
 	void				write();
 };

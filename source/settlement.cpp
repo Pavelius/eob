@@ -187,6 +187,7 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
 	creaturea creatures;
+	variantc vars;
 	itema items;
 	switch(a) {
 	case Buy:

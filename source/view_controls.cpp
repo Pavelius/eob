@@ -593,6 +593,17 @@ int imagei::preview(int x, int y, int width, const void* object) {
 	return rc.height();
 }
 
+static void dungeon_preview(int x0, int y0, const sprite* sp) {
+	draw::image(x0, y0, sp, 0, 0);
+	draw::image(x0, y0, sp, 3, 0);
+	draw::image(x0, y0, sp, 4, ImageMirrorH);
+	draw::image(x0 - 80, y0, sp, 8, 0);
+	draw::image(x0 + 48, y0, sp, 7, ImageMirrorH);
+	draw::image(x0 + 48 * 2, y0, sp, 7, 0);
+	draw::image(x0 + 48, y0, sp, 76, 0);
+	draw::image(x0, y0, sp, 96, ImageMirrorH);
+}
+
 int resourcei::preview(int x, int y, int width, const void* object) {
 	char temp[260]; stringbuilder sb(temp);
 	auto p = (resourcei*)object;
@@ -615,13 +626,14 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 			execute(decrement_frame);
 	}
 	border_down(rc);
+	draw::state push; draw::setclip({rc.x1 + 1, rc.y1 + 1, rc.x2, rc.y2});
 	if(p->ismonster()) {
 		draw::image(x0, y0, draw::gres(BLUE), 0, 0);
 		draw::image(x0, y1, sp, 0, 0);
-	} else if(p->isdungeon())
-		draw::image(x0, y0, sp, 0, 0);
-	else if(p->pack == PackOuttake) {
-		draw::image(x0, y0, draw::gres(MEZZ), 0, 0);
+	} else if(p->isdungeon()) {
+		dungeon_preview(x0, y0, sp);
+	} else if(p->pack == PackOuttake) {
+		dungeon_preview(x0, y0, draw::gres(MEZZ));
 		draw::image(x0, y1, sp, current_res_frame, 0);
 	} else if(p->pack == PackCenter)
 		draw::image(x0, y1 - 32, sp, current_res_frame, 0);
@@ -1532,7 +1544,7 @@ static void* choose_element(const char* title, const void* current_value, int wi
 			x += buttonw(x, y, "Add", "Add", F3, setparam, F3);
 		current_param = 0;
 		domodal();
-		if(current_param==F3) {
+		if(current_param == F3) {
 			params.origin = source->getcount();
 			data[params.origin] = source->add();
 			hot::param = (int)data[params.origin];
@@ -2205,6 +2217,16 @@ void draw::pause() {
 		}
 	}
 	closeform();
+}
+
+void gamei::updatesize() {
+	if(!size.x && !size.y) {
+		setimage(world);
+		if(bitmap) {
+			size.x = bitmap.width;
+			size.y = bitmap.height;
+		}
+	}
 }
 
 static void newgame() {

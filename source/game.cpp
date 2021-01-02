@@ -525,6 +525,7 @@ bool companyi::read(const char* name) {
 		};
 		setname("Western heartlands");
 		start = {614, 294};
+		pixels_per_day = 120;
 		auto pa = (adventurei*)bsdata<adventurei>::source.add();
 		pa->setname("Flooded collectors");
 		pa->position = {614, 294};
@@ -535,6 +536,15 @@ bool companyi::read(const char* name) {
 		auto ps = (settlementi*)bsdata<settlementi>::source.add();
 		ps->setname("Baldur's gate");
 		ps->position = {495, 404};
+		ps->prosperty = 50;
+		ps = (settlementi*)bsdata<settlementi>::source.add();
+		ps->setname("Upper Chionthar");
+		ps->position = {623, 285};
+		ps->prosperty = 15;
+		ps = (settlementi*)bsdata<settlementi>::source.add();
+		ps->setname("Ulgoth's Beard");
+		ps->position = {185, 279};
+		ps->prosperty = 10;
 		result = true;
 	}
 #endif // _DEBUG
@@ -712,4 +722,5 @@ void gamei::pay(int coins) {
 void gamei::startgame() {
 	for(auto i = 0; i < 4; i++)
 		party.add(&bsdata<creature>::elements[i]);
+	updatesize();
 }
