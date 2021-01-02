@@ -50,12 +50,8 @@ static const char* add(const char* text, int textc) {
 	return result;
 }
 
-textable::operator const char *() const {
-	return id ? (char*)getstrings().ptr(id) : "";
-}
-
-textable::textable(const char* v) {
-	setname(v);
+const char* textable::getname() const {
+	return name ? (char*)getstrings().ptr(name) : "";
 }
 
 array& textable::getstrings() {
@@ -65,7 +61,7 @@ array& textable::getstrings() {
 
 void textable::setname(const char* name) {
 	if(name && name[0])
-		id = getstrings().indexof(add(name, -1));
+		this->name = getstrings().indexof(add(name, -1));
 	else
-		id = 0;
+		this->name = 0;
 }

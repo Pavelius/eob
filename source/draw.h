@@ -5,30 +5,21 @@
 
 enum input_events {
 	// input events
-	InputUser = 0xE000,
-	InputSymbol = 0xED00, InputTimer, InputEdit, InputEditPlus, InputEditMinus,
-	InputKeyUp, InputIdle, InputUpdate, InputNoUpdate,
-	InputChoose, InputDropDown, InputMenu, InputSet,
-	ScrollV, ScrollH, SplitterV, SplitterH,
-	TreeType, TreeFlags,
-	HtmlLink, HtmlControl, TabsControl, TabsCloseControl,
-	Executed,
+	InputSymbol=1, InputTimer, InputKeyUp, InputUpdate, InputNoUpdate,
 	// control keys
-	MouseLeft = 0xEE00, MouseLeftDBL, MouseRight,
+	MouseLeft = 0x80, MouseLeftDBL, MouseRight,
 	MouseMove, MouseWheelUp, MouseWheelDown,
 	KeyLeft, KeyRight, KeyUp, KeyDown, KeyPageUp, KeyPageDown, KeyHome, KeyEnd,
 	KeyBackspace, KeyEnter, KeyDelete, KeyEscape, KeySpace, KeyTab,
 	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-	// named keys range
-	Alpha,
 	FirstKey = MouseLeft,
 	FirstMouse = MouseLeft, LastMouse = MouseWheelDown,
 	// support
-	CommandMask = 0x0000FFFF,
+	CommandMask = 0x000000FF,
 	// misc events can be combination with previous
-	Ctrl = 0x00010000,
-	Alt = 0x00020000,
-	Shift = 0x00040000,
+	Ctrl = 0x00000100,
+	Alt = 0x00000200,
+	Shift = 0x00000400,
 	// control visual flags
 	HideActiveBorder = 0x00100000,
 	HideBackground = 0x00200000,

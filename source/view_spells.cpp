@@ -146,39 +146,39 @@ int variantc::chooselv(class_s type) const {
 		case KeyEscape:
 			return Moved;
 		case KeyEnter:
-		case Alpha + 'U':
+		case 'U':
 			breakmodal(result.data[current_element].value);
 			break;
 		case KeyLeft:
-		case Alpha + 'A':
+		case 'A':
 			current_level--;
 			if(current_level < 1)
 				current_level = 1;
 			break;
 		case KeyRight:
-		case Alpha + 'S':
+		case 'S':
 			current_level++;
 			if(current_level > 9)
 				current_level = 9;
 			break;
 		case KeyDown:
-		case Alpha + 'Z':
+		case 'Z':
 			current_element++;
 			break;
 		case KeyUp:
-		case Alpha + 'W':
+		case 'W':
 			current_element--;
 			break;
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-		case Alpha + '5':
-		case Alpha + '6':
-		case Alpha + '7':
-		case Alpha + '8':
-		case Alpha + '9':
-			current_level = hot::key - (Alpha + '1') + 1;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			current_level = hot::key - '1' + 1;
 			break;
 		}
 	}
@@ -194,12 +194,12 @@ spell_s creature::choosespell(class_s type) const {
 static bool choose_creature(class_s type, creature** hero) {
 	creature* p;
 	switch(hot::key) {
-	case Alpha + '1':
-	case Alpha + '2':
-	case Alpha + '3':
-	case Alpha + '4':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
 		if(true) {
-			auto id = hot::key - (Alpha + '1');
+			auto id = hot::key - '1';
 			p = party[id];
 			if(!p || !p->iscast(type))
 				break;
@@ -233,7 +233,7 @@ void creature::preparespells(class_s type) {
 		domodal();
 		auto current_index = result.indexof((spell_s*)getfocus());
 		switch(hot::key) {
-		case Alpha + 'C':
+		case 'C':
 			for(auto e : result)
 				hero->set(e, 0);
 			break;

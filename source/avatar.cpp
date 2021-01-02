@@ -9,7 +9,7 @@ static struct portraiti {
 {Male, {Human}, {Mage, Cleric, Ranger}},
 {Male, {Human, Halfling}, {Theif}},
 {Male, {Elf}, {Theif, Mage, Fighter, Ranger}},
-{Male, {Elf}, {Theif, Fighter, Ranger}},
+{Male, {Elf, HalfElf}, {Theif, Fighter, Ranger}},
 {Male, {Dwarf}, {Cleric, Fighter}},
 {Male, {Human}, {Theif, Mage, Ranger}},
 {Male, {Human, Halfling}, {Theif, Fighter, Ranger, Cleric}},
@@ -77,7 +77,7 @@ static bool isportrait(int id, gender_s value) {
 		|| portrait_data[id].gender == value;
 }
 
-static int select_avatar(unsigned short* result, race_s race, gender_s gender, class_s cls) {
+static int getavatarx(unsigned short* result, race_s race, gender_s gender, class_s cls) {
 	auto p = result;
 	for(auto& e : portrait_data) {
 		if(e.gender != NoGender && e.gender != gender)
@@ -91,7 +91,7 @@ static int select_avatar(unsigned short* result, race_s race, gender_s gender, c
 	return p - result;
 }
 
-static int select_avatar(unsigned short* result, race_s race, gender_s gender) {
+static int getavatarx(unsigned short* result, race_s race, gender_s gender) {
 	auto p = result;
 	for(auto& e : portrait_data) {
 		if(e.gender != NoGender && e.gender != gender)
@@ -104,9 +104,9 @@ static int select_avatar(unsigned short* result, race_s race, gender_s gender) {
 }
 
 int gamei::getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls) {
-	auto c = select_avatar(result, race, gender, cls);
-	if(!c)
-		c = select_avatar(result, race, gender);
+	auto c = getavatarx(result, race, gender, cls);
+	if(c < 4)
+		c = getavatarx(result, race, gender);
 	return c;
 }
 

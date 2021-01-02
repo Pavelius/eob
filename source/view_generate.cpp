@@ -23,15 +23,11 @@ static void new_game() {
 }
 
 static void delete_character() {
-	for(auto p : party) {
-		if(p == current_player)
-			p->clear();
-	}
 	current_player->clear();
 	breakmodal(0);
 }
 
-static int button(int x, int y, const cmd& ev, const char* name, int key) {
+static int buttonx(int x, int y, const char* name, int key, callback proc, int param) {
 	static int pressed_key;
 	draw::state push;
 	draw::setsmallfont();
@@ -40,51 +36,48 @@ static int button(int x, int y, const cmd& ev, const char* name, int key) {
 	else if(hot::key == key) {
 		pressed_key = key;
 		if(key && hot::key == key)
-			ev.execute();
+			draw::execute(proc, param);
 	}
 	auto pi = draw::gres(CHARGENB);
 	auto si = 0;
-	if(ev.proc == next_portrait || ev.proc == prev_portrait)
+	if(proc == next_portrait || proc == prev_portrait)
 		si = 2;
-	else if(ev.proc == new_game)
+	else if(proc == new_game)
 		si = 4;
-	else if(ev.proc == delete_character)
+	else if(proc == delete_character)
 		si = 6;
 	if(key && pressed_key == key)
 		si++;
 	auto width = pi->get(si).sx;
 	auto height = pi->get(si).sy;
 	draw::image(x, y, pi, si, 0);
-	if(ev.proc == prev_portrait)
+	if(proc == prev_portrait)
 		draw::image(x + 7, y + 5, pi, 8, 0);
-	else if(ev.proc == next_portrait)
+	else if(proc == next_portrait)
 		draw::image(x + 7, y + 5, pi, 9, 0);
 	if(name)
 		draw::text(x + 1 + (width - draw::textw(name)) / 2, y + 1 + (height - draw::texth()) / 2, name);
 	return height;
 }
 
-static void genavatar(int x, int y, const cmd& ev) {
-	auto v = *((variant*)ev.param);
-	auto pc = v.getcreature();
-	if(pc) {
-		if(current_player != pc) {
-			draw::state push;
-			fore = colors::white;
-			setsmallfont();
-			pc->view_portrait(x + 1, y);
-			auto pn = pc->getname();
-			text(x - 14 + (58 - draw::textw(pn)) / 2, y + 43, pn);
-		} else
-			image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
+static void genavatar(int x, int y, creature* pc, callback proc) {
+	if(current_player == pc)
+		image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
+	else if(*pc) {
+		draw::state push;
+		fore = colors::white;
+		setsmallfont();
+		pc->view_portrait(x + 1, y);
+		auto pn = pc->getname();
+		text(x - 14 + (58 - draw::textw(pn)) / 2, y + 43, pn);
 	}
-	if(ev.proc) {
+	if(proc) {
 		rect rc = {x, y, x + 32, y + 32};
-		focusing(rc, ev);
-		if(isfocus(ev)) {
+		focusing(rc, pc);
+		if(isfocus(pc)) {
 			draw::rectb(rc, colors::white.mix(colors::black, draw::ciclic(200, 7)));
 			if(hot::key == KeyEnter)
-				ev.execute();
+				execute(proc, (int)pc);
 		}
 	}
 }
@@ -92,10 +85,11 @@ static void genavatar(int x, int y, const cmd& ev) {
 static void genheader(callback proc = 0) {
 	draw::background(CHARGEN);
 	for(int i = 0; i < 4; i++) {
+		auto p = &bsdata<creature>::elements[i];
 		genavatar(
 			16 + (i % 2) * 64,
 			64 + (i / 2) * 64,
-			cmd(proc, (int)&party[i], (int)&party[i]));
+			p, proc);
 	}
 }
 
@@ -152,7 +146,7 @@ int creature::render_ability(int x, int y, int width, bool use_bold) const {
 	auto y0 = y;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto v = get(i);
-		if(i == Strenght && v==18 && str_exeptional>0) {
+		if(i == Strenght && v == 18 && str_exeptional > 0) {
 			if(str_exeptional == 100)
 				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", use_bold);
 			else
@@ -196,8 +190,8 @@ void creature::view_ability() {
 		x = 143; y = 66;
 		genheader();
 		portraits(x + 33, y, org_portrait, current_portrait, 4, source.count, source.data);
-		y += button(x, y, prev_portrait, 0, KeyLeft);
-		y += button(x, y, next_portrait, 0, KeyRight);
+		y += buttonx(x, y, 0, KeyLeft, prev_portrait, 0);
+		y += buttonx(x, y, 0, KeyRight, next_portrait, 0);
 		x = 148; y = 104;
 		zprint(temp, "%1 %2", getstr(race), getstr(gender));
 		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
@@ -206,8 +200,8 @@ void creature::view_ability() {
 		render_ability(148, 128, 32, true);
 		render_combat(224, 128, 32, true);
 		y = 168; x = 223;
-		button(x, y, roll_character, "Roll", Alpha + 'R');
-		button(x + 39, y, buttonok, "Keep", Alpha + 'K');
+		buttonx(x, y, "Roll", 'R', roll_character, 0);
+		buttonx(x + 39, y, "Keep", 'K', buttonok, 0);
 		domodal();
 	}
 }
@@ -266,10 +260,8 @@ class_s creature::chooseclass(bool interactive, race_s race) {
 
 static bool is_party_created() {
 	for(int i = 0; i < 4; i++) {
-		auto p = party[i];
-		if(!p)
-			return false;
-		if(!*p)
+		auto& e = bsdata<creature>::elements[i];
+		if(!e)
 			return false;
 	}
 	return true;
@@ -302,20 +294,20 @@ static void apply_change_character() {
 		current_player->render_ability(148, 128, 32, true);
 		current_player->render_combat(224, 128, 32, true);
 		y = 168; x = 223;
-		button(x, y, delete_character, 0, Alpha + 'D');
-		button(x + 39, y, buttonok, "OK", Alpha + 'K');
+		buttonx(x, y, 0, 'D', delete_character, 0);
+		buttonx(x + 39, y, "OK", 'K', buttonok, 0);
 		domodal();
 	}
 }
 
 static void change_character() {
-	auto ptr_player = (creature**)hot::param;
-	if(*ptr_player) {
-		current_player = *ptr_player;
+	auto pc = (creature*)hot::param;
+	if(!pc)
+		return;
+	current_player = pc;
+	if(*pc)
 		apply_change_character();
-	} else {
-		(*ptr_player) = bsdata<creature>::add();
-		current_player = *ptr_player;
+	else {
 		auto gender = choosegender(true);
 		auto race = creature::chooserace(true);
 		auto type = creature::chooseclass(true, race);
@@ -350,6 +342,8 @@ void creature::view_party() {
 	draw::state push;
 	fore = colors::white;
 	setbigfont();
+	if(bsdata<creature>::source.getcount() < 4)
+		bsdata<creature>::source.setcount(4);
 	openform();
 	while(ismodal()) {
 		genheader(change_character);
@@ -359,13 +353,14 @@ void creature::view_party() {
 		if(is_party_created()) {
 			zcat(temp, "\n\n");
 			zprint(temp, "Your party is complete. Select PLAY button or press 'P' to start the game.");
-			::button(25, 181, new_game, 0, Alpha + 'P');
+			buttonx(25, 181, 0, 'P', new_game, 0);
 		}
 		textb(rc, temp);
 		domodal();
 		navigate();
 	}
 	closeform();
+	party.clear();
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {

@@ -21,12 +21,15 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 	sb[0] = sb.upper(sb[0]);
 	return sb;
 }
+template<> const char* getnm<messagei>(const void* object, stringbuilder& sb) {
+	return ((messagei*)object)->getname();
+}
 template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 	auto p = (imagei*)object;
 	return p->custom;
 }
 template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) {
-	return ((adventurei*)object)->name;
+	return ((adventurei*)object)->getname();
 }
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
@@ -38,7 +41,10 @@ template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
 }
 template<> const char* getnm<textable>(const void* object, stringbuilder& sb) {
-	return *((textable*)object);
+	return ((textable*)object)->getname();
+}
+template<> const char* getnm<settlementi>(const void* object, stringbuilder& sb) {
+	return ((settlementi*)object)->getname();
 }
 template<> const char* getnm<item>(const void* object, stringbuilder& sb) {
 	auto p = (item*)object;
@@ -64,7 +70,7 @@ template<> const char* getnm<historyi>(const void* object, stringbuilder& sb) {
 	return sb;
 }
 template<> const char* getnm<fractioni>(const void* object, stringbuilder& sb) {
-	return ((fractioni*)object)->name;
+	return ((fractioni*)object)->getname();
 }
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
@@ -346,7 +352,7 @@ static bool choose_conditions(const void* object, array& source, void* pointer) 
 }
 DGINF(point) = {{0, DGREQ(x), {getnm<point>, 0, choose_wordmap_point}},
 {}};
-DGINF(textable) = {{0, DGREQ(id), {getnm<textable>, 0, textable::edit}},
+DGINF(textable) = {{0, DGREQ(name), {getnm<textable>, 0, textable::edit}},
 {}};
 DGINF(dice) = {{"Count", DGREQ(c)},
 {"Dice", DGREQ(d)},
@@ -481,7 +487,6 @@ DGINF(sitei) = {{0, DGREQ(head)},
 {0, DGREQ(chance)},
 {"Levels", DGREQ(levels)},
 {0, DGREQ(crypt)},
-//{0, DGREQ(events)},
 {}};
 DGINF(historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 2", DGREQ(history[1]), {}, {0, 0, visible_history}},
@@ -496,7 +501,7 @@ DGINF(historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 11", DGREQ(history[10]), {}, {0, 0, visible_history}},
 {"Stage 12", DGREQ(history[11]), {}, {0, 0, visible_history}},
 {}};
-DGINF(adventurei) = {{"Name", DGREQ(name)},
+DGINF(adventurei) = {{"Name", DGINH(textable, name)},
 {"Position", DGREQ(position)},
 {"History", DGINH(historyi, history), {getnm<historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
@@ -526,13 +531,14 @@ DGINF(looti) = {{"Gold", DGREQ(gold)},
 DGINF(fractioni) = {{"Name", DGREQ(name)},
 {"Loot", DGINH(looti, gold)},
 {}};
-DGINF(companyi) = {{"Name", DGREQ(name)},
+DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Start", DGREQ(start)},
 {"loot", DGREQ(resources)},
 {"#div Modules"},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},
 {"Characters", DGLST(creature), {getnm<creature>}},
 {"Fractions", DGLST(fractioni), {getnm<fractioni>}},
+{"Messages", DGLST(messagei), {getnm<messagei>}},
 {"Settlements", DGLST(settlementi), {getnm<settlementi>}},
 {}};
 DGINF(imagei) = {{0, DGREQ(custom), {getnm<imagei>, 0, choose_custom_images, imagei::preview, 130}},
@@ -546,7 +552,7 @@ DGINF(messagei) = {{"Image", DGREQ(overlay)},
 {"Condition 4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Condition 5", DGREQ(variants[4]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Condition 6", DGREQ(variants[5]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Text", DGREQ(text)},
+{"Text", DGINH(textable, name)},
 {"1)", DGREQ(actions[0])},
 {"2)", DGREQ(actions[1])},
 {"3)", DGREQ(actions[2])},

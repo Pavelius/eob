@@ -609,9 +609,9 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	if(sp) {
 		if(current_res_frame >= sp->count)
 			current_res_frame = sp->count - 1;
-		if(hot::key == Alpha + '+' && current_res_frame < sp->count - 1)
+		if(hot::key == '+' && current_res_frame < sp->count - 1)
 			execute(increment_frame);
-		if(hot::key == Alpha + '-' && current_res_frame > 0)
+		if(hot::key == '-' && current_res_frame > 0)
 			execute(decrement_frame);
 	}
 	border_down(rc);
@@ -798,7 +798,7 @@ void draw::adventure() {
 			}
 			options();
 			break;
-		case Alpha + 'I':
+		case 'I':
 			if(getmode() == show_invertory) {
 				setmode(0);
 				auto pc = current_item->getowner();
@@ -810,19 +810,19 @@ void draw::adventure() {
 				game.endround();
 			}
 			break;
-		case Alpha + 'C':
+		case 'C':
 			if(getmode() == show_abilities)
 				setmode(0);
 			else
 				setmode(show_abilities);
 			break;
-		case Alpha + 'X':
+		case 'X':
 			if(getmode() == show_skills)
 				setmode(0);
 			else
 				setmode(show_skills);
 			break;
-		case Alpha + 'Q':
+		case 'Q':
 			if(current_item) {
 				if(game.question(current_item))
 					game.endround();
@@ -840,7 +840,7 @@ void draw::adventure() {
 		case KeyPageUp:
 			location.rotate(Right);
 			break;
-		case Alpha + 'E':
+		case 'E':
 			if(true) {
 				auto pc = current_item->getowner();
 				auto caster = pc->getcaster();
@@ -849,57 +849,57 @@ void draw::adventure() {
 					pc->cast(spell_element, caster, 0);
 			}
 			break;
-		case Alpha + 'W':
+		case 'W':
 			current_item = movenext(current_item, KeyUp);
 			break;
-		case Alpha + 'Z':
+		case 'Z':
 			current_item = movenext(current_item, KeyDown);
 			break;
-		case Alpha + 'S':
+		case 'S':
 			current_item = movenext(current_item, KeyRight);
 			break;
-		case Alpha + 'A':
+		case 'A':
 			current_item = movenext(current_item, KeyLeft);
 			break;
-		case Alpha + 'P':
+		case 'P':
 			place_item(current_item);
 			break;
-		case Alpha + 'G':
+		case 'G':
 			location.pickitem(current_item);
 			break;
-		case Alpha + 'D':
+		case 'D':
 			location.dropitem(current_item);
 			break;
-		case Alpha + 'U':
+		case 'U':
 			if(creature::use(current_item))
 				game.endround();
 			break;
-		case Alpha + 'T':
+		case 'T':
 			game.thrown(current_item);
 			break;
-		case Alpha + 'M':
+		case 'M':
 			if(game.manipulate(current_item, to(game.getdirection(), Up)))
 				game.endround();
 			break;
-		case Alpha + 'V':
+		case 'V':
 			location.automap(true);
 			break;
-		case Ctrl + Alpha + 'V':
+		case Ctrl + 'V':
 			game.worldmap();
 			break;
-		case Alpha + 'F':
+		case 'F':
 			draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 			break;
-		case Alpha + 'H':
+		case 'H':
 			test_map();
 			break;
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-		case Alpha + '5':
-		case Alpha + '6':
-			pc = party[hot::key - (Alpha + '1')];
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+			pc = party[hot::key - '1'];
 			if(!pc)
 				break;
 			if(current_item->getowner() != pc)
@@ -1141,25 +1141,25 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 				breakmodal(0);
 			break;
 		case KeyEnter:
-		case Alpha + 'U':
+		case 'U':
 			breakmodal(elements.data[current_element].id);
 			break;
 		case KeyDown:
-		case Alpha + 'Z':
+		case 'Z':
 			current_element++;
 			break;
 		case KeyUp:
-		case Alpha + 'W':
+		case 'W':
 			current_element--;
 			break;
-		case Alpha + '1':
-		case Alpha + '2':
-		case Alpha + '3':
-		case Alpha + '4':
-		case Alpha + '5':
-		case Alpha + '6':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
 			if(true) {
-				auto id = hot::key - (Alpha + '1');
+				auto id = hot::key - '1';
 				if(id < (int)elements.count)
 					breakmodal(elements.data[id].id);
 			}
@@ -1246,9 +1246,9 @@ int answers::choosebg(const char* title, const char* footer, const char* pi, boo
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
 			if(horizontal_buttons)
-				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i, 0, (int)&elements.data[i]);
+				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 			else {
-				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], Alpha + '1' + i, 0, (int)&elements.data[i]);
+				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 				y += texth() + 5;
 			}
 		}
@@ -1522,8 +1522,7 @@ static void* choose_element(const char* title, const void* current_value, int wi
 			x += width + 4;
 			preview(x, y1, 320 - 4 - x, current_element);
 		}
-		y = 200 - 12 - 4;
-		x = 4;
+		x = 4; y = 200 - 14;
 		x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape);
 		if(params.origin + params.perpage < params.maximum)
 			x += buttonw(x, y, "Next", nextpage, KeyPageDown, nextpage, (int)&params);
@@ -1585,10 +1584,10 @@ bool textable::edit(void* object, const array& source, void* pointer) {
 	auto v = (textable*)pointer;
 	memset(&current_text, 0, sizeof(current_text));
 	stringbuilder sb(current_text.data);
-	sb.add(*v);
+	sb.add(v->getname());
 	if(!draw::edit("Text", &current_text, dginf<meta_decoy<decltype(current_text)>::value>::meta, true))
 		return false;
-	*v = current_text.data;
+	v->setname(current_text.data);
 	return true;
 }
 
@@ -1746,19 +1745,19 @@ static void event_number(void* object, unsigned size) {
 		current_object = object;
 		current_size = size;
 		execute(sub_number);
-	} else if(hot::key >= (Alpha + '0') && hot::key <= (Alpha + '9')) {
+	} else if(hot::key >= '0' && hot::key <= '9') {
 		current_object = object;
 		current_size = size;
-		execute(add_number, hot::key - (Alpha + '0'));
-	} else if(hot::key == (Alpha + '+')) {
+		execute(add_number, hot::key - '0');
+	} else if(hot::key == '+') {
 		current_object = object;
 		current_size = size;
 		execute(increment);
-	} else if(hot::key == (Alpha + '-')) {
+	} else if(hot::key == '-') {
 		current_object = object;
 		current_size = size;
 		execute(decrement);
-	} else if(hot::key == (Alpha + '*')) {
+	} else if(hot::key == '*') {
 		current_object = object;
 		current_size = size;
 		execute(inverse);
@@ -1999,7 +1998,7 @@ class edit_control : contexti {
 			return checkbox(x, y, e.title, e, ctx.object, e.value.mask);
 		else if(e.value.istext())
 			return 0;
-		else if(e.value.isnum() && e.value.size > sizeof(nameablei::name))
+		else if(e.value.isnum() && e.value.size > 16)
 			return field({x, y, x + width, y + draw::texth() * 5 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e, 0);
 		else
 			return field(x, y, width, ctx.getheader(e), ctx.object, ctx.title, e);
@@ -2033,7 +2032,7 @@ public:
 			} else
 				y += group(x, y, width, *this, pm);
 			// Footer
-			x = 4; y = 200 - 12 - 4;
+			x = 4; y = 200 - 12;
 			if(cancel_button) {
 				x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape, buttoncancel);
 				x += buttonw(x, y, "OK", buttonok, KeyEnter, buttonok);

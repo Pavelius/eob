@@ -41,13 +41,13 @@ static int tokey(int vk) {
 	case VK_F10: return F10;
 	case VK_F11: return F11;
 	case VK_F12: return F12;
-	case VK_MULTIPLY: return Alpha + (unsigned)'*';
-	case VK_DIVIDE: return Alpha + (unsigned)'/';
-	case VK_ADD: return Alpha + (unsigned)'+';
-	case VK_SUBTRACT: return Alpha + (unsigned)'-';
-	case VK_OEM_COMMA: return Alpha + (unsigned)',';
-	case VK_OEM_PERIOD: return Alpha + (unsigned)'.';
-	default: return Alpha + vk;
+	case VK_MULTIPLY: return '*';
+	case VK_DIVIDE: return '/';
+	case VK_ADD: return '+';
+	case VK_SUBTRACT: return '-';
+	case VK_OEM_COMMA: return ',';
+	case VK_OEM_PERIOD: return '.';
+	default: return vk;
 	}
 }
 

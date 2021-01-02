@@ -1,5 +1,7 @@
 #include "main.h"
 
+BSDATAC(messagei, 256)
+
 BSDATA(speechi) = {{"Say"},
 {"Ask"},
 };

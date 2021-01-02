@@ -175,7 +175,7 @@ static bool talk_subject(action_s id, encounteri& scene, bool run) {
 			return false;
 		if(run) {
 			auto current_history = pa->history_progress;
-			speech_text = pa->history[current_history];
+			speech_text = pa->history[current_history].getname();
 			pa->history_progress = current_history + 1;
 			game.addexpc(500, 0);
 		}

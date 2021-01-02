@@ -451,13 +451,14 @@ bool creature::set(ability_s skill, short unsigned index) {
 static bool addstatical(archive& a) {
 	if(!a.signature("STD"))
 		return false;
-	if(!a.version(0, 2))
+	if(!a.version(0, 3))
 		return false;
 	a.set(textable::getstrings());
 	a.set(bsdata<adventurei>::source);
 	a.set(bsdata<creature>::source);
 	a.set(bsdata<settlementi>::source);
 	a.set(bsdata<fractioni>::source);
+	a.set(bsdata<messagei>::source);
 	return true;
 }
 
@@ -527,12 +528,12 @@ bool companyi::read(const char* name) {
 		auto pa = (adventurei*)bsdata<adventurei>::source.add();
 		pa->setname("Flooded collectors");
 		pa->position = {614, 294};
-		pa->history[0] = "Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.";
-		pa->history[1] = "Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!";
-		pa->history[2] = "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.";
+		pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
+		pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
+		pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
 		memcpy(pa->levels, sites, sizeof(sites));
 		auto ps = (settlementi*)bsdata<settlementi>::source.add();
-		ps->name.setname("Baldur's gate");
+		ps->setname("Baldur's gate");
 		ps->position = {495, 404};
 		result = true;
 	}
@@ -589,7 +590,7 @@ void gamei::render_worldmap(void* object) {
 	draw::fullimage(p->position, &origin);
 	point pt = p->position - origin;
 	draw::redmarker(pt.x - 4, pt.y - 4);
-	draw::textbc(pt.x, pt.y + 8, p->name);
+	draw::textbc(pt.x, pt.y + 8, p->getname());
 }
 
 void gamei::worldmap() {
@@ -706,4 +707,9 @@ void gamei::preserial(bool writemode) {
 void gamei::pay(int coins) {
 	resources.gold -= coins;
 	resources.correct();
+}
+
+void gamei::startgame() {
+	for(auto i = 0; i < 4; i++)
+		party.add(&bsdata<creature>::elements[i]);
 }

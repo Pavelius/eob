@@ -188,7 +188,7 @@ static void test_monster(resource_s rs, int overlay[4]) {
 		switch(hot::key) {
 		case KeyEscape:
 			return;
-		case Alpha + 'A':
+		case 'A':
 			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
 			draw_monster(x, y, rs, 4, overlay, flags, percent, 0, pal);
 			draw::redraw(); sleep(500);
@@ -196,7 +196,7 @@ static void test_monster(resource_s rs, int overlay[4]) {
 			draw_monster(x, y, rs, 5, overlay, flags, percent, 0, pal);
 			draw::redraw(); sleep(500);
 			break;
-		case Alpha + 'M':
+		case 'M':
 			flags ^= ImageMirrorH;
 			break;
 		case KeyUp:

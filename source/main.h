@@ -308,12 +308,11 @@ struct variantc : adat<variant> {
 struct varianta : adat<variant, 12> {
 };
 struct textable {
-	unsigned			id;
-	constexpr textable() : id(0) {}
-	textable(const char* v);
-	constexpr explicit operator bool() const { return id != 0; }
-	operator const char*() const;
+	unsigned			name;
+	constexpr textable() : name(0) {}
+	constexpr explicit operator bool() const { return name != 0; }
 	static bool			edit(void* object, const array& source, void* pointer);
+	const char*			getname() const;
 	void				setname(const char* name);
 	static array&		getstrings();
 };
@@ -538,7 +537,7 @@ struct imagei {
 	constexpr operator const char*() const { return custom; }
 	static int			preview(int x, int y, int width, const void* object);
 };
-struct messagei {
+struct messagei : textable {
 	struct aski {
 		conditiona		variants;
 		textable		text;
@@ -546,11 +545,9 @@ struct messagei {
 		constexpr explicit operator bool() const { return text.operator bool(); }
 	};
 	conditiona			variants;
-	textable			text;
 	imagei				overlay;
 	short unsigned		next;
 	aski				actions[8];
-	constexpr explicit operator bool() const { return text.operator bool(); }
 };
 struct sitei {
 	struct headi {
@@ -749,7 +746,7 @@ class creature {
 	void				update_poison(bool interactive);
 	friend dginf<creature>;
 public:
-	explicit operator bool() const { return ability[Strenght] != 0; }
+	explicit operator bool() const { return name!=0; }
 	void				activate(spell_s v) { active_spells.set(v); }
 	bool				add(item i);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
@@ -1082,25 +1079,18 @@ struct dungeon {
 	void				turnto(indext index, direction_s dr, bool* surprise = 0);
 	void				write();
 };
-struct nameablei {
-	char				name[32];
-	explicit constexpr operator bool() const { return name[0] != 0; }
-	void				setname(const char* name, ...) { setnamev(name, xva_start(name)); }
-	void				setnamev(const char* value, const char* format);
-};
 struct historyi {
 	static constexpr unsigned history_max = 12;
 	textable			history[history_max];
 	unsigned char		history_progress;
 	unsigned			gethistorymax() const;
 };
-struct adventurei : nameablei, historyi {
+struct adventurei : textable, historyi {
 	point				position;
 	sitei				levels[8];
 	void				create(bool interactive) const;
 };
-struct settlementi {
-	textable			name;
+struct settlementi : textable {
 	imagei				image;
 	point				position;
 	textable			description;
@@ -1109,22 +1099,19 @@ struct settlementi {
 	spellf				spells;
 	good_s				imports, exports;
 	unsigned char		prosperty;
-	constexpr explicit operator bool() const { return name.operator bool(); }
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
 	building_s			enter() const;
 	action_s			enter(building_s id);
-	const char*			getname() const { return name; }
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
 	void				makeitems();
 };
-struct fractioni : looti, nameablei {
+struct fractioni : looti, textable {
 };
-struct companyi : nameablei {
+struct companyi : textable {
 	point				start;
 	looti				resources;
-	messagei			messages[64];
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
 	void				write(const char* name);
@@ -1166,8 +1153,8 @@ public:
 	adventurei*			getadventure() { return companyi::getadventure(location_position); }
 	void				findsecrets();
 	int					getaverage(ability_s v) const;
-	int					getavatar(race_s race, gender_s gender, class_s cls);
-	int					getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
+	static int			getavatar(race_s race, gender_s gender, class_s cls);
+	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	void				getheroes(creature** result, direction_s dir);
@@ -1189,10 +1176,11 @@ public:
 	void				pay(int coins);
 	void				play(short unsigned id);
 	void				preserial(bool writemode);
-	static bool			roll(int value);
 	bool				question(item* current_item);
+	static bool			roll(int value);
 	void				rideto(point overland_position);
 	void				setcamera(indext index, direction_s direction = Center);
+	void				startgame();
 	void				thrown(item* itm);
 	bool				read();
 	void				worldmap();
@@ -1291,7 +1279,6 @@ NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(looti)
-NOBSDATA(messagei)
 NOBSDATA(messagei::aski)
 NOBSDATA(point)
 NOBSDATA(sitei)
