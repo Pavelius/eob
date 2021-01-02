@@ -120,7 +120,7 @@ static void trade_items(int cost, item_s goods[3], rarity_s rarity = Uncommon) {
 }
 
 static bool talk_subject(action_s id, encounteri& scene, bool run) {
-	companyi::adventurei* pa;
+	adventurei* pa;
 	itema items;
 	char subject_temp[260];
 	const char* dungeon_part = "unknown";

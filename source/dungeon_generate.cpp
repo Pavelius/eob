@@ -898,7 +898,7 @@ static shape_s random(shape_s v1, shape_s v2) {
 	return (d100() < 50) ? v1 : v2;
 }
 
-void companyi::adventurei::create(bool interactive) const {
+void adventurei::create(bool interactive) const {
 	auto count = levels->getleveltotal();
 	if(!count)
 		return;

@@ -54,10 +54,18 @@ textable::operator const char *() const {
 	return id ? (char*)getstrings().ptr(id) : "";
 }
 
-textable::textable(const char* v) : id((!v || v[0] == 0) ? 0 : getstrings().indexof(add(v,-1))) {
+textable::textable(const char* v) {
+	setname(v);
 }
 
 array& textable::getstrings() {
 	static array source(sizeof(char));
 	return source;
+}
+
+void textable::setname(const char* name) {
+	if(name && name[0])
+		id = getstrings().indexof(add(name, -1));
+	else
+		id = 0;
 }

@@ -236,8 +236,8 @@ enum speech_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Alignment, Class, Cleveress, Creature, Damage,
-	Enchant, Feat, Gender, Item, Morale, Number, Race, Reaction, Spell,
+	Ability, Action, Alignment, Building, Class, Cleveress, Creature, Damage,
+	Enchant, Feat, Gender, Item, Morale, Race, Reaction, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -278,6 +278,7 @@ struct variant {
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const intellegence_s v) : type(Cleveress), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
@@ -313,6 +314,7 @@ struct textable {
 	constexpr explicit operator bool() const { return id != 0; }
 	operator const char*() const;
 	static bool			edit(void* object, const array& source, void* pointer);
+	void				setname(const char* name);
 	static array&		getstrings();
 };
 struct spellprogi {
@@ -1086,46 +1088,42 @@ struct nameablei {
 	void				setname(const char* name, ...) { setnamev(name, xva_start(name)); }
 	void				setnamev(const char* value, const char* format);
 };
-struct companyi : nameablei {
+struct historyi {
 	static constexpr unsigned history_max = 12;
-	struct historyi {
-		textable		history[history_max];
-		unsigned char	history_progress;
-		unsigned		gethistorymax() const;
-	};
-	struct adventurei : nameablei, historyi {
-		point			position;
-		sitei			levels[8];
-		void			create(bool interactive) const;
-	};
-	struct fractioni : looti, nameablei {
-	};
-	struct settlementi {
-		textable		name;
-		imagei			image;
-		point			position;
-		textable		description;
-		cflags<building_s>	buildings;
-		item			wands[8];
-		spellf			spells;
-		good_s			imports, exports;
-		unsigned char	prosperty;
-		constexpr explicit operator bool() const { return name.operator bool(); }
-		void			adventure();
-		bool			apply(building_s b, action_s a, bool run);
-		building_s		enter() const;
-		action_s		enter(building_s id);
-		const char*		getname() const { return name; }
-		rarity_s		getrarity() const;
-		constexpr bool	is(building_s v) const { return buildings.is(v); }
-		void			makeitems();
-	};
+	textable			history[history_max];
+	unsigned char		history_progress;
+	unsigned			gethistorymax() const;
+};
+struct adventurei : nameablei, historyi {
+	point				position;
+	sitei				levels[8];
+	void				create(bool interactive) const;
+};
+struct settlementi {
+	textable			name;
+	imagei				image;
+	point				position;
+	textable			description;
+	cflags<building_s>	buildings;
+	item				wands[8];
+	spellf				spells;
+	good_s				imports, exports;
+	unsigned char		prosperty;
+	constexpr explicit operator bool() const { return name.operator bool(); }
+	void				adventure();
+	bool				apply(building_s b, action_s a, bool run);
+	building_s			enter() const;
+	action_s			enter(building_s id);
+	const char*			getname() const { return name; }
+	rarity_s			getrarity() const;
+	constexpr bool		is(building_s v) const { return buildings.is(v); }
+	void				makeitems();
+};
+struct fractioni : looti, nameablei {
+};
+struct companyi : nameablei {
 	point				start;
 	looti				resources;
-	fractioni			fractions[8];
-	adventurei			adventures[13];
-	creature			characters[4+13];
-	settlementi			settlements[13];
 	messagei			messages[64];
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
@@ -1250,7 +1248,7 @@ void					appear(pobject proc, void* object, unsigned duration = 1000);
 void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
-void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add = false);
+void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, const markup* type = 0);
 bool					choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list);
 void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
@@ -1286,11 +1284,8 @@ inline int				d100() { return rand() % 100; }
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
-NOBSDATA(companyi::adventurei)
-NOBSDATA(companyi::fractioni)
-NOBSDATA(companyi::historyi)
-NOBSDATA(companyi::settlementi)
 NOBSDATA(dice)
+NOBSDATA(historyi)
 NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)

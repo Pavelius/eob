@@ -15,6 +15,7 @@ typedef bool(*fnvisible)(const void* object);
 
 #define DGLNK(L,T) template<> struct dginf<L> : dginf<T> {};
 #define DGINF(T) const markup dginf<T>::meta[]
+#define DGLST(T) {dginf<meta_decoy<T>::value>::meta, bsdata<meta_decoy<T>::value>::source_ptr}
 #define DGGEN(R, T1, T2, MS) {dginf<meta_decoy<T1>::value>::meta,\
 bsdata<meta_decoy<T2>::value>::source_ptr,\
 (unsigned)&((data_type*)0)->R,\

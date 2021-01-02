@@ -17,11 +17,11 @@ static int getlevel(int v) {
 	return r;
 }
 
-rarity_s companyi::settlementi::getrarity() const {
+rarity_s settlementi::getrarity() const {
 	return rarity_items[getlevel(prosperty)];
 }
 
-action_s companyi::settlementi::enter(building_s id) {
+action_s settlementi::enter(building_s id) {
 	auto& ei = bsdata<buildingi>::elements[id];
 	sb.clear();
 	sb.add(ei.description);
@@ -38,7 +38,7 @@ action_s companyi::settlementi::enter(building_s id) {
 	return (action_s)aw.choosebg(prompt_text, "What you want to do?", ei.image);
 }
 
-building_s companyi::settlementi::enter() const {
+building_s settlementi::enter() const {
 	sb.clear();
 	auto n = getlevel(prosperty);
 	sb.add("You reach a");
@@ -57,7 +57,7 @@ building_s companyi::settlementi::enter() const {
 	return (building_s)aw.choosebg(prompt_text, "Witch way you want to go?", image);
 }
 
-void companyi::settlementi::adventure() {
+void settlementi::adventure() {
 	makeitems();
 	while(true) {
 		auto b = enter();
@@ -183,7 +183,7 @@ static void gambling(creaturea& creatures) {
 	}
 }
 
-bool companyi::settlementi::apply(building_s b, action_s a, bool run) {
+bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
 	creaturea creatures;
@@ -239,7 +239,7 @@ bool companyi::settlementi::apply(building_s b, action_s a, bool run) {
 	return true;
 }
 
-void companyi::settlementi::makeitems() {
+void settlementi::makeitems() {
 	adat<rarity_s, 16> source;
 	auto m = getrarity();
 	for(auto i = Common; i <= m; i = (rarity_s)(i + 1))

@@ -448,6 +448,19 @@ bool creature::set(ability_s skill, short unsigned index) {
 	return false;
 }
 
+static bool addstatical(archive& a) {
+	if(!a.signature("STD"))
+		return false;
+	if(!a.version(0, 2))
+		return false;
+	a.set(textable::getstrings());
+	a.set(bsdata<adventurei>::source);
+	a.set(bsdata<creature>::source);
+	a.set(bsdata<settlementi>::source);
+	a.set(bsdata<fractioni>::source);
+	return true;
+}
+
 static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
@@ -455,17 +468,15 @@ static bool serialize(bool writemode) {
 	archive a(file, writemode);
 	if(!a.signature("SAV"))
 		return false;
-	if(!a.version(0, 1))
+	if(!a.version(0, 6))
 		return false;
 	if(writemode)
 		game.preserial(true);
 	a.set(game);
 	if(!writemode)
 		game.preserial(false);
-	a.set(bsdata<creature>::source);
 	a.set(bsdata<boosti>::source);
-	a.set(textable::getstrings());
-	return true;
+	return addstatical(a);
 }
 
 static bool serialize(dungeon& e, point position, indext level, bool write_mode) {
@@ -476,6 +487,10 @@ static bool serialize(dungeon& e, point position, indext level, bool write_mode)
 	if(!file)
 		return false;
 	archive a(file, write_mode);
+	if(!a.signature("DNG"))
+		return false;
+	if(!a.version(0, 1))
+		return false;
 	a.set(e);
 	return true;
 }
@@ -487,9 +502,12 @@ static bool serialize(const char* name, companyi& e, bool write_mode) {
 	if(!file)
 		return false;
 	archive a(file, write_mode);
+	if(!a.signature("MOD"))
+		return false;
+	if(!a.version(0, 2))
+		return false;
 	a.set(e);
-	a.set(textable::getstrings());
-	return true;
+	return addstatical(a);
 }
 
 void companyi::write(const char* name) {
@@ -506,14 +524,15 @@ bool companyi::read(const char* name) {
 		};
 		setname("Western heartlands");
 		start = {614, 294};
-		auto pa = adventures;
+		auto pa = (adventurei*)bsdata<adventurei>::source.add();
 		pa->setname("Flooded collectors");
 		pa->position = {614, 294};
 		pa->history[0] = "Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.";
 		pa->history[1] = "Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!";
 		pa->history[2] = "This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.";
 		memcpy(pa->levels, sites, sizeof(sites));
-		auto ps = settlements;
+		auto ps = (settlementi*)bsdata<settlementi>::source.add();
+		ps->name.setname("Baldur's gate");
 		ps->position = {495, 404};
 		result = true;
 	}

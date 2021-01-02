@@ -77,6 +77,7 @@ static unsigned			current_focus_param;
 static const markup*	current_focus_markup;
 static void*			current_object;
 static unsigned			current_size;
+static int				current_param;
 static const markup*	current_markup;
 static item*			current_item;
 static item*			drag_item;
@@ -1168,27 +1169,43 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
-static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0, int param = 0) {
+static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
 	auto push_fore = fore;
-	auto w = textw(title);
-	rect r1 = {x, y, x + w + 6, y + texth() + 3};
-	focusing(r1, ev);
+	auto vertical = true;
+	if(width == -1) {
+		vertical = false;
+		width = textw(title) + 6;
+	}
+	auto run = false;
+	rect rc = {x, y, x + width, y + texth() + 3};
+	focusing(rc, ev);
 	auto isfocused = isfocus(ev);
-	if((isfocused && hot::key == KeyEnter)
-		|| (key && hot::key == key))
+	if((isfocused && hot::key == KeyEnter) || (key && hot::key == key))
 		focus_pressed = ev;
 	else if(hot::key == InputKeyUp && focus_pressed == ev) {
 		focus_pressed = 0;
+		run = true;
+	}
+	form(rc, 1, false, focus_pressed == ev);
+	if(isfocused)
+		fore = colors::focus;
+	textb(rc.x1 + 4, rc.y1 + 2, title);
+	fore = push_fore;
+	if(vertical)
+		y += rc.height();
+	else
+		x += rc.width() + 2;
+	return run;
+}
+
+static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, callback proc = 0, int param = 0) {
+	auto x1 = x;
+	if(buttonx(x, y, -1, title, ev, key)) {
 		if(!proc)
 			proc = buttonparam;
 		execute(proc, param);
 	}
-	form(r1, 1, false, focus_pressed == ev);
-	if(isfocused)
-		fore = colors::focus;
-	textb(r1.x1 + 4, r1.y1 + 2, title);
-	fore = push_fore;
-	return w + 8;
+	return x - x1;
 }
 
 int answers::choosebg(const char* title, const char* footer, const char* pi, bool horizontal_buttons) const {
@@ -1245,29 +1262,11 @@ int answers::choosebg(const char* title, const char* footer, const char* pi, boo
 	return p->id;
 }
 
-static bool buttonr(rect rc, void* element, const char* name) {
-	draw::state push;
-	form(rc);
-	focusing(rc, element);
-	auto run = false;
-	unsigned flags = 0;
-	if(isfocus(element)) {
-		flags |= Focused;
-		fore = colors::focus;
-		if(hot::key == KeyEnter)
-			run = true;
-	}
-	setclip(rc);
-	rc.offset(3, 2);
-	textb(rc, name, flags | TextSingleLine);
-	return run;
-}
-
 static void nextpage() {
 	auto p = (parami*)hot::param;
 	p->origin += p->perpage;
 	p->correct();
-	if(!isfocus(nextpage) || (p->origin+p->perpage>=p->maximum))
+	if(!isfocus(nextpage) || (p->origin + p->perpage >= p->maximum))
 		setfocus(0, 0);
 }
 
@@ -1302,9 +1301,9 @@ item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
 		unsigned i = param.origin;
 		while(i < count) {
 			sb.clear(); data[i]->getname(sb);
-			if(buttonr({x, y, x2, y + texth() + 4}, data[i], temp))
+			if(buttonx(x, y, x2 - x, temp, data[i], 0))
 				execute(buttonparam, (int)data[i]);
-			y += texth() + 5;
+			y += 2;
 			if(y >= 180)
 				break;
 			i++;
@@ -1357,25 +1356,6 @@ int draw::button(int x, int y, int width, const cmd& ev, const char* name, int k
 	if(run)
 		ev.execute();
 	return draw::texth();
-}
-
-static bool buttontxt(int x, int& y, int width, void* focus, const char* name, int key) {
-	draw::state push;
-	if(width == -1)
-		width = textw(name) + 2;
-	rect rc = {x, y, x + width, y + draw::texth()};
-	focusing(rc, focus);
-	auto run = false;
-	if(isfocus(focus)) {
-		fore = colors::focus;
-		if(hot::key == KeyEnter)
-			run = true;
-	}
-	if(key && key == hot::key)
-		run = true;
-	textb(rc, name, TextSingleLine);
-	y += rc.height() + 1;
-	return run;
 }
 
 static int headerc(int x, int y, const char* prefix, const char* title, const char* subtitle, int page, int page_maximum) {
@@ -1487,7 +1467,15 @@ static void choose_item() {
 	breakmodal(hot::param);
 }
 
-static void* choose_element(const char* title, const void* current_value, int width, void** data, unsigned data_count, fntext getname, fndraw preview) {
+static void edit_item() {
+	draw::edit("Element", (void*)hot::param, current_markup, false);
+}
+
+static void setparam() {
+	current_param = hot::param;
+}
+
+static void* choose_element(const char* title, const void* current_value, int width, void** data, unsigned data_count, fntext getname, fndraw preview, const markup* type, array* source) {
 	openform();
 	auto columns = 2;
 	if(preview)
@@ -1513,10 +1501,14 @@ static void* choose_element(const char* title, const void* current_value, int wi
 			auto pn = getname(pt, sb);
 			if(!pn)
 				pn = "None";
-			rect rc = {x, y, x + width, y + texth() + 4};
-			if(buttonr(rc, pt, pn))
-				draw::execute(choose_item, (int)pt);
-			y += rc.height() + 2;
+			if(buttonx(x, y, width, pn, pt, 0)) {
+				if(type) {
+					current_markup = type;
+					draw::execute(edit_item, (int)pt);
+				} else
+					draw::execute(choose_item, (int)pt);
+			}
+			y += 2;
 			if(isfocus(pt))
 				current_element = pt;
 			if(y >= 200 - 16 * 2) {
@@ -1537,18 +1529,33 @@ static void* choose_element(const char* title, const void* current_value, int wi
 			x += buttonw(x, y, "Next", nextpage, KeyPageDown, nextpage, (int)&params);
 		if(params.origin > 0)
 			x += buttonw(x, y, "Prev", prevpage, KeyPageUp, prevpage, (int)&params);
+		if(source)
+			x += buttonw(x, y, "Add", "Add", F3, setparam, F3);
+		current_param = 0;
 		domodal();
-		navigate(true);
+		if(current_param==F3) {
+			params.origin = source->getcount();
+			data[params.origin] = source->add();
+			hot::param = (int)data[params.origin];
+			params.maximum = source->getcount();
+			params.correct();
+			current_markup = type;
+			edit_item();
+		} else
+			navigate(true);
 	}
 	closeform();
 	return (void*)getresult();
 }
 
-void* draw::choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, bool can_add) {
+void* draw::choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, const markup* type) {
 	if(!view_width)
 		view_width = 154;
 	rowa rows; getrows(source, object, rows, pallow, pgetname);
-	return choose_element(title, current, view_width, rows.data, rows.count, pgetname, preview);
+	if(type)
+		return choose_element(title, current, view_width, rows.data, rows.count, pgetname, preview, type, &source);
+	else
+		return choose_element(title, current, view_width, rows.data, rows.count, pgetname, preview, 0, 0);
 }
 
 bool draw::choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list) {
@@ -1626,7 +1633,13 @@ static void add_text_symbol() {
 }
 
 static void choose_enum_field() {
-	if(!current_markup->value.source) {
+	if(!current_markup->value.size) {
+		if(!current_markup->value.source)
+			return;
+		choose(*current_markup->value.source, current_markup->title,
+			current_object, 0, current_markup->list.getname, current_markup->list.match, current_markup->list.preview, current_markup->list.view_width,
+			current_markup->value.type);
+	} else if(!current_markup->value.source) {
 		if(current_markup->list.choose) {
 			array source;
 			choose(source, current_markup->title,
@@ -1646,30 +1659,37 @@ static void choose_enum_field() {
 
 static void getname(const markup& e, const void* object, stringbuilder& sb) {
 	auto value = e.value.ptr((void*)object);
-	if(e.value.source) {
-		value = (void*)getvalue(value, e.value.size);
-		if(e.value.size < sizeof(int))
-			value = e.value.source->ptr((int)value);
-	} else if(e.list.getptr)
-		value = e.list.getptr(object, getvalue(value, e.value.size));
-	auto pfn = e.list.getname;
-	if(pfn) {
-		if(value) {
-			auto pn = pfn((void*)value, sb);
-			if(pn && pn != sb)
-				sb.add(pn);
+	if(!e.value.size) {
+		if(e.value.source)
+			sb.add("%1i of %2i", e.value.source->getcount(), e.value.source->getmaximum());
+		else
+			sb.add(e.title);
+	} else {
+		if(e.value.source) {
+			value = (void*)getvalue(value, e.value.size);
+			if(e.value.size < sizeof(int))
+				value = e.value.source->ptr((int)value);
+		} else if(e.list.getptr)
+			value = e.list.getptr(object, getvalue(value, e.value.size));
+		auto pfn = e.list.getname;
+		if(pfn) {
+			if(value) {
+				auto pn = pfn((void*)value, sb);
+				if(pn && pn != sb)
+					sb.add(pn);
+			}
+		} else if(e.value.istext()) {
+			auto p = (const char*)getvalue(value, e.value.size);
+			if(!p)
+				p = "";
+			sb.add(p);
+		} else if(e.value.isnum()) {
+			if(e.value.size <= sizeof(int)) {
+				auto v = getvalue(value, e.value.size);
+				sb.add("%1i", v);
+			} else
+				sb.add((char*)value);
 		}
-	} else if(e.value.istext()) {
-		auto p = (const char*)getvalue(value, e.value.size);
-		if(!p)
-			p = "";
-		sb.add(p);
-	} else if(e.value.isnum()) {
-		if(e.value.size <= sizeof(int)) {
-			auto v = getvalue(value, e.value.size);
-			sb.add("%1i", v);
-		} else
-			sb.add((char*)value);
 	}
 	if(!sb || !sb[0])
 		sb.add("None");
@@ -1757,14 +1777,17 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 			title = "None";
 	}
 	auto pv = e.value.ptr(object);
+	auto pf = pv;
+	if(!e.value.size)
+		pf = (void*)&e;
 	if(rich_edit)
 		form(rco, 1, false, true);
 	else
 		form(rco);
-	focusing(rco, pv);
+	focusing(rco, pf);
 	auto rc = rco;
 	rc.offset(3, 2);
-	auto focused = isfocus(pv);
+	auto focused = isfocus(pf);
 	auto edit_text = false;
 	if(focused) {
 		if(hot::key == KeyDelete)
@@ -1919,45 +1942,6 @@ static int tablerow(int x, int y, int width, const char* title, const markup& e,
 	return rc.height() + 2;
 }
 
-static int tableadatc(int x, int y, int width, const markup& e, void* object, unsigned char size) {
-	auto ar = e.value.source;
-	auto gn = e.list.getname;
-	auto pv = e.value.ptr(object);
-	auto y0 = y;
-	auto y1 = 170;
-	rowa storage;
-	getrows(*ar, object, storage, e.list.match, e.list.getname);
-	auto im = storage.count;
-	if(!im)
-		return 0;
-	if(im > 16)
-		width = width / 2;
-	auto element_size = 1;
-	for(unsigned i = 0; i < im; i++) {
-		auto v = storage[i];
-		auto pi = ar->indexof(v);
-		auto pr = (char*)pv + pi*element_size;
-		auto nv = getvalue(pr, element_size);
-		if(!nv)
-			continue;
-		char temp[260]; stringbuilder sb(temp);
-		y += tablerow(x, y, width, gn(v, sb), e, object, pr, element_size);
-		if(y >= y1) {
-			y = y0;
-			x += width;
-		}
-	}
-	auto fore_push = fore;
-	fore = colors::header;
-	if(buttontxt(x, y, width, add_record, "Add record", F3)) {
-		current_markup = &e;
-		current_object = object;
-		execute(add_record_call);
-	}
-	fore = fore_push;
-	return y - y0;
-}
-
 class edit_control : contexti {
 	int				page, page_maximum;
 	const markup*	elements;
@@ -2040,8 +2024,6 @@ public:
 			auto width = draw::getwidth() - x * 2;
 			if(pm->ischeckboxes())
 				checkboxes(x, y, width, *pm, object, pm->value.size);
-			else if(pm->is("adc"))
-				tableadatc(x, y + 1, width, *pm, object, pm->value.size);
 			else if(pm->is("div"))
 				y += group(x, y, width, *this, pm + 1);
 			else if(pm->ispage()) {
@@ -2081,12 +2063,12 @@ void draw::editor() {
 	setsmallfont();
 	//settlementi it = {};
 	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
-	random_heroes();
+	//random_heroes();
 	game.companyi::read("default");
-	game.resources.gold = 200;
-	game.settlements[0].adventure();
-	//edit("Company", &game, dginf<companyi>::meta, false);
-	//game.companyi::write("default");
+	//game.resources.gold = 200;
+	//game.settlements[0].adventure();
+	edit("Company", &game, dginf<companyi>::meta, false);
+	game.companyi::write("default");
 	font = push_font;
 }
 

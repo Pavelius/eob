@@ -613,9 +613,8 @@ creature* item::getowner() const {
 	if((void*)this >= location.monsters
 		&& (void*)this < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
 		return location.monsters + ((creature*)this - location.monsters);
-	if((void*)this >= game.characters
-		&& (void*)this < &game.characters[sizeof(game.characters) / sizeof(game.characters[0])])
-		return game.characters + ((creature*)this - game.characters);
+	if(bsdata<creature>::source.indexof(this)!=-1)
+		return bsdata<creature>::elements + bsdata<creature>::source.indexof(this);
 	if((void*)this >= bsdata<creature>::elements
 		&& (void*)this < bsdata<creature>::source.end())
 		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
