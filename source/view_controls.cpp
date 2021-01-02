@@ -1182,7 +1182,7 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 }
 
 static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
-	auto push_fore = fore;
+	draw::state push;
 	auto vertical = true;
 	if(width == -1) {
 		vertical = false;
@@ -1201,8 +1201,8 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 	form(rc, 1, false, focus_pressed == ev);
 	if(isfocused)
 		fore = colors::focus;
+	draw::setclip(rc);
 	textb(rc.x1 + 4, rc.y1 + 2, title);
-	fore = push_fore;
 	if(vertical)
 		y += rc.height();
 	else
@@ -1609,25 +1609,30 @@ static void delete_symbol() {
 	p[0] = 0;
 }
 
+static void remove_symbol(char* p, unsigned i, unsigned m) {
+	memmove(p + i, p + i + 1, m - i + 1);
+}
+
+static void insert_symbol(char* p, unsigned i, unsigned m, char sym) {
+	memmove(p + i + 1, p + i, m - i);
+	p[i] = sym;
+}
+
+static void del_symbol() {
+	auto p = (char*)current_markup->value.ptr(current_object);
+	remove_symbol(p, current_c1, zlen(p));
+}
+
 static void add_symbol(char* p, unsigned size, int k) {
 	auto m = zlen(p);
 	if(current_c1 > m)
 		current_c1 = m;
-	switch(k) {
-	case 8:
+	if(k == 8) {
 		if(current_c1 > 0)
-			p[--current_c1] = 0;
-		break;
-	case 13: case 10:
-		break;
-	default:
-		if(k <= 128) {
-			if(current_c1 < (int)(size - 1)) {
-				p[current_c1++] = k;
-				p[current_c1] = 0;
-			}
-		}
-		break;
+			remove_symbol(p, --current_c1, m);
+	} else if(k >= ' ' && k <= 128) {
+		if(current_c1 < (int)(size - 1))
+			insert_symbol(p, current_c1++, m, k);
 	}
 }
 
@@ -1732,6 +1737,11 @@ static void sub_number() {
 
 static void move_cursor() {
 	auto n = hot::param;
+	current_c1 += n;
+}
+
+static void set_cursor() {
+	current_c1 = hot::param;
 }
 
 static void clear_value() {
@@ -1741,43 +1751,15 @@ static void clear_value() {
 		memset(current_markup->value.ptr(current_object), 0, current_markup->value.size);
 }
 
-static void clear_text_value() {
-	current_text.data[0] = 0;
-	clear_value();
-}
-
 static void post(const markup& e, void* object, callback proc, int param) {
 	current_markup = &e;
 	current_object = object;
 	execute(proc, param);
 }
 
-static void event_number(void* object, unsigned size) {
-	if(hot::key == KeyBackspace) {
-		current_object = object;
-		current_size = size;
-		execute(sub_number);
-	} else if(hot::key >= '0' && hot::key <= '9') {
-		current_object = object;
-		current_size = size;
-		execute(add_number, hot::key - '0');
-	} else if(hot::key == '+') {
-		current_object = object;
-		current_size = size;
-		execute(increment);
-	} else if(hot::key == '-') {
-		current_object = object;
-		current_size = size;
-		execute(decrement);
-	} else if(hot::key == '*') {
-		current_object = object;
-		current_size = size;
-		execute(inverse);
-	}
-}
-
 static int field(const rect& rco, const char* title, void* object, const markup& e, unsigned flags) {
 	auto rich_edit = rco.height() >= texth() * 2;
+	auto isnum = e.value.isnum() && e.value.size <= sizeof(int);
 	auto push_fore = draw::fore;
 	draw::fore = colors::white;
 	if(!title || title[0] == 0) {
@@ -1796,38 +1778,91 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	else
 		form(rco);
 	focusing(rco, pf);
-	auto rc = rco;
-	rc.offset(3, 2);
+	auto rc = rco; rc.offset(3, 2);
 	auto focused = isfocus(pf);
-	auto edit_text = false;
+	auto islist = e.list.choose || !e.value.isnum();
 	if(focused) {
-		if(hot::key == KeyDelete)
-			post(e, object, clear_value, 0);
-		else if(e.list.choose || !e.value.isnum()) {
-			if(hot::key == KeyEnter)
-				post(e, object, choose_enum_field, 0);
-		} else if(e.value.size <= sizeof(int)) {
-			edit_text = true;
-			event_number(e.value.ptr(object), e.value.size);
-		} else {
-			edit_text = true;
-			if(hot::key == InputSymbol)
-				post(e, object, add_symbol, hot::param);
-		}
 		if(current_edit != pv) {
 			current_c1 = zlen(title);
 			current_edit = pv;
 		}
-		if(!edit_text)
+		if(islist || isnum)
 			fore = colors::focus;
-		else {
-			switch(hot::key) {
-			case KeyLeft: post(e, object, move_cursor, -1); break;
-			case KeyRight:post(e, object, move_cursor, 1); break;
+		switch(hot::key) {
+		case InputSymbol:
+			if(!islist && !isnum)
+				post(e, object, add_symbol, hot::param);
+			break;
+		case KeyEnter:
+			if(islist)
+				post(e, object, choose_enum_field, 0);
+			break;
+		case KeyDelete:
+			if(islist || isnum)
+				post(e, object, clear_value, 0);
+			else
+				post(e, object, del_symbol, 0);
+			break;
+		case KeyLeft:
+			if(!islist && !isnum && current_c1 > 0)
+				post(e, object, move_cursor, -1);
+			break;
+		case KeyRight:
+			if(!islist && !isnum) {
+				auto m = zlen(title);
+				if(current_c1 < m)
+					post(e, object, move_cursor, 1);
 			}
+			break;
+		case KeyHome:
+			if(!islist && !isnum)
+				post(e, object, set_cursor, 0);
+			break;
+		case KeyEnd:
+			if(!islist && !isnum) {
+				auto m = zlen(title);
+				post(e, object, set_cursor, m);
+			}
+			break;
+		case '0': case '1':case '2': case '3':case '4':
+		case '5':case '6': case '7':case '8': case '9':
+			if(isnum && !islist) {
+				current_object = pv;
+				current_size = e.value.size;
+				execute(add_number, hot::key - '0');
+			}
+			break;
+		case '-':
+			if(isnum && !islist) {
+				current_object = pv;
+				current_size = e.value.size;
+				execute(decrement);
+			}
+			break;
+		case '+':
+			if(isnum && !islist) {
+				current_object = pv;
+				current_size = e.value.size;
+				execute(increment);
+			}
+			break;
+		case KeyBackspace:
+			if(isnum && !islist) {
+				current_object = pv;
+				current_size = e.value.size;
+				execute(sub_number);
+			}
+			break;
+		case '*':
+			if(isnum && !islist) {
+				current_object = pv;
+				current_size = e.value.size;
+				execute(inverse);
+			}
+			break;
 		}
 	}
-	if(edit_text && focused && current_c1) {
+	if(!islist && !isnum && focused) {
 		textbi(rc, title, flags, current_c1, current_p1);
 		if((frametick / 10) % 2)
 			line(current_p1.x, current_p1.y - 1, current_p1.x, current_p1.y + texth());
@@ -1915,42 +1950,6 @@ static int checkboxes(int x, int y, int width, const markup& e, void* object, un
 		}
 	}
 	return y - y0;
-}
-
-static void add_record(const markup& e, void* object) {
-	auto value = draw::choose(*e.value.source, e.title, object, 0,
-		e.list.getname, e.list.match, e.list.preview, e.list.view_width);
-	auto index = e.value.source->indexof(value);
-	if(index == -1)
-		return;
-	auto mx = e.value.source->getcount();
-	if(!mx)
-		return;
-	auto se = e.value.size / mx;
-	auto pv = (char*)e.value.ptr(object) + index*se;
-	*pv = 1;
-}
-
-static void add_record_call() {
-	add_record(*current_markup, current_object);
-}
-
-static int tablerow(int x, int y, int width, const char* title, const markup& e, const void* object, void* pv, unsigned size) {
-	auto fore_push = fore;
-	rect rc = {x, y, x + width - 1, y + draw::texth()};
-	focusing(rc, pv);
-	auto focused = isfocus(pv);
-	if(focused) {
-		fore = colors::focus;
-		event_number(pv, size);
-	}
-	char temp[260]; stringbuilder sb(temp);
-	auto value = getvalue(pv, size);
-	sb.add(title, value);
-	sb.adds("%1i", value);
-	textb(rc, temp, AlignLeft);
-	fore = fore_push;
-	return rc.height() + 2;
 }
 
 class edit_control : contexti {
