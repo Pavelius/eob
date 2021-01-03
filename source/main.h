@@ -182,7 +182,10 @@ enum cell_s : unsigned char {
 	CellUnknown,
 	// Dungeon cells
 	CellPassable, CellWall, CellDoor, CellStairsUp, CellStairsDown, CellPortal, // On space
-	CellButton, CellPit, CellWebTorned, CellWeb, CellPitUp, // On floor
+	CellButton, CellPit,
+	CellWeb, CellWebTorned,
+	CellBarel, CellBarelDestroyed,
+	CellPitUp, // On floor
 	// Decor
 	CellPuller, CellSecrectButton, CellCellar, CellMessage,
 	CellKeyHole1, CellKeyHole2, CellTrapLauncher,

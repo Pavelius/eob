@@ -132,7 +132,7 @@ static void single_attack(creature* p, creature* d, int bonus, int multiplier) {
 		p->attack(d, Head, bonus, multiplier);
 }
 
-static bool attack_object(indext index, int hits) {
+static void attack_object(indext index, int hits, cell_s destroyed) {
 	creature object;
 	object.clear();
 	object.set(StaticObject);
@@ -145,13 +145,18 @@ static bool attack_object(indext index, int hits) {
 			break;
 		single_attack(p, &object, 0, 1);
 	}
-	return !object.isready();
+	if(!object.isready())
+		location.set(index, destroyed);
 }
 
 void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
-	if(location.get(index_of_monsters) == CellWeb) {
-		if(attack_object(index_of_monsters, 25))
-			location.set(index_of_monsters, CellWebTorned);
+	auto tile = location.get(index_of_monsters);
+	switch(tile) {
+	case CellWeb:
+		attack_object(index_of_monsters, 20, CellWebTorned);
+		return;
+	case CellBarel:
+		attack_object(index_of_monsters, 25, CellBarelDestroyed);
 		return;
 	}
 	creaturea parcipants;

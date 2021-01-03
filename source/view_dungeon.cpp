@@ -7,7 +7,7 @@ struct tilei {
 	char				flipped;	// Flipped tile
 	char				alternate;	// Alternate
 	char				type;		// Type
-	const sprite*		rdata;		// Resource
+	resource_s			res;		// Resource
 };
 struct renderi {
 	short				x, y, z;
@@ -84,6 +84,7 @@ static point item_position[18 * 4] = {{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
 {49, 118}, {127, 118}, {40, 136}, {136, 136},
 {205, 118}, {283, 118}, {232, 136}, {328, 136},
 };
+
 static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 0, char type = 0, resource_s res = NONE) {
 	if(alternate == -1)
 		alternate = frame;
@@ -93,10 +94,7 @@ static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 
 	tiles[id].alternate = alternate;
 	tiles[id].flipped = flipped;
 	tiles[id].type = type;
-	if(res)
-		tiles[id].rdata = gres(res);
-	else
-		tiles[id].rdata = map_tiles;
+	tiles[id].res = res;
 }
 
 static inline bool is_tile_use_flip(cell_s id) {
@@ -487,11 +485,15 @@ bool draw::settiles(resource_s type) {
 	//
 	set_tile(CellWeb, 0, -1, -1, 0, DECORS);
 	set_tile(CellWebTorned, 1, -1, -1, 0, DECORS);
+	set_tile(CellBarel, 3, -1, -1, 0, DECORS);
+	set_tile(CellBarelDestroyed, 4, -1, -1, 0, DECORS);
 	// Некоторые ньюансы
 	switch(type) {
 	case FOREST:
-		for(auto i = CellPit; i<=CellDoorButton; i = (cell_s)(i+1))
-			set_tile(i, -1, -1, 0);
+		for(auto i = CellPit; i <= CellDoorButton; i = (cell_s)(i + 1)) {
+			if(tiles[i].res!=DECORS)
+				set_tile(i, -1, -1, 0);
+		}
 		break;
 	case BLUE:
 		set_tile(CellDoor, 3, -1, -1, 1);
@@ -862,7 +864,10 @@ static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool f
 		if(rec == CellButton && location.is(index, CellActive))
 			frame = get_tile_alternate(rec);
 		p->frame[0] = decor_offset + floor_frame[i] + frame * decor_frames;
-		p->rdata = tiles[rec].rdata;
+		if(tiles[rec].res)
+			p->rdata = gres(tiles[rec].res);
+		else
+			p->rdata = map_tiles;
 		p->index = index;
 		p->rec = rec;
 		p++;
@@ -1059,6 +1064,8 @@ static void prepare_draw(indext index, direction_s dr) {
 		case CellPit:
 			p = create_floor(p, i, index, tile, mr, decor_offset);
 			break;
+		case CellBarel:
+		case CellBarelDestroyed:
 		case CellWeb:
 		case CellWebTorned:
 			p = create_floor(p, i, index, tile, mr, 0);
