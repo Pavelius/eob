@@ -151,14 +151,9 @@ static void attack_object(indext index, int hits, cell_s destroyed) {
 
 void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	auto tile = location.get(index_of_monsters);
-	switch(tile) {
-	case CellWeb:
-		attack_object(index_of_monsters, 20, CellWebTorned);
-		return;
-	case CellBarel:
-		attack_object(index_of_monsters, 25, CellBarelDestroyed);
-		return;
-	}
+	auto& et = bsdata<celli>::elements[tile];
+	if(et.destroyed)
+		attack_object(index_of_monsters, et.hp, et.destroyed);
 	creaturea parcipants;
 	auto dr = getdirection();
 	bool monster_surprise = false;

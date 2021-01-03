@@ -143,6 +143,7 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="attack.cpp" />
     <ClCompile Include="building.cpp" />
+    <ClCompile Include="cell.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="company.cpp" />

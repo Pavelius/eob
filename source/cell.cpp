@@ -1,0 +1,33 @@
+#include "main.h"
+
+BSDATA(celli) = {{"Unknown", NONE, -1, {Passable}},
+{"Passable", NONE, -1, {Passable}},
+{"Wall", NONE, 0 * walls_frames, {LookWall}},
+{"Door", NONE, 2 * walls_frames, {LookWall, PassableActivated}},
+{"Stairs Up", NONE, 3 * walls_frames, {LookWall, Passable}},
+{"Stairs Down", NONE, 4 * walls_frames, {LookWall, Passable}},
+{"Portal", NONE, 5 * walls_frames, {LookWall}},
+{"Button", NONE, decor_offset + 1 * decor_frames, {LookObject, Passable}},
+{"Pit", NONE, decor_offset + 3 * decor_frames, {LookObject, Passable}},
+{"Web", DECORS, 0 * decor_frames, {LookObject}, CellWebTorned, 15},
+{"Web (torned)", DECORS, 1 * decor_frames, {LookObject, Passable}},
+{"Barel", DECORS, 3 * decor_frames, {LookObject}, CellBarelDestroyed, 20},
+{"Destroyed Barel", DECORS, 4 * decor_frames, {LookObject, Passable}},
+{"Eyed column", DECORS, 5 * decor_frames, {LookObject}},
+{"Cocon", DECORS, 6 * decor_frames, {LookObject}, CellCoconOpened, 10},
+{"Opened cocon", DECORS, 7 * decor_frames, {LookObject, Passable}},
+{"Pit up", NONE, decor_offset + 4 * decor_frames, {LookObject, Passable}},
+{"Puller", NONE, decor_offset + 9 * decor_frames, {LookOverlay}},
+{"Secret button", NONE, decor_offset + 7 * decor_frames, {LookOverlay}},
+{"Cellar", NONE, decor_offset + 11 * decor_frames, {LookOverlay}},
+{"Message", NONE, decor_offset + 12 * decor_frames, {LookOverlay}},
+{"Keyhole 1", NONE, decor_offset + 13 * decor_frames, {LookOverlay}},
+{"Keyhole 2", NONE, decor_offset + 14 * decor_frames, {LookOverlay}},
+{"Trap launcher", NONE, decor_offset + 15 * decor_frames, {LookOverlay}},
+{"Decor 1", NONE, decor_offset + 16 * decor_frames, {LookOverlay}},
+{"Decor 2", NONE, decor_offset + 17 * decor_frames, {LookOverlay}},
+{"Decor 3", NONE, decor_offset + 18 * decor_frames, {LookOverlay}},
+{"Door button", NONE, -1, {LookOverlay}},
+};
+assert_enum(cell, CellDoorButton)
+INSTELEM(celli)

@@ -25,7 +25,9 @@ enum coin_s {
 	GP = 1
 };
 enum fcell : unsigned {
-	CellMirrorV = 1, CellMirrorH = 2, EmpthyStartIndex = 4,
+	Passable, EmpthyStartIndex,
+	LookWall, LookOverlay, LookObject,
+	PassableActivated
 };
 enum resource_s : unsigned char {
 	NONE,
@@ -185,6 +187,8 @@ enum cell_s : unsigned char {
 	CellButton, CellPit,
 	CellWeb, CellWebTorned,
 	CellBarel, CellBarelDestroyed,
+	CellEyeColumn,
+	CellCocon, CellCoconOpened,
 	CellPitUp, // On floor
 	// Decor
 	CellPuller, CellSecrectButton, CellCellar, CellMessage,
@@ -320,6 +324,14 @@ struct textable {
 	const char*			getname() const;
 	void				setname(const char* name);
 	static array&		getstrings();
+};
+struct celli {
+	const char*			name;
+	resource_s			resource;
+	int					frame;
+	cflags<fcell>		flags;
+	cell_s				destroyed;
+	int					hp;
 };
 struct spellprogi {
 	char				elements[21][10];

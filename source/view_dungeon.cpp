@@ -2,13 +2,6 @@
 
 using namespace draw;
 
-struct tilei {
-	char				frame;		// Main tile
-	char				flipped;	// Flipped tile
-	char				alternate;	// Alternate
-	char				type;		// Type
-	resource_s			res;		// Resource
-};
 struct renderi {
 	short				x, y, z;
 	short				frame[4];
@@ -25,7 +18,8 @@ struct renderi {
 	void				paint() const;
 	void clear() { memset(this, 0, sizeof(renderi)); }
 };
-static tilei			tiles[CellDoorButton + 1];
+static resource_s		render_door_type;
+static int				render_flipped_wall;
 static sprite*			map_tiles;
 static int				disp_damage[6];
 static int				disp_hits[6][2];
@@ -85,28 +79,21 @@ static point item_position[18 * 4] = {{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
 {205, 118}, {283, 118}, {232, 136}, {328, 136},
 };
 
-static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 0, char type = 0, resource_s res = NONE) {
-	if(alternate == -1)
-		alternate = frame;
-	if(flipped == -1)
-		flipped = frame;
-	tiles[id].frame = frame;
-	tiles[id].alternate = alternate;
-	tiles[id].flipped = flipped;
-	tiles[id].type = type;
-	tiles[id].res = res;
-}
-
 static inline bool is_tile_use_flip(cell_s id) {
-	return tiles[id].flipped != 0;
+	return render_flipped_wall != -1;
 }
 
-static inline int get_tile(cell_s id, bool mirrored) {
-	return mirrored ? tiles[id].flipped : tiles[id].frame;
+static int get_tile(cell_s id, bool mirrored) {
+	if(id == CellWall && mirrored) {
+		if(render_flipped_wall == -1)
+			return bsdata<celli>::elements[id].frame;
+		return render_flipped_wall;
+	}
+	return bsdata<celli>::elements[id].frame;
 }
 
 static inline int get_tile_alternate(cell_s id) {
-	return tiles[id].alternate;
+	return decor_offset + 2 * decor_frames;
 }
 
 static renderi* get_monster_disp(creature* target) {
@@ -341,7 +328,7 @@ void draw::avatar(int x, int y, int party_index, unsigned flags, item* current_i
 void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item) {
 	draw::state push;
 	fore = colors::black;
-	setsmallfont();	
+	setsmallfont();
 	auto pn = pc->getname();
 	image(x, y, gres(INVENT), 1, 0);
 	image(x, y + 24, gres(INVENT), 2, 0);
@@ -461,48 +448,20 @@ void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 
 bool draw::settiles(resource_s type) {
 	map_tiles = gres(type);
-	memset(tiles, 0, sizeof(tiles));
-	set_tile(CellWall, 1, -1, 2);
-	set_tile(CellDoor, 3, -1, -1);
-	set_tile(CellStairsUp, 4, -1, -1);
-	set_tile(CellStairsDown, 5, -1, -1);
-	set_tile(CellPortal, 6, -1, -1);
-	//
-	set_tile(CellButton, 1, 2, -1);
-	set_tile(CellPit, 3, -1, -1);
-	set_tile(CellPitUp, 4, -1, -1);
-	set_tile(CellSecrectButton, 7, -1, -1);
-	set_tile(CellPuller, 9, 10);
-	set_tile(CellCellar, 11, -1, -1);
-	set_tile(CellMessage, 12);
-	set_tile(CellDoorButton, 0, 0, 0);
-	set_tile(CellKeyHole1, 13);
-	set_tile(CellKeyHole2, 14);
-	set_tile(CellTrapLauncher, 15);
-	set_tile(CellDecor1, 16);
-	set_tile(CellDecor2, 17);
-	set_tile(CellDecor3, 18);
-	//
-	set_tile(CellWeb, 0, -1, -1, 0, DECORS);
-	set_tile(CellWebTorned, 1, -1, -1, 0, DECORS);
-	set_tile(CellBarel, 3, -1, -1, 0, DECORS);
-	set_tile(CellBarelDestroyed, 4, -1, -1, 0, DECORS);
-	// Некоторые ньюансы
+	render_flipped_wall = 1 * walls_frames;
+	render_door_type = BRICK;
 	switch(type) {
 	case FOREST:
-		for(auto i = CellPit; i <= CellDoorButton; i = (cell_s)(i + 1)) {
-			if(tiles[i].res!=DECORS)
-				set_tile(i, -1, -1, 0);
-		}
+		render_flipped_wall = -1;
 		break;
 	case BLUE:
-		set_tile(CellDoor, 3, -1, -1, 1);
+		render_door_type = BLUE;
 		break;
 	case DROW:
-		set_tile(CellDoor, 3, -1, -1, 2);
+		render_door_type = DROW;
 		break;
 	case GREEN:
-		set_tile(CellDoor, 3, -1, -1, 3);
+		render_door_type = GREEN;
 		break;
 	}
 	return true;
@@ -522,14 +481,14 @@ static dungeon::overlayi* add_wall_decor(renderi* p, indext index, direction_s d
 	auto tile = location.gettype(povr);
 	if(tile < CellPuller)
 		return 0;
-	int frame = get_tile(tile, false);
-	if(!frame)
+	auto frame = get_tile(tile, false);
+	if(frame == -1)
 		return 0;
 	if(tile == CellPuller) {
 		if(location.isactive(povr))
-			frame++;
+			frame += decor_frames;
 	}
-	p->frame[1] = decor_offset + n + frame * decor_frames;
+	p->frame[1] = frame + n;
 	if(use_flip && flip && is_tile_use_flip(tile))
 		p->flags[1] ^= ImageMirrorH;
 	return povr;
@@ -693,6 +652,8 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 	};
 	bool enable;
 	auto cd = game.getdirection();
+	if(frame == -1)
+		return p;
 	// Front
 	n = walls_front[i];
 	if(n) {
@@ -700,7 +661,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 		p->x = wall_position[i].x;
 		p->y = scry / 2;
 		p->z = pos_levels[i] * distance_per_level;
-		p->frame[0] = n + (frame - 1) * walls_frames;
+		p->frame[0] = n + frame;
 		p->rdata = map_tiles;
 		p->index = index;
 		p->rec = rec;
@@ -717,8 +678,8 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 			auto e1 = map_tiles->get(door_offset + pos_levels[i] - 1);
 			auto e2 = map_tiles->get(door_offset + 6 + pos_levels[i] - 1);
 			auto po = location.getoverlay(to(indecies[i], to(game.getdirection(), Down)), game.getdirection());
-			switch(tiles[CellDoor].type) {
-			case 1: // Dwarven doors type
+			switch(render_door_type) {
+			case BLUE:
 				if(location.is(index, CellActive)) {
 					if(po) {
 						auto w = e1.sx - (e2.sx * 3) / 2;
@@ -744,8 +705,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 					}
 				}
 				break;
-			case 2:
-				// Drop down door (DROW)
+			case DROW:
 				p->frame[0] = door_offset + pos_levels[i] - 1;
 				if(location.is(index, CellActive)) {
 					auto x = wall_position[i].x - e1.ox;
@@ -757,7 +717,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 				if(po)
 					front_wall->frame[2] = door_offset + 6 + pos_levels[i] - 1;
 				break;
-			case 3:
+			case GREEN:
 				// Drop down door
 				if(location.is(index, CellActive))
 					p--;
@@ -807,7 +767,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 			p->x += wall_width[i];
 		p->y = scry / 2;
 		p->z = pos_levels[i] * distance_per_level + 2;
-		p->frame[0] = n + (frame - 1) * walls_frames;
+		p->frame[0] = n + frame;
 		p->rdata = map_tiles;
 		p->index = index;
 		p->rec = rec;
@@ -829,7 +789,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 		p->y = scry / 2;
 		p->z = pos_levels[i] * distance_per_level + 2;
 		p->flags[0] = ImageMirrorH;
-		p->frame[0] = n + (frame - 1) * walls_frames;
+		p->frame[0] = n + frame;
 		p->rdata = map_tiles;
 		p->index = index;
 		p->rec = rec;
@@ -840,7 +800,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 	return p;
 }
 
-static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool flip, int decor_offset) {
+static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool flip) {
 	static short floor_pos[18] = {
 		scrx / 2 - 42 * 3, scrx / 2 - 42 * 2, scrx / 2 - 42, scrx / 2, scrx / 2 + 42, scrx / 2 + 42 * 2, scrx / 2 + 42 * 3,
 		scrx / 2 - 64 * 2, scrx / 2 - 64, scrx / 2, scrx / 2 + 64, scrx / 2 + 64 * 2,
@@ -852,9 +812,8 @@ static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool f
 		1, 1, 1,
 		0, 0, 0,
 	};
-	int frame = get_tile(rec, false);
-	bool enable = frame != -1;
-	if(enable) {
+	auto frame = get_tile(rec, false);
+	if(frame != -1) {
 		p->clear();
 		p->x = floor_pos[i];
 		p->y = scry / 2;
@@ -863,9 +822,9 @@ static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool f
 			p->flags[0] = ImageMirrorH;
 		if(rec == CellButton && location.is(index, CellActive))
 			frame = get_tile_alternate(rec);
-		p->frame[0] = decor_offset + floor_frame[i] + frame * decor_frames;
-		if(tiles[rec].res)
-			p->rdata = gres(tiles[rec].res);
+		p->frame[0] = floor_frame[i] + frame;
+		if(bsdata<celli>::elements[rec].resource)
+			p->rdata = gres(bsdata<celli>::elements[rec].resource);
 		else
 			p->rdata = map_tiles;
 		p->index = index;
@@ -1047,30 +1006,16 @@ static void prepare_draw(indext index, direction_s dr) {
 		if(tilt != CellWall && tilt != CellStairsUp && tilt != CellStairsDown) {
 			if(tilt != CellDoor) {
 				if(location_above.get(index) == CellPit)
-					p = create_floor(p, i, index, CellPitUp, mr, decor_offset);
+					p = create_floor(p, i, index, CellPitUp, mr);
 			}
 			p = create_items(p, i, index, dr);
 			p = create_monsters(p, i, index, dr, mr);
 		}
-		switch(tile) {
-		case CellWall:
-		case CellPortal:
-		case CellDoor:
-		case CellStairsUp:
-		case CellStairsDown:
+		auto& et = bsdata<celli>::elements[tile];
+		if(et.flags.is(LookWall))
 			p = create_wall(p, i, index, get_tile(tile, mr), tile, mr);
-			break;
-		case CellButton:
-		case CellPit:
-			p = create_floor(p, i, index, tile, mr, decor_offset);
-			break;
-		case CellBarel:
-		case CellBarelDestroyed:
-		case CellWeb:
-		case CellWebTorned:
-			p = create_floor(p, i, index, tile, mr, 0);
-			break;
-		}
+		else if(et.flags.is(LookObject))
+			p = create_floor(p, i, index, tile, mr);
 	}
 	p->rdata = 0;
 }

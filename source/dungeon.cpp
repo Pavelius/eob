@@ -312,16 +312,10 @@ void dungeon::finish(cell_s t) {
 bool dungeon::isblocked(indext index) const {
 	if(index == Blocked)
 		return true;
-	switch(get(index)) {
-	case CellWall:
-	case CellPortal:
-	case CellWeb:
-	case CellBarel:
-		return true;
-	case CellDoor:
+	auto& ei = bsdata<celli>::elements[get(index)];
+	if(ei.flags.is(PassableActivated))
 		return !is(index, CellActive);
-	}
-	return false;
+	return !ei.flags.is(Passable);
 }
 
 bool dungeon::isblocked(indext index, int side) const {

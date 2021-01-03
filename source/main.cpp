@@ -60,6 +60,8 @@ static void test_room(int x, int y) {
 	location.set(location.getindex(x, y - 2), CellBarel);
 	location.set(location.getindex(x + 1, y - 2), CellWeb);
 	location.set(location.getindex(x + 3, y - 2), CellWebTorned);
+	location.set(location.getindex(x + 5, y - 2), CellEyeColumn);
+	location.set(location.getindex(x, y - 4), CellCocon);
 	location.set(location.getindex(x + 2, y - 3), CellPit);
 	location.set(location.getindex(x + 2, y - 4), CellButton);
 	location_above.set(location.getindex(x + 2, y - 4), CellPit);
@@ -233,7 +235,7 @@ static void debug_dungeon2() {
 	location_above.clear();
 	random_heroes();
 	//test_dungeon(BRICK);
-	test_dungeon2(FOREST);
+	test_dungeon2(BRICK);
 	draw::settiles(location.head.type);
 	game.setcamera(location.getindex(16, 16), Up);
 	setnext(adventure);
