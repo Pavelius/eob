@@ -1244,9 +1244,10 @@ int answers::choosebg(const char* title, const char* footer, const char* pi, boo
 					line(8, 7, 167, 7);
 					fore = push_color;
 				}
-				form(rc);
 			}
 		}
+		if(!full_screen)
+			form(rc);
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
