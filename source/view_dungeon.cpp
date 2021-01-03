@@ -18,6 +18,7 @@ struct renderi {
 	void				paint() const;
 	void clear() { memset(this, 0, sizeof(renderi)); }
 };
+static cell_s			render_mirror1, render_mirror2;
 static resource_s		render_door_type;
 static int				render_flipped_wall;
 static sprite*			map_tiles;
@@ -78,10 +79,6 @@ static point item_position[18 * 4] = {{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
 {49, 118}, {127, 118}, {40, 136}, {136, 136},
 {205, 118}, {283, 118}, {232, 136}, {328, 136},
 };
-
-static inline bool is_tile_use_flip(cell_s id) {
-	return render_flipped_wall != -1;
-}
 
 static int get_tile(cell_s id, bool mirrored) {
 	if(id == CellWall && mirrored) {
@@ -450,6 +447,8 @@ bool draw::settiles(resource_s type) {
 	map_tiles = gres(type);
 	render_flipped_wall = 1 * walls_frames;
 	render_door_type = BRICK;
+	render_mirror1 = CellSecrectButton;
+	render_mirror2 = CellPassable;
 	switch(type) {
 	case FOREST:
 		render_flipped_wall = -1;
@@ -462,6 +461,9 @@ bool draw::settiles(resource_s type) {
 		break;
 	case GREEN:
 		render_door_type = GREEN;
+		break;
+	case BRICK:
+		render_mirror1 = CellPassable;
 		break;
 	}
 	return true;
@@ -489,7 +491,7 @@ static dungeon::overlayi* add_wall_decor(renderi* p, indext index, direction_s d
 			frame += decor_frames;
 	}
 	p->frame[1] = frame + n;
-	if(use_flip && flip && is_tile_use_flip(tile))
+	if(use_flip && flip && (render_mirror1==tile || render_mirror2==tile))
 		p->flags[1] ^= ImageMirrorH;
 	return povr;
 }

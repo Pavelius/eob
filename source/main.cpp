@@ -42,6 +42,7 @@ static void test_room(int x, int y) {
 	location.set(location.getindex(x + 2, y + 4), CellPortal);
 	location.set(location.getindex(x + 2, y), CellButton);
 	location.set(location.getindex(x + 2, y), CellDoor);
+	location.add(location.getindex(x + 1, y + 1), CellDecor3, Up);
 	location.add(location.getindex(x + 2, y + 1), CellDoorButton, Up);
 	location.add(location.getindex(x + 2, y - 1), CellDoorButton, Down);
 	location.add(location.getindex(x + 1, y + 3), CellPuller, Down);
@@ -54,6 +55,8 @@ static void test_room(int x, int y) {
 	item sp(PriestScroll); sp.setpower(Bless);
 	location.add(po, sp);
 	location.add(po, it);
+	location.add(location.getindex(x + 3, y + 3), CellDecor1, Right);
+	location.add(location.getindex(x + 1, y + 3), CellDecor2, Left);
 	location.add(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
 	location.set(location.getindex(x + 2, y - 2), CellButton);
@@ -235,7 +238,7 @@ static void debug_dungeon2() {
 	location_above.clear();
 	random_heroes();
 	//test_dungeon(BRICK);
-	test_dungeon2(BRICK);
+	test_dungeon2(XANATHA);
 	draw::settiles(location.head.type);
 	game.setcamera(location.getindex(16, 16), Up);
 	setnext(adventure);
