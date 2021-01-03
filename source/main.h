@@ -29,7 +29,7 @@ enum fcell : unsigned {
 };
 enum resource_s : unsigned char {
 	NONE,
-	BORDER, OUTTAKE,
+	BORDER, OUTTAKE, DECORS,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, PORTM, THROWN, XSPL,
@@ -105,6 +105,7 @@ enum monster_s : unsigned char {
 	AntGiant, Bugbear, ClericOldMan, DwarfWarrior, Gnoll, Ghoul, Goblin, Kobold, Kuotoa, Leech,
 	Orc, Shadow, Skeleton, SkeletonWarrior, Spider, Wight, Wolf, Zombie,
 	LastMonster = Zombie,
+	StaticObject,
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
@@ -181,7 +182,7 @@ enum cell_s : unsigned char {
 	CellUnknown,
 	// Dungeon cells
 	CellPassable, CellWall, CellDoor, CellStairsUp, CellStairsDown, CellPortal, // On space
-	CellButton, CellPit, CellBlood, CellBanner, CellPitUp, // On floor
+	CellButton, CellPit, CellWebTorned, CellWeb, CellPitUp, // On floor
 	// Decor
 	CellPuller, CellSecrectButton, CellCellar, CellMessage,
 	CellKeyHole1, CellKeyHole2, CellTrapLauncher,
@@ -825,6 +826,7 @@ public:
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(morale_s v) const;
 	bool				is(spell_s v) const;
+	bool				is(monster_s v) const { return kind == v; }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				isaffect(variant v) const;
 	static bool			isallow(class_s id, race_s r);

@@ -115,7 +115,45 @@ creature* gamei::getdefender(short unsigned index, direction_s dr, creature* att
 	}
 }
 
+static void single_attack(creature* p, creature* d, int bonus, int multiplier) {
+	auto wp1 = p->get(RightHand);
+	auto wp2 = p->get(LeftHand);
+	auto wp3 = p->get(Head);
+	if(wp1.istwohanded() || !wp2.ismelee())
+		wp2 = NoItem;
+	if(!wp3.ismelee())
+		wp3 = NoItem;
+	if(wp2) {
+		p->attack(d, RightHand, bonus + p->gethitpenalty(-4), multiplier);
+		p->attack(d, LeftHand, bonus + p->gethitpenalty(-6), multiplier);
+	} else
+		p->attack(d, RightHand, bonus, multiplier);
+	if(wp3)
+		p->attack(d, Head, bonus, multiplier);
+}
+
+static bool attack_object(indext index, int hits) {
+	creature object;
+	object.clear();
+	object.set(StaticObject);
+	object.finish();
+	object.sethits(hits);
+	for(auto p : party) {
+		if(!p || !(*p))
+			continue;
+		if(!object.isready())
+			break;
+		single_attack(p, &object, 0, 1);
+	}
+	return !object.isready();
+}
+
 void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
+	if(location.get(index_of_monsters) == CellWeb) {
+		if(attack_object(index_of_monsters, 25))
+			location.set(index_of_monsters, CellWebTorned);
+		return;
+	}
 	creaturea parcipants;
 	auto dr = getdirection();
 	bool monster_surprise = false;

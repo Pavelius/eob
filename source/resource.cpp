@@ -16,6 +16,7 @@ BSDATA(resourcei) = {{"NONE", PackBackground},
 
 {"BORDER", PackBackground},
 {"OUTTAKE", PackOuttake},
+{"DECORS", PackOuttake},
 {"CHARGEN", PackBackground},
 {"CHARGENB", PackInterface},
 {"COMPASS", PackInterface},

@@ -7,6 +7,7 @@ struct tilei {
 	char				flipped;	// Flipped tile
 	char				alternate;	// Alternate
 	char				type;		// Type
+	const sprite*		rdata;		// Resource
 };
 struct renderi {
 	short				x, y, z;
@@ -83,7 +84,7 @@ static point item_position[18 * 4] = {{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
 {49, 118}, {127, 118}, {40, 136}, {136, 136},
 {205, 118}, {283, 118}, {232, 136}, {328, 136},
 };
-static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 0, char type = 0) {
+static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 0, char type = 0, resource_s res = NONE) {
 	if(alternate == -1)
 		alternate = frame;
 	if(flipped == -1)
@@ -92,6 +93,10 @@ static void set_tile(cell_s id, char frame, char alternate = -1, char flipped = 
 	tiles[id].alternate = alternate;
 	tiles[id].flipped = flipped;
 	tiles[id].type = type;
+	if(res)
+		tiles[id].rdata = gres(res);
+	else
+		tiles[id].rdata = map_tiles;
 }
 
 static inline bool is_tile_use_flip(cell_s id) {
@@ -420,7 +425,9 @@ void draw::animation::damage(creature* target, int hits) {
 			render();
 			disp_damage[pind] = 0;
 		}
-	} else {
+	} else if(target->is(StaticObject))
+		render();
+	else {
 		auto e = get_monster_disp(target);
 		if(e) {
 			short unsigned flags[4];
@@ -477,6 +484,9 @@ bool draw::settiles(resource_s type) {
 	set_tile(CellDecor1, 16);
 	set_tile(CellDecor2, 17);
 	set_tile(CellDecor3, 18);
+	//
+	set_tile(CellWeb, 0, -1, -1, 0, DECORS);
+	set_tile(CellWebTorned, 1, -1, -1, 0, DECORS);
 	// Некоторые ньюансы
 	switch(type) {
 	case FOREST:
@@ -828,7 +838,7 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 	return p;
 }
 
-static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool flip) {
+static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool flip, int decor_offset) {
 	static short floor_pos[18] = {
 		scrx / 2 - 42 * 3, scrx / 2 - 42 * 2, scrx / 2 - 42, scrx / 2, scrx / 2 + 42, scrx / 2 + 42 * 2, scrx / 2 + 42 * 3,
 		scrx / 2 - 64 * 2, scrx / 2 - 64, scrx / 2, scrx / 2 + 64, scrx / 2 + 64 * 2,
@@ -852,7 +862,7 @@ static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool f
 		if(rec == CellButton && location.is(index, CellActive))
 			frame = get_tile_alternate(rec);
 		p->frame[0] = decor_offset + floor_frame[i] + frame * decor_frames;
-		p->rdata = map_tiles;
+		p->rdata = tiles[rec].rdata;
 		p->index = index;
 		p->rec = rec;
 		p++;
@@ -1032,7 +1042,7 @@ static void prepare_draw(indext index, direction_s dr) {
 		if(tilt != CellWall && tilt != CellStairsUp && tilt != CellStairsDown) {
 			if(tilt != CellDoor) {
 				if(location_above.get(index) == CellPit)
-					p = create_floor(p, i, index, CellPitUp, mr);
+					p = create_floor(p, i, index, CellPitUp, mr, decor_offset);
 			}
 			p = create_items(p, i, index, dr);
 			p = create_monsters(p, i, index, dr, mr);
@@ -1046,10 +1056,12 @@ static void prepare_draw(indext index, direction_s dr) {
 			p = create_wall(p, i, index, get_tile(tile, mr), tile, mr);
 			break;
 		case CellButton:
-			p = create_floor(p, i, index, tile, mr);
-			break;
 		case CellPit:
-			p = create_floor(p, i, index, tile, mr);
+			p = create_floor(p, i, index, tile, mr, decor_offset);
+			break;
+		case CellWeb:
+		case CellWebTorned:
+			p = create_floor(p, i, index, tile, mr, 0);
 			break;
 		}
 	}

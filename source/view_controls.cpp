@@ -2069,20 +2069,6 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 
 void random_heroes();
 
-void draw::editor() {
-	auto push_font = font;
-	setsmallfont();
-	//settlementi it = {};
-	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
-	//random_heroes();
-	game.companyi::read("default");
-	//game.resources.gold = 200;
-	//game.settlements[0].adventure();
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
-	font = push_font;
-}
-
 static void paintparty(point camera, point party) {
 	auto p = party - camera;
 	setblink(colors::white);
@@ -2227,69 +2213,4 @@ void gamei::updatesize() {
 			size.y = bitmap.height;
 		}
 	}
-}
-
-static void newgame() {
-	game.clear();
-	game.companyi::read("default");
-	game.setcamera(Blocked);
-	creature::view_party();
-	draw::resetres();
-	game.enter(game.start, 1);
-	setnext(adventure);
-}
-
-static void main_new_game() {
-	setnext(newgame);
-}
-
-static void option_new_game() {
-	if(!dlgask("Are you really want to start new game?"))
-		return;
-	setnext(newgame);
-}
-
-static void memorize_spells() {
-	creature::preparespells(Mage);
-}
-
-static void pray_for_spells() {
-	creature::preparespells(Cleric);
-}
-
-static void option_save_game() {
-	game.write();
-	setnext(adventure);
-}
-
-static void quit_game() {
-	if(!dlgask("Are you really want to quit game?"))
-		return;
-	exit(0);
-}
-
-static void settings() {}
-
-extern void load_game();
-
-void draw::options() {
-	static menu elements[] = {{pray_for_spells, "Pray for spells"},
-	{memorize_spells, "Memorize spells"},
-	{creature::scriblescrolls, "Scrible scrolls"},
-	{option_new_game, "New game"},
-	{load_game, "Load game"},
-	{option_save_game, "Save game"},
-	{settings, "Settings"},
-	{quit_game, "Quit game"},
-	{}};
-	chooseopt(elements);
-}
-
-void draw::mainmenu() {
-	static draw::menu source[] = {{main_new_game, "Create New Game"},
-	{load_game, "Load Saved game"},
-	{draw::editor, "Game editor"},
-	{quit_game, "Exit game"},
-	{}};
-	choose(source);
 }

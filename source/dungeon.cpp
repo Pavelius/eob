@@ -315,6 +315,7 @@ bool dungeon::isblocked(indext index) const {
 	switch(get(index)) {
 	case CellWall:
 	case CellPortal:
+	case CellWeb:
 		return true;
 	case CellDoor:
 		return !is(index, CellActive);

@@ -113,5 +113,7 @@ int gamei::getavatar(unsigned short* result, race_s race, gender_s gender, class
 int gamei::getavatar(race_s race, gender_s gender, class_s cls) {
 	short unsigned result[256];
 	auto c = getavatar(result, race, gender, cls);
+	if(!c)
+		return 0;
 	return result[rand() % c];
 }

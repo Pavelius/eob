@@ -24,9 +24,10 @@ monsteri bsdata<monsteri>::elements[] = {{"No monster"},
 {"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoisonStrong}},
 {"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {OfEnergyDrain}},
 {"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}},
-{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}}
+{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}},
+{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
 };
-assert_enum(monster, Zombie);
+assert_enum(monster, StaticObject);
 INSTELEM(monsteri);
 
 bool monsteri::is(variant id) const {

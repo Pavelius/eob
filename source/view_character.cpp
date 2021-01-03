@@ -133,6 +133,8 @@ void draw::skills(int x, int y, creature* pc) {
 
 char monsteri::getpallette() const {
 	auto pr = gres(rfile);
+	if(!pr)
+		return 0;
 	auto ph = pr->getheader("COL");
 	if(!ph)
 		return 0;

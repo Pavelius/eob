@@ -57,6 +57,8 @@ static void test_room(int x, int y) {
 	location.add(location.getindex(x + 1, y + 2), CellSecrectButton, Left);
 	location.set(location.getindex(x + 3, y - 1), CellWall);
 	location.set(location.getindex(x + 2, y - 2), CellButton);
+	location.set(location.getindex(x + 1, y - 2), CellWeb);
+	location.set(location.getindex(x + 3, y - 2), CellWebTorned);
 	location.set(location.getindex(x + 2, y - 3), CellPit);
 	location.set(location.getindex(x + 2, y - 4), CellButton);
 	location_above.set(location.getindex(x + 2, y - 4), CellPit);
@@ -77,7 +79,7 @@ static void test_dungeon2(resource_s type) {
 	int y = 16;
 	location_above.clear();
 	location.clear();
-	location.head.type = BRICK;
+	location.head.type = type;
 	location.level = 1;
 	draw::settiles(type);
 	test_room(x - 2, y - 2);
@@ -229,7 +231,8 @@ static void debug_dungeon2() {
 	location.clear();
 	location_above.clear();
 	random_heroes();
-	test_dungeon(BRICK);
+	//test_dungeon(BRICK);
+	test_dungeon2(DUNG);
 	draw::settiles(location.head.type);
 	game.setcamera(location.getindex(16, 16), Up);
 	setnext(adventure);
@@ -241,7 +244,7 @@ void load_game() {
 	//return;
 	if(!game.read()) {
 #ifdef _DEBUG
-		debug_dungeon1();
+		debug_dungeon2();
 #else
 		return;
 #endif // _DEBUG
@@ -276,8 +279,83 @@ static void show_monsters() {
 	//test_monster(BLDRAGON, 0);
 }
 
-static bool test_metadata() {
-	return true;
+static void newgame() {
+	game.clear();
+	game.companyi::read("default");
+	game.setcamera(Blocked);
+	creature::view_party();
+	draw::resetres();
+	game.enter(game.start, 1);
+	setnext(adventure);
+}
+
+static void main_new_game() {
+	setnext(newgame);
+}
+
+static void option_new_game() {
+	if(!dlgask("Are you really want to start new game?"))
+		return;
+	setnext(newgame);
+}
+
+static void memorize_spells() {
+	creature::preparespells(Mage);
+}
+
+static void pray_for_spells() {
+	creature::preparespells(Cleric);
+}
+
+static void option_save_game() {
+	game.write();
+	setnext(adventure);
+}
+
+static void quit_game() {
+	if(!dlgask("Are you really want to quit game?"))
+		return;
+	exit(0);
+}
+
+static void settings() {}
+
+extern void load_game();
+
+void draw::options() {
+	static menu elements[] = {{pray_for_spells, "Pray for spells"},
+	{memorize_spells, "Memorize spells"},
+	{creature::scriblescrolls, "Scrible scrolls"},
+	{option_new_game, "New game"},
+	{load_game, "Load game"},
+	{option_save_game, "Save game"},
+	{settings, "Settings"},
+	{quit_game, "Quit game"},
+	{}};
+	chooseopt(elements);
+}
+
+void draw::editor() {
+	auto push_font = font;
+	setsmallfont();
+	//settlementi it = {};
+	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
+	//random_heroes();
+	game.companyi::read("default");
+	//game.resources.gold = 200;
+	//game.settlements[0].adventure();
+	edit("Company", &game, dginf<companyi>::meta, false);
+	game.companyi::write("default");
+	font = push_font;
+}
+
+void draw::mainmenu() {
+	static draw::menu source[] = {{main_new_game, "Create New Game"},
+	{load_game, "Load Saved game"},
+	{draw::editor, "Game editor"},
+	{quit_game, "Exit game"},
+	{}};
+	choose(source);
 }
 
 int main(int argc, char* argv[]) {
