@@ -747,7 +747,7 @@ class creature {
 	void				update_poison(bool interactive);
 	friend dginf<creature>;
 public:
-	explicit operator bool() const { return name!=0; }
+	explicit operator bool() const { return ability[Strenght]!=0; }
 	void				activate(spell_s v) { active_spells.set(v); }
 	bool				add(item i);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
