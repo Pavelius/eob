@@ -65,3 +65,60 @@ void textable::setname(const char* name) {
 	else
 		this->name = 0;
 }
+
+static const char* nextword(const char* p) {
+	while(*p && *p != ' ' && *p != 13)
+		p++;
+	return p;
+}
+
+bool richtexti::load(const char* p) {
+	memset(this, 0, sizeof(*this));
+	auto index = 0;
+	auto ps = data[index];
+	auto pe = ps + sizeof(data[index]) - 1;
+	auto newline = true;
+	while(true) {
+		auto sym = *p++;
+		if(!sym)
+			return true;
+		else if(sym == 10 && ps != data[index]) {
+			index++;
+			if(index >= sizeof(data) / sizeof(data[0]))
+				return false;
+			ps = data[index];
+			pe = ps + sizeof(data[index]);
+			newline = true;
+		} else if(newline && sym == '#') {
+			auto p1 = p; p = nextword(p);
+			auto pr = resourcei::find(p1, p - p1);
+			if(!pr)
+				return false;
+			images[index].res = (resource_s)(pr - bsdata<resourcei>::elements);
+			if(*p != ' ')
+				return false;
+			p++;
+			images[index].frame = sz2num(p, &p);
+			if(*p != 10)
+				return false;
+			p++;
+		} else {
+			newline = false;
+			if(ps < pe)
+				*ps++ = sym;
+		}
+	}
+}
+
+void richtexti::save(textable& ta) const {
+	char result[sizeof(data) + (sizeof(data) / sizeof(data[0])) * 16];
+	stringbuilder sb(result);
+	for(auto i = 0; i < sizeof(data) / sizeof(data[0]); i++) {
+		if(!data[i][0])
+			continue;
+		if(images[i].res)
+			sb.addn("#%1 %2i", bsdata<resourcei>::elements[images[i].res].name, images[i].frame);
+		sb.addn(data[i]);
+	}
+	ta.setname(result);
+}

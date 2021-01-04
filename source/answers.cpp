@@ -27,3 +27,24 @@ int answers::choose(const char* title, bool interactive) const {
 		return choose(title);
 	return random();
 }
+
+int	answers::choosebg(const char* title, bool horizontal_buttons) const {
+	richtexti rt;
+	if(!rt.load(title))
+		return 0;
+	auto index = 0;
+	imagei im = rt.images[index];
+	while(index + 1 < rt.maximum && rt.data[index + 1]) {
+		if(rt.images[index])
+			im = rt.images[index];
+		answers aw;
+		aw.add(1, "Next");
+		aw.choosebg(rt.data[index], im, true);
+		index++;
+	}
+	if(rt.images[index])
+		im = rt.images[index];
+	if(!rt.data[index])
+		return 0;
+	return choosebg(rt.data[index], im, horizontal_buttons);
+}

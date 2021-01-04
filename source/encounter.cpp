@@ -39,7 +39,7 @@ static const chati* find(action_s id, encounteri& scene, const aref<chati>& sour
 static void prompt(const char* title) {
 	answers aw;
 	aw.add(1, "Next");
-	aw.choosebg(title, 0, {}, true);
+	aw.choosebg(title, {}, true);
 }
 
 static void prompt(encounteri& scene, const char* title, const cflags<action_s>& actions) {
@@ -51,7 +51,7 @@ static void prompt(encounteri& scene, const char* title, const cflags<action_s>&
 			continue;
 		aw.add(i, bsdata<actioni>::elements[i].name);
 	}
-	auto i = (action_s)aw.choosebg(title, 0, {}, true);
+	auto i = (action_s)aw.choosebg(title, {}, true);
 	scene.apply(i, true);
 }
 

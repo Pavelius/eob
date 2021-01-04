@@ -240,6 +240,7 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	Greeting,
 	Attack, Bribe, Buy, Drink, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
+	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -257,7 +258,7 @@ enum variant_s : unsigned char {
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
-	PackInterface, PackBackground, PackCenter, PackScenes,
+	PackInterface, PackBackground, PackCenter, PackScenes, PackScenesBig,
 	PackCustom
 };
 enum varflag_s : unsigned char {
@@ -334,6 +335,7 @@ struct textable {
 	constexpr textable() : name(0) {}
 	constexpr explicit operator bool() const { return name != 0; }
 	static bool			edit(void* object, const array& source, void* pointer);
+	static bool			editrich(void* object, const array& source, void* pointer);
 	const char*			getname() const;
 	void				setname(const char* name);
 	static array&		getstrings();
@@ -526,14 +528,17 @@ struct racei {
 struct packi {
 	const char*			id;
 	const char*			url;
+	bool				choose_frame;
 };
 struct resourcei {
 	char				name[16];
 	pack_s				pack;
 	void*				data;
+	const packi&		gete() const { return bsdata<packi>::elements[pack]; }
 	const char*			geturl() const;
 	bool				isdungeon() const;
 	bool				ismonster() const;
+	static resourcei*	find(const char* id, unsigned size);
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct effecti {
@@ -564,28 +569,23 @@ struct imagei {
 	resource_s			res;
 	unsigned short		frame;
 	constexpr explicit operator bool() const { return res !=NONE; }
+	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
-	static int			preview(int x, int y, int width, const void* object);
-};
-struct messagei : textable {
-	struct aski {
-		conditiona		variants;
-		textable		text;
-		short unsigned	next[2];
-		constexpr explicit operator bool() const { return text.operator bool(); }
-	};
-	conditiona			variants;
-	imagei				overlay;
-	short unsigned		next;
-	aski				actions[8];
 };
 struct eventi {
-	variant				action;
-	imagei				overlay;
+	enum flag_s : unsigned char {
+		Start,
+	};
+	struct resulti {
+		textable		text;
+		conditiona		actions;
+		constexpr explicit operator bool() const { return text.operator bool(); }
+	};
+	variant				condition;
 	textable			text;
 	textable			ask[2];
-	variant				results[24];
-	bool				starting;
+	resulti				results[4];
+	unsigned char		flags;
 };
 class deck : adat<unsigned char, 256> {
 	variant_s			type;
@@ -874,8 +874,8 @@ public:
 	bool				isinvisible() const;
 	bool				isknown(spell_s v) const { return known_spells.is(v); }
 	bool				ishero() const;
-	bool				ismatch(const variant id) const;
-	bool				ismatch(const messagei& v) const;
+	bool				ismatch(const variant v) const;
+	bool				ismatch(const conditiona& v) const;
 	bool				ismindless() const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
@@ -953,7 +953,7 @@ public:
 	void				kill();
 	void				leave();
 	void				match(variant v, bool keep);
-	void				match(const messagei& id, bool remove);
+	void				match(const conditiona& id, bool keep);
 	void				resolve();
 	void				rollinitiative();
 	void				select();
@@ -1125,6 +1125,10 @@ struct historyi {
 	unsigned			gethistorymax() const;
 };
 struct adventurei : textable, historyi {
+	short unsigned		settlement;
+	textable			message_before;
+	textable			message_agree;
+	textable			message_righthere;
 	point				position;
 	sitei				levels[8];
 	void				create(bool interactive) const;
@@ -1231,6 +1235,13 @@ public:
 	void				worldmap();
 	void				write();
 };
+struct richtexti {
+	static constexpr int maximum = 6;
+	imagei				images[maximum];
+	char				data[maximum][260];
+	bool				load(const char* source);
+	void				save(textable& result) const;
+};
 struct answers {
 	struct element {
 		int				id;
@@ -1242,7 +1253,8 @@ struct answers {
 	void				addv(int id, const char* name, const char* format);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, const char* footer, const imagei& ei, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, const imagei& ei, bool herizontal_buttons) const;
+	int					choosebg(const char* title, bool herizontal_buttons) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
@@ -1258,12 +1270,6 @@ struct menu {
 	const char*			text;
 	operator bool() const { return proc != 0; }
 };
-class imagestate {
-	char				name[32];
-public:
-	imagestate(const char* id);
-	~imagestate();
-};
 namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
@@ -1271,7 +1277,6 @@ void					damage(creature* target, int hits);
 void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
 int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
-//void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 typedef void(*infoproc)(item*);
@@ -1323,7 +1328,6 @@ NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
-NOBSDATA(messagei::aski)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)

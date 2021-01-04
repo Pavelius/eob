@@ -80,6 +80,7 @@ static unsigned			current_size;
 static int				current_param;
 static const markup*	current_markup;
 static item*			current_item;
+static imagei			current_image;
 static item*			drag_item;
 static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
@@ -410,17 +411,6 @@ void mslog(const char* format, ...) {
 	mslogv(format, xva_start(format));
 }
 
-imagestate::imagestate(const char* id) {
-	name[0] = 0;
-	if(id && id[0])
-		zcpy(name, getimage(), sizeof(name) - 1);
-	setimage(id);
-}
-
-imagestate::~imagestate() {
-	setimage(name);
-}
-
 void draw::logs() {
 	draw::state push; setsmallfont();
 	setclip(log_rect);
@@ -657,33 +647,16 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 
 bool imagei::choose(void* object, const array& source, void* pointer) {
 	auto p = (imagei*)pointer;
-	auto pc = bsdata<resourcei>::elements + p->res;
-	current_res_focus = pc;
+	auto& ei = p->gete();
+	current_res_focus = (void*)&ei;
 	current_res_frame = p->frame;
 	auto pr = draw::choose(bsdata<resourcei>::source, "Images",
-		object, pc, getnm<resourcei>, 0, resourcei::preview, 320-190);
+		object, &ei, getnm<resourcei>, current_markup->list.match, resourcei::preview, 320-190);
 	if(!pr)
 		return false;
 	p->res = (resource_s)((resourcei*)pr - bsdata<resourcei>::elements);
 	p->frame = current_res_frame;
 	return true;
-}
-
-int imagei::preview(int x, int y, int width, const void* object) {
-	//auto p = (imagei*)object;
-	//setimage(p->custom);
-	//auto sx = bitmap.width;
-	//auto sy = bitmap.height;
-	//if(sx > width)
-	//	sx = width;
-	//if(sy > 184 - y - 4)
-	//	sy = 184 - y - 4;
-	//rect rc = {x, y, x + sx + 1, y + sy + 1};
-	//border_down(rc);
-	//draw::state push; setclip(rc);
-	//draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, 0, bitmap, 0, 0);
-	//return rc.height();
-	return 0;
 }
 
 static render_control* getby(void* av, unsigned param) {
@@ -1248,7 +1221,7 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return x - x1;
 }
 
-int answers::choosebg(const char* title, const char* footer, const imagei& ei, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, const imagei& ei, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
@@ -1272,10 +1245,6 @@ int answers::choosebg(const char* title, const char* footer, const imagei& ei, b
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
-		if(footer) {
-			text(x, y, footer);
-			y += texth() + 1;
-		}
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
@@ -1625,6 +1594,18 @@ bool textable::edit(void* object, const array& source, void* pointer) {
 	return true;
 }
 
+bool textable::editrich(void* object, const array& source, void* pointer) {
+	auto p = (textable*)pointer;
+	if(!p)
+		return false;
+	richtexti tr;
+	tr.load(p->getname());
+	if(!draw::edit(current_markup->title, &tr, dginf<richtexti>::meta, true))
+		return false;
+	tr.save(*p);
+	return true;
+}
+
 static void delete_symbol() {
 	auto p = (char*)current_markup->value.ptr(current_object);
 	auto s = current_markup->value.size;
@@ -1783,6 +1764,7 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	auto rich_edit = rco.height() >= texth() * 2;
 	auto isnum = e.value.isnum() && e.value.size <= sizeof(int);
 	auto push_fore = draw::fore;
+	auto zero_string = false;
 	draw::fore = colors::white;
 	if(!title || title[0] == 0) {
 		if(rich_edit) {
@@ -1790,6 +1772,7 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 			title = e.title;
 		} else
 			title = "None";
+		zero_string = true;
 	}
 	auto pv = e.value.ptr(object);
 	auto pf = pv;
@@ -1805,7 +1788,10 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	auto islist = e.list.choose || !e.value.isnum();
 	if(focused) {
 		if(current_edit != pv) {
-			current_c1 = zlen(title);
+			if(zero_string)
+				current_c1 = 0;
+			else
+				current_c1 = zlen(title);
 			current_edit = pv;
 		}
 		if(islist || isnum)
@@ -1898,7 +1884,7 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	char temp[260]; stringbuilder sb(temp);
 	if(e.proc.getheader)
 		title = e.proc.getheader(object, sb);
-	if(title) {
+	if(title && title[0]) {
 		textb(x + 6, y + 2, title);
 		x += title_width;
 		width -= title_width;
@@ -2032,7 +2018,7 @@ class edit_control : contexti {
 		else if(e.value.istext())
 			return 0;
 		else if(e.value.isnum() && e.value.size > 16)
-			return field({x, y, x + width, y + draw::texth() * 5 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e, 0);
+			return field({x, y, x + width, y + draw::texth() * 6 + 4}, (const char*)e.value.ptr(ctx.object), ctx.object, e, 0);
 		else
 			return field(x, y, width, ctx.getheader(e), ctx.object, ctx.title, e);
 	}

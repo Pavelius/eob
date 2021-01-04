@@ -27,6 +27,7 @@ MS}
 sizeof(R),\
 0}
 #define DGREQ(R) DGGEN(R, decltype(data_type::R), decltype(data_type::R), 0)
+#define DGENM(R, T) DGGEN(R, T, T, 0)
 #define DGCHK(R, M) DGGEN(R, decltype(data_type::R), decltype(data_type::R), M)
 
 struct fnlist {

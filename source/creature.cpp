@@ -1818,8 +1818,8 @@ bool creature::ismatch(const variant v) const {
 	return false;
 }
 
-bool creature::ismatch(const messagei& v) const {
-	for(auto e : v.variants) {
+bool creature::ismatch(const conditiona& v) const {
+	for(auto e : v) {
 		if(!e)
 			break;
 		if(!ismatch(e))

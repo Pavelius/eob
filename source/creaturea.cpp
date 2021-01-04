@@ -10,6 +10,16 @@ void creaturea::match(variant id, bool keep) {
 	count = ps - data;
 }
 
+void creaturea::match(const conditiona& id, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->ismatch(id) != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 creature* creaturea::getbest(ability_s v) const {
 	auto pc = (creature*)0;
 	auto v2 = -1;
@@ -36,16 +46,6 @@ int	creaturea::getaverage(ability_s v) const {
 	if(!count)
 		return 0;
 	return total / count;
-}
-
-void creaturea::match(const messagei& id, bool remove) {
-	auto ps = data;
-	for(auto p : *this) {
-		if(p->ismatch(id) == remove)
-			continue;
-		*ps++ = p;
-	}
-	count = ps - data;
 }
 
 void creaturea::select() {

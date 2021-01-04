@@ -21,9 +21,6 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 	sb[0] = sb.upper(sb[0]);
 	return sb;
 }
-template<> const char* getnm<messagei>(const void* object, stringbuilder& sb) {
-	return ((messagei*)object)->getname();
-}
 template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 	auto p = (imagei*)object;
 	auto& ei = bsdata<resourcei>::elements[p->res];
@@ -42,6 +39,9 @@ template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) 
 }
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
+}
+template<> const char* getnm<eventi>(const void* object, stringbuilder& sb) {
+	return ((eventi*)object)->text.getname();
 }
 template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 	return ((moralei*)object)->name;
@@ -204,6 +204,10 @@ static bool monster_resources(const void* object, const void* pointer) {
 static bool dungeon_resources(const void* object, const void* pointer) {
 	auto p = (resourcei*)pointer;
 	return p->pack == PackDungeon;
+}
+static bool scene_resources(const void* object, const void* pointer) {
+	auto p = (resourcei*)pointer;
+	return p->pack == PackScenes;
 }
 static bool allow_item_wears(const void* object, const void* pointer) {
 	auto p = (weari*)pointer;
@@ -511,7 +515,11 @@ DGINF(historyi) = {{"Stage 1", DGREQ(history[0])},
 {"Stage 12", DGREQ(history[11]), {}, {0, 0, visible_history}},
 {}};
 DGINF(adventurei) = {{"Name", DGINH(textable, name)},
+{"Settlement", DGENM(settlement, settlementi), {getnm<settlementi>}},
+{"Before", DGREQ(message_before)},
 {"Position", DGREQ(position)},
+{"Accept", DGREQ(message_agree)},
+{"Right here", DGREQ(message_righthere)},
 {"History", DGINH(historyi, history), {getnm<historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
 {"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, visible_level}},
@@ -540,29 +548,16 @@ DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},
 {"Characters", DGLST(creature), {getnm<creature>}},
 {"Fractions", DGLST(fractioni), {getnm<fractioni>}},
-{"Messages", DGLST(messagei), {getnm<messagei>}},
+{"Events", DGLST(eventi), {getnm<eventi>}},
 {"Settlements", DGLST(settlementi), {getnm<settlementi>}},
 {}};
 DGINF(imagei) = {{0, DGREQ(res), {getnm<resourcei>, 0, 0, resourcei::preview, 130}},
 {}};
-DGINF(messagei::aski) = {{0, DGREQ(text)},
-{}};
-DGINF(messagei) = {{"Image", DGREQ(overlay), {getnm<imagei>, 0, imagei::choose}},
-{"Condition 1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
-{"Condition 2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Condition 3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Condition 4", DGREQ(variants[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Condition 5", DGREQ(variants[4]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Condition 6", DGREQ(variants[5]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Text", DGINH(textable, name)},
-{"1)", DGREQ(actions[0])},
-{"2)", DGREQ(actions[1])},
-{"3)", DGREQ(actions[2])},
-{"4)", DGREQ(actions[3])},
-{"5)", DGREQ(actions[4])},
-{"6)", DGREQ(actions[5])},
-{"7)", DGREQ(actions[6])},
-{"8)", DGREQ(actions[7])},
+DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_variant}, {}},
+{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
+{"1)", DGREQ(ask[0])},
+{"2)", DGREQ(ask[1])},
+{"Starting", DGCHK(flags, 1 << eventi::Start)},
 {}};
 DGINF(settlementi) = {{"Name", DGINH(textable, name)},
 {"Image", DGREQ(image)},
@@ -579,4 +574,18 @@ DGINF(settlementi) = {{"Name", DGINH(textable, name)},
 {"Item 1", DGREQ(wands[5]), {getnm<item>}, {0, 0, visible_specal}},
 {"Item 1", DGREQ(wands[6]), {getnm<item>}, {0, 0, visible_specal}},
 {"Item 1", DGREQ(wands[7]), {getnm<item>}, {0, 0, visible_specal}},
+{}};
+DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 1", DGREQ(data[0])},
+{"", DGREQ(images[1]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 2", DGREQ(data[1])},
+{"", DGREQ(images[2]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 3", DGREQ(data[2])},
+{"#div"},
+{"", DGREQ(images[3]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 4", DGREQ(data[3])},
+{"", DGREQ(images[4]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 5", DGREQ(data[4])},
+{"", DGREQ(images[5]), {getnm<imagei>, scene_resources, imagei::choose}},
+{"Enter text 6", DGREQ(data[5])},
 {}};

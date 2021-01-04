@@ -334,7 +334,8 @@ void draw::options() {
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	//settlementi it = {};
+	//richtexti it = {};
+	//it.load("#NPC 12\nWhen you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.");
 	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
 	//random_heroes();
 	game.companyi::read("default");
@@ -362,12 +363,26 @@ static bool test_variant() {
 	return v1 == v2;
 }
 
+static bool test_richtexti() {
+	richtexti ei;
+	auto p = "#NPC 12\nWhen you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.";
+	ei.load(p);
+	if(ei.images[0].frame != 12)
+		return false;
+	if(ei.images[2].frame != 11)
+		return false;
+	textable ta;
+	ei.save(ta);
+	auto p1 = ta.getname();
+	return strcmp(p, p1) == 0;
+}
+
 int main(int argc, char* argv[]) {
 	if(!test_variant())
 		return -1;
+	if(!test_richtexti())
+		return -1;
 	srand(clock());
-	//return 0;
-	//srand(2112);
 #ifdef _DEBUG
 	util_main();
 #endif // _DEBUG

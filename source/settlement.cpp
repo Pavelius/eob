@@ -35,7 +35,7 @@ action_s settlementi::enter(building_s id) {
 	}
 	aw.sort();
 	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
-	return (action_s)aw.choosebg(prompt_text, "What you want to do?", ei.image);
+	return (action_s)aw.choosebg(prompt_text, ei.image, true);
 }
 
 building_s settlementi::enter() const {
@@ -54,7 +54,7 @@ building_s settlementi::enter() const {
 			aw.add(i, bsdata<buildingi>::elements[i].name);
 	}
 	aw.sort();
-	return (building_s)aw.choosebg(prompt_text, "Witch way you want to go?", image);
+	return (building_s)aw.choosebg(prompt_text, image, true);
 }
 
 void settlementi::adventure() {
@@ -91,11 +91,11 @@ static void create(itema& result, adat<item>& source) {
 	}
 }
 
-static bool confirm(const char* text) {
+static bool confirm(const char* text, const imagei& ei) {
 	answers aw;
 	aw.add(1, "Yes");
 	aw.add(0, "No");
-	return aw.choosebg(text, 0, {}) != 0;
+	return aw.choosebg(text, ei, true) != 0;
 }
 
 static const char* buy_panel(void* object, stringbuilder& sb) {
@@ -115,7 +115,7 @@ static bool buy_items(itema& items) {
 	sb.add("Do you really want to buy ");
 	p->getname(sb);
 	sb.adds("for %1i gold coins?", cost);
-	if(!confirm(sb))
+	if(!confirm(sb, {}))
 		return false;
 	game.addgold(-cost);
 	game.additem(*p, false);
@@ -132,53 +132,55 @@ static bool sell_items(itema& items) {
 	sb.add("Do you really want to sell ");
 	p->getname(sb);
 	sb.adds("for %1i gold coins as trade in?", cost);
-	if(!confirm(sb))
+	if(!confirm(sb, {}))
 		return false;
 	game.addgold(-cost);
 	p->clear();
 	return true;
 }
 
-static void showmessage() {
+static void showmessage(const imagei& ei) {
 	answers aw;
 	aw.add(1, "Next");
-	aw.choosebg(sb, 0, {});
+	aw.choosebg(sb, ei, true);
 	sb.clear();
 }
 
 static void drink_and_seat(building_s b, action_s a, int coins) {
+	imagei ei = {BUILDNGS};
 	sb.clear();
 	sb.add("\"Good, day!\" - bartender sad - \"Cost for drinking would be %1i gold coins. Do you want pay?\"", coins);
-	if(!confirm(sb)) {
+	if(!confirm(sb, {})) {
 		sb.clear();
 		sb.add("\"Very well. So get out of here, and not waste my time!\"");
-		showmessage();
+		showmessage(ei);
 	}
 }
 
 static void gambling(creaturea& creatures) {
 	static int bits[] = {10, 20, 50, 100, 300, 500, 1000, 2000};
 	sb.clear();
-	sb.add("Do you want to play cards, dice or thimblerig? If you do, take your bid and try to win.");
+	sb.adds("Do you want to play cards, dice or thimblerig? If you do, take your bid and try to win.");
+	sb.adds("How match you bet?");
 	answers aw;
 	aw.add(0, "Stop");
 	for(auto b : bits) {
 		if(game.getgold()>=b)
 			aw.add(b, "%1i", b);
 	}
-	draw::imagestate push_img("gambling1");
-	auto b = aw.choosebg(sb, "How match you bet?", {}, true); sb.clear();
+	imagei ei = {BUILDNGS};
+	auto b = aw.choosebg(sb, ei, true); sb.clear();
 	auto p = creatures.getbest(Charisma);
 	auto gv = p->get(Charisma);
 	if(game.roll(gv)) {
 		p->addexp(50);
 		sb.add("%1 win game and gain %2i coins.", p->getname(), b);
 		game.addgold(b);
-		showmessage();
+		showmessage({});
 	} else {
 		sb.add("%1 lose game and lose %2i coins. Luck is not on you side today.", p->getname(), b);
 		game.addgold(-b);
-		showmessage();
+		showmessage({});
 	}
 }
 

@@ -2,13 +2,14 @@
 
 using namespace draw;
 
-BSDATA(packi) = {{"PackDungeon", "art/dungeons"},
-{"PackMonster", "art/monsters"},
-{"PackOuttake", "art/misc"},
-{"PackInterface", "art/interface"},
-{"PackBackground", "art/interface"},
-{"PackCenter", "art/misc"},
-{"PackScenes", "art/scenes"},
+BSDATA(packi) = {{"PackDungeon", "art/dungeons", false},
+{"PackMonster", "art/monsters", false},
+{"PackOuttake", "art/misc", true},
+{"PackInterface", "art/interface", true},
+{"PackBackground", "art/interface", false},
+{"PackCenter", "art/misc", true},
+{"PackScenes", "art/scenes", true},
+{"PackScenesBig", "art/scenes", true},
 {"PackCustom", "art/custom"},
 };
 assert_enum(pack, PackCustom)
@@ -43,7 +44,7 @@ BSDATA(resourcei) = {{"NONE", PackBackground},
 {"THROWN", PackInterface},
 {"XSPL", PackInterface},
 {"NPC", PackScenes},
-{"BPLACE", PackScenes},
+{"BPLACE", PackScenesBig},
 {"BUILDNGS", PackScenes},
 {"CRYSTAL", PackScenes},
 
@@ -109,4 +110,14 @@ bool resourcei::isdungeon() const {
 
 bool resourcei::ismonster() const {
 	return pack == PackMonster;
+}
+
+resourcei* resourcei::find(const char* id, unsigned size) {
+	if(!id)
+		return 0;
+	for(auto& e : bsdata<resourcei>()) {
+		if(memcmp(e.name, id, size) == 0 && e.name[size]==0)
+			return &e;
+	}
+	return 0;
 }

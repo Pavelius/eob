@@ -496,7 +496,7 @@ static bool addstatical(archive& a) {
 	a.set(bsdata<creature>::source);
 	a.set(bsdata<settlementi>::source);
 	a.set(bsdata<fractioni>::source);
-	a.set(bsdata<messagei>::source);
+	a.set(bsdata<eventi>::source);
 	return true;
 }
 
