@@ -35,9 +35,7 @@ private:
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
 #define BSDATA(e) template<> e bsdata<e>::elements[]
 #define BSDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
-#define BSINF(e) {#e, bsmeta<e##i>::meta, bsdata<e##i>::source}
-#define BSLNK(R, S) template<> struct bsmeta<R> : bsmeta<S> {}; template<> struct bsdata<R> : bsdata<S> {};
-#define BSMETA(e) template<> const bsreq bsmeta<e>::meta[]
+#define BSLNK(R, S) template<> struct bsdata<R> : bsdata<S> {};
 #define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
 #define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define FO(c, f) (unsigned)(&((c*)0)->f)
@@ -63,7 +61,6 @@ const codepages						code = CP1251;
 }
 //
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
-template<class T> const char*		getstr(T e); // Template to return string of small class
 bool								ischa(unsigned u); // is alphabetical character?
 inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numeric character?
 void*								loadb(const char* url, int* size = 0, int additional_bytes_alloated = 0); // Load binary file.
@@ -83,7 +80,6 @@ void								szencode(char* output, int output_count, codepages output_code, cons
 unsigned							szget(const char** input, codepages page = metrics::code);
 int									szcmpi(const char* p1, const char* p2);
 int									szcmpi(const char* p1, const char* p2, int count);
-//const char*							szdup(const char *text);
 const char*							szext(const char* path);
 const char*							szfname(const char* text); // Get file name from string (no fail, always return valid value)
 char*								szfnamewe(char* result, const char* name); // get file name without extension (no fail)
@@ -272,13 +268,6 @@ public:
 	void					swap(int i1, int i2);
 	void					reserve(unsigned count);
 };
-struct bsreq;
-// Abstract data source descriptor
-struct bsinf {
-	const char*				id; // Identifier of data source
-	const bsreq*			meta; // Type descriptor of data source
-	array&					source; // Data source content
-};
 // Abstract data access class
 template<typename T> struct bsdata {
 	static T				elements[];
@@ -296,17 +285,6 @@ NOBSDATA(unsigned short)
 NOBSDATA(char)
 NOBSDATA(unsigned char)
 NOBSDATA(const char*)
-NOBSDATA(bsreq)
-// Abstract metadata class
-template<typename T> struct bsmeta {
-	typedef T				data_type;
-	static const bsreq		meta[];
-};
-template<> struct bsmeta<unsigned char> : bsmeta<int> {};
-template<> struct bsmeta<char> : bsmeta<int> {};
-template<> struct bsmeta<unsigned short> : bsmeta<int> {};
-template<> struct bsmeta<short> : bsmeta<int> {};
-template<> struct bsmeta<unsigned> : bsmeta<int> {};
 // Get object presentation
 template<class T> const char* getstr(const T e) { return bsdata<T>::elements[e].name; }
 // Untility structures

@@ -8,6 +8,7 @@ BSDATA(packi) = {{"PackDungeon", "art/dungeons"},
 {"PackInterface", "art/interface"},
 {"PackBackground", "art/interface"},
 {"PackCenter", "art/misc"},
+{"PackScenes", "art/scenes"},
 {"PackCustom", "art/custom"},
 };
 assert_enum(pack, PackCustom)
@@ -41,6 +42,7 @@ BSDATA(resourcei) = {{"NONE", PackBackground},
 {"PORTM", PackCenter},
 {"THROWN", PackInterface},
 {"XSPL", PackInterface},
+{"NPC", PackScenes},
 
 {"ANKHEG", PackMonster},
 {"ANT", PackMonster},

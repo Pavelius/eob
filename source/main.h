@@ -37,7 +37,7 @@ enum resource_s : unsigned char {
 	BORDER, OUTTAKE, DECORS,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
-	MENU, PLAYFLD, PORTM, THROWN, XSPL,
+	MENU, PLAYFLD, PORTM, THROWN, XSPL, NPC,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
@@ -257,7 +257,7 @@ enum variant_s : unsigned char {
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
-	PackInterface, PackBackground, PackCenter,
+	PackInterface, PackBackground, PackCenter, PackScenes,
 	PackCustom
 };
 enum varflag_s : unsigned char {
