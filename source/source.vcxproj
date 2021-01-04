@@ -152,6 +152,7 @@
     <ClCompile Include="creature_equipment.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="damage.cpp" />
+    <ClCompile Include="deck.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="eob_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="event.cpp" />
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="game.cpp" />

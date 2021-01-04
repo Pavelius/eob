@@ -1855,36 +1855,13 @@ bool creature::is(spell_s v) const {
 	return false;
 }
 
-void creature::removeloot(looti& result) {
+void creature::removeloot() {
 	for(auto& e : wears) {
 		if(!e)
 			continue;
-		// Equiped items do not remove
-		auto slot = (wear_s)(&e - wears);
-		if(slot >= Head && slot <= LastBelt)
-			continue;
 		auto good = e.gete().goods;
-		if(good == Weapons)
+		if(good != Food)
 			continue;
-		int value = 0;
-		// All items cost coins, but some cost more
-		value = e.getcostgp();
-		if(e.is(Valuable))
-			value += 200;
-		result.gold += value;
-		// Some items earn experience
-		value = 0;
-		if(e.is(UseArcane))
-			value += 100;
-		if(e.is(UseDivine))
-			value += 50;
-		result.experience += value;
-		// Some items earn fame
-		value = 0;
-		if(e.is(Famed))
-			value += 1;
-		result.fame += value;
-		// Clear item
 		e.clear();
 	}
 }

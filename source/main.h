@@ -29,6 +29,9 @@ enum fcell : unsigned {
 	LookWall, LookOverlay, LookObject,
 	PassableActivated
 };
+enum fevent_s : unsigned char {
+	Wilderness, City, Starting
+};
 enum resource_s : unsigned char {
 	NONE,
 	BORDER, OUTTAKE, DECORS,
@@ -243,10 +246,14 @@ enum action_s : unsigned char {
 enum speech_s : unsigned char {
 	Say, Ask,
 };
+enum case_s : unsigned char {
+	Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8, Case9,
+};
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Adventure, Alignment, Building, Class, Cleveress, Creature, Damage,
-	Enchant, Feat, Gender, Item, Morale, Race, Reaction, Settlement, Spell,
+	Ability, Action, Adventure, Alignment, Building, Case, Class,
+	Cleveress, Creature, Damage, Event, Enchant, Feat, Gender,
+	Item, Morale, Race, Reaction, Settlement, Spell,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -274,6 +281,7 @@ typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
 typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
+typedef cflags<fevent_s> eventf;
 typedef flagable<LastSpellAbility> spellf;
 typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
@@ -285,24 +293,28 @@ struct variant {
 	variant_s			type;
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
+	constexpr variant(const variant_s t, unsigned char v) : type(t), value(v) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
+	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
-	constexpr variant(const intellegence_s v) : type(Cleveress), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
 	constexpr variant(const feat_s v) : type(Feat), value(v) {}
 	constexpr variant(const gender_s v) : type(Gender), value(v) {}
+	constexpr variant(const intellegence_s v) : type(Cleveress), value(v) {}
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const morale_s v) : type(Morale), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
+	constexpr variant(const int v) : type(variant_s((v>>8)&0xFF)), value(v&0xFF) {}
 	variant(variant_s v, const void* p);
 	variant(const void* v);
 	constexpr explicit operator bool() const { return type != NoVariant; }
+	constexpr explicit operator int() const { return (type<<8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
 	creature*			getcreature() const;
@@ -566,6 +578,22 @@ struct messagei : textable {
 	short unsigned		next;
 	aski				actions[8];
 };
+struct eventi {
+	variant				action;
+	imagei				overlay;
+	textable			text;
+	textable			ask[2];
+	variant				results[24];
+	bool				starting;
+};
+class deck : adat<unsigned char, 256> {
+	variant_s			type;
+public:
+	void				create(variant_s v);
+	void				addbottom(variant v);
+	variant				getbottom();
+	variant				gettop();
+};
 struct sitei {
 	struct headi {
 		resource_s		type;
@@ -711,14 +739,6 @@ public:
 	item*				random();
 	void				select();
 	void				sort();
-};
-struct looti {
-	int					gold;
-	int					experience;
-	int					fame;
-	int					progress;
-	int					luck;
-	void				correct();
 };
 class creature {
 	alignment_s			alignment;
@@ -868,7 +888,7 @@ public:
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
 	void				removeboost(variant v);
-	void				removeloot(looti& result);
+	void				removeloot();
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
 	bool				roll(ability_s id, int bonus = 0) const;
@@ -1125,12 +1145,12 @@ struct settlementi : textable {
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
 	void				makeitems();
 };
-struct fractioni : looti, textable {
+struct fractioni : textable {
+	char				progress;
 };
 struct companyi : textable {
 	imagei				world;
 	point				start;
-	looti				resources;
 	int					pixels_per_day;
 	adventurei*			getadventure(point position);
 	bool				read(const char* name);
@@ -1157,7 +1177,8 @@ class gamei : public companyi {
 	unsigned			rounds_hour;
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
-	unsigned			gold;
+	char				reputation, luck;
+	int					gold;
 	variant				players[6];
 	static void			render_worldmap(void* object);
 public:
@@ -1178,6 +1199,7 @@ public:
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
+	int					getgold() const { return gold; }
 	void				getheroes(creature** result, direction_s dir);
 	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
@@ -1194,7 +1216,7 @@ public:
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
-	void				pay(int coins);
+	void				addgold(int coins);
 	void				play(short unsigned id);
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
@@ -1248,7 +1270,7 @@ void					damage(creature* target, int hits);
 void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
 int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
-void					worldmap(int pause = 300, item* current_item = 0);
+//void					worldmap(int pause = 300, item* current_item = 0);
 void					update();
 }
 typedef void(*infoproc)(item*);
@@ -1300,7 +1322,6 @@ NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
-NOBSDATA(looti)
 NOBSDATA(messagei::aski)
 NOBSDATA(point)
 NOBSDATA(sitei)

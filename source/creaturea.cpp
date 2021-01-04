@@ -133,7 +133,9 @@ creature* creaturea::getmostdamaged() const {
 
 creature* creaturea::choose() const {
 	answers elements;
-	for(auto p : *this)
-		elements.add((int)p, p->getname());
+	for(auto p : *this) {
+		if(p)
+			elements.add((int)p, p->getname());
+	}
 	return (creature*)elements.choosesm("On which hero?", true);
 }

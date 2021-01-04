@@ -522,19 +522,11 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {}};
 DGINF(actioni) = {{"Name", DGREQ(name)},
 {}};
-DGINF(looti) = {{"Gold", DGREQ(gold)},
-{"Experience", DGREQ(experience)},
-{"Fame", DGREQ(fame)},
-{"Progress", DGREQ(progress)},
-{"Luck", DGREQ(luck)},
-{}};
 DGINF(fractioni) = {{"Name", DGINH(textable, name)},
-{"Loot", DGINH(looti, gold)},
 {}};
 DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Start", DGREQ(start)},
 {"Pixels/day", DGREQ(pixels_per_day)},
-{"loot", DGREQ(resources)},
 {"#div Modules"},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},
 {"Characters", DGLST(creature), {getnm<creature>}},

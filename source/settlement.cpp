@@ -101,7 +101,7 @@ static bool confirm(const char* text) {
 static const char* buy_panel(void* object, stringbuilder& sb) {
 	auto p = (item*)object;
 	sb.addn("Item price: %1i gp", p->getcostgp());
-	sb.addn("Party have: %1i gp", game.resources.gold);
+	sb.addn("Party have: %1i gp", game.getgold());
 	return sb;
 }
 
@@ -117,7 +117,7 @@ static bool buy_items(itema& items) {
 	sb.adds("for %1i gold coins?", cost);
 	if(!confirm(sb))
 		return false;
-	game.pay(cost);
+	game.addgold(-cost);
 	game.additem(*p, false);
 	return true;
 }
@@ -134,8 +134,7 @@ static bool sell_items(itema& items) {
 	sb.adds("for %1i gold coins as trade in?", cost);
 	if(!confirm(sb))
 		return false;
-	game.resources.gold += cost;
-	game.resources.correct();
+	game.addgold(-cost);
 	p->clear();
 	return true;
 }
@@ -164,7 +163,7 @@ static void gambling(creaturea& creatures) {
 	answers aw;
 	aw.add(0, "Stop");
 	for(auto b : bits) {
-		if(game.resources.gold>=b)
+		if(game.getgold()>=b)
 			aw.add(b, "%1i", b);
 	}
 	draw::imagestate push_img("gambling1");
@@ -174,11 +173,11 @@ static void gambling(creaturea& creatures) {
 	if(game.roll(gv)) {
 		p->addexp(50);
 		sb.add("%1 win game and gain %2i coins.", p->getname(), b);
-		game.resources.gold += b;
+		game.addgold(b);
 		showmessage();
 	} else {
 		sb.add("%1 lose game and lose %2i coins. Luck is not on you side today.", p->getname(), b);
-		game.pay(b);
+		game.addgold(-b);
 		showmessage();
 	}
 }
@@ -201,7 +200,7 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		}
 		items.costgp(true);
 		items.match(getrarity(), true);
-		items.maxcost(game.resources.gold, true);
+		items.maxcost(game.getgold(), true);
 		if(!items)
 			return false;
 		if(run)

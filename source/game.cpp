@@ -345,7 +345,7 @@ creature* gamei::getvalid(creature* pc, class_s type) const {
 		auto p = party[i];
 		if(p && p->iscast(type))
 			return p;
-		if(++i >= (int)(sizeof(party) / sizeof(party[0])))
+		if(++i >= party.getmaximum())
 			i = 0;
 		if(i == stop)
 			return 0;
@@ -621,11 +621,10 @@ void gamei::equiping() {
 }
 
 void gamei::leavedungeon() {
-	looti loot = {};
 	for(auto p : party) {
 		if(!p)
 			continue;
-		p->removeloot(loot);
+		p->removeloot();
 	}
 }
 
@@ -752,9 +751,10 @@ void gamei::preserial(bool writemode) {
 	}
 }
 
-void gamei::pay(int coins) {
-	resources.gold -= coins;
-	resources.correct();
+void gamei::addgold(int coins) {
+	gold += coins;
+	if(gold < 0)
+		gold = 0;
 }
 
 void gamei::startgame() {

@@ -252,7 +252,7 @@ void load_game() {
 	//return;
 	if(!game.read()) {
 #ifdef _DEBUG
-		debug_dungeon2();
+		debug_dungeon1();
 #else
 		return;
 #endif // _DEBUG
@@ -260,19 +260,7 @@ void load_game() {
 	setnext(adventure);
 }
 
-static void test_worldmap() {
-	//setimage("tavern24");
-	//fullimage({0, 0}, 0);
-	//pause();
-	setimage("worldmap");
-	choosepoint({100, 100});
-	//fullimage({493, 415}, {1040, 740});
-	//appearmarker(320 / 2, 200 / 2);
-	//pause();
-}
-
 callback next_proc;
-
 void draw::setnext(void(*v)()) {
 	next_proc = v;
 }
@@ -366,7 +354,17 @@ void draw::mainmenu() {
 	choose(source);
 }
 
+static bool test_variant() {
+	answers aw;
+	variant v1 = LawfulEvil;
+	aw.add((int)v1, "Test alignment");
+	variant v2 = aw.elements[0].id;
+	return v1 == v2;
+}
+
 int main(int argc, char* argv[]) {
+	if(!test_variant())
+		return -1;
 	srand(clock());
 	//return 0;
 	//srand(2112);
