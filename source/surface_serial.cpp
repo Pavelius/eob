@@ -84,7 +84,7 @@ draw::surface::surface(const char* url, color* pallette) : surface() {
 	read(url, pallette);
 }
 
-bool draw::surface::read(const char* url, color* pallette, int need_bpp) {
+bool draw::surface::read(const char* url, color* result_pallette, int need_bpp) {
 	unsigned size;
 	resize(0, 0, 0, true);
 	unsigned char* pin = (unsigned char*)loadb(url, (int*)&size);
@@ -97,7 +97,7 @@ bool draw::surface::read(const char* url, color* pallette, int need_bpp) {
 			if(!need_bpp)
 				need_bpp = 32;
 			resize(width, height, need_bpp, true);
-			if(!pv->decode(bits, need_bpp, pin, size))
+			if(!pv->decode(bits, need_bpp, pin, size, result_pallette))
 				break;
 			result = true;
 			break;
@@ -110,7 +110,7 @@ bool draw::surface::read(const char* url, color* pallette, int need_bpp) {
 static struct bmp_bitmap_plugin : public draw::surface::plugin {
 	bmp_bitmap_plugin() : plugin("bmp", "BMP images\0*.bmp\0") {
 	}
-	bool decode(unsigned char* output, int output_bpp, const unsigned char* input, unsigned input_size) override {
+	bool decode(unsigned char* output, int output_bpp, const unsigned char* input, unsigned input_size, color* result_pallette) override {
 		int width, height, input_bpp;
 		if(!output)
 			return false;
@@ -120,15 +120,27 @@ static struct bmp_bitmap_plugin : public draw::surface::plugin {
 		auto pi = (bmp::info*)(input + sizeof(bmp::header));
 		unsigned char* ppal = (unsigned char*)pi + sizeof(bmp::info);
 		unsigned char* pb = (unsigned char*)input + ph->bits;
+		if(result_pallette) {
+			for(unsigned i = 0; i < pi->color_used; i++) {
+				result_pallette[i].r = ppal[i * 4 + 2];
+				result_pallette[i].g = ppal[i * 4 + 1];
+				result_pallette[i].b = ppal[i * 4 + 0];
+				result_pallette[i].a = 0;
+			}
+		}
 		auto input_scanline = color::scanline(width, input_bpp);
 		auto output_scanline = color::scanline(width, output_bpp);
 		color e;
 		for(int y = 0; y < height; y++) {
 			unsigned char* d = output + y * output_scanline;
 			unsigned char* s = pb + ((pi->height < 0) ? y : (pi->height - y - 1))*input_scanline;
-			for(int x = 0; x < width; x++) {
-				e.read(s, x, input_bpp, ppal);
-				e.write(d, x, output_bpp, 0);
+			if(input_bpp == output_bpp)
+				memcpy(d, s, width*(input_bpp / 8));
+			else {
+				for(int x = 0; x < width; x++) {
+					e.read(s, x, input_bpp, ppal);
+					e.write(d, x, output_bpp, 0);
+				}
 			}
 		}
 		return true;

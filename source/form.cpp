@@ -26,7 +26,16 @@ template<> const char* getnm<messagei>(const void* object, stringbuilder& sb) {
 }
 template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 	auto p = (imagei*)object;
-	return p->custom;
+	auto& ei = bsdata<resourcei>::elements[p->res];
+	sb.add(ei.name);
+	switch(ei.pack) {
+	case PackOuttake:
+	case PackScenes:
+	case PackInterface:
+		sb.adds("%1i", p->frame);
+		break;
+	}
+	return sb;
 }
 template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) {
 	return ((adventurei*)object)->getname();
@@ -165,29 +174,29 @@ bool item::choose_enchantment(void* object, const array& source, void* pointer) 
 		p->subtype = ars.indexof(current);
 	return false;
 }
-static bool choose_custom_images(void* object, const array& source, void* pointer) {
-	typedef imagei T;
-	auto v = (T*)pointer;
-	array files(sizeof(T));
-	for(io::file::find e(bsdata<packi>::elements[PackCustom].url); e; e.next()) {
-		if(e.name()[0] == '.')
-			continue;
-		auto p = (imagei*)files.add();
-		char temp[260]; szfnamewe(temp, e.name());
-		stringbuilder::lower(temp);
-		zcpy(p->custom, temp, sizeof(p->custom)-1);
-	}
-	auto current_index = files.find(v, 0, sizeof(T));
-	void* pc = 0;
-	if(current_index != -1)
-		pc = files.ptr(current_index);
-	pc = draw::choose(files, "Custom images", object, pc,
-		getnm<imagei>, 0, imagei::preview, 100);
-	if(!pc)
-		return false;
-	memcpy(v, pc, sizeof(T));
-	return true;
-}
+//static bool choose_custom_images(void* object, const array& source, void* pointer) {
+//	typedef imagei T;
+//	auto v = (T*)pointer;
+//	array files(sizeof(T));
+//	for(io::file::find e(bsdata<packi>::elements[PackCustom].url); e; e.next()) {
+//		if(e.name()[0] == '.')
+//			continue;
+//		auto p = (imagei*)files.add();
+//		char temp[260]; szfnamewe(temp, e.name());
+//		stringbuilder::lower(temp);
+//		zcpy(p->custom, temp, sizeof(p->custom)-1);
+//	}
+//	auto current_index = files.find(v, 0, sizeof(T));
+//	void* pc = 0;
+//	if(current_index != -1)
+//		pc = files.ptr(current_index);
+//	pc = draw::choose(files, "Custom images", object, pc,
+//		getnm<imagei>, 0, imagei::preview, 100);
+//	if(!pc)
+//		return false;
+//	memcpy(v, pc, sizeof(T));
+//	return true;
+//}
 static bool monster_resources(const void* object, const void* pointer) {
 	auto p = (resourcei*)pointer;
 	return p->pack == PackMonster;
@@ -534,11 +543,11 @@ DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Messages", DGLST(messagei), {getnm<messagei>}},
 {"Settlements", DGLST(settlementi), {getnm<settlementi>}},
 {}};
-DGINF(imagei) = {{0, DGREQ(custom), {getnm<imagei>, 0, choose_custom_images, imagei::preview, 130}},
+DGINF(imagei) = {{0, DGREQ(res), {getnm<resourcei>, 0, 0, resourcei::preview, 130}},
 {}};
 DGINF(messagei::aski) = {{0, DGREQ(text)},
 {}};
-DGINF(messagei) = {{"Image", DGREQ(overlay)},
+DGINF(messagei) = {{"Image", DGREQ(overlay), {getnm<imagei>, 0, imagei::choose}},
 {"Condition 1", DGREQ(variants[0]), {getnm<variant>, 0, choose_variant}, {}},
 {"Condition 2", DGREQ(variants[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Condition 3", DGREQ(variants[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},

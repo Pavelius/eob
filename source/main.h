@@ -37,7 +37,7 @@ enum resource_s : unsigned char {
 	BORDER, OUTTAKE, DECORS,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
-	MENU, PLAYFLD, PORTM, THROWN, XSPL, NPC,
+	MENU, PLAYFLD, PORTM, THROWN, XSPL, NPC, BPLACE, BUILDNGS, CRYSTAL,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
@@ -561,9 +561,10 @@ struct selli {
 	constexpr selli(item_s object, rarity_s rarity) : object(object), rarity(rarity) {}
 };
 struct imagei {
-	char				custom[16];
-	constexpr explicit operator bool() const { return custom[0]!=0; }
-	constexpr operator const char*() const { return custom; }
+	resource_s			res;
+	unsigned short		frame;
+	constexpr explicit operator bool() const { return res !=NONE; }
+	static bool			choose(void* object, const array& source, void* pointer);
 	static int			preview(int x, int y, int width, const void* object);
 };
 struct messagei : textable {
@@ -1241,7 +1242,7 @@ struct answers {
 	void				addv(int id, const char* name, const char* format);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
-	int					choosebg(const char* title, const char* footer, const char* pi = 0, bool herizontal_buttons = true) const;
+	int					choosebg(const char* title, const char* footer, const imagei& ei, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();

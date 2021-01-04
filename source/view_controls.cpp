@@ -577,22 +577,6 @@ static void decrement_frame() {
 	current_res_frame--;
 }
 
-int imagei::preview(int x, int y, int width, const void* object) {
-	auto p = (imagei*)object;
-	setimage(p->custom);
-	auto sx = bitmap.width;
-	auto sy = bitmap.height;
-	if(sx > width)
-		sx = width;
-	if(sy > 184 - y - 4)
-		sy = 184 - y - 4;
-	rect rc = {x, y, x + sx + 1, y + sy + 1};
-	border_down(rc);
-	draw::state push; setclip(rc);
-	draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, 0, bitmap, 0, 0);
-	return rc.height();
-}
-
 static void dungeon_preview(int x0, int y0, const sprite* sp) {
 	draw::image(x0, y0, sp, 0, 0);
 	draw::image(x0, y0, sp, 3, 0);
@@ -601,7 +585,15 @@ static void dungeon_preview(int x0, int y0, const sprite* sp) {
 	draw::image(x0 + 48, y0, sp, 7, ImageMirrorH);
 	draw::image(x0 + 48 * 2, y0, sp, 7, 0);
 	draw::image(x0 + 48, y0, sp, 76, 0);
-	draw::image(x0, y0, sp, 96, ImageMirrorH);
+}
+
+static void dungeon_corner(int x0, int y0, const sprite* sp) {
+	draw::image(x0, y0, sp, 0, 0);
+	draw::image(x0, y0, sp, 8, ImageMirrorH);
+	draw::image(x0, y0, sp, 2, 0);
+	draw::image(x0, y0, sp, 2, ImageMirrorH);
+	draw::image(x0, y0, sp, 1, ImageMirrorH);
+	draw::image(x0 - 128, y0, sp, 9, 0);
 }
 
 int resourcei::preview(int x, int y, int width, const void* object) {
@@ -615,7 +607,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
 	if(!isfocus(current_res_focus)) {
 		current_res_focus = getfocus();
-		current_res_focus = 0;
+		current_res_frame = 0;
 	}
 	if(sp) {
 		if(current_res_frame >= sp->count)
@@ -626,20 +618,25 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 			execute(decrement_frame);
 	}
 	border_down(rc);
-	draw::state push; draw::setclip({rc.x1 + 1, rc.y1 + 1, rc.x2, rc.y2});
-	if(p->ismonster()) {
-		draw::image(x0, y0, draw::gres(BLUE), 0, 0);
-		draw::image(x0, y1, sp, 0, 0);
-	} else if(p->isdungeon()) {
-		dungeon_preview(x0, y0, sp);
-	} else if(p->pack == PackOuttake) {
-		dungeon_preview(x0, y0, draw::gres(MEZZ));
-		draw::image(x0, y1, sp, current_res_frame, 0);
-	} else if(p->pack == PackCenter)
-		draw::image(x0, y1 - 32, sp, current_res_frame, 0);
-	else {
-		draw::state push; setclip(rc);
-		draw::image(x + 1, y + 1, sp, current_res_frame, 0);
+	if(true) {
+		draw::state push; draw::setclip({rc.x1 + 1, rc.y1 + 1, rc.x2, rc.y2});
+		if(p->ismonster()) {
+			draw::image(x0, y0, draw::gres(BLUE), 0, 0);
+			draw::image(x0, y1, sp, 0, 0);
+		} else if(p->isdungeon())
+			dungeon_preview(x0, y0, sp);
+		else if(p->pack == PackScenes) {
+			draw::image(x + 1, y + 1, gres(BORDER), 0, 0);
+			draw::image(x + 1 + 8, y + 1 + 8, sp, current_res_frame, 0);
+		} else if(p->pack == PackOuttake) {
+			dungeon_corner(x0, y0, draw::gres(BLUE));
+			draw::image(x0, y1, sp, current_res_frame, 0);
+		} else if(p->pack == PackCenter)
+			draw::image(x0, y1 - 32, sp, current_res_frame, 0);
+		else {
+			draw::state push; setclip(rc);
+			draw::image(x + 1, y + 1, sp, current_res_frame, 0);
+		}
 	}
 	y1 = rc.y2 + 3;
 	sb.clear(); sb.add("Path: %1", bsdata<packi>::elements[p->pack].url);
@@ -656,6 +653,37 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 		}
 	}
 	return y1 - y;
+}
+
+bool imagei::choose(void* object, const array& source, void* pointer) {
+	auto p = (imagei*)pointer;
+	auto pc = bsdata<resourcei>::elements + p->res;
+	current_res_focus = pc;
+	current_res_frame = p->frame;
+	auto pr = draw::choose(bsdata<resourcei>::source, "Images",
+		object, pc, getnm<resourcei>, 0, resourcei::preview, 320-190);
+	if(!pr)
+		return false;
+	p->res = (resource_s)((resourcei*)pr - bsdata<resourcei>::elements);
+	p->frame = current_res_frame;
+	return true;
+}
+
+int imagei::preview(int x, int y, int width, const void* object) {
+	//auto p = (imagei*)object;
+	//setimage(p->custom);
+	//auto sx = bitmap.width;
+	//auto sy = bitmap.height;
+	//if(sx > width)
+	//	sx = width;
+	//if(sy > 184 - y - 4)
+	//	sy = 184 - y - 4;
+	//rect rc = {x, y, x + sx + 1, y + sy + 1};
+	//border_down(rc);
+	//draw::state push; setclip(rc);
+	//draw::blit(*draw::canvas, rc.x1 + 1, rc.y1 + 1, sx, sy, 0, bitmap, 0, 0);
+	//return rc.height();
+	return 0;
 }
 
 static render_control* getby(void* av, unsigned param) {
@@ -1220,34 +1248,27 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return x - x1;
 }
 
-int answers::choosebg(const char* title, const char* footer, const char* pi, bool horizontal_buttons) const {
+int answers::choosebg(const char* title, const char* footer, const imagei& ei, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
 	openform();
-	setimage(pi);
-	auto full_screen = (bitmap.width == 320) && (bitmap.height == 200);
 	while(ismodal()) {
 		screen.restore();
-		fore = colors::white;
 		rect rc = {0, 121, 319, 199};
-		if(bitmap) {
-			if(full_screen)
-				blit(*draw::canvas, 0, 0, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
-			else {
-				blit(*draw::canvas, 8, 8, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
-				image(0, 0, gres(BORDER), 0, 0);
-				if(true) {
-					auto push_color = fore;
-					fore = color::create(120, 120, 120);
-					line(8, 7, 167, 7);
-					fore = push_color;
-				}
+		fore = colors::white;
+		if(ei) {
+			image(0, 0, gres(ei.res), ei.frame, 0);
+			image(0, 0, gres(BORDER), 0, 0);
+			if(true) {
+				auto push_color = fore;
+				fore = color::create(120, 120, 120);
+				line(8, 7, 167, 7);
+				fore = push_color;
 			}
 		}
-		if(!full_screen)
-			form(rc);
+		form(rc);
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
@@ -1533,9 +1554,9 @@ static void* choose_element(const char* title, const void* current_value, int wi
 		}
 		if(preview && current_element) {
 			x += width + 4;
-			preview(x, y1, 320 - 4 - x, current_element);
+			preview(x, y1, width, current_element);
 		}
-		x = 4; y = 200 - 14;
+		x = 4; y = 200 - 12;
 		x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape);
 		if(params.origin + params.perpage < params.maximum)
 			x += buttonw(x, y, "Next", nextpage, KeyPageDown, nextpage, (int)&params);
@@ -2207,7 +2228,7 @@ void draw::pause() {
 
 void gamei::updatesize() {
 	if(!size.x && !size.y) {
-		setimage(world);
+		//setimage(world);
 		if(bitmap) {
 			size.x = bitmap.width;
 			size.y = bitmap.height;

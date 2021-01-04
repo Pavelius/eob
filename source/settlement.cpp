@@ -95,7 +95,7 @@ static bool confirm(const char* text) {
 	answers aw;
 	aw.add(1, "Yes");
 	aw.add(0, "No");
-	return aw.choosebg(text, 0) != 0;
+	return aw.choosebg(text, 0, {}) != 0;
 }
 
 static const char* buy_panel(void* object, stringbuilder& sb) {
@@ -142,7 +142,7 @@ static bool sell_items(itema& items) {
 static void showmessage() {
 	answers aw;
 	aw.add(1, "Next");
-	aw.choosebg(sb, 0);
+	aw.choosebg(sb, 0, {});
 	sb.clear();
 }
 
@@ -167,7 +167,7 @@ static void gambling(creaturea& creatures) {
 			aw.add(b, "%1i", b);
 	}
 	draw::imagestate push_img("gambling1");
-	auto b = aw.choosebg(sb, "How match you bet?", 0, true); sb.clear();
+	auto b = aw.choosebg(sb, "How match you bet?", {}, true); sb.clear();
 	auto p = creatures.getbest(Charisma);
 	auto gv = p->get(Charisma);
 	if(game.roll(gv)) {
