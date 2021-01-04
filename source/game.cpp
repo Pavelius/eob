@@ -153,7 +153,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	auto tile = location.get(index_of_monsters);
 	auto& et = bsdata<celli>::elements[tile];
 	if(et.destroyed)
-		attack_object(index_of_monsters, et.hp, et.destroyed);
+		attack_object(index_of_monsters, 10, et.destroyed);
 	creaturea parcipants;
 	auto dr = getdirection();
 	bool monster_surprise = false;

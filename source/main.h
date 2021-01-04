@@ -189,6 +189,7 @@ enum cell_s : unsigned char {
 	CellBarel, CellBarelDestroyed,
 	CellEyeColumn,
 	CellCocon, CellCoconOpened,
+	CellGrave, CellGraveDesecrated,
 	CellPitUp, // On floor
 	// Decor
 	CellPuller, CellSecrectButton, CellCellar, CellMessage,
@@ -331,7 +332,6 @@ struct celli {
 	int					frame;
 	cflags<fcell>		flags;
 	cell_s				destroyed;
-	int					hp;
 };
 struct spellprogi {
 	char				elements[21][10];
