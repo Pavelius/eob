@@ -37,7 +37,8 @@ enum resource_s : unsigned char {
 	BORDER, OUTTAKE, DECORS,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
-	MENU, PLAYFLD, PORTM, THROWN, XSPL, NPC, BPLACE, BUILDNGS, CRYSTAL,
+	MENU, PLAYFLD, INTRO, PORTM, THROWN, XSPL, WORLD,
+	NPC, BPLACE, BUILDNGS, CRYSTAL,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
@@ -258,8 +259,8 @@ enum variant_s : unsigned char {
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
-	PackInterface, PackBackground, PackCenter, PackScenes, PackScenesBig,
-	PackCustom
+	PackInterface, PackBackground, PackCenter,
+	Pack160x96, Pack320x120, Pack320x200
 };
 enum varflag_s : unsigned char {
 	Editable,
@@ -1174,7 +1175,6 @@ struct encounteri : public creaturea {
 class gamei : public companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
-	point				size;
 	point				location_position;
 	unsigned short		location_level;
 	unsigned			rounds;
@@ -1206,6 +1206,8 @@ public:
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	int					getgold() const { return gold; }
 	void				getheroes(creature** result, direction_s dir);
+	static int			getmapheight();
+	static int			getmapwidth();
 	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
 	int					getside(int side, direction_s dr);
@@ -1231,7 +1233,6 @@ public:
 	void				startgame();
 	void				thrown(item* itm);
 	bool				read();
-	void				updatesize();
 	void				worldmap();
 	void				write();
 };
@@ -1296,12 +1297,10 @@ bool					edit(const char* title, void* object, const markup* form, bool cancel_b
 void					editor();
 void					fullimage(point camera, point* origin);
 void					fullimage(point from, point to, point* origin);
-const char*				getimage();
 void					mainmenu();
 void					options();
 void					pause();
 void					redmarker(int x, int y);
-void					setimage(const char* id);
 void					setnext(void(*p)());
 bool					settiles(resource_s id);
 void					textbc(int x, int y, const char* header);

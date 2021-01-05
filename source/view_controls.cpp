@@ -89,8 +89,6 @@ static const void*		focus_stack[8];
 static const void*		focus_pressed;
 extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
-static draw::surface	bitmap;
-static char				bitmap_url[260];
 callback				draw::domodal;
 static textedit			current_text;
 static void*			current_edit;
@@ -615,7 +613,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 			draw::image(x0, y1, sp, 0, 0);
 		} else if(p->isdungeon())
 			dungeon_preview(x0, y0, sp);
-		else if(p->pack == PackScenes) {
+		else if(p->pack == Pack160x96) {
 			draw::image(x + 1, y + 1, gres(BORDER), 0, 0);
 			draw::image(x + 1 + 8, y + 1 + 8, sp, current_res_frame, 0);
 		} else if(p->pack == PackOuttake) {
@@ -1783,7 +1781,7 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	else
 		form(rco);
 	focusing(rco, pf);
-	auto rc = rco; rc.offset(3, 2);
+	auto rc = rco; rc.offset(4, 2);
 	auto focused = isfocus(pf);
 	auto islist = e.list.choose || !e.value.isnum();
 	if(focused) {
@@ -1890,7 +1888,7 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 		width -= title_width;
 	}
 	sb.clear(); getname(e, object, sb);
-	return field({x, y, x + width, y + draw::texth() + 4}, temp, object, e, TextSingleLine);
+	return field({x, y, x + width, y + draw::texth() + 3}, temp, object, e, TextSingleLine);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -2090,27 +2088,13 @@ static void paintparty(point camera, point party) {
 	pixel(p.x - 2, p.y);
 }
 
-void draw::setimage(const char* id) {
-	if(!id || id[0] == 0)
-		return;
-	if(strcmp(bitmap_url, id) == 0)
-		return;
-	zcpy(bitmap_url, id);
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("art/custom/%-1.bmp", bitmap_url);
-	bitmap.read(temp);
-}
-
-const char* draw::getimage() {
-	return bitmap_url;
-}
-
 point draw::choosepoint(point camera) {
 	state push;
 	openform();
 	while(ismodal()) {
 		point origin;
-		correct(camera, 0, 0, bitmap.width, bitmap.height);
+		auto pr = gres(WORLD);
+		correct(camera, 0, 0, pr->frames[0].sx, pr->frames[0].sy);
 		fullimage(camera, &origin);
 		auto p = camera - origin;
 		setblink(colors::white);
@@ -2140,27 +2124,30 @@ point draw::choosepoint(point camera) {
 }
 
 void draw::fullimage(point camera, point* origin) {
+	auto gx = game.getmapwidth();
+	auto gy = game.getmapheight();
 	auto sx = draw::getwidth();
 	auto sy = draw::getheight();
-	auto mx = bitmap.width - sx;
-	auto my = bitmap.height - sy;
+	auto mx = gx - sx;
+	auto my = gy - sy;
 	if(mx < 0 && my < 0) {
 		rectf({0, 0, sx, sy}, colors::black);
-		blit(*draw::canvas, -mx / 2, -my / 2, bitmap.width, bitmap.height, 0, bitmap, 0, 0);
+		draw::image(-mx / 2, -my / 2, gres(WORLD), 0, 0);
 		if(origin)
 			*origin = {0, 0};
 	} else {
 		camera.x -= sx / 2;
 		camera.y -= sy / 2;
 		correct(camera, 0, 0, mx, my);
-		blit(*draw::canvas, 0, 0, sx, sy, 0, bitmap, camera.x, camera.y);
+		draw::image(-camera.x, -camera.x, gres(WORLD), 0, 0);
 		if(origin)
 			*origin = camera;
 	}
 }
 
 void draw::fullimage(point from, point to, point* origin) {
-	auto sx = bitmap.width, sy = bitmap.height;
+	auto sx = game.getmapwidth();
+	auto sy = game.getmapheight();
 	correct(from, getwidth() / 2, getheight() / 2,
 		sx - getwidth() / 2, sy - getheight() / 2);
 	correct(to, getwidth() / 2, getheight() / 2,
@@ -2212,12 +2199,16 @@ void draw::pause() {
 	closeform();
 }
 
-void gamei::updatesize() {
-	if(!size.x && !size.y) {
-		//setimage(world);
-		if(bitmap) {
-			size.x = bitmap.width;
-			size.y = bitmap.height;
-		}
-	}
+int	gamei::getmapheight() {
+	auto p = gres(WORLD);
+	if(!p)
+		return 0;
+	return p->frames[0].sx;
+}
+
+int	gamei::getmapwidth() {
+	auto p = gres(WORLD);
+	if(!p)
+		return 0;
+	return p->frames[0].sy;
 }

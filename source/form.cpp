@@ -27,7 +27,7 @@ template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 	sb.add(ei.name);
 	switch(ei.pack) {
 	case PackOuttake:
-	case PackScenes:
+	case Pack160x96:
 	case PackInterface:
 		sb.adds("%1i", p->frame);
 		break;
@@ -147,7 +147,6 @@ static bool choose_variant(void* object, const array& source, void* pointer) {
 }
 static bool choose_wordmap_point(void* object, const array& source, void* pointer) {
 	auto v = (point*)pointer;
-	draw::setimage("worldmap");
 	auto r = draw::choosepoint(*v);
 	if(!r)
 		return false;
@@ -207,7 +206,7 @@ static bool dungeon_resources(const void* object, const void* pointer) {
 }
 static bool scene_resources(const void* object, const void* pointer) {
 	auto p = (resourcei*)pointer;
-	return p->pack == PackScenes;
+	return p->pack == Pack160x96;
 }
 static bool allow_item_wears(const void* object, const void* pointer) {
 	auto p = (weari*)pointer;

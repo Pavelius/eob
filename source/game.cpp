@@ -632,7 +632,6 @@ void gamei::render_worldmap(void* object) {
 	auto p = ((gamei*)object)->getadventure();
 	if(!p)
 		return;
-	draw::setimage("worldmap");
 	point origin;
 	draw::fullimage(p->position, &origin);
 	point pt = p->position - origin;
@@ -760,5 +759,4 @@ void gamei::addgold(int coins) {
 void gamei::startgame() {
 	for(auto i = 0; i < 4; i++)
 		party.add(&bsdata<creature>::elements[i]);
-	updatesize();
 }

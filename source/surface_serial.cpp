@@ -94,7 +94,12 @@ bool draw::surface::read(const char* url, color* result_pallette, int need_bpp) 
 	for(auto pv = surface::plugin::first; pv; pv = pv->next) {
 		int width, height, bpp;
 		if(pv->inspect(width, height, bpp, pin, size)) {
-			if(!need_bpp)
+			if(need_bpp == -1) {
+				if(bpp == 8)
+					need_bpp = 8;
+				else
+					need_bpp = 32;
+			} else if(!need_bpp)
 				need_bpp = 32;
 			resize(width, height, need_bpp, true);
 			if(!pv->decode(bits, need_bpp, pin, size, result_pallette))

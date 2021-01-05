@@ -8,11 +8,11 @@ BSDATA(packi) = {{"PackDungeon", "art/dungeons", false},
 {"PackInterface", "art/interface", true},
 {"PackBackground", "art/interface", false},
 {"PackCenter", "art/misc", true},
-{"PackScenes", "art/scenes", true},
-{"PackScenesBig", "art/scenes", true},
-{"PackCustom", "art/custom"},
+{"Pack160x96", "art/scenes", true},
+{"Pack320x120", "art/scenes", true},
+{"Pack320x200", "art/interface", true},
 };
-assert_enum(pack, PackCustom)
+assert_enum(pack, Pack320x200)
 
 BSDATA(resourcei) = {{"NONE", PackBackground},
 
@@ -40,13 +40,15 @@ BSDATA(resourcei) = {{"NONE", PackBackground},
 
 {"MENU", PackBackground},
 {"PLAYFLD", PackBackground},
+{"INTRO", Pack320x200},
 {"PORTM", PackCenter},
 {"THROWN", PackInterface},
 {"XSPL", PackInterface},
-{"NPC", PackScenes},
-{"BPLACE", PackScenesBig},
-{"BUILDNGS", PackScenes},
-{"CRYSTAL", PackScenes},
+{"WORLD", PackInterface},
+{"NPC", Pack160x96},
+{"BPLACE", Pack320x120},
+{"BUILDNGS", Pack160x96},
+{"CRYSTAL", Pack160x96},
 
 {"ANKHEG", PackMonster},
 {"ANT", PackMonster},
