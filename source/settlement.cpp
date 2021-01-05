@@ -221,8 +221,9 @@ static bool journey(variantc& locations) {
 }
 
 static bool explore(variantc& locations) {
+	static imagei shop_image = {BUILDNGS, 18};
 	sb.clear();
-	sb.adds("Wich location near this settlement you want to explore?");
+	sb.adds("Wich location in this settlement or nearbe you want to explore?");
 	answers aw;
 	for(auto v : locations)
 		aw.add((int)v, v.getname());
@@ -232,6 +233,7 @@ static bool explore(variantc& locations) {
 		return false;
 	auto cost = 5;
 	sb.clear();
+	shop_image.add(sb);
 	sb.adds("You must equip party before journey. Equiping include buy some useful items, like torches, provision, ropes and other adventure equipment. Totaly you must spend %1i gold coins. Do you really want to spent money and go to adventure?", cost);
 	if(!confirm(sb))
 		return false;
