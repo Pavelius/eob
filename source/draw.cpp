@@ -767,6 +767,12 @@ int isqrt(int num) {
 	return res;
 }
 
+int	point::range(const point& v) const {
+	auto dx = x - v.x;
+	auto dy = y - v.y;
+	return isqrt(dx*dx + dy*dy);
+}
+
 static inline void correct(int& x1, int& y1, int& x2, int& y2) {
 	if(x1 > x2)
 		iswap(x1, x2);

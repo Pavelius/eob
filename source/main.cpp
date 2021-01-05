@@ -226,15 +226,6 @@ static void test_monster(resource_s rs, int overlay[4]) {
 }
 #endif // DEBUG
 
-static void debug_dungeon1() {
-	game.companyi::read("default");
-	game.setcamera(Blocked);
-	random_heroes();
-	game.equiping();
-	game.rideto(game.start);
-	game.write();
-}
-
 static void debug_dungeon2() {
 	location.clear();
 	location_above.clear();
@@ -248,21 +239,15 @@ static void debug_dungeon2() {
 
 void load_game() {
 	draw::resetres();
-	//debug_dungeon2();
-	//return;
-	if(!game.read()) {
-#ifdef _DEBUG
-		debug_dungeon1();
-#else
+	if(!game.read())
 		return;
-#endif // _DEBUG
-	}
 	setnext(adventure);
 }
 
 callback next_proc;
 void draw::setnext(void(*v)()) {
-	next_proc = v;
+	if(!next_proc)
+		next_proc = v;
 }
 
 static void show_monsters() {
@@ -334,15 +319,16 @@ void draw::options() {
 void draw::editor() {
 	auto push_font = font;
 	setsmallfont();
-	//richtexti it = {};
-	//it.load("#NPC 12\nWhen you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.");
-	//draw::edit("Test", &it, dginf<decltype(it)>::meta, false);
-	//random_heroes();
-	game.companyi::read("default");
-	//game.resources.gold = 200;
-	//game.settlements[0].adventure();
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
+	if(true) {
+		random_heroes();
+		game.companyi::read("default");
+		game.addgold(200);
+		game.jumpto(bsdata<settlementi>::elements);
+		game.play();
+	} else {
+		game.companyi::read("default");
+		edit("Company", &game, dginf<companyi>::meta, false);
+	}
 	font = push_font;
 }
 
@@ -375,6 +361,60 @@ static bool test_richtexti() {
 	ei.save(ta);
 	auto p1 = ta.getname();
 	return strcmp(p, p1) == 0;
+}
+
+void random_company() {
+	static sitei sites[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
+	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
+	};
+	game.clear();
+	game.setname("Western heartlands");
+	game.start = 0;
+	game.pixels_per_day = 120;
+	auto pa = (adventurei*)bsdata<adventurei>::source.add();
+	pa->setname("Flooded collectors");
+	pa->position = {614, 294};
+	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
+	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
+	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
+	memcpy(pa->levels, sites, sizeof(sites));
+	auto ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Baldur's gate");
+	ps->position = {495, 404};
+	ps->prosperty = 50;
+	ps->buildings.add(WizardTower);
+	ps->buildings.add(Tavern);
+	ps->buildings.add(Temple);
+	ps->buildings.add(Stable);
+	ps->buildings.add(Armory);
+	ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Upper Chionthar");
+	ps->buildings.add(Tavern);
+	ps->position = {623, 285};
+	ps->prosperty = 7;
+	ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Ulgoth's Beard");
+	ps->position = {185, 279};
+	ps->prosperty = 10;
+	ps->buildings.add(Brothel);
+	ps->buildings.add(Temple);
+	ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Lower Chionthar");
+	ps->buildings.add(Inn);
+	ps->position = {829, 386};
+	ps->prosperty = 3;
+	ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Friendly arm");
+	ps->position = {1041, 740};
+	ps->buildings.add(Tavern);
+	ps->buildings.add(Inn);
+	ps->prosperty = 5;
+	ps = (settlementi*)bsdata<settlementi>::source.add();
+	ps->setname("Dwain hunter");
+	ps->position = {1108, 449};
+	ps->buildings.add(Tavern);
+	ps->prosperty = 3;
 }
 
 int main(int argc, char* argv[]) {

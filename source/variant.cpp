@@ -5,7 +5,7 @@
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
 {"Action", "actions"},
-{"Adventure", "adventures", FORM(adventurei)},
+{"Adventure", "adventures", FORM(adventurei), {VarTextable}},
 {"Alignment", "alignments", FORM(alignmenti)},
 {"Building", "buildings", FORM(buildingi)},
 {"Case", "cases"},
@@ -21,7 +21,7 @@ BSDATA(varianti) = {{"None"},
 {"Morale", "morals", FORM(moralei)},
 {"Race", "races", FORM(racei)},
 {"Reaction", "reactions"},
-{"Settlement", "settlements", FORM(settlementi)},
+{"Settlement", "settlements", FORM(settlementi), {VarTextable}},
 {"Spell", "spells", FORM(spelli)},
 };
 assert_enum(variant, Spell)
@@ -64,6 +64,12 @@ variant::variant(const void* p) {
 	}
 }
 
+void* variant::getpointer(variant_s t) const {
+	if(type != t)
+		return 0;
+	return bsdata<varianti>::elements[t].form.source->ptr(value);
+}
+
 creature* variant::getcreature() const {
 	if(type != Creature)
 		return 0;
@@ -77,7 +83,17 @@ const char* variant::getname() const {
 	if(!p->form.source)
 		return "None";
 	auto pe = p->form.source->ptr(value);
+	if(p->flags.is(VarTextable))
+		return ((textable*)((char*)pe + p->form.uname))->getname();
 	return *((const char**)((char*)pe + p->form.uname));
+}
+
+point variant::getposition() const {
+	switch(type) {
+	case Settlement: return getsettlement()->position;
+	case Adventure: return getadventure()->position;
+	default: return {0, 0};
+	}
 }
 
 variant_s varianti::find(const array* source) {

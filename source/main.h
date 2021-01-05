@@ -240,7 +240,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Drink, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
+	Attack, Bribe, Buy, Drink, Explore, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
@@ -262,9 +262,6 @@ enum pack_s : unsigned char {
 	PackInterface, PackBackground, PackCenter,
 	Pack160x96, Pack320x120, Pack320x200
 };
-enum varflag_s : unsigned char {
-	Editable,
-};
 enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
 };
@@ -272,11 +269,13 @@ enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
 };
 enum building_s : unsigned char {
-	Outdoor,
-	Arena, Armory, Bank, Brothel, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
+	Arena, Armory, Bank, Brothel, Inn, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
 };
 enum good_s : unsigned char {
 	Armors, Books, Clothes, Devices, Food, Jewelry, Papers, Potions, Tools, Weapons
+};
+enum variantf_s : unsigned char {
+	VarEditable, VarTextable
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;
@@ -290,7 +289,8 @@ typedef cflags<usability_s> usabilitya;
 typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 class creature;
 class item;
-struct dialogi;
+struct adventurei;
+struct settlementi;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -319,14 +319,22 @@ struct variant {
 	constexpr explicit operator int() const { return (type<<8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
+	auto				getadventure() const { return (adventurei*)getpointer(Adventure); }
 	creature*			getcreature() const;
+	void*				getpointer(variant_s t) const;
+	point				getposition() const;
+	auto				getsettlement() const { return (settlementi*)getpointer(Settlement); }
 	const char*			getname() const;
 };
 typedef variant conditiona[6];
 struct variantc : adat<variant> {
 	void				cspells(const creature* p, bool expand);
 	int					chooselv(class_s type) const;
+	void				exclude(variant v);
+	void				match(variant v, bool keep);
+	void				match(point start, int radius, bool keep);
 	void				matchsl(class_s type, int level);
+	void				select(variant_s type);
 	void				sort();
 };
 struct varianta : adat<variant, 12> {
@@ -433,12 +441,13 @@ struct formi {
 	fntext				pgetname;
 	unsigned			uname;
 	const markup*		form;
+	bool				istextable;
 };
 struct varianti {
 	const char*			name;
 	const char*			namepl;
 	formi				form;
-	cflags<varflag_s>	flags;
+	cflags<variantf_s>	flags;
 	static variant_s	find(const array* source);
 };
 struct combati {
@@ -570,6 +579,7 @@ struct imagei {
 	resource_s			res;
 	unsigned short		frame;
 	constexpr explicit operator bool() const { return res !=NONE; }
+	void				add(stringbuilder& sb) const;
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
 };
@@ -705,7 +715,6 @@ public:
 };
 struct buildingi {
 	const char*			name;
-	imagei				image;
 	const char*			description;
 	actionf				actions;
 	goodf				goods;
@@ -1022,7 +1031,7 @@ struct dungeon {
 		indext			index;
 		constexpr operator bool() const { return owner.operator bool(); }
 	};
-	point				overland_index;
+	unsigned short		overland_index;
 	unsigned char		level;
 	sitei::headi		head;
 	statei				stat;
@@ -1101,7 +1110,7 @@ struct dungeon {
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
 	short unsigned		random(indext* indicies);
-	bool				read(point overland_index, indext level);
+	bool				read(short unsigned overland, char level);
 	void				remove(indext index, cell_flag_s value);
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
@@ -1133,6 +1142,7 @@ struct adventurei : textable, historyi {
 	point				position;
 	sitei				levels[8];
 	void				create(bool interactive) const;
+	bool				match(variant v) const;
 };
 struct settlementi : textable {
 	imagei				image;
@@ -1145,7 +1155,7 @@ struct settlementi : textable {
 	unsigned char		prosperty;
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
-	building_s			enter() const;
+	variant				enter();
 	action_s			enter(building_s id);
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
@@ -1155,10 +1165,8 @@ struct fractioni : textable {
 	char				progress;
 };
 struct companyi : textable {
-	imagei				world;
-	point				start;
+	short unsigned		start; // starting settlement
 	int					pixels_per_day;
-	adventurei*			getadventure(point position);
 	bool				read(const char* name);
 	void				write(const char* name);
 };
@@ -1175,8 +1183,8 @@ struct encounteri : public creaturea {
 class gamei : public companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
-	point				location_position;
-	unsigned short		location_level;
+	char				location_level;
+	variant				location_index;
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
@@ -1189,15 +1197,16 @@ class gamei : public companyi {
 public:
 	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
-	void				additem(item i, bool interactive);
+	void				addgold(int coins);
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
+	void				additem(item i, bool interactive);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				clear();
 	void				endround();
-	void				enter(point index, short unsigned level);
+	void				enter(variant index, char level);
 	void				equiping();
-	adventurei*			getadventure() { return companyi::getadventure(location_position); }
+	adventurei*			getadventure();
 	void				findsecrets();
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
@@ -1210,6 +1219,7 @@ public:
 	static int			getmapwidth();
 	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
+	settlementi*		getsettlement() const;
 	int					getside(int side, direction_s dr);
 	int					getsideb(int side, direction_s dr);
 	direction_s			getdirection() const { return camera_direction; }
@@ -1219,16 +1229,17 @@ public:
 	void				interract(indext index);
 	bool				is(variant v) const;
 	static bool			isalive();
+	void				jumpto(variant v);
 	void				leavedungeon();
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
-	void				addgold(int coins);
-	void				play(short unsigned id);
+	void				pay(int coins) { addgold(-coins); }
+	static void			play();
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	static bool			roll(int value);
-	void				rideto(point overland_position);
+	void				rideto(variant v);
 	void				setcamera(indext index, direction_s direction = Center);
 	void				startgame();
 	void				thrown(item* itm);
@@ -1241,6 +1252,7 @@ struct richtexti {
 	imagei				images[maximum];
 	char				data[maximum][260];
 	bool				load(const char* source);
+	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
 	void				save(textable& result) const;
 };
 struct answers {
@@ -1255,10 +1267,11 @@ struct answers {
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
 	int					choosebg(const char* title, const imagei& ei, bool herizontal_buttons) const;
-	int					choosebg(const char* title, bool herizontal_buttons) const;
+	int					choosebg(const char* title, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
 	void				sort();
+	static imagei		last_image;
 private:
 	char				buffer[512];
 	stringbuilder		sc;
@@ -1322,6 +1335,7 @@ inline int				d100() { return rand() % 100; }
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
 NOBSDATA(dice)
+NOBSDATA(eventi::resulti)
 NOBSDATA(historyi)
 NOBSDATA(imagei)
 NOBSDATA(item)

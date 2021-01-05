@@ -449,21 +449,21 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(point index, short unsigned level) {
-	location_position = index;
-	auto pa = getadventure();
-	if(!pa)
-		return;
+void gamei::enter(variant index, char level) {
+	location_index = index;
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	if(!location.read(location_position, location_level)) {
+	auto pa = getadventure();
+	if(!pa)
+		return;
+	if(!location.read(location_index.value, location_level)) {
 		pa->create(visialize_map);
-		if(!location.read(location_position, location_level))
+		if(!location.read(location_index.value, location_level))
 			return;
 	}
 	if(location_level > 1)
-		location_above.read(location_position, location_level - 1);
+		location_above.read(location_index.value, location_level - 1);
 	draw::settiles(location.head.type);
 	if(camera_index == Blocked)
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
@@ -518,10 +518,9 @@ static bool serialize(bool writemode) {
 	return addstatical(a);
 }
 
-static bool serialize(dungeon& e, point position, indext level, bool write_mode) {
-	unsigned index = ((position.y & 0xFFF) << 12) | (position.x & 0xFFF);
+static bool serialize(dungeon& e, short unsigned index, char level, bool write_mode) {
 	char temp[260]; stringbuilder sb(temp);
-	sb.add("maps/%1.6h%2.2i.aum", index, level);
+	sb.add("maps/%1.6h%2.2h.aum", index, level);
 	io::file file(temp, write_mode ? StreamWrite : StreamRead);
 	if(!file)
 		return false;
@@ -553,36 +552,15 @@ void companyi::write(const char* name) {
 	serialize(name, *this, true);
 }
 
+#ifdef _DEBUG
+void random_company();
+#endif
+
 bool companyi::read(const char* name) {
 	auto result = serialize(name, *this, false);
 #ifdef _DEBUG
 	if(!result) {
-		static sitei sites[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-		{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
-		{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
-		};
-		setname("Western heartlands");
-		start = {614, 294};
-		pixels_per_day = 120;
-		auto pa = (adventurei*)bsdata<adventurei>::source.add();
-		pa->setname("Flooded collectors");
-		pa->position = {614, 294};
-		pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
-		pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
-		pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
-		memcpy(pa->levels, sites, sizeof(sites));
-		auto ps = (settlementi*)bsdata<settlementi>::source.add();
-		ps->setname("Baldur's gate");
-		ps->position = {495, 404};
-		ps->prosperty = 50;
-		ps = (settlementi*)bsdata<settlementi>::source.add();
-		ps->setname("Upper Chionthar");
-		ps->position = {623, 285};
-		ps->prosperty = 15;
-		ps = (settlementi*)bsdata<settlementi>::source.add();
-		ps->setname("Ulgoth's Beard");
-		ps->position = {185, 279};
-		ps->prosperty = 10;
+		random_company();
 		result = true;
 	}
 #endif // _DEBUG
@@ -593,8 +571,8 @@ void dungeon::write() {
 	serialize(*this, overland_index, level, true);
 }
 
-bool dungeon::read(point overland_index, indext level) {
-	return serialize(*this, overland_index, level, false);
+bool dungeon::read(short unsigned overland, char level) {
+	return serialize(*this, overland, level, false);
 }
 
 void gamei::write() {
@@ -607,7 +585,7 @@ void gamei::write() {
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	enter(location_position, location_level);
+	enter(location_index, location_level);
 	return true;
 }
 
@@ -629,14 +607,14 @@ void gamei::leavedungeon() {
 }
 
 void gamei::render_worldmap(void* object) {
-	auto p = ((gamei*)object)->getadventure();
-	if(!p)
-		return;
+	auto pg = (gamei*)object;
 	point origin;
-	draw::fullimage(p->position, &origin);
-	point pt = p->position - origin;
+	draw::fullimage(pg->location_index.getposition(), &origin);
+	point pt = pg->location_index.getposition() - origin;
 	draw::redmarker(pt.x - 4, pt.y - 4);
-	draw::textbc(pt.x, pt.y + 8, p->getname());
+	auto pn = pg->location_index.getname();
+	if(pn)
+		draw::textbc(pt.x, pt.y + 8, pn);
 }
 
 void gamei::worldmap() {
@@ -644,20 +622,15 @@ void gamei::worldmap() {
 	draw::pause();
 }
 
-void gamei::rideto(point v) {
-	if(location_position == v)
+void gamei::rideto(variant v) {
+	if(location_index == v)
 		return;
 	// TODO: calculate ride time
-#ifndef _DEBUG
-	draw::setimage("worldmap");
-	draw::fullimage(location_position, v, 0);
-#endif
-	location_position = v;
-#ifndef _DEBUG
-	draw::appear(render_worldmap, this, 2000);
-	draw::pause();
-#endif
-	enter(location_position, 1);
+	draw::fullimage(location_index.getposition(), v.getposition(), 0);
+	location_index = v;
+	draw::appear(render_worldmap, this, 1000);
+	game.write();
+	enter(location_index, 1);
 }
 
 bool gamei::is(variant id) const {
@@ -737,6 +710,7 @@ void gamei::additem(item i, bool interactive) {
 
 void gamei::clear() {
 	memset(this, 0, sizeof(*this));
+	camera_index = Blocked;
 }
 
 void gamei::preserial(bool writemode) {
@@ -759,4 +733,28 @@ void gamei::addgold(int coins) {
 void gamei::startgame() {
 	for(auto i = 0; i < 4; i++)
 		party.add(&bsdata<creature>::elements[i]);
+}
+
+settlementi* gamei::getsettlement() const {
+	return location_index.getsettlement();
+}
+
+void gamei::jumpto(variant v) {
+	location_index = v;
+}
+
+void gamei::play() {
+	if(!isalive()) {
+		draw::setnext(draw::mainmenu);
+		return;
+	}
+	auto ps = game.getsettlement();
+	if(ps) {
+		ps->adventure();
+		draw::setnext(play);
+	}
+}
+
+adventurei* gamei::getadventure() {
+	return location_index.getadventure();
 }

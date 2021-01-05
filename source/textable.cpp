@@ -72,42 +72,43 @@ static const char* nextword(const char* p) {
 	return p;
 }
 
+const char* richtexti::parse(const char* p, imagei& im, char* ps, const char* pe) {
+	while(*p=='#') {
+		auto p1 = p + 1; p = nextword(p1);
+		auto pr = resourcei::find(p1, p - p1);
+		if(!pr)
+			return 0;
+		im.res = (resource_s)(pr - bsdata<resourcei>::elements);
+		if(*p != ' ')
+			return 0;
+		p++;
+		im.frame = sz2num(p, &p);
+		if(*p != 10)
+			return 0;
+		p++;
+	}
+	while(*p && *p != 10) {
+		if(ps < pe)
+			*ps++ = *p;
+		p++;
+	}
+	while(*p == 10)
+		p++;
+	*ps = 0;
+	return p;
+}
+
 bool richtexti::load(const char* p) {
 	memset(this, 0, sizeof(*this));
 	auto index = 0;
-	auto ps = data[index];
-	auto pe = ps + sizeof(data[index]) - 1;
-	auto newline = true;
-	while(true) {
-		auto sym = *p++;
-		if(!sym)
-			return true;
-		else if(sym == 10 && ps != data[index]) {
+	while(p && *p) {
+		if(index >= sizeof(data) / sizeof(data[0]))
+			return false;
+		p = parse(p, images[index], data[index], data[index] + sizeof(data[index]));
+		if(data[index][0])
 			index++;
-			if(index >= sizeof(data) / sizeof(data[0]))
-				return false;
-			ps = data[index];
-			pe = ps + sizeof(data[index]);
-			newline = true;
-		} else if(newline && sym == '#') {
-			auto p1 = p; p = nextword(p);
-			auto pr = resourcei::find(p1, p - p1);
-			if(!pr)
-				return false;
-			images[index].res = (resource_s)(pr - bsdata<resourcei>::elements);
-			if(*p != ' ')
-				return false;
-			p++;
-			images[index].frame = sz2num(p, &p);
-			if(*p != 10)
-				return false;
-			p++;
-		} else {
-			newline = false;
-			if(ps < pe)
-				*ps++ = sym;
-		}
 	}
+	return true;
 }
 
 void richtexti::save(textable& ta) const {

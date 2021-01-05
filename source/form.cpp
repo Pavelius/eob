@@ -541,7 +541,7 @@ DGINF(actioni) = {{"Name", DGREQ(name)},
 DGINF(fractioni) = {{"Name", DGINH(textable, name)},
 {}};
 DGINF(companyi) = {{"Name", DGINH(textable, name)},
-{"Start", DGREQ(start)},
+{"Start", DGENM(start, settlementi)},
 {"Pixels/day", DGREQ(pixels_per_day)},
 {"#div Modules"},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},
@@ -551,12 +551,6 @@ DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Settlements", DGLST(settlementi), {getnm<settlementi>}},
 {}};
 DGINF(imagei) = {{0, DGREQ(res), {getnm<resourcei>, 0, 0, resourcei::preview, 130}},
-{}};
-DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_variant}, {}},
-{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
-{"1)", DGREQ(ask[0])},
-{"2)", DGREQ(ask[1])},
-{"Starting", DGCHK(flags, 1 << eventi::Start)},
 {}};
 DGINF(settlementi) = {{"Name", DGINH(textable, name)},
 {"Image", DGREQ(image), {getnm<imagei>, scene_resources, imagei::choose}},
@@ -587,4 +581,21 @@ DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imag
 {"Enter text 5", DGREQ(data[4])},
 {"", DGREQ(images[5]), {getnm<imagei>, scene_resources, imagei::choose}},
 {"Enter text 6", DGREQ(data[5])},
+{}};
+DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_variant}, {}},
+{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
+{"1)", DGREQ(ask[0])},
+{"2)", DGREQ(ask[1])},
+{"Starting", DGCHK(flags, 1 << eventi::Start)},
+{"#div Result 1"},
+{"", DGREQ(results[0])},
+{"#div Result 2"},
+{"", DGREQ(results[1])},
+{"#div Result 3"},
+{"", DGREQ(results[2])},
+{"#div Result 4"},
+{"", DGREQ(results[3])},
+{}};
+DGINF(eventi::resulti) = {{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
+{"Actions", DGREQ(actions)},
 {}};

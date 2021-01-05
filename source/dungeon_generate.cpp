@@ -920,7 +920,7 @@ void adventurei::create(bool interactive) const {
 			auto last_level = (level == count);
 			while(true) {
 				e.clear();
-				e.overland_index = position;
+				e.overland_index = bsdata<adventurei>::source.indexof(this);
 				e.head = p->head;
 				if(special_item_level != j)
 					e.head.wands = NoItem;
@@ -949,7 +949,7 @@ void adventurei::create(bool interactive) const {
 			if(j==special_item_level)
 				validate_special_items(e);
 			add_spawn_points(e);
-			e.overland_index = position;
+			e.overland_index = bsdata<adventurei>::source.indexof(this);
 			previous = &e;
 		}
 		base += p->levels;

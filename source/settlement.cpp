@@ -23,9 +23,8 @@ rarity_s settlementi::getrarity() const {
 
 action_s settlementi::enter(building_s id) {
 	auto& ei = bsdata<buildingi>::elements[id];
-	sb.clear();
-	sb.add(ei.description);
 	answers aw;
+	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
 	for(auto i = action_s(0); i <= Pet; i = (action_s)(i + 1)) {
 		if(!ei.is(i))
 			continue;
@@ -33,14 +32,18 @@ action_s settlementi::enter(building_s id) {
 			continue;
 		aw.add(i, bsdata<actioni>::elements[i].name);
 	}
-	aw.sort();
-	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
-	return (action_s)aw.choosebg(prompt_text, ei.image, true);
+	return (action_s)aw.choosebg(ei.description);
 }
 
-building_s settlementi::enter() const {
+variant settlementi::enter() {
 	sb.clear();
 	auto n = getlevel(prosperty);
+	if(image)
+		image.add(sb);
+	else {
+		imagei im = {BUILDNGS, (unsigned short)(15 + imin((int)getrarity(), 2))};
+		im.add(sb);
+	}
 	sb.add("You reach a");
 	if(kind_n1[n])
 		sb.adds(kind_n1[n]);
@@ -49,21 +52,14 @@ building_s settlementi::enter() const {
 	sb.adds(kind_n2[n]);
 	sb.adds("named %1.", getname());
 	answers aw;
+	if(apply(Tavern, Explore, false))
+		aw.add((int)variant(Explore), "Explore");
+	aw.add((int)variant(Travel), "Travel");
 	for(auto i = Arena; i <= WizardTower; i = (building_s)(i + 1)) {
 		if(is(i))
-			aw.add(i, bsdata<buildingi>::elements[i].name);
+			aw.add((int)variant(i), bsdata<buildingi>::elements[i].name);
 	}
-	aw.sort();
-	return (building_s)aw.choosebg(prompt_text, image, true);
-}
-
-void settlementi::adventure() {
-	makeitems();
-	while(true) {
-		auto b = enter();
-		auto a = enter(b);
-		apply(b, a, true);
-	}
+	return aw.choosebg(sb);
 }
 
 static bool isallow(item_s v, const goodf& goods) {
@@ -91,11 +87,11 @@ static void create(itema& result, adat<item>& source) {
 	}
 }
 
-static bool confirm(const char* text, const imagei& ei) {
+static bool confirm(const char* text) {
 	answers aw;
 	aw.add(1, "Yes");
 	aw.add(0, "No");
-	return aw.choosebg(text, ei, true) != 0;
+	return aw.choosebg(text) != 0;
 }
 
 static const char* buy_panel(void* object, stringbuilder& sb) {
@@ -115,7 +111,7 @@ static bool buy_items(itema& items) {
 	sb.add("Do you really want to buy ");
 	p->getname(sb);
 	sb.adds("for %1i gold coins?", cost);
-	if(!confirm(sb, {}))
+	if(!confirm(sb))
 		return false;
 	game.addgold(-cost);
 	game.additem(*p, false);
@@ -132,55 +128,112 @@ static bool sell_items(itema& items) {
 	sb.add("Do you really want to sell ");
 	p->getname(sb);
 	sb.adds("for %1i gold coins as trade in?", cost);
-	if(!confirm(sb, {}))
+	if(!confirm(sb))
 		return false;
 	game.addgold(-cost);
 	p->clear();
 	return true;
 }
 
-static void showmessage(const imagei& ei) {
+static void showmessage() {
 	answers aw;
-	aw.add(1, "Next");
-	aw.choosebg(sb, ei, true);
+	aw.add(1, "Continue");
+	aw.choosebg(sb);
 	sb.clear();
 }
 
-static void drink_and_seat(building_s b, action_s a, int coins) {
-	imagei ei = {BUILDNGS};
+static bool drink_and_seat(building_s b, action_s a, int coins) {
+	static imagei ei = {BUILDNGS, 6};
 	sb.clear();
+	ei.add(sb);
 	sb.add("\"Good, day!\" - bartender sad - \"Cost for drinking would be %1i gold coins. Do you want pay?\"", coins);
-	if(!confirm(sb, {})) {
+	if(!confirm(sb)) {
 		sb.clear();
+		ei.add(sb);
 		sb.add("\"Very well. So get out of here, and not waste my time!\"");
-		showmessage(ei);
+		showmessage();
+		return false;
 	}
+	return true;
 }
 
 static void gambling(creaturea& creatures) {
+	static imagei ei = {BUILDNGS, 1};
 	static int bits[] = {10, 20, 50, 100, 300, 500, 1000, 2000};
 	sb.clear();
+	ei.add(sb);
 	sb.adds("Do you want to play cards, dice or thimblerig? If you do, take your bid and try to win.");
 	sb.adds("How match you bet?");
 	answers aw;
 	aw.add(0, "Stop");
 	for(auto b : bits) {
-		if(game.getgold()>=b)
+		if(game.getgold() >= b)
 			aw.add(b, "%1i", b);
 	}
-	imagei ei = {BUILDNGS};
-	auto b = aw.choosebg(sb, ei, true); sb.clear();
+	auto b = aw.choosebg(sb);
 	auto p = creatures.getbest(Charisma);
 	auto gv = p->get(Charisma);
+	sb.clear();
+	ei.add(sb);
 	if(game.roll(gv)) {
 		p->addexp(50);
 		sb.add("%1 win game and gain %2i coins.", p->getname(), b);
 		game.addgold(b);
-		showmessage({});
+		showmessage();
 	} else {
 		sb.add("%1 lose game and lose %2i coins. Luck is not on you side today.", p->getname(), b);
 		game.addgold(-b);
-		showmessage({});
+		showmessage();
+	}
+}
+
+static variant current_action;
+
+static bool journey(variantc& locations) {
+	sb.clear();
+	sb.adds("You can make journay to another settlement. Choose settlement you want to travel.");
+	answers aw;
+	aw.add(0, "Cancel");
+	locations.sort();
+	for(auto v : locations)
+		aw.add((int)v, v.getname());
+	variant r = aw.choosebg(sb);
+	if(!r)
+		return false;
+	game.rideto(r);
+	return true;
+}
+
+static bool explore(variantc& locations) {
+	sb.clear();
+	sb.adds("Wich location near this settlement you want to explore?");
+	answers aw;
+	for(auto v : locations)
+		aw.add((int)v, v.getname());
+	aw.add(0, "Cancel");
+	variant r = aw.choosebg(sb);
+	if(!r)
+		return false;
+	auto cost = 5;
+	sb.clear();
+	sb.adds("You must equip party before journey. Equiping include buy some useful items, like torches, provision, ropes and other adventure equipment. Totaly you must spend %1i gold coins. Do you really want to spent money and go to adventure?", cost);
+	if(!confirm(sb))
+		return false;
+	game.pay(cost);
+	game.equiping();
+	game.rideto(r);
+	draw::setnext(draw::adventure);
+	return true;
+}
+
+static int getmaximumdistance(building_s b) {
+	switch(b) {
+	case Stable:
+		return imax(game.getmapheight(), game.getmapwidth()) / 3;
+	case Harbor:
+		return imax(game.getmapheight(), game.getmapwidth());
+	default:
+		return game.pixels_per_day * 3;
 	}
 }
 
@@ -219,11 +272,26 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Drink:
 		if(run)
-			drink_and_seat(b, a, 3);
+			return drink_and_seat(b, a, 3);
 		break;
 	case Talk:
 		break;
 	case Travel:
+		vars.clear();
+		vars.select(Settlement);
+		vars.exclude(this);
+		vars.match(position, getmaximumdistance(b), true);
+		if(run)
+			return journey(vars);
+		break;
+	case Explore:
+		vars.clear();
+		vars.select(Adventure);
+		vars.match(this, true);
+		if(!vars)
+			return false;
+		if(run)
+			return explore(vars);
 		break;
 	case Gambling:
 		creatures.select();
@@ -255,5 +323,24 @@ void settlementi::makeitems() {
 		auto i = source.data[rand() % source.getcount()];
 		e.setpower(i);
 		e.setidentified(1);
+	}
+}
+
+void settlementi::adventure() {
+	auto v = enter();
+	switch(v.type) {
+	case Action:
+		apply(Tavern, (action_s)v.value, true);
+		break;
+	case Building:
+		while(game.getsettlement() == this) {
+			auto b = (building_s)v.value;
+			auto a = enter(b);
+			if(a == Leave)
+				break;
+			apply(b, a, true);
+			game.passtime(60);
+		}
+		break;
 	}
 }

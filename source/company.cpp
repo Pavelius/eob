@@ -10,11 +10,3 @@ unsigned historyi::gethistorymax() const {
 			return i;
 	return history_max;
 }
-
-adventurei* companyi::getadventure(point position) {
-	for(auto& e : bsdata<adventurei>()) {
-		if(e.position == position)
-			return &e;
-	}
-	return 0;
-}

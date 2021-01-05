@@ -35,6 +35,35 @@ static int getlevel(spell_s v, class_s c) {
 	}
 }
 
+void variantc::match(point start, int radius, bool keep) {
+	auto p = data;
+	for(auto& e : *this) {
+		if(e.type == Settlement) {
+			auto& ei = bsdata<settlementi>::elements[e.value];
+			auto v = ei.position.range(start) <= radius;
+			if(v != keep)
+				continue;
+		} else
+			continue;
+		*p++ = e;
+	}
+	count = p - data;
+}
+
+void variantc::match(variant v, bool keep) {
+	auto p = data;
+	for(auto& e : *this) {
+		if(e.type == Adventure) {
+			auto r = e.getadventure()->match(v);
+			if(r != keep)
+				continue;
+		} else
+			continue;
+		*p++ = e;
+	}
+	count = p - data;
+}
+
 void variantc::matchsl(class_s c, int level) {
 	auto p = data;
 	for(auto& e : *this) {
@@ -48,6 +77,38 @@ void variantc::matchsl(class_s c, int level) {
 	count = p - data;
 }
 
+void variantc::exclude(variant v) {
+	auto p = data;
+	for(auto& e : *this) {
+		if(e == v)
+			continue;
+		*p++ = e;
+	}
+	count = p - data;
+}
+
 void variantc::sort() {
 	qsort(data, count, sizeof(data[0]), compare);
+}
+
+void variantc::select(variant_s type) {
+	auto& ei = bsdata<varianti>::elements[type];
+	auto p = ei.form.source;
+	if(!p)
+		return;
+	variant v;
+	v.type = type;
+	for(v.value = 0; v.value <= p->getcount(); v.value++) {
+		auto pn = v.getname();
+		if(!pn || pn[0] == 0)
+			continue;
+		add(v);
+	}
+}
+
+bool adventurei::match(variant v) const {
+	switch(v.type) {
+	case Settlement: return settlement == v.value;
+	default: return false;
+	}
 }

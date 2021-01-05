@@ -298,7 +298,6 @@ void dungeon::statei::clear() {
 void dungeon::clear() {
 	memset(this, 0, sizeof(*this));
 	stat.clear();
-	overland_index = {-1, -1};
 	for(auto& e : overlays)
 		e.clear();
 }
@@ -824,7 +823,7 @@ void dungeon::move(direction_s direction) {
 		write();
 		if(level <= 1) {
 			// Leave dungeon
-			draw::setnext(draw::mainmenu);
+			draw::setnext(game.play);
 			return;
 		}
 		game.enter(overland_index, level - 1);

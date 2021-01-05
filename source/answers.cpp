@@ -1,5 +1,7 @@
 #include "main.h"
 
+imagei	answers::last_image;
+
 int compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
 }
@@ -29,22 +31,16 @@ int answers::choose(const char* title, bool interactive) const {
 }
 
 int	answers::choosebg(const char* title, bool horizontal_buttons) const {
-	richtexti rt;
-	if(!rt.load(title))
-		return 0;
-	auto index = 0;
-	imagei im = rt.images[index];
-	while(index + 1 < rt.maximum && rt.data[index + 1]) {
-		if(rt.images[index])
-			im = rt.images[index];
-		answers aw;
-		aw.add(1, "Next");
-		aw.choosebg(rt.data[index], im, true);
-		index++;
+	char temp[400]; auto p = title;
+	imagei im = {};
+	temp[0] = 0;
+	while(p && *p) {
+		if(temp[0]) {
+			answers aw;
+			aw.add(1, "Next");
+			aw.choosebg(temp, im, horizontal_buttons);
+		}
+		p = richtexti::parse(p, im, temp, temp + sizeof(temp));
 	}
-	if(rt.images[index])
-		im = rt.images[index];
-	if(!rt.data[index])
-		return 0;
-	return choosebg(rt.data[index], im, horizontal_buttons);
+	return choosebg(temp, im, horizontal_buttons);
 }

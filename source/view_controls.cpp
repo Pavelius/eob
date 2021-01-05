@@ -440,10 +440,12 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 			image(x, y, gres(ITEMS), 83 + ((pid == RightHand) ? 0 : 1), 0, alpha);
 	} else {
 		auto state = Bless;
-		if(pc->is(DetectEvil) && pitm->iscursed())
-			state = DetectEvil;
-		else if(pc->is(DetectMagic) && pitm->ismagical())
-			state = DetectMagic;
+		if(pc) {
+			if(pc->is(DetectEvil) && pitm->iscursed())
+				state = DetectEvil;
+			else if(pc->is(DetectMagic) && pitm->ismagical())
+				state = DetectMagic;
+		}
 		itemicn(x, y, *pitm, alpha, state);
 	}
 	if(flags&Disabled)
@@ -765,6 +767,11 @@ static render_control* getnextfocus(void* ev, int key, unsigned param) {
 }
 
 static void test_map() {
+	auto p = "When you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.";
+	answers aw;
+	aw.add(1, "Accept");
+	aw.add(0, "Decline");
+	aw.choosebg(p);
 }
 
 static void setfocus(void* v, unsigned param = 0) {
@@ -1183,12 +1190,16 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 	return getresult();
 }
 
+static int getbuttonwidth(const char* title) {
+	return textw(title) + 6;
+}
+
 static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
 	draw::state push;
 	auto vertical = true;
 	if(width == -1) {
 		vertical = false;
-		width = textw(title) + 6;
+		width = getbuttonwidth(title);
 	}
 	auto run = false;
 	rect rc = {x, y, x + width, y + texth() + 3};
@@ -1232,15 +1243,11 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		screen.restore();
 		rect rc = {0, 121, 319, 199};
 		fore = colors::white;
-		if(ei) {
-			image(0, 0, gres(ei.res), ei.frame, 0);
+		if(ei)
+			last_image = ei;
+		if(last_image) {
 			image(0, 0, gres(BORDER), 0, 0);
-			//if(true) {
-			//	auto push_color = fore;
-			//	fore = color::create(120, 120, 120);
-			//	line(8, 7, 167, 7);
-			//	fore = push_color;
-			//}
+			image(8, 8, gres(last_image.res), last_image.frame, 0);
 		}
 		form(rc);
 		rc.offset(6, 4);
@@ -1249,8 +1256,15 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
-			if(horizontal_buttons)
+			if(horizontal_buttons) {
+				auto pn = elements.data[i].text;
+				auto wd = getbuttonwidth(pn);
+				if(x + wd >= rc.x2) {
+					y -= texth() + 6;
+					x = rc.x1;
+				}
 				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
+			}
 			else {
 				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 				y += texth() + 5;
@@ -2147,7 +2161,7 @@ void draw::fullimage(point camera, point* origin) {
 		camera.x -= sx / 2;
 		camera.y -= sy / 2;
 		correct(camera, 0, 0, mx, my);
-		draw::image(-camera.x, -camera.x, gres(WORLD), 0, 0);
+		draw::image(-camera.x, -camera.y, gres(WORLD), 0, 0);
 		if(origin)
 			*origin = camera;
 	}
@@ -2185,6 +2199,8 @@ void draw::fullimage(point from, point to, point* origin) {
 	}
 	camera.x = x1;
 	camera.y = y1;
+	fullimage(camera, origin);
+	redraw();
 }
 
 void draw::appear(pobject proc, void* object, unsigned duration) {

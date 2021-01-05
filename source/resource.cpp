@@ -125,3 +125,11 @@ resourcei* resourcei::find(const char* id, unsigned size) {
 	}
 	return 0;
 }
+
+void imagei::add(stringbuilder& sb) const {
+	if(!(*this))
+		return;
+	sb.add("#");
+	sb.add(bsdata<resourcei>::elements[res].name);
+	sb.add(" %1i\n", frame);
+}
