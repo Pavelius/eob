@@ -225,7 +225,7 @@ enum item_feat_s : unsigned char {
 	SevereDamageUndead,
 	Natural, Charged, Countable,
 	Valuable, Famed,
-	NotForSale, Unique
+	NotForSale, Expandable, Unique
 };
 enum attack_s : unsigned char {
 	AutoHit,
@@ -1136,7 +1136,7 @@ struct historyi {
 	unsigned			gethistorymax() const;
 };
 struct adventurei : textable, historyi {
-	short unsigned		settlement;
+	unsigned char		settlement;
 	textable			message_before;
 	textable			message_agree;
 	textable			message_righthere;
@@ -1228,7 +1228,6 @@ public:
 	bool				is(variant v) const;
 	static bool			isalive();
 	void				jumpto(variant v);
-	void				leavedungeon();
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
 	void				passtime(int minutes);
@@ -1236,12 +1235,13 @@ public:
 	static void			play();
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
-	static bool			roll(int value);
+	bool				read();
+	void				returntobase();
 	void				rideto(variant v);
+	static bool			roll(int value);
 	void				setcamera(indext index, direction_s direction = Center);
 	void				startgame();
 	void				thrown(item* itm);
-	bool				read();
 	void				worldmap();
 	void				write();
 };
@@ -1268,6 +1268,7 @@ struct answers {
 	int					choosebg(const char* title, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					random() const;
+	static void			setnoimage();
 	void				sort();
 	static imagei		last_image;
 private:
@@ -1304,6 +1305,7 @@ void					chooseopt(const menu* source);
 void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);
 bool					dlgask(const char* text);
+void					dlgmsg(const char* text);
 bool					edit(const char* title, void* object, const markup* form, bool cancel_button);
 void					editor();
 void					fullimage(point camera, point* origin);

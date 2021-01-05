@@ -1859,8 +1859,7 @@ void creature::removeloot() {
 	for(auto& e : wears) {
 		if(!e)
 			continue;
-		auto good = e.gete().goods;
-		if(good != Food)
+		if(!e.is(Expandable))
 			continue;
 		e.clear();
 	}

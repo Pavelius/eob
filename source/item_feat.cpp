@@ -14,6 +14,7 @@ BSDATA(itemfeati) = {{"Use two hands"},
 {"Valuable"},
 {"Famed"},
 {"Not for sale"},
+{"Expandable"},
 {"Unique"},
 };
 assert_enum(itemfeat, Unique)

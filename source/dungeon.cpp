@@ -818,36 +818,34 @@ void dungeon::move(direction_s direction) {
 	}
 	switch(t) {
 	case CellStairsUp:
+		if(level <= 1 && !draw::dlgask("All food will be rotten and some potions will be spoil. Do you really want to leave dungeon and return to settlement?"))
+			break;
 		mslog("Going up");
+		game.write();
 		clearboost();
-		write();
 		if(level <= 1) {
-			// Leave dungeon
-			draw::setnext(game.play);
+			game.returntobase();
 			return;
 		}
 		game.enter(overland_index, level - 1);
 		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
-		game.write();
 		break;
 	case CellStairsDown:
 		mslog("Going down");
+		game.write();
 		clearboost();
-		write();
 		game.enter(overland_index, level + 1);
 		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
-		game.write();
 		break;
 	case CellPit:
 		mslog("You falling down!");
+		game.write();
 		clearboost();
-		write();
 		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
 		falling_damage();
 		game.enter(overland_index, level + 1);
 		falling_landing();
-		game.write();
 		break;
 	default:
 		mslog(0);

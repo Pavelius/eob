@@ -94,6 +94,7 @@ static textedit			current_text;
 static void*			current_edit;
 static int				current_c1;
 static point			current_p1;
+const int				dx = 4;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -195,6 +196,17 @@ void draw::setsmallfont() {
 
 void draw::setmode(infoproc mode) {
 	show_mode = mode;
+}
+
+static rect getformpos(const char* text, int height = 0) {
+	rect rc{0, 0, 200, 0};
+	rc.y2 += draw::text(rc, text);
+	rc.y2 += height;
+	rc.offset(-dx, -dx);
+	int x1 = (320 - rc.width()) / 2;
+	int y1 = (200 - rc.height()) / 2;
+	rc.move(x1, y1);
+	return rc;
 }
 
 static void border_up(rect rc) {
@@ -306,8 +318,26 @@ int draw::header(int x, int y, const char* text) {
 	return draw::texth() + 2;
 }
 
-void dlgmsg(const char* title, const char* text) {
-	draw::screenshoot push;
+void draw::dlgmsg(const char* text) {
+	draw::state push;
+	draw::screenshoot screen(true);
+	fore = colors::white;
+	rect rc = getformpos(text, draw::texth() + dx * 2);
+	openform();
+	while(draw::ismodal()) {
+		screen.restore();
+		form(rc);
+		auto x1 = rc.x1 + dx;
+		auto y1 = rc.y1 + dx;
+		auto wd = rc.width() - dx * 2;
+		auto rct = rc; rct.offset(dx, dx);
+		y1 += draw::text(rct, text) + dx;
+		x1 = (320 - (36 + 36)) / 2;
+		button(x1, y1, 32, buttonok, "OK");
+		domodal();
+		navigate();
+	}
+	closeform();
 }
 
 void dlgerr(const char* title, const char* format, ...) {
@@ -654,7 +684,7 @@ bool imagei::choose(void* object, const array& source, void* pointer) {
 	current_res_focus = (void*)&ei;
 	current_res_frame = p->frame;
 	auto pr = draw::choose(bsdata<resourcei>::source, "Images",
-		object, &ei, getnm<resourcei>, current_markup->list.match, resourcei::preview, 320-190);
+		object, &ei, getnm<resourcei>, current_markup->list.match, resourcei::preview, 320 - 190);
 	if(!pr)
 		return false;
 	p->res = (resource_s)((resourcei*)pr - bsdata<resourcei>::elements);
@@ -1082,22 +1112,10 @@ void draw::chooseopt(const menu* source) {
 	closeform();
 }
 
-const int dx = 4;
-
-static rect getformpos(const char* text, int height = 0) {
-	rect rc{0, 0, 200, 0};
-	rc.y2 += draw::text(rc, text);
-	rc.y2 += height;
-	rc.offset(-dx, -dx);
-	int x1 = (320 - rc.width()) / 2;
-	int y1 = (200 - rc.height()) / 2;
-	rc.move(x1, y1);
-	return rc;
-}
-
 bool draw::dlgask(const char* text) {
 	draw::state push;
 	draw::screenshoot screen(true);
+	setsmallfont();
 	fore = colors::white;
 	rect rc = getformpos(text, draw::texth() + dx * 2);
 	openform();
@@ -1233,6 +1251,10 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return x - x1;
 }
 
+void answers::setnoimage() {
+	last_image = {};
+}
+
 int answers::choosebg(const char* title, const imagei& ei, bool horizontal_buttons) const {
 	draw::animation::render(0);
 	draw::screenshoot screen;
@@ -1264,8 +1286,7 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 					x = rc.x1;
 				}
 				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
-			}
-			else {
+			} else {
 				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 				y += texth() + 5;
 			}

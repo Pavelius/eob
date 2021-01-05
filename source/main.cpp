@@ -324,6 +324,7 @@ void draw::editor() {
 		game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
+		game.write();
 		game.play();
 	} else {
 		game.companyi::read("default");

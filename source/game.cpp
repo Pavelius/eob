@@ -581,7 +581,6 @@ void gamei::write() {
 	if(location)
 		location.write();
 }
-
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
@@ -598,11 +597,18 @@ void gamei::equiping() {
 	}
 }
 
-void gamei::leavedungeon() {
+void gamei::returntobase() {
+	// Clear all items
 	for(auto p : party) {
 		if(!p)
 			continue;
 		p->removeloot();
+	}
+	// Return to settlement
+	auto pa = getadventure();
+	if(pa) {
+		rideto(variant(Settlement, pa->settlement));
+		draw::setnext(play);
 	}
 }
 
@@ -629,7 +635,6 @@ void gamei::rideto(variant v) {
 	draw::fullimage(location_index.getposition(), v.getposition(), 0);
 	location_index = v;
 	draw::appear(render_worldmap, this, 1000);
-	game.write();
 	enter(location_index, 1);
 }
 
