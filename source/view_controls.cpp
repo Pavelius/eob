@@ -606,6 +606,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 			execute(decrement_frame);
 	}
 	border_down(rc);
+	auto& ei = bsdata<packi>::elements[p->pack];
 	if(true) {
 		draw::state push; draw::setclip({rc.x1 + 1, rc.y1 + 1, rc.x2, rc.y2});
 		if(p->ismonster()) {
@@ -630,8 +631,10 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	sb.clear(); sb.add("Path: %1", bsdata<packi>::elements[p->pack].url);
 	textb(x, y1, temp, -1); y1 += texth();
 	if(sp) {
-		sb.clear(); sb.add("Number of sprites: %1i", sp->count);
-		textb(x, y1, temp, -1); y1 += texth();
+		if(ei.choose_frame) {
+			sb.clear(); sb.add("Sprite: %1i of %2i", current_res_frame, sp->count);
+			textb(x, y1, temp, -1); y1 += texth();
+		}
 	}
 	if(p->ismonster()) {
 		auto overlays = (sp->count / 6) - 1;
@@ -1232,12 +1235,12 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		if(ei) {
 			image(0, 0, gres(ei.res), ei.frame, 0);
 			image(0, 0, gres(BORDER), 0, 0);
-			if(true) {
-				auto push_color = fore;
-				fore = color::create(120, 120, 120);
-				line(8, 7, 167, 7);
-				fore = push_color;
-			}
+			//if(true) {
+			//	auto push_color = fore;
+			//	fore = color::create(120, 120, 120);
+			//	line(8, 7, 167, 7);
+			//	fore = push_color;
+			//}
 		}
 		form(rc);
 		rc.offset(6, 4);
@@ -1484,10 +1487,15 @@ static void* choose_element(const char* title, const void* current_value, int wi
 	parami params = {};
 	params.maximum = data_count;
 	params.perpage = ((200 - 6 - 16 - 6) / (texth() + 6))*columns;
+	auto found_current = false;
 	for(unsigned i = 0; i < data_count; i++) {
-		if(data[i] == current_value)
+		if(data[i] == current_value) {
+			found_current = true;
 			params.origin = i;
+		}
 	}
+	if(!found_current)
+		current_value = 0;
 	params.correct();
 	setfocus((void*)current_value);
 	while(ismodal()) {

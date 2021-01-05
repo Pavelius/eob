@@ -559,7 +559,7 @@ DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_vari
 {"Starting", DGCHK(flags, 1 << eventi::Start)},
 {}};
 DGINF(settlementi) = {{"Name", DGINH(textable, name)},
-{"Image", DGREQ(image)},
+{"Image", DGREQ(image), {getnm<imagei>, scene_resources, imagei::choose}},
 {"Position", DGREQ(position)},
 {"Description", DGREQ(description)},
 {"Prosperty", DGREQ(prosperty)},
