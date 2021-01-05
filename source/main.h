@@ -225,7 +225,7 @@ enum item_feat_s : unsigned char {
 	SevereDamageUndead,
 	Natural, Charged, Countable,
 	Valuable, Famed,
-	Unique
+	NotForSale, Unique
 };
 enum attack_s : unsigned char {
 	AutoHit,
@@ -703,10 +703,11 @@ public:
 	constexpr bool		isranged() const { return is(Ranged); }
 	bool				issmall() const;
 	bool				istwohanded() const { return is(TwoHanded); }
+	void				setbroken(int value) { broken = value; }
 	void				setcharges(int v);
 	void				setcount(int v);
-	void				setbroken(int value) { broken = value; }
 	void				setcursed(int value) { cursed = value; }
+	void				setenchant(int v) { subtype = v; }
 	void				setidentified(int value) { identified = value; }
 	item&				setpower(rarity_s rarity);
 	void				setpower(variant power);
@@ -1149,9 +1150,7 @@ struct settlementi : textable {
 	point				position;
 	textable			description;
 	cflags<building_s>	buildings;
-	item				wands[8];
 	spellf				spells;
-	good_s				imports, exports;
 	unsigned char		prosperty;
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
@@ -1159,7 +1158,6 @@ struct settlementi : textable {
 	action_s			enter(building_s id);
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
-	void				makeitems();
 };
 struct fractioni : textable {
 	char				progress;
