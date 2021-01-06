@@ -137,3 +137,9 @@ creature* creaturea::choose() const {
 	}
 	return (creature*)elements.choosesm("On which hero?", true);
 }
+
+void creaturea::apply(creaturea::fnapply proc) {
+	for(auto p : *this) {
+		(p->*proc)();
+	}
+}

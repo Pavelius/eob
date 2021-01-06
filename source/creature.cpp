@@ -387,6 +387,10 @@ int creature::gethitpenalty(int bonus) const {
 	return bonus;
 }
 
+void creature::satisfy() {
+	food = getfoodmax();
+}
+
 void creature::subenergy() {
 	if(food > 0)
 		food--;
@@ -1628,7 +1632,8 @@ void creature::enchant(spell_s id, int level) {
 }
 
 int	creature::getfoodmax() const {
-	return get(Constitution) * 10;
+	auto r = get(Constitution);
+	return r * r;
 }
 
 const spellprogi* creature::getprogress(class_s v) const {

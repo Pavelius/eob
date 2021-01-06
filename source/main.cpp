@@ -332,6 +332,7 @@ static void editor() {
 		game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
+		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		game.write();
 		game.play();
 	} else {

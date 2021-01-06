@@ -240,8 +240,8 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Drink, Explore, Gambling,
-	Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
+	Attack, Bribe, Buy, Drink, Gambling,
+	Leave, Lie, Quest, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
@@ -918,6 +918,7 @@ public:
 	void				say(const item& it, const char* format, ...);
 	void				sayv(const char* format, const char* vl);
 	bool				save(int& value, ability_s skill, save_s type, int bonus);
+	void				satisfy();
 	void				scribe(item& it);
 	static unsigned		select(spell_s* result, const spell_s* result_maximum, class_s type, int level);
 	void				select(itema& result);
@@ -962,6 +963,8 @@ public:
 	void				view_portrait(int x, int y) const;
 };
 class creaturea : public adat<creature*, 12> {
+	typedef void (creature::*fnapply)();
+	void				apply(fnapply p);
 public:
 	creature*			choose() const;
 	int					getaverage(ability_s v) const;
@@ -973,6 +976,7 @@ public:
 	void				match(const conditiona& id, bool keep);
 	void				resolve();
 	void				rollinitiative();
+	void				satisfy() { apply(&creature::satisfy); }
 	void				select();
 	void				select(indext index);
 	void				set(reaction_s v);
@@ -1153,13 +1157,16 @@ struct settlementi : textable {
 	cflags<building_s>	buildings;
 	spellf				spells;
 	unsigned char		prosperty;
-	char				talk_tavern, talk_inn;
+	char				mood_tavern, mood_inn, mood_other;
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
 	variant				enter();
 	action_s			enter(building_s id);
+	int					getdrinkcost() const { return 1 + getrarity() / 2; }
+	int					getequipmentcost(adventurei& e) const;
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
+	void				update();
 };
 struct fractioni : textable {
 	char				progress;
@@ -1188,6 +1195,7 @@ class gamei : public companyi {
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
+	unsigned			rounds_daypart;
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
 	char				reputation, luck;

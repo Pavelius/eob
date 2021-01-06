@@ -435,7 +435,14 @@ void gamei::passround() {
 		rounds_hour += 60;
 		location.passhour();
 	}
-	location.passround();
+	// Every 4 hours update
+	while(rounds_daypart < rounds) {
+		rounds_daypart += 4*60;
+		for(auto& e : bsdata<settlementi>())
+			e.update();
+	}
+	if(location)
+		location.passround();
 }
 
 void gamei::passtime(int minutes) {
