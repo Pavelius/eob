@@ -156,7 +156,7 @@ enum item_s : unsigned char {
 	Necklage, NecklageRich, NecklageVeryRich,
 	Arrow, Dart, Stone,
 	Bones, DungeonMap,
-	HolySymbol, HolyWarriorSymbol, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
+	HolySymbol, HolySymbolEvil, MagicBook, TheifTools, MagicWand, MageScroll, PriestScroll,
 	KeyShelf, KeySilver, KeyCooper, KeySkull, KeySpider, KeyMoon, KeyDiamond, KeyGreen,
 	RedRing, BlueRing, GreenRing,
 	RedPotion, BluePotion, GreenPotion,
@@ -241,7 +241,7 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	Greeting,
 	Attack, Bribe, Buy, Drink, Gambling,
-	Leave, Lie, Quest, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
+	Leave, Lie, Quest, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
@@ -267,7 +267,7 @@ enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
 };
 enum shape_s : unsigned char {
-	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd,
+	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd, ShapeHall,
 };
 enum building_s : unsigned char {
 	Arena, Armory, Bank, Brothel, Inn, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
@@ -1196,6 +1196,7 @@ class gamei : public companyi {
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets;
 	char				reputation, luck;
+	int					sacrifice;
 	int					gold;
 	variant				players[6];
 	static void			render_worldmap(void* object);
@@ -1206,6 +1207,7 @@ public:
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				additem(item i, bool interactive);
+	void				addsacrifice(int v) { sacrifice += v; }
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
 	void				clear();

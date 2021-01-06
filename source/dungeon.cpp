@@ -1237,8 +1237,10 @@ indext dungeoni::getretreat(indext from, int minimal_radius) const {
 	for(indext index = 0; index < mpx*mpy; index++)
 		pathmap[index] = isblocked(index) ? Blocked : 0;
 	makewave(from, pathmap);
-	for(auto& e : monsters)
-		pathmap[e.getindex()] = Blocked;
+	for(auto& e : monsters) {
+		if(e && e.getindex()!=Blocked)
+			pathmap[e.getindex()] = Blocked;
+	}
 	indext result = Blocked;
 	short unsigned result_cost = 0;
 	for(indext index = 0; index < mpx*mpy; index++) {

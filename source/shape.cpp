@@ -41,5 +41,19 @@ BSDATA(shapei) = {{"ShapeCorner", {4, 4}, {3, 4},
 "UXX"
 "U0X"
 "UXX"},
+{"ShapeHall", {9, 7}, {10, 9},
+"UUUUUUUUU"
+"XXXX0XXXX"
+"X.......X"
+"X.......X"
+"X.......X"
+"X.......X"
+"XXXXXXXXX",
+"XXXXXXXXXU"
+"X.......XU"
+"X.......0U"
+"X.......XU"
+"X.......XU"
+"XXXXXXXXXU"},
 };
-assert_enum(shape, ShapeDeadEnd)
+assert_enum(shape, ShapeHall)

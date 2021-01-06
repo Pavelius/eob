@@ -409,6 +409,30 @@ static bool drink_and_seat(building_s b, int coins, char& informations, bool run
 	return true;
 }
 
+static bool sacrifice(bool run) {
+	itema items;
+	items.select();
+	items.match({HolySymbol, HolySymbolEvil}, true);
+	if(!items)
+		return false;
+	if(run) {
+		sb.clear();
+		sb.add("You have some holy symbols. If you sacrifice it to holy god, you got experience and holiness. Do you really want sacrifice all symbols?");
+		if(!confirm(sb))
+			return false;
+		auto exp = 0;
+		auto sacrifice_score = 0;
+		for(auto p : items) {
+			p->clear();
+			exp += 100;
+			sacrifice_score++;
+		}
+		game.addsacrifice(sacrifice_score);
+		game.addexpc(exp, 0);
+	}
+	return true;
+}
+
 bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
@@ -457,6 +481,8 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		if(run)
 			return resting(b);
 		break;
+	case Sacrifice:
+		return sacrifice(run);
 	default:
 		return false;
 	}

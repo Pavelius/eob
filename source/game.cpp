@@ -610,6 +610,8 @@ void gamei::returntobase() {
 		rideto(variant(Settlement, pa->settlement));
 		draw::setnext(play);
 	}
+	location.clear();
+	location_above.clear();
 }
 
 void gamei::render_worldmap(void* object) {
