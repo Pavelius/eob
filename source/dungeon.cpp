@@ -2,7 +2,7 @@
 #include "point.h"
 #include "main.h"
 
-static_assert(sizeof(dungeon::groundi) == 8, "laying items can be 8 bytes");
+static_assert(sizeof(dungeoni::groundi) == 8, "laying items can be 8 bytes");
 static unsigned short	path_stack[256];
 static unsigned char	path_push;
 static unsigned char	path_pop;
@@ -20,14 +20,14 @@ static void snode(unsigned short index, short unsigned* pathmap, short unsigned 
 	pathmap[index] = cost;
 }
 
-int dungeon::getitemside(item* pi) {
+int dungeoni::getitemside(item* pi) {
 	if(((groundi*)pi) < items
 		|| ((groundi*)pi) > (items + sizeof(items) / sizeof(items[0])))
 		return 0;
 	return ((groundi*)pi)->side;
 }
 
-unsigned dungeon::getitems(item** result, item** result_maximum, indext index, int side) {
+unsigned dungeoni::getitems(item** result, item** result_maximum, indext index, int side) {
 	auto p = result;
 	for(auto& e : items) {
 		if(!e)
@@ -43,7 +43,7 @@ unsigned dungeon::getitems(item** result, item** result_maximum, indext index, i
 	return p - result;
 }
 
-unsigned dungeon::getitems(item** result, item** result_maximum, overlayi* povr) {
+unsigned dungeoni::getitems(item** result, item** result_maximum, overlayi* povr) {
 	if(!povr)
 		return 0;
 	auto storage_index = povr - overlays;
@@ -59,7 +59,7 @@ unsigned dungeon::getitems(item** result, item** result_maximum, overlayi* povr)
 	return p - result;
 }
 
-static dungeon::groundi& new_item(dungeon* pe) {
+static dungeoni::groundi& new_item(dungeoni* pe) {
 	for(auto& e : pe->items) {
 		if(!e)
 			return e;
@@ -67,7 +67,7 @@ static dungeon::groundi& new_item(dungeon* pe) {
 	return pe->items[0];
 }
 
-void dungeon::dropitem(indext index, item rec, int side) {
+void dungeoni::dropitem(indext index, item rec, int side) {
 	groundi& e = new_item(this);
 	*static_cast<item*>(&e) = rec;
 	e.index = index;
@@ -75,13 +75,13 @@ void dungeon::dropitem(indext index, item rec, int side) {
 	e.flags = 0;
 }
 
-cell_s dungeon::get(indext index) const {
+cell_s dungeoni::get(indext index) const {
 	if(index == Blocked)
 		return CellWall;
 	return (cell_s)((data[index] & CellMask));
 }
 
-direction_s dungeon::getpassable(indext index, direction_s* dirs) {
+direction_s dungeoni::getpassable(indext index, direction_s* dirs) {
 	for(int i = 0; dirs[i]; i++) {
 		if(isblocked(to(index, dirs[i])))
 			continue;
@@ -90,7 +90,7 @@ direction_s dungeon::getpassable(indext index, direction_s* dirs) {
 	return Center;
 }
 
-cell_s dungeon::gettype(cell_s id) {
+cell_s dungeoni::gettype(cell_s id) {
 	switch(id) {
 	case CellSecrectButton:
 	case CellPortal:
@@ -100,43 +100,43 @@ cell_s dungeon::gettype(cell_s id) {
 	}
 }
 
-cell_s dungeon::get(int x, int y) const {
+cell_s dungeoni::get(int x, int y) const {
 	if(x >= mpx || y >= mpy || x < 0 || y < 0)
 		return CellWall;
 	return get(location.getindex(x, y));
 }
 
-bool dungeon::is(indext index, cell_flag_s value) const {
+bool dungeoni::is(indext index, cell_flag_s value) const {
 	if(index == Blocked)
 		return false;
 	return (data[index] & (0x80 >> value)) != 0;
 }
 
-void dungeon::set(indext index, cell_flag_s value) {
+void dungeoni::set(indext index, cell_flag_s value) {
 	if(index == Blocked)
 		return;
 	data[index] |= (0x80 >> value);
 }
 
-void dungeon::set(indext index, cell_s value) {
+void dungeoni::set(indext index, cell_s value) {
 	if(index == Blocked)
 		return;
 	data[index] = (data[index] & (~CellMask)) | value;
 }
 
-void dungeon::remove(indext index, cell_flag_s value) {
+void dungeoni::remove(indext index, cell_flag_s value) {
 	if(index == Blocked)
 		return;
 	data[index] &= ~(0x80 >> value);
 }
 
-void dungeon::remove(overlayi* po) {
+void dungeoni::remove(overlayi* po) {
 	if(!po)
 		return;
 	po->clear();
 }
 
-dungeon::overlayi* dungeon::add(indext index, cell_s type, direction_s dir) {
+dungeoni::overlayi* dungeoni::add(indext index, cell_s type, direction_s dir) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
@@ -151,7 +151,7 @@ dungeon::overlayi* dungeon::add(indext index, cell_s type, direction_s dir) {
 	return 0;
 }
 
-void dungeon::add(overlayi* po, item it) {
+void dungeoni::add(overlayi* po, item it) {
 	if(!po)
 		return;
 	auto storage_index = po - overlays;
@@ -164,7 +164,7 @@ void dungeon::add(overlayi* po, item it) {
 	}
 }
 
-void dungeon::remove(overlayi* po, item it) {
+void dungeoni::remove(overlayi* po, item it) {
 	if(!po)
 		return;
 	auto storage_index = po - overlays;
@@ -177,7 +177,7 @@ void dungeon::remove(overlayi* po, item it) {
 	}
 }
 
-dungeon::overlayi* dungeon::getlinked(indext index) {
+dungeoni::overlayi* dungeoni::getlinked(indext index) {
 	if(index == Blocked)
 		return 0;
 	for(auto& e : overlays) {
@@ -189,7 +189,7 @@ dungeon::overlayi* dungeon::getlinked(indext index) {
 	return 0;
 }
 
-dungeon::overlayi* dungeon::getoverlay(indext index, direction_s dir) {
+dungeoni::overlayi* dungeoni::getoverlay(indext index, direction_s dir) {
 	for(auto& e : overlays) {
 		if(e && e.dir == dir && e.index == index)
 			return &e;
@@ -197,20 +197,20 @@ dungeon::overlayi* dungeon::getoverlay(indext index, direction_s dir) {
 	return 0;
 }
 
-bool dungeon::isactive(const overlayi* po) {
+bool dungeoni::isactive(const overlayi* po) {
 	if(!po)
 		return false;
 	return po->is(Active);
 }
 
-void dungeon::setactive(indext index, bool value) {
+void dungeoni::setactive(indext index, bool value) {
 	if(value)
 		set(index, CellActive);
 	else
 		remove(index, CellActive);
 }
 
-void dungeon::setactive(indext index, bool value, int radius) {
+void dungeoni::setactive(indext index, bool value, int radius) {
 	auto x2 = gx(index) + 1;
 	auto y2 = gy(index) + 1;
 	for(int y = gy(index) - 1; y <= y2; y++) {
@@ -224,7 +224,7 @@ void dungeon::setactive(indext index, bool value, int radius) {
 	}
 }
 
-void dungeon::setactive(overlayi* po, bool value) {
+void dungeoni::setactive(overlayi* po, bool value) {
 	if(!po)
 		return;
 	auto wall = to(po->index, po->dir);
@@ -266,13 +266,13 @@ void dungeon::setactive(overlayi* po, bool value) {
 	}
 }
 
-cell_s dungeon::gettype(overlayi* po) {
+cell_s dungeoni::gettype(overlayi* po) {
 	if(!po)
 		return CellPassable;
 	return po->type;
 }
 
-void dungeon::fill(indext index, int sx, int sy, cell_s value) {
+void dungeoni::fill(indext index, int sx, int sy, cell_s value) {
 	auto x1 = gx(index);
 	auto x2 = x1 + sx;
 	auto y1 = gy(index);
@@ -283,7 +283,7 @@ void dungeon::fill(indext index, int sx, int sy, cell_s value) {
 	}
 }
 
-void dungeon::statei::clear() {
+void dungeoni::statei::clear() {
 	memset(this, 0, sizeof(*this));
 	down.index = Blocked;
 	up.index = Blocked;
@@ -295,20 +295,20 @@ void dungeon::statei::clear() {
 		e = Blocked;
 }
 
-void dungeon::clear() {
+void dungeoni::clear() {
 	memset(this, 0, sizeof(*this));
 	stat.clear();
 	for(auto& e : overlays)
 		e.clear();
 }
 
-void dungeon::finish(cell_s t) {
+void dungeoni::finish(cell_s t) {
 	for(int i = 1; i < mpx*mpy; i++)
 		if(data[i] == CellUnknown)
 			data[i] = t;
 }
 
-bool dungeon::isblocked(indext index) const {
+bool dungeoni::isblocked(indext index) const {
 	if(index == Blocked)
 		return true;
 	auto& ei = bsdata<celli>::elements[get(index)];
@@ -317,7 +317,7 @@ bool dungeon::isblocked(indext index) const {
 	return !ei.flags.is(Passable);
 }
 
-bool dungeon::isblocked(indext index, int side) const {
+bool dungeoni::isblocked(indext index, int side) const {
 	for(auto& e : monsters) {
 		if(!e)
 			continue;
@@ -327,14 +327,14 @@ bool dungeon::isblocked(indext index, int side) const {
 	return false;
 }
 
-short unsigned get_nearest(dungeon* pd, indext index, cell_s t1) {
+short unsigned get_nearest(dungeoni* pd, indext index, cell_s t1) {
 	auto t = pd->get(index);
 	if(t == t1)
 		return index;
 	return 0;
 }
 
-indext dungeon::getnearest(indext index, int radius, cell_s t1) {
+indext dungeoni::getnearest(indext index, int radius, cell_s t1) {
 	int x0 = gx(index);
 	int y0 = gy(index);
 	for(auto r = 0; r < radius; r++) {
@@ -366,7 +366,7 @@ indext dungeon::getnearest(indext index, int radius, cell_s t1) {
 	return 0;
 }
 
-indext* dungeon::getnearestfree(indext* indicies, indext index) {
+indext* dungeoni::getnearestfree(indext* indicies, indext index) {
 	auto p = indicies;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
 		auto i = to(index, d);
@@ -378,21 +378,21 @@ indext* dungeon::getnearestfree(indext* indicies, indext index) {
 	return indicies;
 }
 
-short unsigned dungeon::random(indext* indicies) {
+short unsigned dungeoni::random(indext* indicies) {
 	auto n = zlen(indicies);
 	if(!n)
 		return Blocked;
 	return indicies[rand() % n];
 }
 
-bool dungeon::ismatch(indext index, cell_s t1, cell_s t2) {
+bool dungeoni::ismatch(indext index, cell_s t1, cell_s t2) {
 	if(index == Blocked)
 		return true;
-	auto t = dungeon::get(index);
+	auto t = dungeoni::get(index);
 	return t == t1 || t == t2;
 }
 
-bool dungeon::allaround(indext index, cell_s t1, cell_s t2) {
+bool dungeoni::allaround(indext index, cell_s t1, cell_s t2) {
 	if(index == Blocked)
 		return false;
 	for(auto d = Left; d <= Down; d = (direction_s)(d + 1)) {
@@ -403,7 +403,7 @@ bool dungeon::allaround(indext index, cell_s t1, cell_s t2) {
 	return true;
 }
 
-void dungeon::turnto(indext index, direction_s dr, bool* surprise) {
+void dungeoni::turnto(indext index, direction_s dr, bool* surprise) {
 	if(!dr)
 		return;
 	if(index == game.getcamera()) {
@@ -423,7 +423,7 @@ void dungeon::turnto(indext index, direction_s dr, bool* surprise) {
 	}
 }
 
-void dungeon::getmonsters(creature** result, indext index, direction_s dr) {
+void dungeoni::getmonsters(creature** result, indext index, direction_s dr) {
 	result[0] = result[1] = result[2] = result[3] = 0;
 	if(index == Blocked)
 		return;
@@ -441,7 +441,7 @@ void dungeon::getmonsters(creature** result, indext index, direction_s dr) {
 	}
 }
 
-bool dungeon::ismonster(indext index) const {
+bool dungeoni::ismonster(indext index) const {
 	for(auto& e : monsters) {
 		if(!e)
 			continue;
@@ -451,7 +451,7 @@ bool dungeon::ismonster(indext index) const {
 	return false;
 }
 
-int dungeon::getfreeside(creature** sides) {
+int dungeoni::getfreeside(creature** sides) {
 	auto size = getsize(sides);
 	if(size >= Large)
 		return -1;
@@ -462,12 +462,12 @@ int dungeon::getfreeside(creature** sides) {
 	return -1;
 }
 
-int dungeon::getfreeside(indext index) {
+int dungeoni::getfreeside(indext index) {
 	creature* sides[4]; getmonsters(sides, index, Center);
 	return getfreeside(sides);
 }
 
-void dungeon::getblocked(indext* pathmap, bool treat_door_as_passable) {
+void dungeoni::getblocked(indext* pathmap, bool treat_door_as_passable) {
 	for(unsigned short index = 0; index < mpx*mpy; index++) {
 		switch(get(index)) {
 		case CellWall:
@@ -488,7 +488,7 @@ void dungeon::getblocked(indext* pathmap, bool treat_door_as_passable) {
 	}
 }
 
-void dungeon::makewave(indext start, indext* pathmap) {
+void dungeoni::makewave(indext start, indext* pathmap) {
 	if(start == Blocked || !pathmap)
 		return;
 	path_push = 0;
@@ -507,7 +507,7 @@ void dungeon::makewave(indext start, indext* pathmap) {
 	}
 }
 
-indext dungeon::getsecret() const {
+indext dungeoni::getsecret() const {
 	for(auto& e : overlays) {
 		if(!e.type)
 			break;
@@ -520,23 +520,23 @@ indext dungeon::getsecret() const {
 	return 0;
 }
 
-item_s dungeon::getkeytype(cell_s keyhole) const {
+item_s dungeoni::getkeytype(cell_s keyhole) const {
 	if(keyhole == CellKeyHole2)
 		return head.keys[1];
 	return head.keys[0];
 }
 
-race_s dungeon::getlanguage() const {
+race_s dungeoni::getlanguage() const {
 	return head.language;
 }
 
-indext dungeon::getindex(int x, int y) {
+indext dungeoni::getindex(int x, int y) {
 	if(x < 0 || x >= mpx || y < 0 || y >= mpy)
 		return Blocked;
 	return (indext)(y * mpx + x);
 }
 
-indext dungeon::gettarget(indext index, direction_s dir) {
+indext dungeoni::gettarget(indext index, direction_s dir) {
 	for(int i = 0; i < 3; i++) {
 		index = to(index, dir);
 		if(index == Blocked)
@@ -549,7 +549,7 @@ indext dungeon::gettarget(indext index, direction_s dir) {
 	return Blocked;
 }
 
-void dungeon::traplaunch(indext index, direction_s dir, item_s show, const combati& ci) {
+void dungeoni::traplaunch(indext index, direction_s dir, item_s show, const combati& ci) {
 	bool stop = false;
 	creature* result[4];
 	draw::animation::update();
@@ -579,12 +579,12 @@ void dungeon::traplaunch(indext index, direction_s dir, item_s show, const comba
 	}
 }
 
-void dungeon::overlayi::clear() {
+void dungeoni::overlayi::clear() {
 	memset(this, 0, sizeof(*this));
 	index = index_link = Blocked;
 }
 
-void dungeon::passround() {
+void dungeoni::passround() {
 	unsigned char map[mpx*mpy] = {0};
 	for(auto& e : monsters) {
 		if(!e)
@@ -632,7 +632,7 @@ void dungeon::passround() {
 	}
 }
 
-void dungeon::attack(const combati& wi, creature* defender) const {
+void dungeoni::attack(const combati& wi, creature* defender) const {
 	auto ac = defender->getac();
 	auto tohit = 20 - wi.bonus - (10 - ac);
 	auto rolls = xrand(1, 20);
@@ -660,7 +660,7 @@ void dungeon::attack(const combati& wi, creature* defender) const {
 	}
 }
 
-void dungeon::stop(indext index) {
+void dungeoni::stop(indext index) {
 	creature* s_side[4]; getmonsters(s_side, index, Center);
 	for(auto pc : s_side) {
 		if(!pc)
@@ -669,7 +669,7 @@ void dungeon::stop(indext index) {
 	}
 }
 
-size_s dungeon::getsize(creature** source) {
+size_s dungeoni::getsize(creature** source) {
 	auto result = Tiny;
 	for(int i = 0; i < 4; i++) {
 		if(!source[i])
@@ -682,13 +682,13 @@ size_s dungeon::getsize(creature** source) {
 }
 
 static bool is_valid_move_by_size(creature** s_side, creature** d_side) {
-	auto r = dungeon::getsize(s_side);
+	auto r = dungeoni::getsize(s_side);
 	if(r == Large)
 		return !d_side[0] && !d_side[1] && !d_side[2] && !d_side[3];
 	return true;
 }
 
-void dungeon::move(indext index, direction_s dr) {
+void dungeoni::move(indext index, direction_s dr) {
 	auto dest = to(index, dr);
 	if(isblocked(dest))
 		return;
@@ -747,7 +747,7 @@ static void falling_landing() {
 	}
 }
 
-void dungeon::hearnoises() {
+void dungeoni::hearnoises() {
 	direction_s secret_dir = Center;
 	auto index = game.getcamera();
 	auto dir = game.getdirection();
@@ -786,14 +786,14 @@ void dungeon::hearnoises() {
 	}
 }
 
-void dungeon::rotate(direction_s direction) {
+void dungeoni::rotate(direction_s direction) {
 	auto i = game.getcamera();
 	auto d = game.getdirection();
 	game.setcamera(i, to(d, direction));
 	hearnoises();
 }
 
-void dungeon::clearboost() {
+void dungeoni::clearboost() {
 	auto pb = bsdata<boosti>::elements;
 	for(auto& e : bsdata<boosti>()) {
 		auto p = e.owner.getcreature();
@@ -807,7 +807,7 @@ void dungeon::clearboost() {
 	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
 }
 
-void dungeon::move(direction_s direction) {
+void dungeoni::move(direction_s direction) {
 	int i = game.getcamera();
 	int i1 = to(i, to(game.getdirection(), direction));
 	auto t = get(i1);
@@ -827,14 +827,14 @@ void dungeon::move(direction_s direction) {
 			game.returntobase();
 			return;
 		}
-		game.enter(overland_index, level - 1);
+		game.enter(variant(Adventure, overland_index), level - 1);
 		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
 		break;
 	case CellStairsDown:
 		mslog("Going down");
 		game.write();
 		clearboost();
-		game.enter(overland_index, level + 1);
+		game.enter(variant(Adventure, overland_index), level + 1);
 		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
 		break;
 	case CellPit:
@@ -844,7 +844,7 @@ void dungeon::move(direction_s direction) {
 		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
 		falling_damage();
-		game.enter(overland_index, level + 1);
+		game.enter(variant(Adventure, overland_index), level + 1);
 		falling_landing();
 		break;
 	default:
@@ -856,7 +856,7 @@ void dungeon::move(direction_s direction) {
 	game.endround();
 }
 
-static item* find_item_to_get(dungeon& location, short unsigned index, int side) {
+static item* find_item_to_get(dungeoni& location, short unsigned index, int side) {
 	item* result[2];
 	int count = location.getitems(result, zendof(result), game.getcamera(), side);
 	if(!count)
@@ -866,7 +866,7 @@ static item* find_item_to_get(dungeon& location, short unsigned index, int side)
 	return result[0];
 }
 
-static int autodetect_side(dungeon& location, item* itm) {
+static int autodetect_side(dungeoni& location, item* itm) {
 	auto pc = itm->getowner();
 	if(!pc)
 		return 0;
@@ -874,7 +874,7 @@ static int autodetect_side(dungeon& location, item* itm) {
 	return n == -1 ? 0 : (n % 2);
 }
 
-void dungeon::pickitem(item* itm, int side) {
+void dungeoni::pickitem(item* itm, int side) {
 	if(!itm || *itm)
 		return;
 	if(side == -1)
@@ -892,7 +892,7 @@ void dungeon::pickitem(item* itm, int side) {
 	mslog("%1 picked up", temp);
 }
 
-void dungeon::dropitem(item* pi, int side) {
+void dungeoni::dropitem(item* pi, int side) {
 	auto pc = pi->getowner();
 	if(!pc)
 		return;
@@ -909,7 +909,7 @@ void dungeon::dropitem(item* pi, int side) {
 	pi->clear();
 }
 
-unsigned dungeon::getmonstercount() const {
+unsigned dungeoni::getmonstercount() const {
 	auto result = 0;
 	for(auto& e : monsters) {
 		if(e)
@@ -918,7 +918,7 @@ unsigned dungeon::getmonstercount() const {
 	return result;
 }
 
-void dungeon::passhour() {
+void dungeoni::passhour() {
 	short unsigned monster_count = getmonstercount();
 	if(monster_count >= stat.monsters / 2)
 		return;
@@ -937,7 +937,7 @@ void dungeon::passhour() {
 	}
 }
 
-void dungeon::set(indext index, reaction_s v) {
+void dungeoni::set(indext index, reaction_s v) {
 	for(auto& e : monsters) {
 		if(!e || e.getindex() != index)
 			continue;
@@ -945,7 +945,7 @@ void dungeon::set(indext index, reaction_s v) {
 	}
 }
 
-void dungeon::formation(indext index, direction_s dr) {
+void dungeoni::formation(indext index, direction_s dr) {
 	creature* creatures[4]; getmonsters(creatures, index, dr);
 	int sides[][2] = {{0, 2}, {1, 3}, {1, 2}, {0, 3}};
 	for(auto& m : sides) {
@@ -962,7 +962,7 @@ void dungeon::formation(indext index, direction_s dr) {
 	}
 }
 
-bool dungeon::is(indext index, int width, int height, cell_s t1) const {
+bool dungeoni::is(indext index, int width, int height, cell_s t1) const {
 	if(index == Blocked)
 		return false;
 	auto x = gx(index), y = gy(index);
@@ -976,7 +976,7 @@ bool dungeon::is(indext index, int width, int height, cell_s t1) const {
 	return true;
 }
 
-indext dungeon::getvalid(indext index, int width, int height, cell_s v) const {
+indext dungeoni::getvalid(indext index, int width, int height, cell_s v) const {
 	indext i;
 	auto x = gx(index), y = gy(index);
 	for(auto r = 0; r < 20; r++) {
@@ -1000,7 +1000,7 @@ indext dungeon::getvalid(indext index, int width, int height, cell_s v) const {
 	return Blocked;
 }
 
-bool dungeon::islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2) const {
+bool dungeoni::islineh(indext index, direction_s dir, int count, cell_s t1, cell_s t2) const {
 	if(index == Blocked)
 		return false;
 	auto i1 = index;
@@ -1019,7 +1019,7 @@ bool dungeon::islineh(indext index, direction_s dir, int count, cell_s t1, cell_
 	return true;
 }
 
-bool dungeon::isroom(indext index, direction_s dir, int side, int height) const {
+bool dungeoni::isroom(indext index, direction_s dir, int side, int height) const {
 	while(height > 0) {
 		if(!islineh(index, dir, side, CellWall, CellUnknown))
 			return false;
@@ -1028,7 +1028,7 @@ bool dungeon::isroom(indext index, direction_s dir, int side, int height) const 
 	return true;
 }
 
-bool dungeon::is(const rect& rc, cell_s id) const {
+bool dungeoni::is(const rect& rc, cell_s id) const {
 	for(auto x = rc.x1; x <= rc.x2; x++) {
 		for(auto y = rc.y1; y <= rc.y2; y++) {
 			if(get(x, y) != id)
@@ -1038,7 +1038,7 @@ bool dungeon::is(const rect& rc, cell_s id) const {
 	return true;
 }
 
-bool dungeon::create(rect& result, int w, int h) const {
+bool dungeoni::create(rect& result, int w, int h) const {
 	const int border = 1;
 	auto x2 = mpx - w - 1 - border;
 	auto y2 = mpy - h - 1 - border;
@@ -1065,7 +1065,7 @@ bool dungeon::create(rect& result, int w, int h) const {
 	return false;
 }
 
-void dungeon::makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side) {
+void dungeoni::makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side) {
 	indext i = Blocked;
 	switch(dir) {
 	case Left: i = getindex(rc.x1, rc.y1 + rc.height() / 2); break;
@@ -1083,7 +1083,7 @@ void dungeon::makedoor(const rect& rc, overlayi& door, direction_s dir, bool has
 		add(to(i, dir), CellDoorButton, to(dir, Down));
 }
 
-void dungeon::makeroom(const rect& rc, overlayi& door) {
+void dungeoni::makeroom(const rect& rc, overlayi& door) {
 	static direction_s dirs[] = {Left, Right, Up, Down};
 	// Floor
 	for(auto x = rc.x1; x <= rc.x2; x++) {
@@ -1102,7 +1102,7 @@ void dungeon::makeroom(const rect& rc, overlayi& door) {
 	makedoor(rc, door, maprnd(dirs), false, false);
 }
 
-bool dungeon::ismonsternearby(indext i, int r) const {
+bool dungeoni::ismonsternearby(indext i, int r) const {
 	auto xc = gx(i);
 	auto yc = gy(i);
 	for(auto x = xc - r; x <= xc + r; x++) {
@@ -1117,7 +1117,7 @@ bool dungeon::ismonsternearby(indext i, int r) const {
 	return false;
 }
 
-void dungeon::explore(indext index, int r) {
+void dungeoni::explore(indext index, int r) {
 	int x0 = gx(index);
 	int y0 = gy(index);
 	for(int y = y0 - r; y < y0 + r; y++) {
@@ -1131,7 +1131,7 @@ void dungeon::explore(indext index, int r) {
 	}
 }
 
-void dungeon::set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run, bool mirror, bool place_from_zero_point) {
+void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run, bool mirror, bool place_from_zero_point) {
 	int dx, dy;
 	const char* p;
 	for(auto i = 0; i < 10; i++)
@@ -1220,7 +1220,7 @@ void dungeon::set(indext index, direction_s dir, shape_s type, point& size, inde
 	}
 }
 
-const char* dungeon::getnavigation(indext index) const {
+const char* dungeoni::getnavigation(indext index) const {
 	static const char* names[] = {"north-west", "northen", "north-east",
 		"western", "central", "easten",
 		"south-west", "southern", "south-east"
@@ -1232,7 +1232,7 @@ const char* dungeon::getnavigation(indext index) const {
 	return names[y * 3 + x];
 }
 
-bool dungeon::islying(indext index, item_s type) const {
+bool dungeoni::islying(indext index, item_s type) const {
 	for(auto& e : cellar_items) {
 		if(!e)
 			continue;

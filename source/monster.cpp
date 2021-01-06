@@ -109,7 +109,7 @@ void creature::set(monster_s value) {
 	pallette = mi.getpallette();
 }
 
-creature* dungeon::addmonster(monster_s type, indext index, char side, direction_s dir) {
+creature* dungeoni::addmonster(monster_s type, indext index, char side, direction_s dir) {
 	auto pc = monsters;
 	while(pc < monsters + sizeof(monsters) / sizeof(monsters[0])) {
 		if(!(*pc))
@@ -138,7 +138,7 @@ creature* dungeon::addmonster(monster_s type, indext index, char side, direction
 	return pc;
 }
 
-int dungeon::addmonster(monster_s type, indext index, direction_s dir) {
+int dungeoni::addmonster(monster_s type, indext index, direction_s dir) {
 	const auto& e = bsdata<monsteri>::elements[type];
 	int count = 1;
 	if(e.size == Tall)

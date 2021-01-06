@@ -38,7 +38,7 @@ creature* creaturea::getbest(ability_s v) const {
 int	creaturea::getaverage(ability_s v) const {
 	auto total = 0, count = 0;
 	for(auto p : *this) {
-		if(!p || !p->isready())
+		if(!p->isready())
 			continue;
 		total += p->get(v);
 		count++;
@@ -50,7 +50,7 @@ int	creaturea::getaverage(ability_s v) const {
 
 void creaturea::select() {
 	for(auto p : party) {
-		if(!p || !p->isready())
+		if(!p->isready())
 			continue;
 		add(p);
 	}
@@ -116,8 +116,6 @@ creature* creaturea::getmostdamaged() const {
 	creature* result = 0;
 	int difference = 0;
 	for(auto p : *this) {
-		if(!p)
-			continue;
 		int hp = p->gethits();
 		int mhp = p->gethitsmaximum();
 		if(hp == mhp)

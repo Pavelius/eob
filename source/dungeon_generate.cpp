@@ -12,24 +12,24 @@ static direction_s		all_around[] = {Left, Right, Up, Down};
 static roomi			rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
 static unsigned char	stack_put; // Вершина стека.
 static unsigned char	stack_get; // Низ стека
-typedef void fnroom(dungeon& e, direction_s dir, const sitei* site, indext* indecies);
+typedef void fnroom(dungeoni& e, direction_s dir, const sitei* site, indext* indecies);
 
-typedef void(*dungeon_proc)(dungeon* pd, short unsigned index, direction_s dir, unsigned flags);
+typedef void(*dungeon_proc)(dungeoni* pd, short unsigned index, direction_s dir, unsigned flags);
 
-static void set(dungeon* pd, indext index, cell_s t1) {
+static void set(dungeoni* pd, indext index, cell_s t1) {
 	if(index != Blocked && pd->get(index) == CellUnknown)
 		pd->set(index, t1);
 }
 
-static void set(dungeon* pd, indext index, direction_s dir, cell_s t1) {
+static void set(dungeoni* pd, indext index, direction_s dir, cell_s t1) {
 	set(pd, to(index, dir), t1);
 }
 
-static void setwall(dungeon* pd, indext index, direction_s dir) {
+static void setwall(dungeoni* pd, indext index, direction_s dir) {
 	set(pd, index, dir, CellWall);
 }
 
-static bool isvalid(dungeon* pd, indext index, direction_s dir, cell_s t1 = CellUnknown) {
+static bool isvalid(dungeoni* pd, indext index, direction_s dir, cell_s t1 = CellUnknown) {
 	index = to(index, dir);
 	if(index == Blocked)
 		return false;
@@ -39,7 +39,7 @@ static bool isvalid(dungeon* pd, indext index, direction_s dir, cell_s t1 = Cell
 	return true;
 }
 
-static bool isaround(dungeon* pd, indext index, direction_s dir, cell_s t1 = CellUnknown) {
+static bool isaround(dungeoni* pd, indext index, direction_s dir, cell_s t1 = CellUnknown) {
 	if(!isvalid(pd, index, to(dir, Left), t1))
 		return false;
 	if(!isvalid(pd, index, to(dir, Right), t1))
@@ -49,7 +49,7 @@ static bool isaround(dungeon* pd, indext index, direction_s dir, cell_s t1 = Cel
 	return true;
 }
 
-static void putroom(dungeon* pd, indext index, direction_s dir, unsigned flags, bool test_valid) {
+static void putroom(dungeoni* pd, indext index, direction_s dir, unsigned flags, bool test_valid) {
 	if(index == Blocked)
 		return;
 	if(test_valid && !isvalid(pd, index, dir))
@@ -68,7 +68,7 @@ static bool hasrooms() {
 	return stack_get != stack_put;
 }
 
-void dungeon::set(indext index, direction_s dir, cell_s type) {
+void dungeoni::set(indext index, direction_s dir, cell_s type) {
 	set(to(index, to(dir, Left)), CellWall);
 	set(to(index, to(dir, Right)), CellWall);
 	set(to(index, to(dir, Down)), CellWall);
@@ -91,7 +91,7 @@ void dungeon::set(indext index, direction_s dir, cell_s type) {
 	}
 }
 
-static bool place(dungeon* pd, cell_s t, direction_s dir, indext index) {
+static bool place(dungeoni* pd, cell_s t, direction_s dir, indext index) {
 	if(pd->get(index) != CellUnknown)
 		return false;
 	if(!isvalid(pd, index, dir))
@@ -100,7 +100,7 @@ static bool place(dungeon* pd, cell_s t, direction_s dir, indext index) {
 	return true;
 }
 
-static bool place(dungeon* pd, cell_s t, direction_s dir, int x, int y, int radius) {
+static bool place(dungeoni* pd, cell_s t, direction_s dir, int x, int y, int radius) {
 	for(auto r = 0; r < radius; r++) {
 		for(auto x1 = x - r; x1 <= x + r; x1++) {
 			for(auto y1 = y - r; y1 <= y + r; y1++) {
@@ -116,11 +116,11 @@ static direction_s random_dir() {
 	return (direction_s)xrand(Left, Down);
 }
 
-static bool place(dungeon* pd, cell_s t) {
+static bool place(dungeoni* pd, cell_s t) {
 	return place(pd, t, random_dir(), xrand(2, mpx - 3), xrand(2, mpy - 3), 6);
 }
 
-static bool stairs(dungeon* pd, indext start, bool last_level) {
+static bool stairs(dungeoni* pd, indext start, bool last_level) {
 	if(start != Blocked)
 		pd->set(start, random_dir(), CellStairsUp);
 	else {
@@ -134,7 +134,7 @@ static bool stairs(dungeon* pd, indext start, bool last_level) {
 	return true;
 }
 
-static bool iswalls(dungeon* pd, indext index, direction_s dir) {
+static bool iswalls(dungeoni* pd, indext index, direction_s dir) {
 	if(!isvalid(pd, index, dir, CellWall))
 		return false;
 	auto i1 = to(index, dir);
@@ -225,7 +225,7 @@ static item_s random_type(bool small_size = false) {
 	return random_subtype(t);
 }
 
-static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
+static item create_item(dungeoni* pd, item_s type, int bonus_chance_magic) {
 	if(type == KeyCooper) {
 		if(d100() < 60)
 			type = pd->head.keys[0];
@@ -278,16 +278,16 @@ static item create_item(dungeon* pd, item_s type, int bonus_chance_magic) {
 	return it;
 }
 
-static void items(dungeon* pd, indext index, item_s type, int bonus_chance_magic) {
+static void items(dungeoni* pd, indext index, item_s type, int bonus_chance_magic) {
 	pd->dropitem(index, create_item(pd, type, bonus_chance_magic), xrand(0, 3));
 	pd->stat.items++;
 }
 
-static void items(dungeon* pd, indext index, int bonus_chance_magic) {
+static void items(dungeoni* pd, indext index, int bonus_chance_magic) {
 	items(pd, index, random_type(), bonus_chance_magic);
 }
 
-static void crypt_button(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void crypt_button(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
@@ -297,7 +297,7 @@ static void crypt_button(dungeon* pd, indext index, direction_s dir, unsigned fl
 	pd->stat.crypt_button = *po;
 }
 
-static bool need_crypt_button(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static bool need_crypt_button(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->stat.crypt_button.index == Blocked && pd->stat.crypt.index != Blocked) {
 		crypt_button(pd, index, dir, flags);
 		return true;
@@ -305,7 +305,7 @@ static bool need_crypt_button(dungeon* pd, indext index, direction_s dir, unsign
 	return false;
 }
 
-static void secret(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void secret(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto i1 = to(index, dir);
 	if(!pd->ismatch(i1, CellWall, CellUnknown))
 		return;
@@ -330,12 +330,12 @@ static void secret(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 	pd->stat.secrets++;
 }
 
-static void monster(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void monster(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto n = (d100() < 30) ? 1 : 0;
 	pd->stat.monsters += pd->addmonster(pd->head.habbits[n], index);
 }
 
-static void prison(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void prison(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(need_crypt_button(pd, index, dir, flags))
@@ -363,7 +363,7 @@ static void prison(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 	pd->set(to(i2, to(dir, Up)), CellWall);
 }
 
-static void treasure(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void treasure(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(need_crypt_button(pd, index, dir, flags))
@@ -398,7 +398,7 @@ static void treasure(dungeon* pd, indext index, direction_s dir, unsigned flags)
 	pd->set(to(i2, to(dir, Up)), CellWall);
 }
 
-static void decoration(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void decoration(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(need_crypt_button(pd, index, dir, flags))
@@ -411,7 +411,7 @@ static void decoration(dungeon* pd, indext index, direction_s dir, unsigned flag
 	pd->add(index, maprnd(random), dir);
 }
 
-static void portal(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void portal(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(pd->stat.portal.index != Blocked)
@@ -428,7 +428,7 @@ static void portal(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 	pd->set(i1, to(dir, Down), CellPortal);
 }
 
-static void message(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void message(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(pd->stat.messages > MessageHabbits)
@@ -442,14 +442,14 @@ static void message(dungeon* pd, indext index, direction_s dir, unsigned flags) 
 	pd->stat.messages++;
 }
 
-static bool ispassable(dungeon* pd, indext index) {
+static bool ispassable(dungeoni* pd, indext index) {
 	if(index == Blocked)
 		return false;
 	auto t = pd->get(index);
 	return t == CellPassable || t == CellUnknown;
 }
 
-static bool room(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static bool room(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	int i1 = to(index, dir);
 	if(!isvalid(pd, index, Up, CellPassable) || !isvalid(pd, index, Right, CellPassable) || !isvalid(pd, index, Right, CellPassable)
 		|| !isvalid(pd, i1, Left, CellPassable) || !isvalid(pd, i1, Right, CellPassable))
@@ -482,7 +482,7 @@ static bool room(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 	return true;
 }
 
-static bool door(dungeon* pd, indext index, direction_s dir, bool has_button, bool has_button_on_other_side) {
+static bool door(dungeoni* pd, indext index, direction_s dir, bool has_button, bool has_button_on_other_side) {
 	if(pd->head.type == FOREST)
 		return true;
 	auto i1 = to(index, dir);
@@ -499,7 +499,7 @@ static bool door(dungeon* pd, indext index, direction_s dir, bool has_button, bo
 	return true;
 }
 
-static short unsigned find_index(dungeon* pd, indext index, direction_s dir) {
+static short unsigned find_index(dungeoni* pd, indext index, direction_s dir) {
 	while(true) {
 		auto i1 = to(index, dir);
 		if(i1 == Blocked)
@@ -520,7 +520,7 @@ static short unsigned find_index(dungeon* pd, indext index, direction_s dir) {
 	}
 }
 
-static void trap(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void trap(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	auto dr = to(dir, Left);
@@ -546,7 +546,7 @@ static int random_cellar_count() {
 	return 2;
 }
 
-static void cellar(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void cellar(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(pd->head.type == FOREST)
 		return;
 	if(need_crypt_button(pd, index, dir, flags))
@@ -567,17 +567,17 @@ static void cellar(dungeon* pd, indext index, direction_s dir, unsigned flags) {
 	}
 }
 
-static void empthy(dungeon* pd, indext index, direction_s dir, unsigned flags) {}
+static void empthy(dungeoni* pd, indext index, direction_s dir, unsigned flags) {}
 
-static void rations(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void rations(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	items(pd, index, Ration, 0);
 }
 
-static void stones(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void stones(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	items(pd, index, Stone, 0);
 }
 
-static bool test_hall(const dungeon* pd, indext& index, direction_s dir, int w, int h) {
+static bool test_hall(const dungeoni* pd, indext& index, direction_s dir, int w, int h) {
 	if(index == Blocked)
 		return false;
 	auto x = gx(index), y = gy(index);
@@ -600,7 +600,7 @@ static bool test_hall(const dungeon* pd, indext& index, direction_s dir, int w, 
 	return true;
 }
 
-static void set(dungeon* pd, indext index, int w, int h, cell_s v) {
+static void set(dungeoni* pd, indext index, int w, int h, cell_s v) {
 	if(index == Blocked)
 		return;
 	auto x = gx(index), y = gy(index);
@@ -610,7 +610,7 @@ static void set(dungeon* pd, indext index, int w, int h, cell_s v) {
 			pd->set(pd->get(x1, y1), v);
 }
 
-static void corridor(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto chance = 0;
 	if(index == Blocked)
 		return;
@@ -683,7 +683,7 @@ static void corridor(dungeon* pd, indext index, direction_s dir, unsigned flags)
 	}
 }
 
-static bool is_valid_dungeon(dungeon* pd) {
+static bool is_valid_dungeon(dungeoni* pd) {
 	unsigned short pathmap[mpy*mpx];
 	if(pd->stat.down.index == Blocked || pd->stat.up.index == Blocked)
 		return true;
@@ -692,7 +692,7 @@ static bool is_valid_dungeon(dungeon* pd) {
 	return pathmap[pd->stat.down.index] != 0;
 }
 
-static void remove_all_overlay(dungeon* pd, indext index) {
+static void remove_all_overlay(dungeoni* pd, indext index) {
 	if(index == Blocked)
 		return;
 	for(auto& e : pd->overlays) {
@@ -712,7 +712,7 @@ static void drop_special_ground(item& it, indext index) {
 	it.clear();
 }
 
-static void validate_special_items(dungeon& location) {
+static void validate_special_items(dungeoni& location) {
 	if(!location.head.wands)
 		return;
 	if(location.stat.wands)
@@ -723,7 +723,7 @@ static void validate_special_items(dungeon& location) {
 	if(d100() < 10)
 		it.setcursed(1);
 	if(it && it.issmall()) {
-		adat<dungeon::overlayi*, 512> source;
+		adat<dungeoni::overlayi*, 512> source;
 		for(auto& e : location.overlays) {
 			if(!e || e.type != CellCellar)
 				continue;
@@ -756,7 +756,7 @@ static void validate_special_items(dungeon& location) {
 		drop_special_ground(it, location.stat.up.index);
 }
 
-static void remove_dead_door(dungeon* pd) {
+static void remove_dead_door(dungeoni* pd) {
 	for(short unsigned i = 0; i < mpx*mpy; i++) {
 		auto t = pd->get(i);
 		if(t != CellDoor)
@@ -770,7 +770,7 @@ static void remove_dead_door(dungeon* pd) {
 	}
 }
 
-static void link_dungeon(dungeon& location, dungeon& below) {
+static void link_dungeon(dungeoni& location, dungeoni& below) {
 	unsigned short pm1[mpy*mpx];
 	unsigned short pm2[mpy*mpx];
 	unsigned short pme[mpx*mpy];
@@ -810,7 +810,7 @@ static void link_dungeon(dungeon& location, dungeon& below) {
 		location.set(pme[i], CellPit);
 }
 
-static bool isroom(const dungeon& location, int x, int y, int r) {
+static bool isroom(const dungeoni& location, int x, int y, int r) {
 	for(auto x1 = x - r; x1 <= x + r; x1++) {
 		for(auto y1 = y - r; y1 <= y + r; y1++) {
 			auto i = location.getindex(x, y);
@@ -823,7 +823,7 @@ static bool isroom(const dungeon& location, int x, int y, int r) {
 	return true;
 }
 
-static unsigned find_rooms(indext* source, const indext* pe, const dungeon& location) {
+static unsigned find_rooms(indext* source, const indext* pe, const dungeoni& location) {
 	auto pb = source;
 	for(auto x = 0; x < mpx; x++) {
 		for(auto y = 0; y < mpy; y++) {
@@ -839,7 +839,7 @@ static unsigned find_rooms(indext* source, const indext* pe, const dungeon& loca
 	return pb - source;
 }
 
-static void add_spawn_points(dungeon& location) {
+static void add_spawn_points(dungeoni& location) {
 	adat<short unsigned> source;
 	source.count = find_rooms(source.data, source.endof(), location);
 	if(!source.count)
@@ -849,23 +849,23 @@ static void add_spawn_points(dungeon& location) {
 		location.stat.spawn[i] = source.data[i];
 }
 
-static void den(dungeon* pd, indext index, direction_s dir, unsigned flags) {
+static void den(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	if(!pd->isroom(index, dir, 2, 6))
 		return;
 }
 
-static void stairs_up(dungeon& e, direction_s dir, const sitei* p, indext* indecies) {
+static void stairs_up(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
 	e.set(indecies[0], dir, CellStairsUp);
 }
 
-static void stairs_down(dungeon& e, direction_s dir, const sitei* p, indext* indecies) {
+static void stairs_down(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
 	e.set(indecies[0], dir, CellStairsDown);
 }
 
-static void empthy_room(dungeon& e, direction_s dir, const sitei* p, indext* indecies) {
+static void empthy_room(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
 }
 
-static void create_crypt(dungeon& e, direction_s dir, const sitei* p, indext* indecies) {
+static void create_crypt(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
 	e.stat.crypt;
 	e.stat.crypt.index = indecies[0];
 	e.stat.crypt.dir = dir;
@@ -874,7 +874,7 @@ static void create_crypt(dungeon& e, direction_s dir, const sitei* p, indext* in
 	putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 }
 
-static void create_room(dungeon& e, indext index, shape_s place, direction_s dir, bool mirror, const sitei* site, fnroom proc, bool place_in_zero_index) {
+static void create_room(dungeoni& e, indext index, shape_s place, direction_s dir, bool mirror, const sitei* site, fnroom proc, bool place_in_zero_index) {
 	if(index == Blocked)
 		return;
 	indext indecies[10];
@@ -884,7 +884,7 @@ static void create_room(dungeon& e, indext index, shape_s place, direction_s dir
 	putroom(&e, indecies[0], dir, EmpthyStartIndex, false);
 }
 
-static void create_room(dungeon& e, shape_s place, const sitei* site, fnroom proc) {
+static void create_room(dungeoni& e, shape_s place, const sitei* site, fnroom proc) {
 	indext indecies[10]; point size;
 	auto mirror = d100() < 50;
 	auto dir = maprnd(all_around);
@@ -902,11 +902,11 @@ void adventurei::create(bool interactive) const {
 	auto count = levels->getleveltotal();
 	if(!count)
 		return;
-	auto dungeons = new dungeon[count];
+	auto dungeons = new dungeoni[count];
 	if(!dungeons)
 		return;
 	auto base = 0;
-	dungeon* previous = 0;
+	dungeoni* previous = 0;
 	for(auto p = levels; *p; p++) {
 		auto special_item_level = -1;
 		if(p->head.wands)

@@ -1,5 +1,28 @@
 #include "main.h"
 
+static const char* answer_inn[] = {
+	"If you want stay at night and have comfortable rest - you must go to the inn. Of course, in tavern or on the street you also may rest, but ony in inn you rest will be most effective.",
+	"If you want travel you may do it by foot, just moving from one settlement to another. But this option consume time and sometimes endanger you. If luck of time, you may use stable and move with caravans faster from one place to another. Also, in coasted city, you may use harbor, to cross very long distance by short time. What can be easier?",
+	"When you are boring - move to tavern. In that place you always find something funny. Try get some drink and adnventure start by itsef.",
+};
+static const char* answer_tavern[] = {
+	"Try to play in cards or dices with those locals. If luck will be granted to you, you may raise coins. The richer taver, the greater gain would be.",
+	"Beware of tough guys. They can kill you at the night.",
+	"Talking with people in place like this, or maybe inn can be useful. Some people give you important piece of information or goo life hack.",
+};
+static const char* answer_boring[] = {
+	"Not you again. Goodbuy.",
+	"Excuse me, I am busy.",
+	"It's all that I know. Try visit another day.",
+	"Stop talking. Enought.",
+};
+static const char* talk_opponent[] = {
+	"old dwarf", "middle aged human", "young man",
+	"beautiful woman", "scarred traveller", "welldressed woman",
+	"old men with a staff", "strong guy", "rotten teathed man",
+	"black hair woman", "traveller in a coach"
+};
+
 static char				prompt_text[512];
 static stringbuilder	sb(prompt_text);
 static unsigned char	prosperty_progress[10] = {0, 5, 10, 15, 20, 30, 40, 55, 80, 100};
@@ -158,14 +181,9 @@ static void showmessage() {
 	sb.clear();
 }
 
-static bool drink_and_seat(building_s b, action_s a, int coins) {
-	static imagei ei = {BUILDNGS, 6};
-	sb.clear();
-	ei.add(sb);
-	sb.add("\"Good, day!\" - bartender sad - \"Cost for drinking would be %1i gold coins. Do you want pay?\"", coins);
+static bool confirm_pay() {
 	if(!confirm(sb)) {
 		sb.clear();
-		ei.add(sb);
 		sb.add("\"Very well. So get out of here, and not waste my time!\"");
 		showmessage();
 		return false;
@@ -201,6 +219,28 @@ static void gambling(creaturea& creatures) {
 		game.addgold(-b);
 		showmessage();
 	}
+}
+
+static bool resting(building_s b, creaturea& creatures) {
+	auto cost = party.getcount();
+	auto healed = 1;
+	sb.clear();
+	if(b == Tavern) {
+		sb.add("Bartender looked for you and sad: \"Get food and drink for this gentlemens! And this will be cost %1i gold coins. Do you pay?\"", cost);
+		if(!confirm_pay())
+			return false;
+	} else if(b == Inn) {
+		healed += 4;
+		sb.add("Inn's owner looked for you and sad: \"You may stay. It will be cost %1i gold coins. Do you pay?\"", cost);
+		if(!confirm_pay())
+			return false;
+		for(auto p : creatures)
+			p->autocast(creatures);
+	}
+	for(auto p : creatures)
+		p->resting(healed);
+	game.passtime(8 * 60);
+	return true;
 }
 
 static variant current_action;
@@ -255,6 +295,64 @@ static int getmaximumdistance(building_s b) {
 	}
 }
 
+static const char* talk_boring(building_s b) {
+	return maprnd(answer_boring);
+}
+
+static const char* talk_rumor(building_s b) {
+	switch(b) {
+	case Inn:
+		return maprnd(answer_inn);
+	case Tavern:
+		if(d100()<30)
+			return maprnd(answer_inn);
+		return maprnd(answer_tavern);
+	default:
+		return talk_boring(b);
+	}
+}
+
+static const char* random_opponent() {
+	return maprnd(talk_opponent);
+}
+
+bool talk(building_s b, creaturea& party, char& informations) {
+	sb.clear();
+	static imagei im = {BUILDNGS, 20};
+	const char* ps = 0;
+	auto po = random_opponent();
+	if(informations <= -4) {
+		sb.add("There is no one who want to talk with you. Try talk another day.");
+		showmessage();
+		return false;
+	} else if(informations <= 0)
+		ps = talk_boring(b);
+	else
+		ps = talk_rumor(b);
+	if(!game.roll(party.getaverage(Charisma)))
+		informations--;
+	im.add(sb);
+	if(b==Tavern)
+		sb.add("An %+1 drink with you and sad", po);
+	else
+		sb.add("You find an %+1, who sad", po);
+	sb.add(": \"");
+	sb.add(ps);
+	sb.add("\"");
+	showmessage();
+	return true;
+}
+
+static bool drink_and_seat(building_s b, action_s a, int coins, creaturea& party, char& informations) {
+	static imagei ei = {BUILDNGS, 6};
+	sb.clear();
+	ei.add(sb);
+	sb.add("\"Good, day!\" - bartender sad - \"Cost for drinking would be %1i gold coins. Do you want pay?\"", coins);
+	if(!confirm_pay())
+		false;
+	return talk(b, party, informations);
+}
+
 bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
@@ -289,9 +387,11 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Drink:
 		if(run)
-			return drink_and_seat(b, a, 3);
+			return drink_and_seat(b, a, 3, party, talk_tavern);
 		break;
 	case Talk:
+		if(run)
+			return talk(b, party, talk_inn);
 		break;
 	case Travel:
 		vars.clear();
@@ -320,6 +420,10 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Leave:
 		break;
+	case Rest:
+		if(run)
+			return resting(b, party);
+		break;
 	default:
 		return false;
 	}
@@ -327,6 +431,8 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 }
 
 void settlementi::adventure() {
+	talk_inn = 3;
+	talk_tavern = 3;
 	auto v = enter();
 	switch(v.type) {
 	case Action:

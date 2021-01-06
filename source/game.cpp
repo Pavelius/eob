@@ -18,8 +18,8 @@ static const char* name_direction[] = {"floor",
 
 gamei					game;
 creaturea				party;
-dungeon					location_above;
-dungeon					location;
+dungeoni					location_above;
+dungeoni					location;
 
 void gamei::setcamera(indext index, direction_s direction) {
 	camera_index = index;
@@ -205,7 +205,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 	}
 }
 
-void read_message(dungeon* pd, dungeon::overlayi* po);
+void read_message(dungeoni* pd, dungeoni::overlayi* po);
 
 bool gamei::manipulate(item* itm, direction_s dr) {
 	int index = getcamera();
@@ -518,7 +518,7 @@ static bool serialize(bool writemode) {
 	return addstatical(a);
 }
 
-static bool serialize(dungeon& e, short unsigned index, char level, bool write_mode) {
+static bool serialize(dungeoni& e, short unsigned index, char level, bool write_mode) {
 	char temp[260]; stringbuilder sb(temp);
 	sb.add("maps/%1.6h%2.2h.aum", index, level);
 	io::file file(temp, write_mode ? StreamWrite : StreamRead);
@@ -567,11 +567,11 @@ bool companyi::read(const char* name) {
 	return result;
 }
 
-void dungeon::write() {
+void dungeoni::write() {
 	serialize(*this, overland_index, level, true);
 }
 
-bool dungeon::read(short unsigned overland, char level) {
+bool dungeoni::read(short unsigned overland, char level) {
 	return serialize(*this, overland, level, false);
 }
 
@@ -720,12 +720,17 @@ void gamei::clear() {
 
 void gamei::preserial(bool writemode) {
 	if(writemode) {
-		for(auto i = 0; i < 6; i++)
+		memset(players, 0, sizeof(players));
+		for(auto i = 0; i < party.getcount(); i++)
 			players[i] = party[i];
 	} else {
 		party.clear();
-		for(auto i = 0; i < 6; i++)
-			party.add(players[i].getcreature());
+		for(auto i = 0; i < 6; i++) {
+			auto p = players[i].getcreature();
+			if(!p)
+				continue;
+			party.add(p);
+		}
 	}
 }
 
@@ -797,5 +802,48 @@ void gamei::scriblescrolls() {
 			pc->scribe(*pi);
 			break;
 		}
+	}
+}
+
+void creature::autocast(creaturea& party) {
+	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry, CureSeriousWounds};
+	for(auto e : healing_spells) {
+		while(get(e) > 0) {
+			auto target = party.getmostdamaged();
+			if(!target)
+				break;
+			cast(e, Cleric, 0, target);
+		}
+	}
+}
+
+void gamei::camp(item& it) {
+	for(auto p : party) {
+		if(!p->isready())
+			continue;
+		p->autocast(party);
+	}
+	game.passtime(60 * 8);
+	auto food = it.gettype();
+	auto poisoned = it.iscursed();
+	if(poisoned)
+		mslog("Food was poisoned!");
+	for(auto p : party) {
+		// RULE: Ring of healing get addition healing
+		int healed = 0;
+		if(poisoned) {
+			// RULE: Cursed food add weak poison
+			p->add(Poison, Instant, NoSave);
+		} else {
+			switch(food) {
+			case Ration:
+				healed += xrand(1, 3);
+				break;
+			case RationIron:
+				healed += xrand(2, 6);
+				break;
+			}
+		}
+		p->resting(healed);
 	}
 }

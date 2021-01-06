@@ -1,5 +1,13 @@
 #include "main.h"
 
+namespace {
+struct chati {
+	action_s	action;
+	conditiona	conditions;
+	const char*	text;
+};
+}
+
 static chati messages[] = {{Greeting, {Indifferent, Ave}, "\"Who is you? How you get there?\""},
 {Greeting, {Indifferent, Low}, "\"Who is there? How you dig so deep?\""},
 {Greeting, {Indifferent, Low}, "\"Whatta you doing here? And a who is you?\""},

@@ -61,7 +61,7 @@ static void show_camera_pos() {
 	}
 }
 
-cell_s tget(const dungeon& location, int x, int y) {
+cell_s tget(const dungeoni& location, int x, int y) {
 	if(!location.is(location.getindex(x, y), CellExplored))
 		return CellWall;
 	auto t = location.get(x, y);
@@ -74,7 +74,7 @@ cell_s tget(const dungeon& location, int x, int y) {
 	}
 }
 
-static void fill_neighboard(const dungeon& location, int x, int y, cell_s* nb) {
+static void fill_neighboard(const dungeoni& location, int x, int y, cell_s* nb) {
 	nb[0] = tget(location, x - 1, y);
 	nb[1] = tget(location, x, y - 1);
 	nb[2] = tget(location, x + 1, y);
@@ -124,7 +124,7 @@ static void fill_border(int x, int y, int dx, color border, cell_s* nb, cell_s t
 	}
 }
 
-static void render_overlays(const dungeon& location, bool fog_of_war) {
+static void render_overlays(const dungeoni& location, bool fog_of_war) {
 	draw::state push;
 	for(auto& e : location.overlays) {
 		if(!e)
@@ -155,7 +155,7 @@ static void render_overlays(const dungeon& location, bool fog_of_war) {
 	}
 }
 
-static void render_automap(const dungeon& location, bool fog_of_war) {
+static void render_automap(const dungeoni& location, bool fog_of_war) {
 	draw::state push;
 	cell_s nb[8];
 	draw::rectf({0, 0, 320, 200}, cpass);
@@ -230,13 +230,13 @@ static void render_automap(const dungeon& location, bool fog_of_war) {
 	}
 }
 
-void dungeon::automap(bool fow) {
+void dungeoni::automap(bool fow) {
 	render_automap(*this, fow);
 	show_camera_pos();
 	draw::pause();
 }
 
-void dungeon::appear(indext index, int radius) {
+void dungeoni::appear(indext index, int radius) {
 	render_automap(*this, true);
 	draw::screenshoot before;
 	explore(index, radius);

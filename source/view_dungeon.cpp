@@ -214,7 +214,7 @@ direction_s get_absolute_direction(direction_s d, direction_s d1) {
 	}
 }
 
-static int get_dungeon_floor(dungeon* pd, int x, int y, direction_s dir) {
+static int get_dungeon_floor(dungeoni* pd, int x, int y, direction_s dir) {
 	if(x < 0 || y < 0 || x >= mpx || y >= mpy)
 		return -1;
 	auto index = pd->getindex(x, y);
@@ -469,7 +469,7 @@ bool draw::settiles(resource_s type) {
 	return true;
 }
 
-static dungeon::overlayi* add_wall_decor(renderi* p, indext index, direction_s dir, int n, bool flip, bool use_flip) {
+static dungeoni::overlayi* add_wall_decor(renderi* p, indext index, direction_s dir, int n, bool flip, bool use_flip) {
 	if(n == -1)
 		return 0;
 	auto bd = to(game.getdirection(), dir);
@@ -531,7 +531,7 @@ static void fill_sprite(renderi* p, item_s type, direction_s drs) {
 	}
 }
 
-static renderi* add_cellar_items(renderi* p, int i, dungeon::overlayi* povr) {
+static renderi* add_cellar_items(renderi* p, int i, dungeoni::overlayi* povr) {
 	if(!povr)
 		return p;
 	if(povr->type == CellCellar) {
@@ -1022,7 +1022,7 @@ static void prepare_draw(indext index, direction_s dr) {
 	p->rdata = 0;
 }
 
-bool dungeon::isvisible(indext index) {
+bool dungeoni::isvisible(indext index) {
 	for(auto i : indecies) {
 		if(i == index)
 			return true;

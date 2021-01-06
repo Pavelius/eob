@@ -794,7 +794,6 @@ class creature {
 	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
-	void				resting(int healed);
 	char				racial_bonus(char* data) const;
 	void				raise_level(class_s type);
 	void				random_spells(class_s type, int level, int count);
@@ -811,7 +810,7 @@ public:
 	void				apply(spell_s id, int level, unsigned duration);
 	void				attack(indext index, direction_s d, int bonus, bool ranged, int multiplier);
 	void				attack(creature* defender, wear_s slot, int bonus, int multiplier);
-	static void			camp(item& it);
+	void				autocast(creaturea& friends);
 	bool				cast(spell_s id, class_s type, int wand_magic, creature* target = 0);
 	void				create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive = false);
 	void				clear();
@@ -910,6 +909,7 @@ public:
 	void				removeloot();
 	int					render_ability(int x, int y, int width, bool use_bold) const;
 	int					render_combat(int x, int y, int width, bool use_bold) const;
+	void				resting(int healed);
 	bool				roll(ability_s id, int bonus = 0) const;
 	void				random_ability();
 	reaction_s			rollreaction(int bonus) const;
@@ -977,18 +977,13 @@ public:
 	void				select(indext index);
 	void				set(reaction_s v);
 };
-struct chati {
-	action_s			action;
-	conditiona			conditions;
-	const char*			text;
-};
 struct shapei {
 	const char*			id;
 	point				size_up, size_left;
 	const char*			data_up;
 	const char*			data_left;
 };
-struct dungeon {
+struct dungeoni {
 	struct overlayi {
 		cell_s			type; // type of overlay
 		direction_s		dir; // overlay direction
@@ -1038,7 +1033,7 @@ struct dungeon {
 		indext			index;
 		constexpr operator bool() const { return owner.operator bool(); }
 	};
-	unsigned short		overland_index;
+	unsigned char		overland_index;
 	unsigned char		level;
 	sitei::headi		head;
 	statei				stat;
@@ -1049,7 +1044,7 @@ struct dungeon {
 	overlayitem			cellar_items[256];
 	creature			monsters[200];
 	eventi				events[256];
-	dungeon() { clear(); }
+	dungeoni() { clear(); }
 	operator bool() const { return head.type != NONE; }
 	overlayi*			add(indext index, cell_s type, direction_s dir);
 	void				add(overlayi* p, item it);
@@ -1107,7 +1102,7 @@ struct dungeon {
 	bool				ismonsternearby(indext i, int r = 3) const;
 	bool				isroom(indext index, direction_s dir, int side, int height) const;
 	static bool			isvisible(indext index);
-	dungeon::overlayi*	getlinked(indext index);
+	dungeoni::overlayi*	getlinked(indext index);
 	void				makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side);
 	void				makeroom(const rect& rc, overlayi& door);
 	void				makewave(indext start, indext* pathmap);
@@ -1158,6 +1153,7 @@ struct settlementi : textable {
 	cflags<building_s>	buildings;
 	spellf				spells;
 	unsigned char		prosperty;
+	char				talk_tavern, talk_inn;
 	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
 	variant				enter();
@@ -1206,6 +1202,7 @@ public:
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				additem(item i, bool interactive);
 	void				attack(indext index, bool ranged, ambush_s ambush);
+	void				camp(item& it);
 	void				clear();
 	void				endround();
 	void				enter(variant index, char level);
@@ -1320,8 +1317,8 @@ bool					settiles(resource_s id);
 void					textbc(int x, int y, const char* header);
 }
 extern gamei			game;
-extern dungeon			location_above;
-extern dungeon			location;
+extern dungeoni			location_above;
+extern dungeoni			location;
 extern creaturea		party;
 inline int				gx(indext index) { return index % mpx; }
 inline int				gy(indext index) { return index / mpx; }

@@ -1192,7 +1192,7 @@ bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
 	return true;
 }
 
-static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
+static bool read_message(creature* pc, dungeoni* pd, dungeoni::overlayi* po) {
 	auto language = pd->getlanguage();
 	if(!pc->canspeak(language))
 		return false;
@@ -1238,7 +1238,7 @@ static bool read_message(creature* pc, dungeon* pd, dungeon::overlayi* po) {
 	return true;
 }
 
-void read_message(dungeon* pd, dungeon::overlayi* po) {
+void read_message(dungeoni* pd, dungeoni::overlayi* po) {
 	creature* pc = 0;
 	for(auto p : party) {
 		if(!p || !p->isready())
@@ -1336,18 +1336,6 @@ bool creature::setweapon(item_s v, int charges) {
 	return true;
 }
 
-static void try_autocast(creature* pc) {
-	spell_s healing_spells[] = {CureLightWounds, LayOnHands, Goodberry, CureSeriousWounds};
-	for(auto e : healing_spells) {
-		while(pc->get(e) > 0) {
-			auto target = party.getmostdamaged();
-			if(!target)
-				break;
-			pc->cast(e, Cleric, 0, target);
-		}
-	}
-}
-
 void creature::campcast(item& it) {
 	auto pe = it.getenchantment();
 	if(!pe)
@@ -1418,41 +1406,6 @@ void creature::resting(int healed) {
 		default:
 			break;
 		}
-	}
-}
-
-void creature::camp(item& it) {
-	for(auto p : party) {
-		if(!p)
-			continue;
-		if(!p->isready())
-			continue;
-		try_autocast(p);
-	}
-	game.passtime(60 * 8);
-	auto food = it.gettype();
-	auto poisoned = it.iscursed();
-	if(poisoned)
-		mslog("Food was poisoned!");
-	for(auto p : party) {
-		if(!p)
-			continue;
-		// RULE: Ring of healing get addition healing
-		int healed = 0;
-		if(poisoned) {
-			// RULE: Cursed food add weak poison
-			p->add(Poison, Instant, NoSave);
-		} else {
-			switch(food) {
-			case Ration:
-				healed += xrand(1, 3);
-				break;
-			case RationIron:
-				healed += xrand(2, 6);
-				break;
-			}
-		}
-		p->resting(healed);
 	}
 }
 
@@ -1559,17 +1512,8 @@ bool creature::use(item* pi) {
 		}
 		if(!draw::dlgask("Do you want make camp?"))
 			return false;
-		creature::camp(*pi);
+		game.camp(*pi);
 		break;
-		//case MagicBook:
-		//case HolySymbol:
-		//case HolyWarriorSymbol:
-		//	consume = false;
-		//	spell_element = pc->choosespell((type == MagicBook) ? Mage : Cleric);
-		//	if(!spell_element)
-		//		return false;
-		//	pc->cast(spell_element, (type == MagicBook) ? Mage : Cleric, 0);
-		//	break;
 	case TheifTools:
 		consume = false;
 		if(location.get(forward_index) == CellPit) {
