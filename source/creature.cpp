@@ -1353,7 +1353,7 @@ void creature::campcast(item& it) {
 
 void creature::resting(int healed) {
 	healed += getenchant(CureLightWounds, 10);
-	food = getfoodmax();
+	satisfy();
 	// Remove additional hit points
 	hits_aid = 0;
 	// Remove enchanted weapon

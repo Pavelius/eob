@@ -205,11 +205,9 @@
     <ClCompile Include="usability.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="view_automap.cpp" />
-    <ClCompile Include="view_character.cpp" />
     <ClCompile Include="view_controls.cpp" />
     <ClCompile Include="view_dungeon.cpp" />
     <ClCompile Include="view_generate.cpp" />
-    <ClCompile Include="view_spells.cpp" />
     <ClCompile Include="wear.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />

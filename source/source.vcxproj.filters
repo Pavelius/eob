@@ -116,9 +116,6 @@
     <ClCompile Include="view_automap.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="view_character.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="view_controls.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -126,9 +123,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="view_generate.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="view_spells.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
