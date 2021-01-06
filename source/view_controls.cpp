@@ -81,6 +81,8 @@ static int				current_param;
 static const markup*	current_markup;
 static item*			current_item;
 static imagei			current_image;
+static int				current_level;
+static creature*		current_hero;
 static item*			drag_item;
 static char				log_message[128];
 static rect				log_rect = {5, 180, 285, 198};
@@ -797,11 +799,7 @@ static render_control* getnextfocus(void* ev, int key, unsigned param) {
 }
 
 static void test_map() {
-	auto p = "When you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.";
-	answers aw;
-	aw.add(1, "Accept");
-	aw.add(0, "Decline");
-	aw.choosebg(p);
+	game.scriblescrolls();
 }
 
 static void setfocus(void* v, unsigned param = 0) {
@@ -1056,23 +1054,6 @@ void draw::closeform() {
 	hot::key = 0;
 }
 
-void draw::choose(const menu* source) {
-	const auto w = 170;
-	openform();
-	while(ismodal()) {
-		auto x = 80, y = 110;
-		draw::background(MENU);
-		draw::state push;
-		fore = colors::white;
-		setbigfont();
-		for(auto p = source; *p; p++)
-			y += buttonm(x, y, w, cmd(p->proc, 0, (int)p), p->text);
-		domodal();
-		navigate(true);
-	}
-	closeform();
-}
-
 bool draw::navigate(bool can_cancel) {
 	switch(hot::key) {
 	case KeyDown:
@@ -1090,26 +1071,6 @@ bool draw::navigate(bool can_cancel) {
 		return false;
 	}
 	return true;
-}
-
-void draw::chooseopt(const menu* source) {
-	openform();
-	while(ismodal()) {
-		draw::animation::render(0, false);
-		if(true) {
-			draw::state push;
-			setbigfont();
-			form({0, 0, 22 * 8 + 2, 174}, 2);
-			fore = colors::title;
-			textb(6, 6, "Game Options:");
-			fore = colors::white;
-			for(int i = 0; source[i]; i++)
-				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
-		}
-		domodal();
-		navigate(true);
-	}
-	closeform();
 }
 
 bool draw::dlgask(const char* text) {
@@ -1210,6 +1171,48 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 
 static int getbuttonwidth(const char* title) {
 	return textw(title) + 6;
+}
+
+static bool labelt(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
+	state push;
+	auto vertical = true;
+	if(width == -1) {
+		vertical = false;
+		width = getbuttonwidth(title);
+	}
+	auto run = false;
+	rect rc = {x, y, x + width, y + texth()};
+	focusing(rc, ev);
+	if(isfocus(ev)) {
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	if(key && hot::key == key)
+		run = true;
+	textb(x, y, title);
+	if(vertical)
+		y += texth();
+	else
+		x += width;
+	return run;
+}
+
+static bool labelm(int x, int& y, int width, const char* title, void* ev, unsigned key) {
+	state push;
+	auto run = false;
+	rect rc = {x, y, x + width, y + texth()};
+	focusing(rc, ev);
+	if(isfocus(ev)) {
+		fore = colors::focus;
+		if(hot::key == KeyEnter)
+			run = true;
+	}
+	if(key && hot::key == key)
+		run = true;
+	textb(aligned(x, width, AlignCenter, textw(title)), y, title);
+	y += texth();
+	return run;
 }
 
 static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
@@ -1317,7 +1320,7 @@ static void prevpage() {
 		setfocus(0, 0);
 }
 
-item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
+item* itema::choose(const char* title, bool cancel_button, fntext panel) {
 	parami param = {};
 	param.maximum = getcount();
 	char temp[260]; stringbuilder sb(temp);
@@ -1435,32 +1438,6 @@ static int qsort_compare(const void* v1, const void* v2) {
 static void sort(void** storage, unsigned maximum, fntext getname) {
 	compare_callback = getname;
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
-}
-
-void draw::chooseopt(const menu* source, unsigned count, const char* title) {
-	openform();
-	while(ismodal()) {
-		if(true) {
-			draw::state push;
-			setbigfont();
-			form({0, 0, 320, 200}, 2);
-			auto x = 4, y = 6;
-			if(title) {
-				fore = colors::title;
-				textb(6, 6, title);
-				y += 12;
-			}
-			fore = colors::white;
-			for(unsigned i = 0; i < count; i++)
-				button(4, 17 + i * 15, 166, source[i].proc, source[i].text);
-		}
-		auto y = 200 - 12 - 4;
-		auto x = 4;
-		x += buttonw(x, y, "Cancel", buttoncancel, KeyEscape, buttoncancel);
-		domodal();
-		navigate(true);
-	}
-	closeform();
 }
 
 static void setvalue(void* p, unsigned size, int v) {
@@ -2256,4 +2233,350 @@ int	gamei::getmapwidth() {
 	if(!p)
 		return 0;
 	return p->frames[0].sy;
+}
+
+static void spell_avatar(int x, int y, int i, class_s type, creature* pc) {
+	auto p = party[i];
+	if(!p)
+		return;
+	unsigned flags = 0;
+	if(!pc->iscast(type))
+		flags |= Disabled;
+	if(p == pc)
+		flags |= Checked;
+	draw::avatar(x, y, p, flags, 0);
+}
+
+static void spells_portraits(int x, int y, class_s type, creature* pc) {
+	spell_avatar(x, y, 0, type, pc);
+	spell_avatar(x + 72, y, 1, type, pc);
+	spell_avatar(x, y + 52, 2, type, pc);
+	spell_avatar(x + 72, y + 52, 3, type, pc);
+}
+
+static int get_spells_prepared(creature* pc, aref<spell_s> spells) {
+	int result = 0;
+	for(auto e : spells)
+		result += pc->getprepare(e);
+	return result;
+}
+
+static void choose_level() {
+}
+
+static void clear_spells() {
+	if(!current_hero)
+		return;
+}
+
+static void add_spell() {
+}
+
+static void render_spell_window(aref<spell_s> source, creature* pc, class_s type, int maximum_spells, int prepared_spells) {
+	draw::state push;
+	char temp[64];
+	int level = pc ? pc->get(type) : 0;
+	setbigfont();
+	form({0, 0, 22 * 8 + 2, 174}, 2);
+	fore = colors::title;
+	textb(6, 6, "Spells available:");
+	fore = colors::white;
+	for(int i = 0; i < 9; i++)
+		draw::button(4 + i * 19, 16, 17, cmd(choose_level, i + 1, i + 1), sznum(temp, i + 1));
+	szprint(temp, zendof(temp), "%1i of %2i remaining", prepared_spells, maximum_spells);
+	fore = colors::title;
+	textb(6, 36, temp);
+	fore = colors::white;
+	int count = imin(source.count, (unsigned)13);
+	for(int i = 0; i < count; i++)
+		buttont(6, 46 + 8 * i, 168, cmd(add_spell, (int)(source.data + i), (int)(source.data + i)),
+			getstr(source.data[i]), sznum(temp, pc->getprepare(source.data[i])));
+	draw::button(6, 156, -1, buttoncancel, "Close");
+	draw::button(60, 156, -1, clear_spells, "Clear");
+}
+
+static unsigned select_spells(spell_s* result, spell_s* result_maximum, const creature* pc, class_s type, int level) {
+	auto p = result;
+	for(auto i = spell_s(1); i <= LastSpellAbility; i = (spell_s)(i + 1)) {
+		if(creature::getlevel(i, type) != level)
+			continue;
+		int value = pc->get(i);
+		while(value--) {
+			if(result < result_maximum)
+				*p++ = i;
+		}
+	}
+	return p - result;
+}
+
+static unsigned select_known_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
+	auto p = result;
+	for(auto i = spell_s(1); i < LayOnHands; i = (spell_s)(i + 1)) {
+		if(creature::getlevel(i, type) != level)
+			continue;
+		if(!pc->isknown(i))
+			continue;
+		if(result < result_maximum)
+			*p++ = i;
+	}
+	return p - result;
+}
+
+int variantc::chooselv(class_s type) const {
+	draw::screenshoot screen;
+	draw::state push;
+	setsmallfont();
+	fore = colors::white;
+	unsigned current_element = 0;
+	while(ismodal()) {
+		variantc result;
+		result = *this;
+		result.matchsl(type, current_level);
+		result.sort();
+		if(current_element >= result.count)
+			current_element = result.count - 1;
+		if(current_element < 0)
+			current_element = 0;
+		screen.restore();
+		rect rc = {70, 124, 178, 174};
+		form(rc);
+		int x = rc.x1;
+		int y = rc.y1;
+		for(int i = 0; i < 9; i++) {
+			const int dx = 12;
+			char temp[16];
+			auto level = i + 1;
+			sznum(temp, level);
+			unsigned flags = 0;
+			flatb(x + i * dx, y, dx, (level == current_level) ? Focused : 0, temp);
+		}
+		x = rc.x1;
+		y = rc.y1 + draw::texth() + 2;
+		for(unsigned i = 0; i < result.count; i++) {
+			unsigned flags = (i == current_element) ? Focused : 0;
+			y += labelb(x, y, rc.width(), flags, result.data[i].getname());
+		}
+		domodal();
+		switch(hot::key) {
+		case KeyEscape:
+			return Moved;
+		case KeyEnter:
+		case 'U':
+			breakmodal(result.data[current_element].value);
+			break;
+		case KeyLeft:
+		case 'A':
+			current_level--;
+			if(current_level < 1)
+				current_level = 1;
+			break;
+		case KeyRight:
+		case 'S':
+			current_level++;
+			if(current_level > 9)
+				current_level = 9;
+			break;
+		case KeyDown:
+		case 'Z':
+			current_element++;
+			break;
+		case KeyUp:
+		case 'W':
+			current_element--;
+			break;
+		case '1': case '2': case '3': case '4': case '5':
+		case '6': case '7': case '8': case '9':
+			current_level = hot::key - '1' + 1;
+			break;
+		}
+	}
+	return getresult();
+}
+
+static bool choose_creature(class_s type, creature** hero) {
+	creature* p;
+	switch(hot::key) {
+	case '1': case '2': case '3': case '4':
+		p = party[hot::key - '1'];
+		if(!p || !p->iscast(type))
+			break;
+		*hero = p;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
+void creature::preparespells(class_s type) {
+	adat<spell_s, 32> result;
+	auto hero = game.getvalid(0, type);
+	openform();
+	while(ismodal()) {
+		result.count = 0;
+		auto maximum_spells = 0;
+		auto prepared_spells = 0;
+		if((int)getfocus() >= 1 && (int)getfocus() <= 9)
+			current_level = (int)getfocus();
+		if(hero) {
+			result.count = select_known_spells(result.data, zendof(result.data), hero, type, current_level);
+			maximum_spells = hero->getspellsperlevel(type, current_level);
+			prepared_spells = get_spells_prepared(hero, {result.data, result.count});
+		}
+		draw::animation::render(0, false);
+		render_spell_window(result, hero, type, maximum_spells, prepared_spells);
+		spells_portraits(184, 2, type, hero);
+		domodal();
+		auto current_index = result.indexof((spell_s*)getfocus());
+		switch(hot::key) {
+		case 'C':
+			for(auto e : result)
+				hero->set(e, 0);
+			break;
+		case KeyRight:
+			if(current_index != -1) {
+				if(prepared_spells < maximum_spells)
+					hero->setprepare(result.data[current_index],
+						hero->getprepare(result.data[current_index]) + 1);
+				continue;
+			}
+			break;
+		case KeyLeft:
+			if(current_index != -1) {
+				auto c = hero->getprepare(result.data[current_index]);
+				if(c)
+					hero->setprepare(result.data[current_index], c - 1);
+				continue;
+			}
+			break;
+		default:
+			choose_creature(type, &hero);
+			break;
+		}
+		navigate(true);
+	}
+	closeform();
+}
+
+static void avatar(int x, int y, int i, const creature* current, const creaturea* allowed, creature** change) {
+	if(i >= party.getcount())
+		return;
+	auto p = party[i];
+	if(!p)
+		return;
+	unsigned flags = 0;
+	if(allowed && allowed->indexof(p) == -1)
+		flags |= Disabled;
+	if(p == current)
+		flags |= Checked;
+	else if((flags&Disabled) == 0) {
+		if(change && hot::key == ('1' + i)) {
+			*change = const_cast<creature*>(current);
+			execute(buttoncancel, 0);
+		}
+	}
+	draw::avatar(x, y, p, flags, 0);
+}
+
+static void avatars(int x, int y, const creature* pc, const creaturea* allowed, creature** change) {
+	avatar(x, y, 0, pc, allowed, change);
+	avatar(x + 72, y, 1, pc, allowed, change);
+	avatar(x, y + 52, 2, pc, allowed, change);
+	avatar(x + 72, y + 52, 3, pc, allowed, change);
+}
+
+item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname) const {
+	if(cancel_button)
+		*cancel_button = false;
+	if(!getname)
+		getname = getnm<item>;
+	openform();
+	while(ismodal()) {
+		draw::animation::render(0, false);
+		if(true) {
+			draw::state push;
+			setbigfont();
+			form({0, 0, 22 * 8 + 2, 174}, 2);
+			auto x = 6, y = 6;
+			if(format) {
+				fore = colors::title;
+				textb(6, 6, "Scrolls available:");
+				y += texth() + 3;
+			}
+			fore = colors::white;
+			for(unsigned i = 0; i < count; i++) {
+				char temp[260]; stringbuilder sb(temp);
+				auto pn = getname(data[i], sb);
+				if(labelt(x, y, 168, pn, data[i], 0))
+					execute(buttonparam, (int)data[i]);
+				y += 3;
+				if(y >= 156 - texth())
+					break;
+			}
+			y = 156;
+			if(cancel_button) {
+				if(buttonx(x, y, -1, "Close", cancel_button, KeyEscape)) {
+					execute(buttoncancel, 0);
+					*cancel_button = true;
+				}
+			}
+		}
+		avatars(184, 2, current, allowed, change);
+		draw::domodal();
+		draw::navigate(false);
+	}
+	closeform();
+	return (item*)getresult();
+}
+
+int answers::choosemn(const char* title, bool allow_cancel) const {
+	draw::state push;
+	setbigfont();
+	openform();
+	while(ismodal()) {
+		draw::animation::render(0, false);
+		form({0, 0, 22 * 8 + 2, 174}, 2);
+		auto x = 4, y = 6;
+		if(title) {
+			fore = colors::title;
+			textb(x + 2, y, title);
+			y += texth() + 2;
+		}
+		fore = colors::white;
+		for(auto& e : elements) {
+			if(buttonx(x, y, 170, e.text, (void*)e.text, 0))
+				execute(buttonparam, e.id);
+			y += 2;
+		}
+		y = 174 - texth() - 7;
+		if(allow_cancel) {
+			if(buttonx(x, y, -1, "Cancel", (void*)"Cancel", 0))
+				execute(buttoncancel);
+			y += 2;
+		}
+		domodal();
+		navigate(true);
+	}
+	closeform();
+	return getresult();
+}
+
+int answers::choosemn(int x0, int y0, int width, resource_s id) const {
+	draw::state push;
+	fore = colors::white;
+	setbigfont();
+	openform();
+	while(ismodal()) {
+		draw::background(MENU);
+		auto x = x0, y = y0;
+		for(auto& e : elements) {
+			if(labelm(x, y, width, e.text, (void*)e.text, 0))
+				execute(buttonparam, e.id);
+			y += 1;
+		}
+		domodal();
+		navigate(true);
+	}
+	closeform();
+	return getresult();
 }

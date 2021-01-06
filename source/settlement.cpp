@@ -110,7 +110,7 @@ static bool confirm(const char* text) {
 	return aw.choosebg(text) != 0;
 }
 
-static const char* buy_panel(void* object, stringbuilder& sb) {
+static const char* buy_panel(const void* object, stringbuilder& sb) {
 	auto p = (item*)object;
 	sb.addn("Item price: %1i gp", p->getcostgp());
 	sb.addn("Party have: %1i gp", game.getgold());

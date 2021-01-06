@@ -1892,3 +1892,25 @@ wear_s creature::getslot(const item* p) const {
 		return (wear_s)(p - wears);
 	return Backpack;
 }
+
+spell_s creature::choosespell(class_s type) const {
+	variantc spells;
+	spells.cspells(this, true);
+	return (spell_s)spells.chooselv(type);
+}
+
+void creature::scribe(item& it) {
+	auto sv = it.getpower();
+	if(!sv || sv.type != Spell) {
+		say("This is not magic scroll");
+		return;
+	}
+	auto sp = (spell_s)sv.value;
+	if(roll(LearnSpell)) {
+		setknown(sp);
+		mslog("%1 learn %2 spell", getname(), getstr(sp));
+		addexp(100);
+	} else
+		mslog("%1 don't learn %2 spell", getname(), getstr(sp));
+	it.clear();
+}

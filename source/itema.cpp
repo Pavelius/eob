@@ -18,6 +18,28 @@ void itema::is(good_s v, bool keep) {
 	count = ps - data;
 }
 
+void itema::match(const item::typea& list, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->match(list) != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
+void itema::havespell(const creature* pc, bool keep) {
+	auto ps = data;
+	for(auto p : *this) {
+		auto pe = p->getenchantment();
+		auto r = pe && pe->power.type == Spell && pc->isknown((spell_s)pe->power.value);
+		if(r != keep)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void itema::match(rarity_s v, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {

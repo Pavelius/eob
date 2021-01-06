@@ -10,7 +10,6 @@ struct palspr : pma {
 int						buttonm(int x, int y, int width, const cmd& ev, const char* name);
 int						buttont(int x, int y, int width, const cmd& ev, const char* name);
 void					buttont(int x, int y, int width, const cmd& ev, const char* name, const char* name2);
-void					choose(const menu* source);
 int						ciclic(int range, int speed = 1);
 void					closeform();
 int						flatb(int x, int y, int width, unsigned flags, const char* string);

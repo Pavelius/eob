@@ -763,3 +763,39 @@ void gamei::play() {
 adventurei* gamei::getadventure() {
 	return location_index.getadventure();
 }
+
+static const char* get_power_name(const void* object, stringbuilder& sb) {
+	auto p = ((item*)object)->getenchantment();
+	if(!p)
+		return "Not magical";
+	return p->power.getname();
+}
+
+void gamei::scriblescrolls() {
+	creaturea source;
+	for(auto p : party) {
+		if(p && p->iscast(Mage))
+			source.add(p);
+	}
+	if(!source) {
+		draw::dlgmsg("You don't have any Mage in party.");
+		return;
+	}
+	auto pc = source[0];
+	while(true) {
+		itema items;
+		items.select();
+		items.match({MageScroll}, true);
+		items.identified(true);
+		items.havespell(pc, false);
+		bool cancel_button;
+		auto pi = items.choose("Scrolls available:", &cancel_button, pc, &source, &pc, get_power_name);
+		if(!pi) {
+			if(cancel_button)
+				break;
+		} else {
+			pc->scribe(*pi);
+			break;
+		}
+	}
+}

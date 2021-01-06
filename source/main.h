@@ -240,7 +240,8 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Drink, Explore, Gambling, Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
+	Attack, Bribe, Buy, Drink, Explore, Gambling,
+	Leave, Lie, Repair, Rest, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
@@ -286,8 +287,8 @@ typedef cflags<fevent_s> eventf;
 typedef flagable<LastSpellAbility> spellf;
 typedef adatc<ability_s, char, LastSkill + 1> skilla;
 typedef cflags<usability_s> usabilitya;
-typedef const char*	(*fngetname)(void* object, stringbuilder& sb);
 class creature;
+class creaturea;
 class item;
 struct adventurei;
 struct settlementi;
@@ -330,6 +331,7 @@ typedef variant conditiona[6];
 struct variantc : adat<variant> {
 	void				cspells(const creature* p, bool expand);
 	int					chooselv(class_s type) const;
+	variant				choose(const char* title, const creature* current, const creaturea* allowed, fntext getname = 0) const;
 	void				exclude(variant v);
 	void				match(variant v, bool keep);
 	void				match(point start, int radius, bool keep);
@@ -651,6 +653,7 @@ class item {
 	unsigned char		charges; // uses of item
 	friend dginf<item>;
 public:
+	typedef std::initializer_list<item_s> typea;
 	constexpr item(item_s type = NoItem) : type(type), flags(0), subtype(0), charges(0) {}
 	item(item_s type, rarity_s rarity);
 	item(item_s type, variant power);
@@ -703,6 +706,7 @@ public:
 	constexpr bool		isranged() const { return is(Ranged); }
 	bool				issmall() const;
 	bool				istwohanded() const { return is(TwoHanded); }
+	bool				match(const typea& v) const { for(auto e : v) if(e == type) return true; return false; }
 	void				setbroken(int value) { broken = value; }
 	void				setcharges(int v);
 	void				setcount(int v);
@@ -737,15 +741,18 @@ class itema : public adat<item*, 48> {
 	void				select(pitem proc, bool keep);
 public:
 	void				broken(bool keep) { select(&item::isbroken, keep); }
-	item*				choose(const char* format, bool cancel_button, fngetname panel = 0);
+	item*				choose(const char* format, bool cancel_button, fntext panel = 0);
+	item*				choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname = 0) const;
 	void				cost(bool keep) { select(&item::iscost, keep); }
 	void				costgp(bool keep) { select(&item::iscostgp, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }
 	void				identified(bool keep) { select(&item::isidentified, keep); }
 	void				is(good_s v, bool keep);
+	void				havespell(const creature* pc, bool keep);
 	void				magical(bool keep) { select(&item::ismagical, keep); }
 	void				match(rarity_s v, bool keep);
 	void				match(const goodf& e, bool keep);
+	void				match(const item::typea& v, bool keep);
 	void				maxcost(int v, bool keep);
 	void				forsale(bool keep);
 	item*				random();
@@ -912,7 +919,6 @@ public:
 	void				sayv(const char* format, const char* vl);
 	bool				save(int& value, ability_s skill, save_s type, int bonus);
 	void				scribe(item& it);
-	static void			scriblescrolls();
 	static unsigned		select(spell_s* result, const spell_s* result_maximum, class_s type, int level);
 	void				select(itema& result);
 	void				set(ability_s id, int v) { ability[id] = v; }
@@ -1239,6 +1245,7 @@ public:
 	void				returntobase();
 	void				rideto(variant v);
 	static bool			roll(int value);
+	static void			scriblescrolls();
 	void				setcamera(indext index, direction_s direction = Center);
 	void				startgame();
 	void				thrown(item* itm);
@@ -1253,11 +1260,14 @@ struct richtexti {
 	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
 	void				save(textable& result) const;
 };
-struct answers {
+class answers {
+	char				buffer[512];
+	stringbuilder		sc;
 	struct element {
 		int				id;
 		const char*		text;
 	};
+public:
 	answers();
 	adat<element, 32>	elements;
 	void				add(int id, const char* name, ...) { addv(id, name, xva_start(name)); }
@@ -1267,22 +1277,16 @@ struct answers {
 	int					choosebg(const char* title, const imagei& ei, bool herizontal_buttons) const;
 	int					choosebg(const char* title, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
+	int					choosemn(const char* title, bool allow_cancel = true) const;
+	int					choosemn(int x, int y, int width, resource_s id) const;
+	static int			compare(const void* v1, const void* v2);
 	int					random() const;
 	static void			setnoimage();
 	void				sort();
 	static imagei		last_image;
-private:
-	char				buffer[512];
-	stringbuilder		sc;
 };
 namespace draw {
-typedef void(*pevent)();
 typedef void(*pobject)(void* object);
-struct menu {
-	pevent				proc;
-	const char*			text;
-	operator bool() const { return proc != 0; }
-};
 namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
@@ -1301,13 +1305,10 @@ void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
 void					background(int rid);
 void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, const markup* type = 0);
 bool					choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list);
-void					chooseopt(const menu* source);
-void					chooseopt(const menu* source, unsigned count, const char* title);
 point					choosepoint(point camera);
 bool					dlgask(const char* text);
 void					dlgmsg(const char* text);
 bool					edit(const char* title, void* object, const markup* form, bool cancel_button);
-void					editor();
 void					fullimage(point camera, point* origin);
 void					fullimage(point from, point to, point* origin);
 void					mainmenu();

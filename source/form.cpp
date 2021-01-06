@@ -173,29 +173,6 @@ bool item::choose_enchantment(void* object, const array& source, void* pointer) 
 		p->subtype = ars.indexof(current);
 	return false;
 }
-//static bool choose_custom_images(void* object, const array& source, void* pointer) {
-//	typedef imagei T;
-//	auto v = (T*)pointer;
-//	array files(sizeof(T));
-//	for(io::file::find e(bsdata<packi>::elements[PackCustom].url); e; e.next()) {
-//		if(e.name()[0] == '.')
-//			continue;
-//		auto p = (imagei*)files.add();
-//		char temp[260]; szfnamewe(temp, e.name());
-//		stringbuilder::lower(temp);
-//		zcpy(p->custom, temp, sizeof(p->custom)-1);
-//	}
-//	auto current_index = files.find(v, 0, sizeof(T));
-//	void* pc = 0;
-//	if(current_index != -1)
-//		pc = files.ptr(current_index);
-//	pc = draw::choose(files, "Custom images", object, pc,
-//		getnm<imagei>, 0, imagei::preview, 100);
-//	if(!pc)
-//		return false;
-//	memcpy(v, pc, sizeof(T));
-//	return true;
-//}
 static bool monster_resources(const void* object, const void* pointer) {
 	auto p = (resourcei*)pointer;
 	return p->pack == PackMonster;

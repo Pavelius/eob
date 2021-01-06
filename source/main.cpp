@@ -135,6 +135,12 @@ void random_heroes() {
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
 	//p->setknown(Identify);
 	p->equip({RedRing, OfWizardy});
+	item s1 = {MageScroll, ReadLanguagesSpell};
+	item s2 = {MageScroll, MagicMissile};
+	s1.setidentified(1);
+	s2.setidentified(1);
+	p->add(s1);
+	p->add(s2);
 	p->equip({RedRing, ResistFire});
 	p->set({Staff, BurningHands}, RightHand);
 	//
@@ -304,19 +310,21 @@ static void settings() {}
 extern void load_game();
 
 void draw::options() {
-	static menu elements[] = {{pray_for_spells, "Pray for spells"},
-	{memorize_spells, "Memorize spells"},
-	{creature::scriblescrolls, "Scrible scrolls"},
-	{option_new_game, "New game"},
-	{load_game, "Load game"},
-	{option_save_game, "Save game"},
-	{settings, "Settings"},
-	{quit_game, "Quit game"},
-	{}};
-	chooseopt(elements);
+	answers aw;
+	aw.add((int)pray_for_spells, "Pray for spells");
+	aw.add((int)memorize_spells, "Memorize spells");
+	aw.add((int)game.scriblescrolls, "Scrible scrolls");
+	aw.add((int)option_new_game, "New game");
+	aw.add((int)load_game, "Load game");
+	aw.add((int)option_save_game, "Save game");
+	aw.add((int)settings, "Settings");
+	aw.add((int)quit_game, "Quit game");
+	auto p = (callback)aw.choosemn("Game options:");
+	if(p)
+		p();
 }
 
-void draw::editor() {
+static void editor() {
 	auto push_font = font;
 	setsmallfont();
 	if(true) {
@@ -334,12 +342,14 @@ void draw::editor() {
 }
 
 void draw::mainmenu() {
-	static draw::menu source[] = {{main_new_game, "Create New Game"},
-	{load_game, "Load Saved game"},
-	{draw::editor, "Game editor"},
-	{quit_game, "Exit game"},
-	{}};
-	choose(source);
+	answers aw;
+	aw.add((int)main_new_game, "Create New Game");
+	aw.add((int)load_game, "Load Saved game");
+	aw.add((int)editor, "Game editor");
+	aw.add((int)quit_game, "Exit game");
+	auto p = (callback)aw.choosemn(80, 110, 170, MENU);
+	if(p)
+		setnext(p);
 }
 
 static bool test_variant() {
