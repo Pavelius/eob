@@ -92,7 +92,7 @@ enum spell_s : unsigned char {
 	AcidArrow, Aid, Blindness, Blur, Deafness, FlameBlade, FlamingSphere, Goodberry, HoldPerson,
 	Invisibility, Knock, ProduceFlame, ResistFireSpell, Scare, SlowPoison,
 	// Spells (level 3)
-	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, NegativePlanProtection,
+	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, MageFear, NegativePlanProtection,
 	RemoveCurse, RemoveParalizes,
 	// Spells (level 4)
 	CureSeriousWounds, Poison,
@@ -813,6 +813,7 @@ public:
 	void				equip(item it);
 	item*				find(item_s v) const;
 	void				finish();
+	void				flee(bool interactive);
 	int					get(ability_s id) const;
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
@@ -935,6 +936,7 @@ public:
 	bool				setweapon(item_s v, int charges);
 	void				subenergy();
 	static bool			swap(item* itm1, item* itm2);
+	void				turnundead(int level);
 	void				uncurse(bool interactive);
 	void				update(const boosti& e);
 	void				update(bool interactive);
@@ -1074,6 +1076,7 @@ struct dungeoni {
 	short unsigned*		getnearestfree(indext* indicies, indext index);
 	const char*			getnavigation(indext index) const;
 	direction_s			getpassable(indext index, direction_s* dirs);
+	indext				getretreat(indext from, int radius) const;
 	indext				getsecret() const;
 	static size_s		getsize(creature** sides);
 	overlayi*			getoverlay(indext index, direction_s dir);
@@ -1098,7 +1101,7 @@ struct dungeoni {
 	dungeoni::overlayi*	getlinked(indext index);
 	void				makedoor(const rect& rc, overlayi& door, direction_s dir, bool has_button, bool has_button_on_other_side);
 	void				makeroom(const rect& rc, overlayi& door);
-	void				makewave(indext start, indext* pathmap);
+	static void			makewave(indext start, indext* pathmap);
 	void				move(indext index, direction_s dr);
 	void				move(direction_s direction);
 	void				passhour();

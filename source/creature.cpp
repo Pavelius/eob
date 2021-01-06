@@ -1863,3 +1863,15 @@ void creature::scribe(item& it) {
 		mslog("%1 don't learn %2 spell", getname(), getstr(sp));
 	it.clear();
 }
+
+void creature::flee(bool interactive) {
+	index = location.getretreat(game.getcamera(), 4);
+	if(index == Blocked) {
+		if(interactive)
+			mslog("%1 can't flee!", getname());
+	} else {
+		if(interactive)
+			mslog("%1 flee!", getname());
+		setindex(index);
+	}
+}

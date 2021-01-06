@@ -436,9 +436,6 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, 
 {"Belt 1", DGREQ(wears[FirstBelt]), {getnm<item>}},
 {"Belt 2", DGREQ(wears[SecondBelt]), {getnm<item>}},
 {"Belt 3", DGREQ(wears[LastBelt]), {getnm<item>}},
-//char				spells[LastSpellAbility + 1];
-//char				prepared[LastSpellAbility + 1];
-//spella			known_spells;
 {}};
 DGINF(classi) = {{"Name", DGREQ(name)},
 {"Playable", DGREQ(playable)},
@@ -447,8 +444,6 @@ DGINF(classi) = {{"Name", DGREQ(name)},
 {"#tab minimum", DGREQ(minimum)},
 {"#chk feats", DGREQ(feats), {getnm<feati>}},
 {"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
-//adat<class_s, 4>	classes;
-//adat<race_s, 12>	races;
 {}};
 DGINF(racei) = {{"Name", DGREQ(name)},
 {"#tab minimum", DGREQ(minimum)},
@@ -519,7 +514,7 @@ DGINF(actioni) = {{"Name", DGREQ(name)},
 DGINF(fractioni) = {{"Name", DGINH(textable, name)},
 {}};
 DGINF(companyi) = {{"Name", DGINH(textable, name)},
-{"Start", DGENM(start, settlementi)},
+{"Start", DGENM(start, settlementi), {getnm<settlementi>}},
 {"Pixels/day", DGREQ(pixels_per_day)},
 {"#div Modules"},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},

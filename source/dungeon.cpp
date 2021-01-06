@@ -8,7 +8,7 @@ static unsigned char	path_push;
 static unsigned char	path_pop;
 const unsigned char		CellMask = 0x1F;
 
-static void snode(unsigned short index, short unsigned* pathmap, short unsigned cost) {
+static void snode(indext index, short unsigned* pathmap, short unsigned cost) {
 	if(index == Blocked)
 		return;
 	auto a = pathmap[index];
@@ -468,7 +468,7 @@ int dungeoni::getfreeside(indext index) {
 }
 
 void dungeoni::getblocked(indext* pathmap, bool treat_door_as_passable) {
-	for(unsigned short index = 0; index < mpx*mpy; index++) {
+	for(indext index = 0; index < mpx*mpy; index++) {
 		switch(get(index)) {
 		case CellWall:
 		case CellPortal:
@@ -565,7 +565,7 @@ void dungeoni::traplaunch(indext index, direction_s dir, item_s show, const comb
 				stop = true;
 			}
 		}
-		for(auto p: party) {
+		for(auto p : party) {
 			if(p && p->getindex() == index) {
 				attack(ci, p);
 				stop = true;
@@ -1230,6 +1230,28 @@ const char* dungeoni::getnavigation(indext index) const {
 	int x = gx(index) / (mpx / 3);
 	int y = gy(index) / (mpy / 3);
 	return names[y * 3 + x];
+}
+
+indext dungeoni::getretreat(indext from, int minimal_radius) const {
+	short unsigned pathmap[mpx*mpy];
+	for(indext index = 0; index < mpx*mpy; index++)
+		pathmap[index] = isblocked(index) ? Blocked : 0;
+	makewave(from, pathmap);
+	for(auto& e : monsters)
+		pathmap[e.getindex()] = Blocked;
+	indext result = Blocked;
+	short unsigned result_cost = 0;
+	for(indext index = 0; index < mpx*mpy; index++) {
+		if(pathmap[index] == Blocked)
+			continue;
+		if(pathmap[index] < minimal_radius)
+			continue;
+		if(result_cost && result_cost >= pathmap[index])
+			continue;
+		result_cost = pathmap[index];
+		result = index;
+	}
+	return result;
 }
 
 bool dungeoni::islying(indext index, item_s type) const {

@@ -380,6 +380,9 @@ void random_company() {
 	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
 	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
 	};
+	static sitei dead_crypt[] = {{{BRICK, {Skeleton, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 1, {10}},
+	};
 	game.clear();
 	game.setname("Western heartlands");
 	game.start = 0;
@@ -391,7 +394,8 @@ void random_company() {
 	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
 	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
 	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
-	memcpy(pa->levels, sites, sizeof(sites));
+	pa->activate();
+	memcpy(pa->levels, dead_crypt, sizeof(dead_crypt));
 	auto ps = (settlementi*)bsdata<settlementi>::source.add();
 	ps->setname("Baldur's gate");
 	ps->position = {495, 404};

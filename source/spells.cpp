@@ -70,7 +70,7 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {}},
 {"Cure light Wounds", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {1, 8}}},
 {"Detect Evil", {2, 1}, TargetAllAlly, {DetectEvil, DurationTurn}},
 {"Detect Magic", {1, 1}, TargetAllAlly, {DetectMagic, DurationTurn}},
-{"Cause Fear", {3, 1}, TargetAllClose, {Fear, Duration1PerLevel, SaveNegate}},
+{"Cause Fear", {0, 1}, TargetAllClose, {Fear, Duration1PerLevel, SaveNegate}},
 {"Feather Fall", {1, 0}, TargetAlly, {FeatherFall, DurationTurnPerLevel}},
 {"Identify", {1, 0}, TargetAllyItems, {Identify}, {}, {"I know! It's a %1.", "Wait a minute! It's %1.", "Very well! This is %1"}},
 {"Mage Armor", {1, 0}, TargetSelf, {MageArmor, Duration8Hours}},
@@ -98,13 +98,14 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {}},
 {"Produce Flame", {0, 2}, TargetSelf, {FlameHand}},
 {"Resist fire", {0, 2}, TargetAlly, {ResistFireSpell, DurationTurnPerLevel}},
 {"Slow Poison", {0, 2}, TargetAlly, {SlowPoison, Duration8Hours}},
-{"Scare", {2}, TargetAllClose, {Fear, Duration1d4P1PerLevel, NoSave}},
+{"Scare", {2}, TargetClose, {Fear, Duration1d4P1PerLevel, NoSave}},
 
 {"Create Food", {0, 3}, TargetSelf, {CreateFood}},
 {"Cure Blindness", {0, 3}, TargetAlly, {CureBlindnessDeafness}},
 {"Cause Disease", {0, 3}, TargetClose, {Disease, Instant, SaveNegate}},
 {"Cure Disease", {0, 3}, TargetAlly, {CureDisease}},
 {"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
+{"Fear", {3, 0}, TargetAllClose, {Fear, Duration1d4P1PerLevel, NoSave}},
 {"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
 {"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}, {}, {"%1 cramble to dust", "%1 is uncursed", "%1 turn to ashe"}},
 {"Remove paralizes", {0, 3}, TargetAllAlly, {RemoveParalizes}},
@@ -113,7 +114,7 @@ BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {}},
 {"Cause Poison", {0, 4}, TargetClose, {Poison, Instant, SaveNegate}},
 
 {"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
-{"Turn Undead", {0, 1}, TargetSelf, {TurnUndead}, MagicThrown},
+{"Turn Undead", {0, 1}, TargetAllClose, {TurnUndead}, MagicThrown},
 };
 assert_enum(spell, TurnUndead)
 INSTELEM(spelli)
@@ -256,6 +257,28 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 	return true;
 }
 
+void creature::turnundead(int level) {
+	auto hd = gethd();
+	if(hd > 0)
+		hd -= 1;
+	auto tt = maptbl(turn_undead_chance, hd);
+	auto ti = maptbl(turn_undead_index, level);
+	auto value = tt[ti];
+	if(value > 20)
+		return;
+	if(value < 0) {
+		kill();
+		return;
+	}
+	auto result = rand() % 20 + 1;
+	if(result >= value)
+		value = 0;
+	if(value == 0) {
+		add(Fear, xrand(2, 6) * 10);
+		flee(true);
+	}
+}
+
 void creature::apply(spell_s id, int level, unsigned duration) {
 	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
@@ -281,6 +304,7 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 		if(is(Undead) || gethd() >= 6)
 			return;
 		ei.effect.apply(this, level);
+		flee(true);
 		break;
 	case Knock:
 		if(true) {
@@ -307,27 +331,9 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 		remove(HoldPerson);
 		break;
 	case TurnUndead:
-		if(true) {
-			if(!is(Undead))
-				return;
-			auto hd = gethd();
-			if(hd > 0)
-				hd -= 1;
-			auto tt = maptbl(turn_undead_chance, hd);
-			auto ti = maptbl(turn_undead_index, level);
-			auto value = tt[ti];
-			if(value > 20)
-				return;
-			if(value < 0) {
-				kill();
-				return;
-			}
-			auto result = rand() % 20 + 1;
-			if(result >= value)
-				value = 0;
-			if(value == 0)
-				add(Fear, xrand(2, 6) * 10);
-		}
+		if(!is(Undead))
+			return;
+		turnundead(level);
 		break;
 	default:
 		ei.effect.apply(this, level);
