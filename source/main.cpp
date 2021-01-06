@@ -387,6 +387,7 @@ void random_company() {
 	auto pa = (adventurei*)bsdata<adventurei>::source.add();
 	pa->setname("Flooded collectors");
 	pa->position = {614, 294};
+	pa->rumor_activate.setname("Since last month people of Baldur's gate myserious disapears. Some old beggar tells story about flooded collectors and monsters, who dwelve in it. Ask city guards about flooded collectors and maybe you get a job.");
 	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
 	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
 	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");

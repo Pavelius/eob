@@ -328,17 +328,6 @@ struct variant {
 	const char*			getname() const;
 };
 typedef variant conditiona[6];
-struct variantc : adat<variant> {
-	void				cspells(const creature* p, bool expand);
-	int					chooselv(class_s type) const;
-	variant				choose(const char* title, const creature* current, const creaturea* allowed, fntext getname = 0) const;
-	void				exclude(variant v);
-	void				match(variant v, bool keep);
-	void				match(point start, int radius, bool keep);
-	void				matchsl(class_s type, int level);
-	void				select(variant_s type);
-	void				sort();
-};
 struct varianta : adat<variant, 12> {
 };
 struct textable {
@@ -1142,12 +1131,17 @@ struct historyi {
 };
 struct adventurei : textable, historyi {
 	unsigned char		settlement;
+	unsigned char		stage; // 0 - non active
 	textable			message_before;
 	textable			message_agree;
 	textable			message_righthere;
+	textable			rumor_activate;
 	point				position;
 	sitei				levels[8];
+	void				activate() { if(!stage) stage++; }
 	void				create(bool interactive) const;
+	bool				isactive() const { return stage > 0; }
+	bool				isrumor() const { return rumor_activate && (stage == 0); }
 	bool				match(variant v) const;
 };
 struct settlementi : textable {
@@ -1264,6 +1258,21 @@ struct richtexti {
 	bool				load(const char* source);
 	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
 	void				save(textable& result) const;
+};
+class variantc : public adat<variant> {
+	typedef bool(adventurei::*fnadventure)() const;
+	void				match(fnadventure p, bool keep);
+public:
+	void				cspells(const creature* p, bool expand);
+	int					chooselv(class_s type) const;
+	void				exclude(variant v);
+	void				match(variant v, bool keep);
+	void				match(point start, int radius, bool keep);
+	void				matchrm(bool keep) { match(&adventurei::isrumor, keep); }
+	void				matchac(bool keep) { match(&adventurei::isactive, keep); }
+	void				matchsl(class_s type, int level);
+	void				select(variant_s type);
+	void				sort();
 };
 class answers {
 	char				buffer[512];

@@ -209,9 +209,6 @@
     <ClCompile Include="effect.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="form.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="markup.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
@@ -276,6 +273,9 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="deck.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="form.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

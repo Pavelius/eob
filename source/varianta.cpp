@@ -35,6 +35,21 @@ static int getlevel(spell_s v, class_s c) {
 	}
 }
 
+void variantc::match(fnadventure proc, bool keep) {
+	auto p = data;
+	for(auto& e : *this) {
+		if(e.type == Adventure) {
+			auto p = bsdata<adventurei>::elements + e.value;
+			auto v = (p->*proc)();
+			if(v != keep)
+				continue;
+		} else
+			continue;
+		*p++ = e;
+	}
+	count = p - data;
+}
+
 void variantc::match(point start, int radius, bool keep) {
 	auto p = data;
 	for(auto& e : *this) {

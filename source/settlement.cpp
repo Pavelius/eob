@@ -22,6 +22,16 @@ static const char* talk_opponent[] = {
 	"old men with a staff", "strong guy", "rotten teathed man",
 	"black hair woman", "traveller in a coach"
 };
+static const char* local_rumor[] = {
+	"Locals tells interesting tales.",
+	"I heard some local news.",
+	"I have one interesting fact about this settlement."
+};
+static const char* distant_rumor[] = {
+	"I heard rumor from %1.",
+	"Bad news from %1.",
+	"Some interesting news about %1.",
+};
 
 static char				prompt_text[512];
 static stringbuilder	sb(prompt_text);
@@ -293,6 +303,7 @@ static bool explore(settlementi& e, bool run) {
 	locations.clear();
 	locations.select(Adventure);
 	locations.match(&e, true);
+	locations.matchac(true);
 	if(!locations)
 		return false;
 	if(run) {
@@ -331,7 +342,7 @@ static const char* talk_rumor(building_s b) {
 	case Inn:
 		return maprnd(answer_inn);
 	case Tavern:
-		if(d100()<30)
+		if(d100() < 30)
 			return maprnd(answer_inn);
 		return maprnd(answer_tavern);
 	default:
@@ -343,22 +354,40 @@ static const char* random_opponent() {
 	return maprnd(talk_opponent);
 }
 
+adventurei* allowed_rumor() {
+	variantc var;
+	var.select(Adventure);
+	var.matchrm(true);
+	if(!var)
+		return 0;
+	return var.random().getadventure();
+}
+
 bool talk(const char* prompt, const char* text, char& mood) {
 	sb.clear();
 	static imagei im = {BUILDNGS, 20};
 	auto po = random_opponent();
+	auto chance_heard_true = 25 + mood * 5;
+	adventurei* rumor_quest = 0;
 	if(mood <= -4) {
 		sb.add("There is no one who want to talk with you. Try talk another day.");
 		showmessage();
 		return false;
 	} else if(mood <= 0)
 		text = talk_boring();
+	else if(d100() < chance_heard_true)
+		rumor_quest = allowed_rumor();
 	if(!game.roll(party.getaverage(Charisma)))
 		mood--;
 	im.add(sb);
 	sb.add(prompt, po);
-	sb.add(": \"");
-	sb.add(text);
+	sb.add(":\"");
+	if(rumor_quest) {
+		sb.add(maprnd(local_rumor));
+		sb.adds(rumor_quest->rumor_activate.getname());
+		rumor_quest->activate();
+	} else
+		sb.add(text);
 	sb.add("\"");
 	showmessage();
 	return true;
@@ -454,7 +483,7 @@ void settlementi::adventure() {
 }
 
 int	settlementi::getequipmentcost(adventurei& e) const {
-	return 2 + position.range(e.position)/game.pixels_per_day;
+	return 2 + position.range(e.position) / game.pixels_per_day;
 }
 
 static void correct_talk(char& v, int maximum) {
