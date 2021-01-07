@@ -818,6 +818,7 @@ public:
 	item*				find(item_s v) const;
 	void				finish();
 	void				flee(bool interactive);
+	static creature*	get(void* focus);
 	int					get(ability_s id) const;
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
@@ -1109,7 +1110,7 @@ struct dungeoni {
 	void				makeroom(const rect& rc, overlayi& door);
 	static void			makewave(indext start, indext* pathmap);
 	void				move(indext index, direction_s dr);
-	void				move(direction_s direction);
+	bool				move(direction_s direction);
 	void				passhour();
 	void				passround();
 	void				pickitem(item* itm, int side = -1);
@@ -1340,7 +1341,7 @@ bool					edit(const char* title, void* object, const markup* form, bool cancel_b
 void					fullimage(point camera, point* origin);
 void					fullimage(point from, point to, point* origin);
 void					mainmenu();
-void					options();
+void					options(bool camp_mode);
 void					pause();
 void					redmarker(int x, int y);
 void					setnext(void(*p)());

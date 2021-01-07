@@ -296,7 +296,6 @@ static void pray_for_spells() {
 
 static void option_save_game() {
 	game.write();
-	setnext(adventure);
 }
 
 static void quit_game() {
@@ -309,7 +308,7 @@ static void settings() {}
 
 extern void load_game();
 
-void draw::options() {
+void draw::options(bool camp_mode) {
 	answers aw;
 	aw.add((int)pray_for_spells, "Pray for spells");
 	aw.add((int)memorize_spells, "Memorize spells");
@@ -333,9 +332,9 @@ static void editor() {
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		//game.write();
-		//game.play();
-		game.rest({BUILDNGS, 21});
+		game.write();
+		game.play();
+		//game.rest({BUILDNGS, 21});
 	} else {
 		game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);

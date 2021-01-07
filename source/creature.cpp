@@ -1885,3 +1885,10 @@ bool creature::is(condition_s v) const {
 	default: return false;
 	}
 }
+
+creature* creature::get(void* focus) {
+	auto i = bsdata<creature>::source.indexof(focus);
+	if(i == -1)
+		return 0;
+	return (creature*)bsdata<creature>::source.ptr(i);
+}

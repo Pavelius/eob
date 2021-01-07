@@ -77,7 +77,6 @@ static void*			current_object;
 static unsigned			current_size;
 static int				current_param;
 static const markup*	current_markup;
-static item*			current_item;
 static imagei			current_image;
 static int				current_level;
 static creature*		current_hero;
@@ -450,8 +449,8 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 	if(!pitm)
 		return;
 	rect rc;
+	auto pc = creature::get(pitm);
 	auto pid = game.getwear(pitm);
-	auto pc = pitm->getowner();
 	unsigned char alpha = 0xFF;
 	if(invlist) {
 		if(pid == LeftRing || pid == RightRing)
@@ -566,20 +565,6 @@ direction_s map_key_to_dir(int e) {
 	case KeyUp: return Up;
 	default: return Center;
 	}
-}
-
-static creature* getfocuscreature(void* focus) {
-	auto i = bsdata<creature>::source.indexof(focus);
-	if(i == -1)
-		return 0;
-	return (creature*)bsdata<creature>::source.ptr(i);
-}
-
-void gamei::endround() {
-	rounds++;
-	passround();
-	findsecrets();
-	setnext(adventure);
 }
 
 static int current_res_frame = 0;
@@ -808,12 +793,12 @@ static void movenext(int key) {
 		setfocus(p->av, p->param);
 }
 
-static item* movenext(item* current, int key) {
-	auto p = getnextfocus(current, key, 0);
-	if(p)
-		return (item*)p->av;
-	return (item*)current;
-}
+//static item* movenext(item* current, int key) {
+//	auto p = getnextfocus(current, key, 0);
+//	if(p)
+//		return (item*)p->av;
+//	return (item*)current;
+//}
 
 static void show_worldmap() {
 }
@@ -1123,12 +1108,11 @@ void answers::clearimage() {
 
 int answers::choosebg(const char* title, const imagei& ei, bool horizontal_buttons) const {
 	draw::animation::render(0);
-	draw::screenshoot screen;
 	draw::state push;
 	setsmallfont();
 	openform();
 	while(ismodal()) {
-		screen.restore();
+		draw::animation::render(0, false);
 		rect rc = {0, 121, 319, 199};
 		fore = colors::white;
 		if(ei)
@@ -2074,11 +2058,9 @@ void draw::pause() {
 	openform();
 	while(draw::ismodal()) {
 		draw::domodal();
-		switch(hot::key) {
-		case KeyEscape:
-		case KeySpace:
-			return;
-		}
+		if(hot::key == KeyEscape
+			|| hot::key == KeySpace)
+			break;
 	}
 	closeform();
 }
@@ -2258,7 +2240,7 @@ item* itema::choose(const char* format, bool* cancel_button, const creature* cur
 				if(y >= 156 - texth())
 					break;
 			}
-			y = 156;
+			y = 174 - texth() - 7;
 			if(cancel_button) {
 				if(buttonx(x, y, -1, "Close", cancel_button, KeyEscape)) {
 					execute(buttoncancel, 0);
@@ -2530,7 +2512,7 @@ void creature::preparespells(class_s type) {
 				break;
 		}
 		y = 174 - texth() - 7;
-		if(buttonx(x, y, -1, "Cancel", 0, 0))
+		if(buttonx(x, y, -1, "Close", 0, 0))
 			execute(buttoncancel);
 		if(buttonx(x, y, -1, "Clear", 0, 0))
 			execute(setparam, KeyDelete);
@@ -2567,39 +2549,40 @@ void creature::preparespells(class_s type) {
 }
 
 static void show_invertory(void* current_item) {
-	invertory(178, 0, getfocuscreature(current_item), current_item);
+	invertory(178, 0, creature::get(current_item), current_item);
 }
 
 static void show_abilities(void* current_item) {
-	abilities(178, 0, getfocuscreature(current_item));
+	abilities(178, 0, creature::get(current_item));
 }
 
 static void show_skills(void* current_item) {
-	skills(178, 0, getfocuscreature(current_item));
+	skills(178, 0, creature::get(current_item));
 }
 
-static bool handle_shortcuts() {
-	creature* pc;
+static bool handle_shortcuts(void* focus, bool allow_move) {
+	auto pc = creature::get(focus);
+	item* current_item = (item*)focus;
 	switch(hot::key) {
 	case KeyEscape:
-		if(true) {
+		if(pc) {
 			setmode(0);
-			auto pc = current_item->getowner();
-			auto pid = game.getwear(current_item);
-			if(pid != RightHand && pid != LeftHand)
-				current_item = pc->getitem(RightHand);
+			if(current_item!=pc->getitem(RightHand)
+				&& current_item != pc->getitem(LeftHand))
+				setfocus(pc->getitem(RightHand));
 			draw::animation::update();
 			draw::animation::render(0);
 		}
-		options();
+		options(!allow_move);
 		break;
 	case 'I':
 		if(getmode() == show_invertory) {
 			setmode(0);
-			auto pc = current_item->getowner();
-			auto pid = game.getwear(current_item);
-			if(pid != RightHand && pid != LeftHand)
-				current_item = pc->getitem(RightHand);
+			if(pc) {
+				if(current_item != pc->getitem(RightHand)
+					&& current_item != pc->getitem(LeftHand))
+					setfocus(pc->getitem(RightHand));
+			}
 		} else {
 			setmode(show_invertory);
 			return true;
@@ -2618,8 +2601,8 @@ static bool handle_shortcuts() {
 			setmode(show_skills);
 		break;
 	case 'Q':
-		if(current_item) {
-			if(game.question(current_item))
+		if(current_item && pc) {
+			if(game.question((item*)current_item))
 				return true;
 		}
 		break;
@@ -2627,7 +2610,9 @@ static bool handle_shortcuts() {
 	case KeyRight:
 	case KeyDown:
 	case KeyUp:
-		location.move(map_key_to_dir(hot::key));
+		if(allow_move)
+			return location.move(map_key_to_dir(hot::key));
+		navigate(false);
 		break;
 	case KeyHome:
 		location.rotate(Left);
@@ -2636,48 +2621,44 @@ static bool handle_shortcuts() {
 		location.rotate(Right);
 		break;
 	case 'E':
-		if(true) {
-			auto pc = getfocuscreature(current_item);
+		if(pc) {
 			auto caster = pc->getcaster();
 			auto spell_element = pc->choosespell(caster);
 			if(spell_element)
 				pc->cast(spell_element, caster, 0);
 		}
 		break;
-	case 'W':
-		current_item = movenext(current_item, KeyUp);
-		setfocus(current_item);
-		break;
-	case 'Z':
-		current_item = movenext(current_item, KeyDown);
-		setfocus(current_item);
-		break;
-	case 'S':
-		current_item = movenext(current_item, KeyRight);
-		setfocus(current_item);
-		break;
-	case 'A':
-		current_item = movenext(current_item, KeyLeft);
-		setfocus(current_item);
-		break;
+	case 'W': movenext(KeyUp); break;
+	case 'Z': movenext(KeyDown); break;
+	case 'S': movenext(KeyRight); break;
+	case 'A': movenext(KeyLeft); break;
 	case 'P':
-		place_item(current_item);
+		place_item((item*)current_item);
 		return true;
 	case 'G':
-		location.pickitem(current_item);
-		return true;
+		if(allow_move) {
+			location.pickitem((item*)current_item);
+			return true;
+		}
+		break;
 	case 'D':
-		location.dropitem(current_item);
+		if(allow_move)
+			location.dropitem((item*)current_item);
+		else if(dlgask("You can't pick this item again. Do you really want to drop item?"))
+			((item*)current_item)->clear();
 		return true;
 	case 'U':
-		return creature::use(current_item);
+		return creature::use((item*)current_item);
 	case 'T':
-		game.thrown(current_item);
+		game.thrown((item*)current_item);
 		return true;
 	case 'M':
-		return game.manipulate(current_item, to(game.getdirection(), Up));
+		if(allow_move)
+			return game.manipulate((item*)current_item, to(game.getdirection(), Up));
+		break;
 	case 'V':
-		location.automap(true);
+		if(allow_move)
+			location.automap(true);
 		break;
 	case Ctrl + 'V':
 		game.worldmap();
@@ -2693,10 +2674,8 @@ static bool handle_shortcuts() {
 		if(!pc)
 			break;
 		if(current_item) {
-			if(getfocuscreature(current_item) != pc) {
-				current_item = pc->getitem(RightHand);
-				setfocus(current_item);
-			}
+			if(creature::get(current_item) != pc)
+				setfocus(pc->getitem(RightHand));
 		}
 		break;
 	}
@@ -2707,13 +2686,15 @@ void draw::adventure() {
 	if(!game.isalive())
 		setnext(mainmenu);
 	while(ismodal()) {
-		if(!current_item)
-			current_item = party[0]->getitem(RightHand);
+		if(!getfocus())
+			setfocus(party[0]->getitem(RightHand));
 		draw::animation::update();
-		draw::animation::render(0, true, current_item);
+		draw::animation::render(0, true, getfocus());
 		domodal();
-		if(handle_shortcuts())
+		if(handle_shortcuts(getfocus(), true)) {
 			game.endround();
+			setnext(adventure);
+		}
 	}
 }
 
@@ -2724,6 +2705,7 @@ void gamei::rest(const imagei& im) {
 	while(ismodal()) {
 		draw::animation::render(0, false, getfocus(), &im);
 		domodal();
-		handle_shortcuts();
+		if(handle_shortcuts(getfocus(), false))
+			game.endround();
 	}
 }

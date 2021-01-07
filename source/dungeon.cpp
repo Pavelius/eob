@@ -807,25 +807,26 @@ void dungeoni::clearboost() {
 	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
 }
 
-void dungeoni::move(direction_s direction) {
+bool dungeoni::move(direction_s direction) {
 	int i = game.getcamera();
 	int i1 = to(i, to(game.getdirection(), direction));
 	auto t = get(i1);
 	if(isblocked(i1) || ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
 		mslog("You can\'t go that way");
-		return;
+		return false;
 	}
 	switch(t) {
 	case CellStairsUp:
-		if(level <= 1 && !draw::dlgask("All food will be rotten and some potions will be spoil. Do you really want to leave dungeon and return to settlement?"))
-			break;
+		if(level <= 1
+			&& !draw::dlgask("All food will be rotten and some potions will be spoil. Do you really want to leave dungeon and return to settlement?"))
+			return false;
 		mslog("Going up");
 		game.write();
 		clearboost();
 		if(level <= 1) {
 			game.returntobase();
-			return;
+			return false;
 		}
 		game.enter(variant(Adventure, overland_index), level - 1);
 		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
@@ -853,7 +854,7 @@ void dungeoni::move(direction_s direction) {
 		hearnoises();
 		break;
 	}
-	game.endround();
+	return true;
 }
 
 static item* find_item_to_get(dungeoni& location, short unsigned index, int side) {

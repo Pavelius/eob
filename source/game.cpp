@@ -849,3 +849,9 @@ void gamei::camp(item& it) {
 		p->resting(healed);
 	}
 }
+
+void gamei::endround() {
+	rounds++;
+	passround();
+	findsecrets();
+}
