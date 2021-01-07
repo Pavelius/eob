@@ -240,7 +240,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Drink, Gambling,
+	Attack, Bribe, Buy, Donate, Drink, HealAction, Gambling,
 	Leave, Lie, Quest, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
@@ -255,7 +255,7 @@ enum case_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, Adventure, Alignment, Building, Case, Class,
-	Cleveress, Creature, Damage, Event, Enchant, Feat, Gender,
+	Cleveress, Condition, Creature, Damage, Event, Enchant, Feat, Gender,
 	Item, Morale, Race, Reaction, Settlement, Spell,
 };
 enum pack_s : unsigned char {
@@ -277,6 +277,9 @@ enum good_s : unsigned char {
 };
 enum variantf_s : unsigned char {
 	VarEditable, VarTextable
+};
+enum condition_s : unsigned char {
+	Healed, BadlyWounded, Wounded,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;
@@ -303,6 +306,7 @@ struct variant {
 	constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
+	constexpr variant(const condition_s v) : type(Condition), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
 	constexpr variant(const enchant_s v) : type(Enchant), value(v) {}
 	constexpr variant(const feat_s v) : type(Feat), value(v) {}
@@ -863,8 +867,9 @@ public:
 	int					getthac0(class_s cls, int level) const;
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
-	void				heal(bool interactive) { damage(Heal, gethits()); }
+	void				heal(bool interactive) { damage(Heal, gethitsmaximum()); }
 	bool				haveforsale() const;
+	bool				is(condition_s v) const;
 	bool				is(intellegence_s v) const;
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(morale_s v) const;
@@ -961,6 +966,7 @@ public:
 	int					getaverage(ability_s v) const;
 	creature*			getbest(ability_s v) const;
 	creature*			getmostdamaged() const;
+	bool				have(variant v) const;
 	void				kill();
 	void				leave();
 	void				match(variant v, bool keep);
@@ -1160,6 +1166,7 @@ struct settlementi : textable {
 	variant				enter();
 	action_s			enter(building_s id);
 	int					getdrinkcost() const { return 1 + getrarity() / 2; }
+	int					gethealingcost() const;
 	int					getequipmentcost(adventurei& e) const;
 	rarity_s			getrarity() const;
 	constexpr bool		is(building_s v) const { return buildings.is(v); }
@@ -1194,9 +1201,8 @@ class gamei : public companyi {
 	unsigned			rounds_hour;
 	unsigned			rounds_daypart;
 	unsigned			killed[LastMonster + 1];
-	unsigned			found_secrets;
+	unsigned			found_secrets, sacrifice, gold_donated;
 	char				reputation, luck;
-	int					sacrifice;
 	int					gold;
 	variant				players[6];
 	static void			render_worldmap(void* object);
@@ -1204,9 +1210,11 @@ public:
 	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
 	void				addgold(int coins);
+	void				adddonation(unsigned v) { gold_donated += v; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				additem(item i, bool interactive);
+	void				addluck() { luck++; }
 	void				addsacrifice(int v) { sacrifice += v; }
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
@@ -1300,7 +1308,7 @@ public:
 	int					choosemn(int x, int y, int width, resource_s id) const;
 	static int			compare(const void* v1, const void* v2);
 	int					random() const;
-	static void			setnoimage();
+	static void			clearimage();
 	void				sort();
 	static imagei		last_image;
 };

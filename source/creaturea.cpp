@@ -1,5 +1,13 @@
 #include "main.h"
 
+bool creaturea::have(variant v) const {
+	for(auto p : *this) {
+		if(p->ismatch(v))
+			return true;
+	}
+	return false;
+}
+
 void creaturea::match(variant id, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {

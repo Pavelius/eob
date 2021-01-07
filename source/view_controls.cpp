@@ -1254,7 +1254,7 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return x - x1;
 }
 
-void answers::setnoimage() {
+void answers::clearimage() {
 	last_image = {};
 }
 

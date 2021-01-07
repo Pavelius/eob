@@ -433,6 +433,60 @@ static bool sacrifice(bool run) {
 	return true;
 }
 
+static bool healing(int cost, bool run) {
+	if(game.getgold() < cost)
+		return false;
+	if(!party.have(Wounded))
+		return false;
+	if(run) {
+		if(cost > 0) {
+			sb.clear();
+			sb.add("\"Healing all of you will be cost %1i gold coins. Do you agree?\"", cost);
+			if(!confirm(sb))
+				return false;
+		}
+		for(auto p : party)
+			p->heal(true);
+		sb.clear();
+		sb.add("\"With god blessing all of you has been healed. Pray our god and you will be rewarded!\"");
+		showmessage();
+	}
+	return true;
+}
+
+static bool donate(bool run) {
+	static int level[][2] = {{50, 3}, {100, 7}, {200, 16}, {300, 30}, {400, 50}};
+	if(game.getgold() < level[0][0])
+		return false;
+	if(run) {
+		sb.clear();
+		sb.add("\"For glory of mighty god you must donate gold coins. How much it will be?\"");
+		answers aw;
+		aw.add(-1, "Nothing");
+		for(unsigned i = 0; i < sizeof(level) / sizeof(level[0]); i++) {
+			if(game.getgold()>=level[i][0])
+				aw.add(i, "%1i", level[i][0]);
+		}
+		auto i = aw.choosebg(sb);
+		if(i == -1)
+			return false;
+		game.pay(level[i][0]);
+		game.adddonation(level[i][0]);
+		auto chance_increase_luck = level[i][1];
+		sb.clear();
+		if(d100() < chance_increase_luck) {
+			static const char* t[] = {"The god has been pleased!", "Mighty god smiles and accept your donation!", "Oh, holy god! I feel a the power! Your donation is accept!"};
+			sb.add("\"%1\"", maprnd(t));
+			game.addluck();
+		} else {
+			static const char* t[] = {"Your donation is not enought. You must donate more.", "Donation is made. God is watching you."};
+			sb.add("\"%1\"", maprnd(t));
+		}
+		showmessage();
+	}
+	return true;
+}
+
 bool settlementi::apply(building_s b, action_s a, bool run) {
 	auto& ei = bsdata<buildingi>::elements[b];
 	adat<item> genitems;
@@ -483,6 +537,10 @@ bool settlementi::apply(building_s b, action_s a, bool run) {
 		break;
 	case Sacrifice:
 		return sacrifice(run);
+	case HealAction:
+		return healing(gethealingcost(), run);;
+	case Donate:
+		return donate(run);;
 	default:
 		return false;
 	}
@@ -506,6 +564,15 @@ void settlementi::adventure() {
 		}
 		break;
 	}
+}
+
+int	settlementi::gethealingcost() const {
+	auto r = 60;
+	if(party.have(Paladin))
+		r -= 15;
+	if(party.have(Cleric))
+		r -= 15;
+	return r;
 }
 
 int	settlementi::getequipmentcost(adventurei& e) const {

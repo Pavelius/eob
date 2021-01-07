@@ -106,6 +106,7 @@ bool encounteri::match(const conditiona& source) const {
 }
 
 void encounteri::dialog() {
+	answers::clearimage();
 	chatting(*this, messages);
 }
 
@@ -326,7 +327,6 @@ void gamei::interract(indext monster_index) {
 	//encounter.set(Friendly);
 	if(encounter.reaction == Indifferent || encounter.reaction == Friendly) {
 		party_ambush = false;
-		answers::setnoimage();
 		encounter.dialog();
 	}
 	switch(encounter.reaction) {

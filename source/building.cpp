@@ -11,7 +11,7 @@ BSDATA(buildingi) = {{"Arena"},
 {"Stable", "#BUILDNGS 4\nStable has caravans, that leave city in any directions. You can reach at distant location for some gold coins.", {Travel}},
 {"Stock"},
 {"Tavern", "#BUILDNGS 5\nNoisy tavern were full of folks. It drinks and play games. Smells good food.", {Drink, Rest, Gambling}},
-{"Temple", "#BUILDNGS 8\nSilent temple of good god. You can heal here and keep you soul in safe.", {}},
+{"Temple", "#BUILDNGS 8\nSilent temple of good god. You can heal here and keep you soul in safe.", {HealAction, Sacrifice, Donate}},
 {"Tower", "#BUILDNGS 3\nIn this shop you can buy or sell weird magical devices and can identify weird items.", {Buy, Sell}, {Devices}},
 };
 INSTELEM(buildingi)

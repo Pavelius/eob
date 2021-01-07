@@ -1757,6 +1757,7 @@ bool creature::ismatch(const variant v) const {
 	case Ability: return get((ability_s)v.value) > 0;
 	case Class: return get((class_s)v.value) > 0;
 	case Cleveress: return is((intellegence_s)v.value);
+	case Condition: return is((condition_s)v.value);
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Item: return have((item_s)v.value);
@@ -1873,5 +1874,14 @@ void creature::flee(bool interactive) {
 		if(interactive)
 			mslog("%1 flee!", getname());
 		setindex(index);
+	}
+}
+
+bool creature::is(condition_s v) const {
+	switch(v) {
+	case BadlyWounded: return gethits() < gethitsmaximum() / 2;
+	case Healed: return gethits() >= gethitsmaximum();
+	case Wounded: return gethits() < gethitsmaximum();
+	default: return false;
 	}
 }
