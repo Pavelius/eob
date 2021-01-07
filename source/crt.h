@@ -59,7 +59,7 @@ enum codepages { CPNONE, CP1251, CPUTF8, CPU16BE, CPU16LE };
 namespace metrics {
 const codepages						code = CP1251;
 }
-//
+typedef int(*fnint)(const void* object);
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
 bool								ischa(unsigned u); // is alphabetical character?
 inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numeric character?

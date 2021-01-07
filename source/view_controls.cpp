@@ -2,8 +2,6 @@
 
 using namespace draw;
 
-namespace draw {
-}
 namespace colors {
 static color			dark = color::create(52, 52, 80);
 static color			drag = color::create(250, 100, 250);
@@ -97,6 +95,7 @@ static void*			current_edit;
 static int				current_c1;
 static point			current_p1;
 const int				dx = 4;
+const int				menu_width = 168;
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -569,16 +568,11 @@ direction_s map_key_to_dir(int e) {
 	}
 }
 
-static void show_invertory(item* current_item) {
-	draw::invertory(178, 0, current_item->getowner(), current_item);
-}
-
-static void show_abilities(item* current_item) {
-	draw::abilities(178, 0, current_item->getowner());
-}
-
-static void show_skills(item* current_item) {
-	draw::skills(178, 0, current_item->getowner());
+static creature* getfocuscreature(void* focus) {
+	auto i = bsdata<creature>::source.indexof(focus);
+	if(i == -1)
+		return 0;
+	return (creature*)bsdata<creature>::source.ptr(i);
 }
 
 void gamei::endround() {
@@ -824,140 +818,6 @@ static item* movenext(item* current, int key) {
 static void show_worldmap() {
 }
 
-void draw::adventure() {
-	creature* pc;
-	if(!game.isalive())
-		setnext(mainmenu);
-	while(ismodal()) {
-		if(!current_item)
-			current_item = party[0]->getitem(RightHand);
-		draw::animation::update();
-		draw::animation::render(0, true, current_item);
-		domodal();
-		switch(hot::key) {
-		case KeyEscape:
-			if(true) {
-				setmode(0);
-				auto pc = current_item->getowner();
-				auto pid = game.getwear(current_item);
-				if(pid != RightHand && pid != LeftHand)
-					current_item = pc->getitem(RightHand);
-				draw::animation::update();
-				draw::animation::render(0);
-			}
-			options();
-			break;
-		case 'I':
-			if(getmode() == show_invertory) {
-				setmode(0);
-				auto pc = current_item->getowner();
-				auto pid = game.getwear(current_item);
-				if(pid != RightHand && pid != LeftHand)
-					current_item = pc->getitem(RightHand);
-			} else {
-				setmode(show_invertory);
-				game.endround();
-			}
-			break;
-		case 'C':
-			if(getmode() == show_abilities)
-				setmode(0);
-			else
-				setmode(show_abilities);
-			break;
-		case 'X':
-			if(getmode() == show_skills)
-				setmode(0);
-			else
-				setmode(show_skills);
-			break;
-		case 'Q':
-			if(current_item) {
-				if(game.question(current_item))
-					game.endround();
-			}
-			break;
-		case KeyLeft:
-		case KeyRight:
-		case KeyDown:
-		case KeyUp:
-			location.move(map_key_to_dir(hot::key));
-			break;
-		case KeyHome:
-			location.rotate(Left);
-			break;
-		case KeyPageUp:
-			location.rotate(Right);
-			break;
-		case 'E':
-			if(true) {
-				auto pc = current_item->getowner();
-				auto caster = pc->getcaster();
-				auto spell_element = pc->choosespell(caster);
-				if(spell_element)
-					pc->cast(spell_element, caster, 0);
-			}
-			break;
-		case 'W':
-			current_item = movenext(current_item, KeyUp);
-			break;
-		case 'Z':
-			current_item = movenext(current_item, KeyDown);
-			break;
-		case 'S':
-			current_item = movenext(current_item, KeyRight);
-			break;
-		case 'A':
-			current_item = movenext(current_item, KeyLeft);
-			break;
-		case 'P':
-			place_item(current_item);
-			break;
-		case 'G':
-			location.pickitem(current_item);
-			break;
-		case 'D':
-			location.dropitem(current_item);
-			break;
-		case 'U':
-			if(creature::use(current_item))
-				game.endround();
-			break;
-		case 'T':
-			game.thrown(current_item);
-			break;
-		case 'M':
-			if(game.manipulate(current_item, to(game.getdirection(), Up)))
-				game.endround();
-			break;
-		case 'V':
-			location.automap(true);
-			break;
-		case Ctrl + 'V':
-			game.worldmap();
-			break;
-		case 'F':
-			draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
-			break;
-		case 'H':
-			test_map();
-			break;
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-			pc = party[hot::key - '1'];
-			if(!pc)
-				break;
-			if(current_item->getowner() != pc)
-				current_item = pc->getitem(RightHand);
-			break;
-		}
-	}
-}
-
 bool draw::isfocus(void* av, unsigned param) {
 	return current_focus == av && current_focus_param == param;
 }
@@ -1021,6 +881,7 @@ static void standart_domodal() {
 bool draw::ismodal() {
 	render_current = render_objects;
 	domodal = standart_domodal;
+	current_param = 0;
 	if(next_proc) {
 		break_modal = false;
 		return false;
@@ -1222,6 +1083,8 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 		vertical = false;
 		width = getbuttonwidth(title);
 	}
+	if(!ev)
+		ev = (void*)title;
 	auto run = false;
 	rect rc = {x, y, x + width, y + texth() + 3};
 	focusing(rc, ev);
@@ -1551,7 +1414,6 @@ static void* choose_element(const char* title, const void* current_value, int wi
 			x += buttonw(x, y, "Prev", prevpage, KeyPageUp, prevpage, (int)&params);
 		if(source)
 			x += buttonw(x, y, "Add", "Add", F3, setparam, F3);
-		current_param = 0;
 		domodal();
 		if(current_param == F3) {
 			params.origin = source->getcount();
@@ -2235,64 +2097,11 @@ int	gamei::getmapwidth() {
 	return p->frames[0].sy;
 }
 
-static void spell_avatar(int x, int y, int i, class_s type, creature* pc) {
-	auto p = party[i];
-	if(!p)
-		return;
-	unsigned flags = 0;
-	if(!pc->iscast(type))
-		flags |= Disabled;
-	if(p == pc)
-		flags |= Checked;
-	draw::avatar(x, y, p, flags, 0);
-}
-
-static void spells_portraits(int x, int y, class_s type, creature* pc) {
-	spell_avatar(x, y, 0, type, pc);
-	spell_avatar(x + 72, y, 1, type, pc);
-	spell_avatar(x, y + 52, 2, type, pc);
-	spell_avatar(x + 72, y + 52, 3, type, pc);
-}
-
 static int get_spells_prepared(creature* pc, aref<spell_s> spells) {
 	int result = 0;
 	for(auto e : spells)
 		result += pc->getprepare(e);
 	return result;
-}
-
-static void choose_level() {
-}
-
-static void clear_spells() {
-	if(!current_hero)
-		return;
-}
-
-static void add_spell() {
-}
-
-static void render_spell_window(aref<spell_s> source, creature* pc, class_s type, int maximum_spells, int prepared_spells) {
-	draw::state push;
-	char temp[64];
-	int level = pc ? pc->get(type) : 0;
-	setbigfont();
-	form({0, 0, 22 * 8 + 2, 174}, 2);
-	fore = colors::title;
-	textb(6, 6, "Spells available:");
-	fore = colors::white;
-	for(int i = 0; i < 9; i++)
-		draw::button(4 + i * 19, 16, 17, cmd(choose_level, i + 1, i + 1), sznum(temp, i + 1));
-	szprint(temp, zendof(temp), "%1i of %2i remaining", prepared_spells, maximum_spells);
-	fore = colors::title;
-	textb(6, 36, temp);
-	fore = colors::white;
-	int count = imin(source.count, (unsigned)13);
-	for(int i = 0; i < count; i++)
-		buttont(6, 46 + 8 * i, 168, cmd(add_spell, (int)(source.data + i), (int)(source.data + i)),
-			getstr(source.data[i]), sznum(temp, pc->getprepare(source.data[i])));
-	draw::button(6, 156, -1, buttoncancel, "Close");
-	draw::button(60, 156, -1, clear_spells, "Clear");
 }
 
 static unsigned select_spells(spell_s* result, spell_s* result_maximum, const creature* pc, class_s type, int level) {
@@ -2309,17 +2118,15 @@ static unsigned select_spells(spell_s* result, spell_s* result_maximum, const cr
 	return p - result;
 }
 
-static unsigned select_known_spells(spell_s* result, spell_s* result_maximum, creature* pc, class_s type, int level) {
-	auto p = result;
+static void select_known_spells(adat<spell_s>& result, creature* pc, class_s type, int level) {
+	result.clear();
 	for(auto i = spell_s(1); i < LayOnHands; i = (spell_s)(i + 1)) {
 		if(creature::getlevel(i, type) != level)
 			continue;
 		if(!pc->isknown(i))
 			continue;
-		if(result < result_maximum)
-			*p++ = i;
+		result.add(i);
 	}
-	return p - result;
 }
 
 int variantc::chooselv(class_s type) const {
@@ -2393,72 +2200,7 @@ int variantc::chooselv(class_s type) const {
 	return getresult();
 }
 
-static bool choose_creature(class_s type, creature** hero) {
-	creature* p;
-	switch(hot::key) {
-	case '1': case '2': case '3': case '4':
-		p = party[hot::key - '1'];
-		if(!p || !p->iscast(type))
-			break;
-		*hero = p;
-		break;
-	default:
-		return false;
-	}
-	return true;
-}
-
-void creature::preparespells(class_s type) {
-	adat<spell_s, 32> result;
-	auto hero = game.getvalid(0, type);
-	openform();
-	while(ismodal()) {
-		result.count = 0;
-		auto maximum_spells = 0;
-		auto prepared_spells = 0;
-		if((int)getfocus() >= 1 && (int)getfocus() <= 9)
-			current_level = (int)getfocus();
-		if(hero) {
-			result.count = select_known_spells(result.data, zendof(result.data), hero, type, current_level);
-			maximum_spells = hero->getspellsperlevel(type, current_level);
-			prepared_spells = get_spells_prepared(hero, {result.data, result.count});
-		}
-		draw::animation::render(0, false);
-		render_spell_window(result, hero, type, maximum_spells, prepared_spells);
-		spells_portraits(184, 2, type, hero);
-		domodal();
-		auto current_index = result.indexof((spell_s*)getfocus());
-		switch(hot::key) {
-		case 'C':
-			for(auto e : result)
-				hero->set(e, 0);
-			break;
-		case KeyRight:
-			if(current_index != -1) {
-				if(prepared_spells < maximum_spells)
-					hero->setprepare(result.data[current_index],
-						hero->getprepare(result.data[current_index]) + 1);
-				continue;
-			}
-			break;
-		case KeyLeft:
-			if(current_index != -1) {
-				auto c = hero->getprepare(result.data[current_index]);
-				if(c)
-					hero->setprepare(result.data[current_index], c - 1);
-				continue;
-			}
-			break;
-		default:
-			choose_creature(type, &hero);
-			break;
-		}
-		navigate(true);
-	}
-	closeform();
-}
-
-static void avatar(int x, int y, int i, const creature* current, const creaturea* allowed, creature** change) {
+static void avatar(int x, int y, int i, const creature* current, const creaturea* allowed, creature** change, callback proc) {
 	if(i >= party.getcount())
 		return;
 	auto p = party[i];
@@ -2470,19 +2212,22 @@ static void avatar(int x, int y, int i, const creature* current, const creaturea
 	if(p == current)
 		flags |= Checked;
 	else if((flags&Disabled) == 0) {
-		if(change && hot::key == ('1' + i)) {
-			*change = const_cast<creature*>(current);
-			execute(buttoncancel, 0);
+		if(allowed && change && hot::key == ('1' + i)) {
+			auto new_index = allowed->indexof(p);
+			if(new_index != -1)
+				*change = allowed->data[new_index];
+			if(proc)
+				execute(proc, 0);
 		}
 	}
 	draw::avatar(x, y, p, flags, 0);
 }
 
-static void avatars(int x, int y, const creature* pc, const creaturea* allowed, creature** change) {
-	avatar(x, y, 0, pc, allowed, change);
-	avatar(x + 72, y, 1, pc, allowed, change);
-	avatar(x, y + 52, 2, pc, allowed, change);
-	avatar(x + 72, y + 52, 3, pc, allowed, change);
+static void avatars(int x, int y, const creature* pc, const creaturea* allowed, creature** change, callback proc) {
+	avatar(x, y, 0, pc, allowed, change, proc);
+	avatar(x + 72, y, 1, pc, allowed, change, proc);
+	avatar(x, y + 52, 2, pc, allowed, change, proc);
+	avatar(x + 72, y + 52, 3, pc, allowed, change, proc);
 }
 
 item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname) const {
@@ -2521,7 +2266,7 @@ item* itema::choose(const char* format, bool* cancel_button, const creature* cur
 				}
 			}
 		}
-		avatars(184, 2, current, allowed, change);
+		avatars(184, 2, current, allowed, change, buttoncancel);
 		draw::domodal();
 		draw::navigate(false);
 	}
@@ -2535,8 +2280,8 @@ int answers::choosemn(const char* title, bool allow_cancel) const {
 	openform();
 	while(ismodal()) {
 		draw::animation::render(0, false);
-		form({0, 0, 22 * 8 + 2, 174}, 2);
-		auto x = 4, y = 6;
+		form({0, 0, menu_width + 10, 174}, 2);
+		auto x = 6, y = 6;
 		if(title) {
 			fore = colors::title;
 			textb(x + 2, y, title);
@@ -2544,7 +2289,7 @@ int answers::choosemn(const char* title, bool allow_cancel) const {
 		}
 		fore = colors::white;
 		for(auto& e : elements) {
-			if(buttonx(x, y, 170, e.text, (void*)e.text, 0))
+			if(buttonx(x, y, menu_width, e.text, (void*)e.text, 0))
 				execute(buttonparam, e.id);
 			y += 2;
 		}
@@ -2639,7 +2384,9 @@ static void blanksheet(int x, int y, creature* pc) {
 	line(300, 166, 318, 166, color::create(88, 88, 116));
 }
 
-void draw::invertory(int x, int y, creature* pc, item* current_item) {
+static void invertory(int x, int y, creature* pc, void* current_item) {
+	if(!pc)
+		return;
 	const int dx = 18;
 	const int dy = 18;
 	sheet_head(x, y, pc);
@@ -2663,7 +2410,9 @@ void draw::invertory(int x, int y, creature* pc, item* current_item) {
 	itemicn(x + 107, y + 145, pc->getitem(Legs), true, 0, current_item);
 }
 
-void draw::abilities(int x, int y, creature* pc) {
+static void abilities(int x, int y, creature* pc) {
+	if(!pc)
+		return;
 	char temp[260]; stringbuilder sb(temp);
 	blanksheet(x, y, pc);
 	state push; setsmallfont();
@@ -2704,7 +2453,9 @@ void draw::abilities(int x, int y, creature* pc) {
 	}
 }
 
-void draw::skills(int x, int y, creature* pc) {
+static void skills(int x, int y, creature* pc) {
+	if(!pc)
+		return;
 	blanksheet(x, y, pc);
 	state push; setsmallfont();
 	fore = colors::info::text;
@@ -2720,5 +2471,259 @@ void draw::skills(int x, int y, creature* pc) {
 		zprint(temp, "%1i%%", value);
 		text(x1 + 6 * 19, y1, temp);
 		y1 += 7;
+	}
+}
+
+void creature::preparespells(class_s type) {
+	draw::animation::render(0, false);
+	draw::state push;
+	char temp[260]; stringbuilder sb(temp);
+	creaturea source;
+	for(auto p : party) {
+		if(p && p->iscast(type))
+			source.add(p);
+	}
+	if(!source) {
+		sb.clear();
+		sb.add("You don't have any %1 in party.", getstr(type));
+		dlgmsg(temp);
+		return;
+	}
+	adat<spell_s> result;
+	auto pc = source[0];
+	openform();
+	setbigfont();
+	while(ismodal()) {
+		result.clear();
+		auto maximum_spells = 0;
+		auto prepared_spells = 0;
+		if((int)getfocus() >= 1 && (int)getfocus() <= 9)
+			current_level = (int)getfocus();
+		if(pc) {
+			select_known_spells(result, pc, type, current_level);
+			maximum_spells = pc->getspellsperlevel(type, current_level);
+			prepared_spells = get_spells_prepared(pc, {result.data, result.count});
+		}
+		auto level = pc ? pc->get(type) : 0;
+		form({0, 0, menu_width + 10, 174}, 2);
+		fore = colors::title;
+		auto x = 6, y = 6;
+		textb(x + 2, y, "Spells available:");
+		y += texth() + 2;
+		fore = colors::white;
+		auto x1 = x;
+		for(int i = 0; i < 9; i++)
+			buttonx(x1, y, -1, sznum(temp, i + 1), (void*)(i + 1), 0);
+		y += texth() + 8;
+		sb.clear();
+		sb.add("%1i of %2i remaining", prepared_spells, maximum_spells);
+		fore = colors::title;
+		textb(x + 2, y, temp);
+		y += texth() + 2;
+		fore = colors::white;
+		auto ym = 174 - texth()*2 - 7 - 6;
+		for(auto& e : result) {
+			sznum(temp, pc->getprepare(e));
+			textb(aligned(x, menu_width, AlignRight, textw(temp)), y, temp);
+			labelt(x, y, menu_width - 8 * 2, getstr(e), &e, 0);
+			if(y >= ym)
+				break;
+		}
+		y = 174 - texth() - 7;
+		if(buttonx(x, y, -1, "Cancel", 0, 0))
+			execute(buttoncancel);
+		if(buttonx(x, y, -1, "Clear", 0, 0))
+			execute(setparam, KeyDelete);
+		avatars(184, 2, pc, &source, &pc, 0);
+		domodal();
+		auto current_index = result.indexof((spell_s*)getfocus());
+		switch(current_param) {
+		case KeyDelete:
+			for(auto e : result)
+				pc->set(e, 0);
+			break;
+		}
+		switch(hot::key) {
+		case KeyRight:
+			if(current_index != -1) {
+				if(prepared_spells < maximum_spells)
+					pc->setprepare(result.data[current_index],
+						pc->getprepare(result.data[current_index]) + 1);
+				continue;
+			}
+			break;
+		case KeyLeft:
+			if(current_index != -1) {
+				auto c = pc->getprepare(result.data[current_index]);
+				if(c)
+					pc->setprepare(result.data[current_index], c - 1);
+				continue;
+			}
+			break;
+		}
+		navigate(true);
+	}
+	closeform();
+}
+
+static void show_invertory(void* current_item) {
+	invertory(178, 0, getfocuscreature(current_item), current_item);
+}
+
+static void show_abilities(void* current_item) {
+	abilities(178, 0, getfocuscreature(current_item));
+}
+
+static void show_skills(void* current_item) {
+	skills(178, 0, getfocuscreature(current_item));
+}
+
+static bool handle_shortcuts() {
+	creature* pc;
+	switch(hot::key) {
+	case KeyEscape:
+		if(true) {
+			setmode(0);
+			auto pc = current_item->getowner();
+			auto pid = game.getwear(current_item);
+			if(pid != RightHand && pid != LeftHand)
+				current_item = pc->getitem(RightHand);
+			draw::animation::update();
+			draw::animation::render(0);
+		}
+		options();
+		break;
+	case 'I':
+		if(getmode() == show_invertory) {
+			setmode(0);
+			auto pc = current_item->getowner();
+			auto pid = game.getwear(current_item);
+			if(pid != RightHand && pid != LeftHand)
+				current_item = pc->getitem(RightHand);
+		} else {
+			setmode(show_invertory);
+			return true;
+		}
+		break;
+	case 'C':
+		if(getmode() == show_abilities)
+			setmode(0);
+		else
+			setmode(show_abilities);
+		break;
+	case 'X':
+		if(getmode() == show_skills)
+			setmode(0);
+		else
+			setmode(show_skills);
+		break;
+	case 'Q':
+		if(current_item) {
+			if(game.question(current_item))
+				return true;
+		}
+		break;
+	case KeyLeft:
+	case KeyRight:
+	case KeyDown:
+	case KeyUp:
+		location.move(map_key_to_dir(hot::key));
+		break;
+	case KeyHome:
+		location.rotate(Left);
+		break;
+	case KeyPageUp:
+		location.rotate(Right);
+		break;
+	case 'E':
+		if(true) {
+			auto pc = getfocuscreature(current_item);
+			auto caster = pc->getcaster();
+			auto spell_element = pc->choosespell(caster);
+			if(spell_element)
+				pc->cast(spell_element, caster, 0);
+		}
+		break;
+	case 'W':
+		current_item = movenext(current_item, KeyUp);
+		setfocus(current_item);
+		break;
+	case 'Z':
+		current_item = movenext(current_item, KeyDown);
+		setfocus(current_item);
+		break;
+	case 'S':
+		current_item = movenext(current_item, KeyRight);
+		setfocus(current_item);
+		break;
+	case 'A':
+		current_item = movenext(current_item, KeyLeft);
+		setfocus(current_item);
+		break;
+	case 'P':
+		place_item(current_item);
+		return true;
+	case 'G':
+		location.pickitem(current_item);
+		return true;
+	case 'D':
+		location.dropitem(current_item);
+		return true;
+	case 'U':
+		return creature::use(current_item);
+	case 'T':
+		game.thrown(current_item);
+		return true;
+	case 'M':
+		return game.manipulate(current_item, to(game.getdirection(), Up));
+	case 'V':
+		location.automap(true);
+		break;
+	case Ctrl + 'V':
+		game.worldmap();
+		break;
+	case 'F':
+		draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
+		break;
+	case 'H':
+		test_map();
+		break;
+	case '1': case '2': case '3': case '4': case '5': case '6':
+		pc = party[hot::key - '1'];
+		if(!pc)
+			break;
+		if(current_item) {
+			if(getfocuscreature(current_item) != pc) {
+				current_item = pc->getitem(RightHand);
+				setfocus(current_item);
+			}
+		}
+		break;
+	}
+	return false;
+}
+
+void draw::adventure() {
+	if(!game.isalive())
+		setnext(mainmenu);
+	while(ismodal()) {
+		if(!current_item)
+			current_item = party[0]->getitem(RightHand);
+		draw::animation::update();
+		draw::animation::render(0, true, current_item);
+		domodal();
+		if(handle_shortcuts())
+			game.endround();
+	}
+}
+
+void gamei::rest(const imagei& im) {
+	if(!party)
+		return;
+	setfocus(party[0]->getitem(RightHand));
+	while(ismodal()) {
+		draw::animation::render(0, false, getfocus(), &im);
+		domodal();
+		handle_shortcuts();
 	}
 }

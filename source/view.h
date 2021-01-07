@@ -23,7 +23,6 @@ void					greenbar(rect rc, int vc, int vm);
 int						header(int x, int y, const char* text);
 void					imagex(int x, int y, const sprite* res, int id, unsigned flags, int percent, unsigned char shadow);
 void					initialize();
-void					invertory(int x, int y, creature* pc, item* current_item);
 bool					isfocus(void* ev, unsigned param = 0);
 inline bool				isfocus(const cmd& v) { return isfocus((void*)v.focus); }
 void					itemicn(int x, int y, item itm, unsigned char alpha = 0xFF, int spell = 0);
@@ -36,7 +35,6 @@ void					resetres();
 void					setbigfont();
 void					setmode(infoproc mode);
 void					setsmallfont();
-void					skills(int x, int y, creature* pc);
 void					textb(int x, int y, const char* string, int count = -1);
 int						textb(rect rc, const char* string, unsigned flags = 0);
 extern unsigned			frametick;

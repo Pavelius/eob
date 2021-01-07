@@ -1254,6 +1254,7 @@ public:
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
+	void				rest(const imagei& im);
 	void				returntobase();
 	void				rideto(variant v);
 	static bool			roll(int value);
@@ -1301,6 +1302,7 @@ public:
 	void				addv(int id, const char* name, const char* format);
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
+	int					choose(const char* format, const char* header, int* current_level, creature** current_creature, const creaturea* allowed, fnint getnumber) const;
 	int					choosebg(const char* title, const imagei& ei, bool herizontal_buttons) const;
 	int					choosebg(const char* title, bool herizontal_buttons = true) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
@@ -1318,17 +1320,16 @@ namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);
-void					render(int pause = 300, bool show_screen = true, item* current_item = 0);
+void					render(int pause = 300, bool show_screen = true, void* focus = 0, const imagei* pi = 0);
 int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					update();
 }
-typedef void(*infoproc)(item*);
-void					abilities(int x, int y, creature* pc);
+typedef void(*infoproc)(void*);
 void					adventure();
 void					appear(pobject proc, void* object, unsigned duration = 1000);
-void					avatar(int x, int y, int party_index, unsigned flags, item* current_item);
-void					avatar(int x, int y, creature* pc, unsigned flags, item* current_item);
+void					avatar(int x, int y, int party_index, unsigned flags, void* current_item);
+void					avatar(int x, int y, creature* pc, unsigned flags, void* current_item);
 void					background(int rid);
 void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, const markup* type = 0);
 bool					choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list);

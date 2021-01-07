@@ -315,14 +315,14 @@ static void handicn(int x, int y, creature* pc, wear_s id, void* current_item) {
 		render_player_attack(x, y + 2, p);
 }
 
-void draw::avatar(int x, int y, int party_index, unsigned flags, item* current_item) {
+void draw::avatar(int x, int y, int party_index, unsigned flags, void* current_item) {
 	auto p = party[party_index];
 	if(!p)
 		return;
 	avatar(x, y, p, flags, current_item);
 }
 
-void draw::avatar(int x, int y, creature* pc, unsigned flags, item* current_item) {
+void draw::avatar(int x, int y, creature* pc, unsigned flags, void* current_item) {
 	draw::state push;
 	fore = colors::black;
 	setsmallfont();
@@ -377,14 +377,14 @@ static unsigned get_hero_flags(int party_index) {
 	return (p->gethits() <= 0) ? Disabled : 0;
 }
 
-static void show_portraits(int x, int y, item* current_item) {
-	draw::avatar(x, y, 0, get_hero_flags(0), current_item);
+static void show_portraits(int x, int y, void* current_item) {
+	avatar(x, y, 0, get_hero_flags(0), current_item);
 	draw::avatar(x + 72, y, 1, get_hero_flags(1), current_item);
 	draw::avatar(x, y + 52, 2, get_hero_flags(2), current_item);
 	draw::avatar(x + 72, y + 52, 3, get_hero_flags(3), current_item);
 }
 
-static void render_players_info(item* current_item) {
+static void render_players_info(void* current_item) {
 	auto m = draw::getmode();
 	if(!current_item)
 		m = 0;
@@ -1229,10 +1229,14 @@ int draw::animation::thrown(indext index, direction_s dr, item_s type, direction
 	return index;
 }
 
-void draw::animation::render(int pause, bool show_screen, item* current_item) {
+void draw::animation::render(int pause, bool show_screen, void* current_item, const imagei* pi) {
 	background(PLAYFLD);
 	if(show_screen)
 		render_screen();
+	if(pi) {
+		image(0, 0, gres(BORDER), 0, 0);
+		image(8, 8, gres(pi->res), pi->frame, 0);
+	}
 	compass();
 	render_players_info(current_item);
 	if(pause) {
@@ -1240,15 +1244,3 @@ void draw::animation::render(int pause, bool show_screen, item* current_item) {
 		sleep(pause);
 	}
 }
-
-//void draw::animation::worldmap(int pause, item* current_item) {
-//	background(PLAYFLD);
-//	blit(*canvas, 176, 120, 3, 56, 0, *canvas, 176, 64);
-//	line(0, 176, 176, 176, colors::black);
-//	form({0, 177, 319, 199}, 1, false, false);
-//	render_players_info(current_item);
-//	if(pause) {
-//		redraw();
-//		sleep(pause);
-//	}
-//}

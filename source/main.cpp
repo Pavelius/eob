@@ -333,8 +333,9 @@ static void editor() {
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		game.write();
-		game.play();
+		//game.write();
+		//game.play();
+		game.rest({BUILDNGS, 21});
 	} else {
 		game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);
