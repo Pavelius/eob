@@ -855,3 +855,8 @@ void gamei::endround() {
 	passround();
 	findsecrets();
 }
+
+bool gamei::isnight() const {
+	auto h = gethour();
+	return h >= 22 || h <= 6;
+}

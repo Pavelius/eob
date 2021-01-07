@@ -20,7 +20,8 @@ static const char* talk_opponent[] = {
 	"old dwarf", "middle aged human", "young man",
 	"beautiful woman", "scarred traveller", "welldressed woman",
 	"old men with a staff", "strong guy", "rotten teathed man",
-	"black hair woman", "traveller in a coach"
+	"black hair woman", "black hair lady", "traveller in a coach",
+	"halfnaked woman",
 };
 static const char* local_rumor[] = {
 	"Locals tells interesting tales.",
@@ -68,29 +69,44 @@ action_s settlementi::enter(building_s id) {
 	return (action_s)aw.choosebg(ei.description);
 }
 
+void settlementi::getdescriptor(stringbuilder& sb) const {
+	auto n = getlevel(prosperty);
+	if(kind_n1[n])
+		sb.adds(kind_n1[n]);
+	if(is(Harbor))
+		sb.adds("coasted");
+	sb.adds(kind_n2[n]);
+}
+
 variant settlementi::enter() {
 	sb.clear();
 	auto n = getlevel(prosperty);
-	if(image)
+	if(game.isnight()) {
+		static imagei im = {BUILDNGS, 13};
+		im.add(sb);
+	} else if(image)
 		image.add(sb);
 	else {
 		imagei im = {BUILDNGS, (unsigned short)(15 + imin((int)getrarity(), 2))};
 		im.add(sb);
 	}
 	sb.add("You reach a");
-	if(kind_n1[n])
-		sb.adds(kind_n1[n]);
-	if(is(Harbor))
-		sb.adds("coasted");
-	sb.adds(kind_n2[n]);
+	getdescriptor(sb);
 	sb.adds("named %1.", getname());
+	if(game.isnight())
+		sb.adds("There is night on street. Most buildings here were closed.");
 	answers aw;
 	if(apply(Tavern, Quest, false))
 		aw.add((int)variant(Quest), "Quest");
 	aw.add((int)variant(Travel), "Travel");
+	if(game.isnight())
+		aw.add((int)variant(Rest), "Rest");
 	for(auto i = Arena; i <= WizardTower; i = (building_s)(i + 1)) {
-		if(is(i))
-			aw.add((int)variant(i), bsdata<buildingi>::elements[i].name);
+		if(!is(i))
+			continue;
+		if(game.isnight() && !bsdata<buildingi>::elements[i].actions.is(Rest))
+			continue;
+		aw.add((int)variant(i), bsdata<buildingi>::elements[i].name);
 	}
 	return aw.choosebg(sb);
 }
@@ -150,37 +166,63 @@ static const char* buy_panel(const void* object, stringbuilder& sb) {
 	return sb;
 }
 
-static bool buy_items(itema& items) {
-	items.sort();
-	auto p = items.choose("Which item to buy?", true, buy_panel);
-	if(!p)
+static bool buy_items(building_s b, rarity_s rarity, bool run) {
+	auto& ei = bsdata<buildingi>::elements[b];
+	adat<item> genitems;
+	itema items;
+	auto ismagicitems = ei.goods.is(Devices) || ei.goods.is(Potions);
+	if(ismagicitems)
+		create(genitems, ei.goods, rarity);
+	else
+		create(genitems, ei.goods);
+	create(items, genitems);
+	items.costgp(true);
+	if(!ismagicitems)
+		items.match(rarity, true);
+	items.maxcost(game.getgold(), true);
+	if(!items)
 		return false;
-	auto cost = p->getcostgp();
-	sb.clear();
-	sb.add("Do you really want to buy ");
-	p->getname(sb);
-	sb.adds("for %1i gold coins?", cost);
-	if(!confirm(sb))
-		return false;
-	game.addgold(-cost);
-	game.additem(*p, false);
+	if(run) {
+		items.sort();
+		auto p = items.choose("Which item to buy?", true, buy_panel);
+		if(!p)
+			return false;
+		auto cost = p->getcostgp();
+		sb.clear();
+		sb.add("Do you really want to buy ");
+		p->getname(sb);
+		sb.adds("for %1i gold coins?", cost);
+		if(!confirm(sb))
+			return false;
+		game.addgold(-cost);
+		game.additem(*p, false);
+	}
 	return true;
 }
 
-static bool sell_items(itema& items) {
-	items.sort();
-	auto p = items.choose("Which item to sell?", true, buy_panel);
-	if(!p)
+static bool sell_items(building_s b, bool run) {
+	auto& ei = bsdata<buildingi>::elements[b];
+	itema items;
+	items.select();
+	items.costgp(true);
+	items.match(ei.goods, true);
+	if(!items)
 		return false;
-	auto cost = p->getcostgp();
-	sb.clear();
-	sb.add("Do you really want to sell ");
-	p->getname(sb);
-	sb.adds("for %1i gold coins as trade in?", cost);
-	if(!confirm(sb))
-		return false;
-	game.addgold(-cost);
-	p->clear();
+	if(run) {
+		items.sort();
+		auto p = items.choose("Which item to sell?", true, buy_panel);
+		if(!p)
+			return false;
+		auto cost = p->getcostgp();
+		sb.clear();
+		sb.add("Do you really want to sell ");
+		p->getname(sb);
+		sb.adds("for %1i gold coins as trade in?", cost);
+		if(!confirm(sb))
+			return false;
+		game.addgold(-cost);
+		p->clear();
+	}
 	return true;
 }
 
@@ -192,12 +234,8 @@ static void showmessage() {
 }
 
 static bool confirm_pay() {
-	if(!confirm(sb)) {
-		sb.clear();
-		sb.add("\"Very well. So get out of here, and not waste my time!\"");
-		showmessage();
+	if(!confirm(sb))
 		return false;
-	}
 	return true;
 }
 
@@ -240,24 +278,21 @@ static bool gamble(settlementi& e, bool run) {
 	return true;
 }
 
-static bool resting(building_s b) {
-	auto cost = party.getcount();
+static bool resting(const char* format, int cost, bool fullrest, bool healing) {
 	auto healed = 1;
 	sb.clear();
-	if(b == Tavern) {
-		sb.add("Bartender looked for you and sad: \"Get food and drink for this gentlemens! And this will be cost %1i gold coins. Do you pay?\"", cost);
-		if(!confirm_pay())
-			return false;
-	} else if(b == Inn) {
+	sb.add(format, cost);
+	if(!confirm_pay())
+		return false;
+	if(fullrest) {
 		healed += 4;
-		sb.add("Inn's owner looked for you and sad: \"You may stay. It will be cost %1i gold coins. Do you pay?\"", cost);
-		if(!confirm_pay())
-			return false;
 		for(auto p : party)
 			p->autocast(party);
 	}
-	for(auto p : party)
-		p->resting(healed);
+	if(healing) {
+		for(auto p : party)
+			p->resting(healed);
+	}
 	game.passtime(8 * 60);
 	return true;
 }
@@ -487,83 +522,71 @@ static bool donate(bool run) {
 	return true;
 }
 
-bool settlementi::apply(building_s b, action_s a, bool run) {
-	auto& ei = bsdata<buildingi>::elements[b];
-	adat<item> genitems;
-	itema items;
-	auto ismagicitems = ei.goods.is(Devices) || ei.goods.is(Potions);
-	switch(a) {
-	case Buy:
-		if(ismagicitems)
-			create(genitems, ei.goods, getrarity());
-		else
-			create(genitems, ei.goods);
-		create(items, genitems);
-		items.costgp(true);
-		if(!ismagicitems)
-			items.match(getrarity(), true);
-		items.maxcost(game.getgold(), true);
-		if(!items)
-			return false;
-		if(run)
-			return buy_items(items);
-		break;
-	case Sell:
-		items.select();
-		items.costgp(true);
-		items.match(ei.goods, true);
-		if(!items)
-			return false;
-		if(run)
-			return sell_items(items);
-		break;
-	case Drink:
-		return drink_and_seat(b, getdrinkcost(), mood_tavern, run);
-	case Talk:
-		if(run)
-			return talk("You find a %+1, who sad", talk_rumor(b), mood_inn);
-		break;
-	case Travel:
-		return journey(*this, b, run);
-	case Quest:
-		return explore(*this, run);
-	case Gambling:
-		return gamble(*this, run);
-	case Leave:
-		break;
-	case Rest:
-		if(run)
-			return resting(b);
-		break;
-	case Sacrifice:
-		return sacrifice(run);
-	case HealAction:
-		return healing(gethealingcost(), run);;
-	case Donate:
-		return donate(run);;
-	default:
+static bool havefun(int cost, bool run) {
+	if(game.getgold() < cost)
 		return false;
+	if(run) {
+		sb.clear();
+		sb.adds("Fun cost money. You must pay for all pleasures %1i gold coins. Do you pay?", cost);
+		if(!confirm_pay())
+			return false;
+		sb.clear();
+		for(auto p : party) {
+			auto cha_ok = p->roll(Charisma);
+			auto con_ok = p->roll(Constitution);
+			if(cha_ok && con_ok) {
+				sb.adds("%1 have full pleasure and get some new experience.", p->getname());
+				p->addexp(50);
+				if(p->is(Chaotic))
+					p->addexp(25);
+			} else
+				sb.adds("%1 will be very shy.", p->getname());
+		}
+		game.passtime(xrand(3*60, 5*60));
+		showmessage();
 	}
 	return true;
 }
 
-void settlementi::adventure() {
-	auto v = enter();
-	switch(v.type) {
-	case Action:
-		apply(Tavern, (action_s)v.value, true);
-		break;
-	case Building:
-		while(game.getsettlement() == this) {
-			auto b = (building_s)v.value;
-			auto a = enter(b);
-			if(a == Leave)
-				break;
-			apply(b, a, true);
-			game.passtime(60);
+bool settlementi::apply(building_s b, action_s a, bool run) {
+	if(game.isnight()) {
+		switch(a) {
+		case Leave: break;
+		case Travel: return journey(*this, b, run);
+		case Quest: return explore(*this, run);
+		case Rest:
+			if(run)
+				return resting("You may stay for night in this place, but not for free. It will cost you %1i gold coins. Do you pay?",
+					getrestcost(b), false, false);
+			break;
+		default: return false;
 		}
-		break;
+	} else {
+		switch(a) {
+		case Buy: return buy_items(b, getrarity(), run);
+		case Sell: return sell_items(b, run);
+		case Drink: return drink_and_seat(b, getdrinkcost(), mood_tavern, run);
+		case Talk:
+			if(run)
+				return talk("You find a %+1, who sad", talk_rumor(b), mood_inn);
+			break;
+		case Fun: return havefun(20, run);
+		case Travel: return journey(*this, b, run);
+		case Quest: return explore(*this, run);
+		case Gambling: return gamble(*this, run);
+		case Leave: break;
+		case Rest:
+			if(run)
+				return resting("You may stay for night in this place, but not for free. It will cost you %1i gold coins. Do you pay?",
+					getrestcost(b), false, true);
+			break;
+		case Sacrifice: return sacrifice(run);
+		case HealAction: return healing(gethealingcost(), run);;
+		case Donate: return donate(run);;
+		default: return false;
+		}
 	}
+	return true;
 }
 
 int	settlementi::gethealingcost() const {
@@ -590,4 +613,32 @@ void settlementi::update() {
 	correct_talk(mood_tavern, chat_rang + 1);
 	correct_talk(mood_inn, chat_rang);
 	correct_talk(mood_other, chat_rang);
+}
+
+void settlementi::adventure() {
+	auto v = enter();
+	switch(v.type) {
+	case Action:
+		if(v.value==Rest)
+			resting("You can rest right here. But you can't sleep comfortable, so you can't restore spells and have a healing sleep.",
+				0, false, false);
+		else
+			apply(Tavern, (action_s)v.value, true);
+		break;
+	case Building:
+		while(game.getsettlement() == this) {
+			auto b = (building_s)v.value;
+			auto a = enter(b);
+			if(a == Leave)
+				break;
+			apply(b, a, true);
+			game.passtime(60);
+		}
+		break;
+	}
+}
+
+int	settlementi::getrestcost(building_s b) const {
+	auto cost = party.getcount();
+	return cost;
 }

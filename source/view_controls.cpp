@@ -2698,14 +2698,102 @@ void draw::adventure() {
 	}
 }
 
-void gamei::rest(const imagei& im) {
-	if(!party)
+//void gamei::rest(const imagei& im) {
+//	if(!party)
+//		return;
+//	setfocus(party[0]->getitem(RightHand));
+//	while(ismodal()) {
+//		draw::animation::render(0, false, getfocus(), &im);
+//		domodal();
+//		if(handle_shortcuts(getfocus(), false, true))
+//			game.endround();
+//	}
+//}
+
+static void newgame() {
+	game.clear();
+	game.companyi::read("default");
+	game.setcamera(Blocked);
+	creature::view_party();
+	draw::resetres();
+	game.enter(game.start, 1);
+	setnext(adventure);
+}
+
+static void main_new_game() {
+	setnext(newgame);
+}
+
+static void option_new_game() {
+	if(!dlgask("Are you really want to start new game?"))
 		return;
-	setfocus(party[0]->getitem(RightHand));
-	while(ismodal()) {
-		draw::animation::render(0, false, getfocus(), &im);
-		domodal();
-		if(handle_shortcuts(getfocus(), false))
-			game.endround();
+	setnext(newgame);
+}
+
+static void memorize_spells() {
+	creature::preparespells(Mage);
+}
+
+static void pray_for_spells() {
+	creature::preparespells(Cleric);
+}
+
+static void option_save_game() {
+	game.write();
+}
+
+static void quit_game() {
+	if(!dlgask("Are you really want to quit game?"))
+		return;
+	exit(0);
+}
+
+static void settings() {}
+
+extern void load_game();
+
+void draw::options(bool camp_mode) {
+	const char* on = "Game options:";
+	answers aw;
+	aw.add((int)pray_for_spells, "Pray for spells");
+	aw.add((int)memorize_spells, "Memorize spells");
+	aw.add((int)game.scriblescrolls, "Scrible scrolls");
+	aw.add((int)option_new_game, "New game");
+	aw.add((int)load_game, "Load game");
+	aw.add((int)option_save_game, "Save game");
+	aw.add((int)settings, "Settings");
+	aw.add((int)quit_game, "Quit game");
+	auto p = (callback)aw.choosemn(on);
+	if(p)
+		p();
+}
+
+static void editor() {
+	auto push_font = font;
+	setsmallfont();
+	if(true) {
+		random_heroes();
+		game.companyi::read("default");
+		game.addgold(200);
+		game.jumpto(bsdata<settlementi>::elements);
+		//game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
+		game.passtime(3 * 24 * 60);
+		game.write();
+		game.play();
+	} else {
+		game.companyi::read("default");
+		edit("Company", &game, dginf<companyi>::meta, false);
 	}
+	font = push_font;
+}
+
+void draw::mainmenu() {
+	answers aw;
+	aw.add((int)main_new_game, "Create New Game");
+	aw.add((int)load_game, "Load Saved game");
+	aw.add((int)editor, "Game editor");
+	aw.add((int)quit_game, "Exit game");
+	auto p = (callback)aw.choosemn(80, 110, 170, MENU);
+	if(p)
+		setnext(p);
 }

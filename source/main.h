@@ -240,7 +240,7 @@ enum intellegence_s : unsigned char {
 };
 enum action_s : unsigned char {
 	Greeting,
-	Attack, Bribe, Buy, Donate, Drink, HealAction, Gambling,
+	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
 	Leave, Lie, Quest, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
 	Discard,
 	FailLie,
@@ -317,11 +317,11 @@ struct variant {
 	constexpr variant(const race_s v) : type(Race), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
-	constexpr variant(const int v) : type(variant_s((v>>8)&0xFF)), value(v&0xFF) {}
+	constexpr variant(const int v) : type(variant_s((v >> 8) & 0xFF)), value(v & 0xFF) {}
 	variant(variant_s v, const void* p);
 	variant(const void* v);
 	constexpr explicit operator bool() const { return type != NoVariant; }
-	constexpr explicit operator int() const { return (type<<8) | value; }
+	constexpr explicit operator int() const { return (type << 8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
 	auto				getadventure() const { return (adventurei*)getpointer(Adventure); }
@@ -573,7 +573,7 @@ struct selli {
 struct imagei {
 	resource_s			res;
 	unsigned short		frame;
-	constexpr explicit operator bool() const { return res !=NONE; }
+	constexpr explicit operator bool() const { return res != NONE; }
 	void				add(stringbuilder& sb) const;
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
@@ -681,7 +681,7 @@ public:
 	int					getspeed() const;
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return gete().equipment; }
-	constexpr bool		is(good_s v) const { return gete().goods==v; }
+	constexpr bool		is(good_s v) const { return gete().goods == v; }
 	constexpr bool		is(usability_s v) const { return gete().usability.is(v); }
 	constexpr bool		is(item_feat_s v) const { return gete().feats.is(v); }
 	constexpr bool		is(item_s v) const { return type == v; }
@@ -794,7 +794,7 @@ class creature {
 	void				update_poison(bool interactive);
 	friend dginf<creature>;
 public:
-	explicit operator bool() const { return ability[Strenght]!=0; }
+	explicit operator bool() const { return ability[Strenght] != 0; }
 	void				activate(spell_s v) { active_spells.set(v); }
 	bool				add(item i);
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
@@ -1169,8 +1169,10 @@ struct settlementi : textable {
 	int					getdrinkcost() const { return 1 + getrarity() / 2; }
 	int					gethealingcost() const;
 	int					getequipmentcost(adventurei& e) const;
+	void				getdescriptor(stringbuilder& sb) const;
 	rarity_s			getrarity() const;
-	constexpr bool		is(building_s v) const { return buildings.is(v); }
+	int					getrestcost(building_s b) const;
+	bool				is(building_s v) const { return buildings.is(v); }
 	void				update();
 };
 struct fractioni : textable {
@@ -1230,6 +1232,7 @@ public:
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
+	int					gethour() const { return (rounds % (24 * 60)) / 60; }
 	int					getgold() const { return gold; }
 	void				getheroes(creature** result, direction_s dir);
 	static int			getmapheight();
@@ -1246,6 +1249,7 @@ public:
 	void				interract(indext index);
 	bool				is(variant v) const;
 	static bool			isalive();
+	bool				isnight() const;
 	void				jumpto(variant v);
 	bool				manipulate(item* itm, direction_s direction);
 	void				passround();
@@ -1255,7 +1259,6 @@ public:
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
-	void				rest(const imagei& im);
 	void				returntobase();
 	void				rideto(variant v);
 	static bool			roll(int value);

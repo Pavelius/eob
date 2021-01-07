@@ -3,7 +3,7 @@
 BSDATA(buildingi) = {{"Arena"},
 {"Armory", "#BUILDNGS 0\nThis place is full of weapon for sale. You can buy new weapon or sell.", {Buy, Sell}, {Armors, Weapons}},
 {"Bank"},
-{"Brothel"},
+{"Brothel", "#BUILDNGS 22\nIn this interesting place, for some gold coins of course, you can find some unusual experience if luck be on your side.", {Fun}},
 {"Inn", "#BUILDNGS 19\nOld fashioned inn with small, but warm rooms.", {Rest, Talk}},
 {"Library"},
 {"Harbor", "#BUILDNGS 2\nIn harbor present many ships at now. You can travel from here to any settlement where harbor present.", {Travel}},
