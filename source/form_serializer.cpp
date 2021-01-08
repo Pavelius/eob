@@ -1,11 +1,19 @@
 #include "main.h"
 #include "io_plugin.h"
 
+static const markup* getmetatype(const char* name) {
+	for(auto& e : bsdata<varianti>()) {
+		if(strcmp(e.name, name) == 0)
+			return e.form;
+	}
+	return 0;
+}
+
 static varianti* getmetadata(const void* object) {
 	variant v1 = object;
 	if(!v1.type)
 		return 0;
-	return bsdata<varianti>::elements + v1.value;
+	return bsdata<varianti>::elements + v1.type;
 }
 
 static void write_obj(serializer* sz, void* object, const markup* type);
@@ -29,7 +37,9 @@ static void write_req(serializer* sz, void* object, const markup* type, int inde
 	if(type->value.isnum()) {
 		if(strcmp(value, "0") == 0)
 			return;
-		sz->set(type->title, value, serializer::Number);
+		if(strcmp(value, "None") == 0)
+			return;
+		sz->set(type->title, value);
 	} else if(type->isgroup()) {
 		sz->open(getheader(type->title, index), serializer::Struct);
 		for(auto p = type->value.type; *p; p++)
@@ -47,6 +57,7 @@ static void write_obj(serializer* sz, void* object, const markup* type) {
 	if(!pm)
 		return;
 	sz->open(pm->namepl, serializer::Struct);
+	sz->set("objectid", pm->name);
 	for(auto p = type; *p; p++)
 		write_req(sz, object, p, p - type);
 	sz->close(pm->namepl, serializer::Struct);
@@ -66,5 +77,38 @@ bool gamei::writetext(const char* url, variant_s id) {
 	for(auto p = (unsigned char*)ei.source->begin(); p < pe; p += ei.source->getsize())
 		write_obj(sz, p, ei.form);
 	sz->close("elements", serializer::Array);
+	return true;
+}
+
+bool gamei::readtext(const char* url) {
+	struct reader : serializer::reader {
+		const markup* type;
+		const markup* find(const markup* t, const char* name) const {
+			for(; *t;t++) {
+				if(!t->title || t->title[0]==0)
+					continue;
+				if(strcmp(t->title, name) == 0)
+					return t;
+			}
+			return 0;
+		}
+		void open(serializer::node& e) {
+		}
+		void set(serializer::node& e, const char* value) {
+			if(e == "objectid")
+				type = getmetatype(value);
+			else if(type) {
+				auto f = find(type, e.name);
+				if(f) {
+				}
+			}
+		}
+		void close(serializer::node& e) {
+		}
+	};
+	auto pp = io::plugin::find(szext(url));
+	if(!pp)
+		return false;
+	io::file file(url, StreamRead | StreamText);
 	return true;
 }

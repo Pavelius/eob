@@ -60,15 +60,15 @@ void eventi::apply(case_s v, bool interactive) const {
 			continue;
 		if(interactive)
 			answers::message(e.getname());
-		auto discarded = false;
+		auto need_reshufle = false;
 		for(auto a : e.actions) {
-			if(a == variant(Discard))
-				discarded = false;
+			if(a == variant(Reshufle))
+				need_reshufle = true;
 			else
 				game.apply(a);
 		}
 		discard();
-		if(!discarded)
+		if(need_reshufle)
 			shufle();
 		break;
 	}

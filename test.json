@@ -1,5 +1,6 @@
 ﻿[
   {
+    "objectid":"Event",
     "Text":"#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.",
     "1)":"Talk to dwarven workers and convice them not demand more pay.",
     "2)":"Talk to human boos and convice him to pay more to this poor dwarfs.",
@@ -9,26 +10,27 @@
       "Text":"Argessive dwarven workers calm down when see, that dwarf from party talk to them. By short conversation you convice them to do work. After all you make agreement for small raising payments and all go to work.",
       "Action 1":"Case1",
       "Action 2":"Dwarf",
-      "Action 3":"Gain Prosperty",
-      "Action 4":"Discard"
+      "Action 3":"Gain Prosperty"
     },
     "#tab Result 2":{
       "Text":"Beside all of you efforts, workers refuse talk with you, calling you \"part of a problem\". After all strike get dowm, but no one is satisfied it result.",
-      "Action 1":"Case1"
+      "Action 1":"Case1",
+      "Action 2":"Reshufle"
     },
     "#tab Result 3":{
       "Text":"\"I can't pay more\" - sad boss. But after short coversation with your fighter when he \"explain\" to boss that he can pay more, boss agreed. All is satisfied.",
       "Action 1":"Case2",
       "Action 2":"Fighter",
-      "Action 3":"Gain Prosperty",
-      "Action 4":"Discard"
+      "Action 3":"Gain Prosperty"
     },
     "#tab Result 4":{
       "Text":"You can't convice boss - only anger him. After all dwarven agreed back to work, but probles is not be solved.",
-      "Action 1":"Case2"
+      "Action 1":"Case2",
+      "Action 2":"Reshufle"
     }
   },
   {
+    "objectid":"Event",
     "Text":"#SCENES 0\nYou decide to unwind at the local tavern, but just as you are starting to relax, a bear of a man crashes into your table, scattering your drinks across the floor.\nTowering over him is a massive dwarf. \"What did you say about my bread?\" the dwarf shouts. The man stands up and brushes shards of glass from his tunic. \"I said the sight of it makes me want to vomit!\"\nThe dwarf roars and charges into the man, crashing through more tables in the process. At this, the entire tavern erupts into violence. After all, when a man is deep into his drink, the last thing you want to do is knock that drink over.",
     "1)":"Join the fray! These insults will not go unanswered!",
     "2)":"Do your best to stop the fighting. This is a respectable establishment.",
@@ -46,27 +48,33 @@
       "Action 2":"Gain Reputation"
     },
     "#tab Result 3":{
-      "Text":"None"
+      
     },
     "#tab Result 4":{
-      "Text":"None"
+      
     }
   },
   {
-    "Text":"As the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"",
+    "objectid":"Event",
+    "Text":"#SCENES 2\nAs the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n#NPC 71\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"",
     "1)":"Pay for the thing. You never know.",
     "2)":"Refuse to pay. Never trust a rogue halfling.",
     "#tab Result 1":{
-      "Text":"None"
+      "Text":"You hand over the gold and take hold of the piece of garbage. Amidst troubling brown smears you see a lot of meaningless scratches likely made by rats and bugs. Oh well. Sometimes the long shot doesn't pay off.",
+      "Action 1":"Case1",
+      "Action 2":"Pay 10 gold coins"
     },
     "#tab Result 2":{
-      "Text":"None"
+      "Text":"\"Bah! You don't have enough. Come back when you do!\"",
+      "Action 1":"Case1",
+      "Action 2":"Reshufle"
     },
     "#tab Result 3":{
-      "Text":"None"
+      "Text":"You laugh and gesture the halfling away. You can recognize a low - life swindler when you see one. And that piece of garbage was just...foul.",
+      "Action 1":"Case2"
     },
     "#tab Result 4":{
-      "Text":"None"
+      
     }
   }
 ]

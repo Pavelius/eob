@@ -243,7 +243,7 @@ enum action_s : unsigned char {
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
 	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
 	Experience, Gold, Prosperty, Reputation,
-	Discard,
+	Reshufle,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
@@ -605,8 +605,9 @@ struct eventi : textable {
 	void				apply(case_s v, bool interactive) const;
 	void				clear();
 	void				discard() const;
+	bool				is(flag_s v) const { return (flags&(1 << v)) != 0; }
 	void				play() const;
-	void				set(eventi::flag_s v) { flags |= 1 << v; }
+	void				set(flag_s v) { flags |= 1 << v; }
 	void				shufle() const;
 };
 class deck : adat<unsigned char, 256> {
@@ -1282,6 +1283,7 @@ public:
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
+	bool				readtext(const char* url);
 	void				returntobase();
 	void				rideto(variant v);
 	static bool			roll(int value);

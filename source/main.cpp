@@ -273,16 +273,16 @@ static void random_events() {
 	e1->results[0].actions[0] = Case1;
 	e1->results[0].actions[1] = Dwarf;
 	e1->results[0].actions[2] = GainProsperty;
-	e1->results[0].actions[3] = Discard;
 	e1->results[1].setname("Beside all of you efforts, workers refuse talk with you, calling you \"part of a problem\". After all strike get dowm, but no one is satisfied it result.");
 	e1->results[1].actions[0] = Case1;
+	e1->results[1].actions[1] = Reshufle;
 	e1->results[2].setname("\"I can't pay more\" - sad boss. But after short coversation with your fighter when he \"explain\" to boss that he can pay more, boss agreed. All is satisfied.");
 	e1->results[2].actions[0] = Case2;
 	e1->results[2].actions[1] = Fighter;
 	e1->results[2].actions[2] = GainProsperty;
-	e1->results[2].actions[3] = Discard;
 	e1->results[3].setname("You can't convice boss - only anger him. After all dwarven agreed back to work, but probles is not be solved.");
 	e1->results[3].actions[0] = Case2;
+	e1->results[3].actions[1] = Reshufle;
 	e1->set(eventi::Start);
 	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
 	e1->clear();
@@ -300,9 +300,17 @@ static void random_events() {
 	e1->set(eventi::Start);
 	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
 	e1->clear();
-	e1->setname("As the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"");
+	e1->setname("#SCENES 2\nAs the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n#NPC 71\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"");
 	e1->ask[0].setname("Pay for the thing. You never know.");
 	e1->ask[1].setname("Refuse to pay. Never trust a rogue halfling.");
+	e1->results[0].setname("You hand over the gold and take hold of the piece of garbage. Amidst troubling brown smears you see a lot of meaningless scratches likely made by rats and bugs. Oh well. Sometimes the long shot doesn\'t pay off.");
+	e1->results[0].actions[0] = Case1;
+	e1->results[0].actions[1] = Pay10;
+	e1->results[1].setname("\"Bah! You don't have enough. Come back when you do!\"");
+	e1->results[1].actions[0] = Case1;
+	e1->results[1].actions[1] = Reshufle;
+	e1->results[2].setname("You laugh and gesture the halfling away. You can recognize a low - life swindler when you see one. And that piece of garbage was just...foul.");
+	e1->results[2].actions[0] = Case2;
 }
 
 void random_company() {
@@ -387,7 +395,7 @@ void editor() {
 		//game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
-		bsdata<eventi>::elements[1].play();
+		bsdata<eventi>::elements[2].play();
 		//game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		//game.write();
 		//game.play();
