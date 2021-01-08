@@ -123,3 +123,8 @@ void richtexti::save(textable& ta) const {
 	}
 	ta.setname(result);
 }
+
+const char* szdup(const char* p) {
+	textable ta; ta.setname(p);
+	return ta.getname();
+}

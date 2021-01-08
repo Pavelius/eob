@@ -13,9 +13,7 @@ struct plugin {
 	plugin*				next;
 	//
 	plugin();
-	static void			addfilter(stringbuilder& sb, const char* name, const char* find_path);
 	static plugin*		find(const char* name);
-	static void			getfilter(stringbuilder& sb);
 	virtual const char*	read(const char* source, serializer::reader& r) = 0;
 	virtual serializer*	write(stream& e) = 0;
 };

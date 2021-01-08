@@ -102,14 +102,14 @@ template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 	auto p = (variant*)object;
 	if(!(*p))
-		return "";
+		return "None";
 	auto& e = bsdata<varianti>::elements[p->type];
 	if(e.pgetname) {
 		if(!e.source)
 			return "No source";
 		return e.pgetname(e.source->ptr(p->value), sb);
 	}
-	return "Noname";
+	return "None";
 }
 template<> const char* getnm<creature>(const void* object, stringbuilder& sb) {
 	auto p = (creature*)object;
@@ -552,27 +552,23 @@ DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imag
 {"", DGREQ(images[5]), {getnm<imagei>, scene_resources, imagei::choose}},
 {"Enter text 6", DGREQ(data[5])},
 {}};
-DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_variant}, {}},
-{"Text", DGINH(textable, name), {getnm<textable>, 0, textable::editrich}},
-{"1)", DGREQ(ask[0])},
-{"2)", DGREQ(ask[1])},
+DGINF(eventi) = {{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
+{"1)", DGREQ(ask[0]), {getnm<textable>}},
+{"2)", DGREQ(ask[1]), {getnm<textable>}},
 {"Starting", DGCHK(flags, 1 << eventi::Start)},
-{"#div Result 1"},
-{"", DGREQ(results[0])},
-{"#div Result 2"},
-{"", DGREQ(results[1])},
-{"#div Result 3"},
-{"", DGREQ(results[2])},
-{"#div Result 4"},
-{"", DGREQ(results[3])},
+{"Wilderness event", DGCHK(flags, 1 << eventi::Wilderness)},
+{"#tab Result 1", DGREQ(results[0])},
+{"#tab Result 2", DGREQ(results[1])},
+{"#tab Result 3", DGREQ(results[2])},
+{"#tab Result 4", DGREQ(results[3])},
 {}};
-DGINF(resultable) = {{"Text", DGINH(textable, name), {getnm<textable>, 0, textable::editrich}},
+DGINF(resultable) = {{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
 {"Action 1", DGREQ(actions[0]), {getnm<variant>, 0, choose_variant}},
 {"Action 2", DGREQ(actions[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Action 3", DGREQ(actions[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Action 4", DGREQ(actions[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {"Action 5", DGREQ(actions[4]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-{"Action 6", DGREQ(actions[6]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Action 6", DGREQ(actions[5]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {}};
 DGINF(actionseti) = {{"Action", DGREQ(action), {getnm<actioni>}},
 {"Count", DGREQ(count)},

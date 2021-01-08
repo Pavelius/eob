@@ -38,7 +38,7 @@ enum resource_s : unsigned char {
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
 	MENU, PLAYFLD, INTRO, PORTM, THROWN, XSPL, WORLD,
-	NPC, BPLACE, ADVENTURE, BUILDNGS, DUNGEONS, CRYSTAL,
+	NPC, BPLACE, ADVENTURE, BUILDNGS, DUNGEONS, CRYSTAL, SCENES,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
 	GHOUL, GOBLIN, GUARD1, GUARD2, KOBOLD, KUOTOA, LEECH, ORC,
@@ -250,15 +250,16 @@ enum action_s : unsigned char {
 enum actionset_s : unsigned char {
 	Attack1d3, Attack1d6, Attack2d4, Attack2d6, Attack3d6,
 	Gain5GP, Gain10GP, Gain20GP,
+	Gain50Exp, Gain100Exp,
 	GainProsperty, GainReputation,
-	Lose5GP, Lose10GP, Lose20GP,
+	Lose5GP, Lose10GP, Lose20GP, Lose20GPorReputation,
 	LoseProsperty, LoseReputation,
 	Pay1, Pay2, Pay4, Pay10,
 };
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Class,
-	Cleveress, Condition, Creature, Damage, Event, Enchant, Feat, Gender,
+	Cleveress, Condition, Creature, Damage, Enchant, Event, Feat, Gender,
 	Item, Morale, Race, Reaction, Settlement, Spell,
 };
 enum case_s : unsigned char {
@@ -305,6 +306,7 @@ struct variant {
 	constexpr variant(const variant_s t, unsigned char v) : type(t), value(v) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
+	constexpr variant(const actionset_s v) : type(ActionSet), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
@@ -595,9 +597,8 @@ struct resultable : public textable {
 };
 struct eventi : textable {
 	enum flag_s : unsigned char {
-		Start,
+		Start, Wilderness,
 	};
-	variant				condition;
 	textable			ask[2];
 	resultable			results[4];
 	unsigned char		flags;
@@ -605,6 +606,7 @@ struct eventi : textable {
 	void				clear();
 	void				discard() const;
 	void				play() const;
+	void				set(eventi::flag_s v) { flags |= 1 << v; }
 	void				shufle() const;
 };
 class deck : adat<unsigned char, 256> {
@@ -1289,6 +1291,7 @@ public:
 	void				thrown(item* itm);
 	void				worldmap();
 	void				write();
+	static bool			writetext(const char* url, variant_s id);
 };
 struct richtexti {
 	static constexpr int maximum = 6;
@@ -1337,6 +1340,7 @@ public:
 	static int			compare(const void* v1, const void* v2);
 	static void			clearimage();
 	static void			message(const char* format);
+	static void			message(const char* format, const imagei& im);
 	int					random() const;
 	static void			set(const imagei& v) { last_image = v; }
 	void				sort();
@@ -1391,11 +1395,11 @@ inline int				d100() { return rand() % 100; }
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
 NOBSDATA(dice)
-NOBSDATA(historyi)
 NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
+NOBSDATA(historyi)
 NOBSDATA(point)
 NOBSDATA(resultable)
 NOBSDATA(sitei)

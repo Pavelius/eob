@@ -1,0 +1,70 @@
+#include "main.h"
+#include "io_plugin.h"
+
+static varianti* getmetadata(const void* object) {
+	variant v1 = object;
+	if(!v1.type)
+		return 0;
+	return bsdata<varianti>::elements + v1.value;
+}
+
+static void write_obj(serializer* sz, void* object, const markup* type);
+
+static const char* getheader(const char* title, int index) {
+	static char temp[32];
+	stringbuilder sb(temp);
+	if(!title || title[0] == '0') {
+		sb.add("#%1i", index);
+		return temp;
+	}
+	return title;
+}
+
+static void write_req(serializer* sz, void* object, const markup* type, int index) {
+	if(type->isdecortext())
+		return;
+	char value[1024]; value[0] = 0;
+	stringbuilder sb(value);
+	type->getname(object, sb);
+	if(type->value.isnum()) {
+		if(strcmp(value, "0") == 0)
+			return;
+		sz->set(type->title, value, serializer::Number);
+	} else if(type->isgroup()) {
+		sz->open(getheader(type->title, index), serializer::Struct);
+		for(auto p = type->value.type; *p; p++)
+			write_req(sz, type->value.ptr(object), p, p - type->value.type);
+		sz->close(getheader(type->title, index), serializer::Struct);
+	} else {
+		if(strcmp(value, "None") == 0)
+			return;
+		sz->set(type->title, value, serializer::Text);
+	}
+}
+
+static void write_obj(serializer* sz, void* object, const markup* type) {
+	auto pm = getmetadata(object);
+	if(!pm)
+		return;
+	sz->open(pm->namepl, serializer::Struct);
+	for(auto p = type; *p; p++)
+		write_req(sz, object, p, p - type);
+	sz->close(pm->namepl, serializer::Struct);
+}
+
+bool gamei::writetext(const char* url, variant_s id) {
+	auto& ei = bsdata<varianti>::elements[id];
+	if(!ei.source || !ei.form)
+		return false;
+	auto pp = io::plugin::find(szext(url));
+	if(!pp)
+		return false;
+	io::file file(url, StreamWrite | StreamText);
+	auto sz = pp->write(file);
+	sz->open("elements", serializer::Array);
+	auto pe = (unsigned char*)ei.source->end();
+	for(auto p = (unsigned char*)ei.source->begin(); p < pe; p += ei.source->getsize())
+		write_obj(sz, p, ei.form);
+	sz->close("elements", serializer::Array);
+	return true;
+}

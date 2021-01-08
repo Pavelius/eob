@@ -69,12 +69,15 @@ struct markup {
 	fnlist				list;
 	fnelement			proc;
 	//
+	static int			get(void* p, unsigned size);
+	void				getname(const void* p, stringbuilder& sb) const;
 	bool				is(const char* id) const;
 	bool				ischeckboxes() const { return is("chk"); }
 	bool				isdecortext() const { return value.type == 0; }
 	bool				isgroup() const { return value.type != 0 && !list.getname && !value.istext() && !value.isnum(); }
 	bool				ispage() const { return title && title[0] == '#'; }
 	bool				isvisible(const void* object) const;
+	static void			set(void* p, unsigned size, int v);
 };
 DGLNK(char, int)
 DGLNK(short, int)

@@ -51,6 +51,7 @@ BSDATA(resourcei) = {{"NONE", PackBackground},
 {"BUILDNGS", Pack160x96},
 {"DUNGEONS", Pack160x96},
 {"CRYSTAL", Pack160x96},
+{"SCENES", Pack160x96},
 
 {"ANKHEG", PackMonster},
 {"ANT", PackMonster},

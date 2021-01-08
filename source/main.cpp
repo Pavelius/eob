@@ -264,7 +264,7 @@ void random_heroes() {
 }
 
 static void random_events() {
-	auto e1 = bsdata<eventi>::elements;
+	auto e1 = (eventi*)bsdata<eventi>::source.add();
 	e1->clear();
 	e1->setname("#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.");
 	e1->ask[0].setname("Talk to dwarven workers and convice them not demand more pay.");
@@ -277,12 +277,32 @@ static void random_events() {
 	e1->results[1].setname("Beside all of you efforts, workers refuse talk with you, calling you \"part of a problem\". After all strike get dowm, but no one is satisfied it result.");
 	e1->results[1].actions[0] = Case1;
 	e1->results[2].setname("\"I can't pay more\" - sad boss. But after short coversation with your fighter when he \"explain\" to boss that he can pay more, boss agreed. All is satisfied.");
-	e1->results[2].actions[0] = Case1;
+	e1->results[2].actions[0] = Case2;
 	e1->results[2].actions[1] = Fighter;
 	e1->results[2].actions[2] = GainProsperty;
 	e1->results[2].actions[3] = Discard;
 	e1->results[3].setname("You can't convice boss - only anger him. After all dwarven agreed back to work, but probles is not be solved.");
 	e1->results[3].actions[0] = Case2;
+	e1->set(eventi::Start);
+	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
+	e1->clear();
+	e1->setname("#SCENES 0\nYou decide to unwind at the local tavern, but just as you are starting to relax, a bear of a man crashes into your table, scattering your drinks across the floor.\n"
+		"Towering over him is a massive dwarf. \"What did you say about my bread?\" the dwarf shouts. The man stands up and brushes shards of glass from his tunic. \"I said the sight of it makes me want to vomit!\"\nThe dwarf roars and charges into the man, crashing through more tables in the process. At this, the entire tavern erupts into violence. After all, when a man is deep into his drink, the last thing you want to do is knock that drink over.");
+	e1->ask[0].setname("Join the fray! These insults will not go unanswered!");
+	e1->ask[1].setname("Do your best to stop the fighting. This is a respectable establishment.");
+	e1->results[0].setname("Nothing like busting some drunken skulls to lift one's spirits. It turns out to be a great way to unwind. Unfortunately, the proprietor of the local tavern doesn't exactly see it that way, and he sullenly asks for compensation for the damage you caused.");
+	e1->results[0].actions[0] = Case1;
+	e1->results[0].actions[1] = Gain100Exp;
+	e1->results[0].actions[2] = Lose20GPorReputation;
+	e1->results[1].setname("After restraining the enraged dwarf and offering to replace the drinks of a few of the more belligerent patrons, you calm the place down a bit. Some of the non-human patrons are understandably on edge, but the proprietor thanks you for your efforts and reimburses you for the drinks.");
+	e1->results[1].actions[0] = Case2;
+	e1->results[1].actions[1] = GainReputation;
+	e1->set(eventi::Start);
+	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
+	e1->clear();
+	e1->setname("As the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"");
+	e1->ask[0].setname("Pay for the thing. You never know.");
+	e1->ask[1].setname("Refuse to pay. Never trust a rogue halfling.");
 }
 
 void random_company() {
@@ -360,20 +380,21 @@ void debug_dungeon2() {
 void editor() {
 	auto push_font = font;
 	setsmallfont();
+	random_heroes();
+	random_company();
+	game.writetext("test.json", Event);
 	if(true) {
-		random_heroes();
-		random_company();
 		//game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
-		bsdata<eventi>::elements[0].play();
+		bsdata<eventi>::elements[1].play();
 		//game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		//game.write();
 		//game.play();
 	} else {
-		game.companyi::read("default");
+		//game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);
-		game.companyi::write("default");
+		//game.companyi::write("default");
 	}
 	font = push_font;
 }

@@ -33,6 +33,7 @@ struct fxt {
 };
 struct contexti {
 	void*				object;
+	const contexti*		parent;
 	int					title;
 	const char*			header;
 	const char*	getheader(const markup& e) const {
@@ -40,7 +41,7 @@ struct contexti {
 			return e.title;
 		return header;
 	}
-	constexpr contexti(void* object) : object(object), title(84), header(0) {}
+	constexpr contexti(void* object) : object(object), parent(0), title(84), header(0) {}
 };
 struct parami {
 	int					origin;
@@ -805,13 +806,6 @@ static void movenext(int key) {
 		setfocus(p->av, p->param);
 }
 
-//static item* movenext(item* current, int key) {
-//	auto p = getnextfocus(current, key, 0);
-//	if(p)
-//		return (item*)p->av;
-//	return (item*)current;
-//}
-
 static void show_worldmap() {
 }
 
@@ -1010,12 +1004,7 @@ int answers::choosesm(const char* title, bool allow_cancel) const {
 		case 'W':
 			current_element--;
 			break;
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
+		case '1': case '2': case '3': case '4': case '5': case '6':
 			if(true) {
 				auto id = hot::key - '1';
 				if(id < (int)elements.count)
@@ -1103,7 +1092,6 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 		rc.offset(2, 2);
 		auto r1 = rc; r1.move(1, 1);
 		auto push_color = fore;
-		//fore = colors::black.mix(colors::dark);
 		fore = colors::black;
 		text(r1, title, 0);
 		fore = push_color;
@@ -1166,7 +1154,6 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 				auto h = texth(t, w);
 				if(buttonx(x, y, w, t, (void*)t, '1' + i, h))
 					execute(buttonparam, (int)&elements.data[i]);
-				//buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 				y += 2;
 			}
 		}
@@ -1316,27 +1303,6 @@ static void sort(void** storage, unsigned maximum, fntext getname) {
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
 }
 
-static void setvalue(void* p, unsigned size, int v) {
-	if(!p)
-		return;
-	switch(size) {
-	case sizeof(char) : *((char*)p) = v; break;
-	case sizeof(short) : *((short*)p) = v; break;
-	case sizeof(int) : *((int*)p) = v; break;
-	}
-}
-
-static int getvalue(void* p, unsigned size) {
-	if(!p)
-		return 0;
-	switch(size) {
-	case sizeof(char) : return *((char*)p);
-	case sizeof(short) : return *((short*)p);
-	case sizeof(int) : return *((int*)p);
-	}
-	return 0;
-}
-
 static void getrows(const array& source, const void* object, rowa& result, fnallow pallow, fntext getname) {
 	auto p = result.begin();
 	auto pe = result.endof();
@@ -1456,7 +1422,7 @@ void* draw::choose(array& source, const char* title, void* object, const void* c
 bool draw::choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list) {
 	if(list.choose)
 		return list.choose(object, source, field);
-	auto current_value = (void*)getvalue(field, field_size);
+	auto current_value = (void*)markup::get(field, field_size);
 	if(field_size < sizeof(int))
 		current_value = source.ptr((int)current_value);
 	auto result = choose(source, title, object, current_value, list.getname, list.match, list.preview, list.view_width);
@@ -1467,7 +1433,7 @@ bool draw::choose(array& source, const char* title, void* object, void* field, u
 		if(current_value == (void*)0xFFFFFFFF)
 			return false;
 	}
-	setvalue(field, field_size, (int)current_value);
+	markup::set(field, field_size, (int)current_value);
 	if(list.update)
 		list.update(object);
 	return true;
@@ -1569,46 +1535,8 @@ static void choose_enum_field() {
 	}
 }
 
-static void getname(const markup& e, const void* object, stringbuilder& sb) {
-	auto value = e.value.ptr((void*)object);
-	if(!e.value.size) {
-		if(e.value.source)
-			sb.add("%1i of %2i", e.value.source->getcount(), e.value.source->getmaximum());
-		else
-			sb.add(e.title);
-	} else {
-		if(e.value.source) {
-			value = (void*)getvalue(value, e.value.size);
-			if(e.value.size < sizeof(int))
-				value = e.value.source->ptr((int)value);
-		} else if(e.list.getptr)
-			value = e.list.getptr(object, getvalue(value, e.value.size));
-		auto pfn = e.list.getname;
-		if(pfn) {
-			if(value) {
-				auto pn = pfn((void*)value, sb);
-				if(pn && pn != sb)
-					sb.add(pn);
-			}
-		} else if(e.value.istext()) {
-			auto p = (const char*)getvalue(value, e.value.size);
-			if(!p)
-				p = "";
-			sb.add(p);
-		} else if(e.value.isnum()) {
-			if(e.value.size <= sizeof(int)) {
-				auto v = getvalue(value, e.value.size);
-				sb.add("%1i", v);
-			} else
-				sb.add((char*)value);
-		}
-	}
-	if(!sb || !sb[0])
-		sb.add("None");
-}
-
 static void add_number(void* p, unsigned size, int r, int d, int v) {
-	setvalue(p, size, getvalue(p, size) * r / d + v);
+	markup::set(p, size, markup::get(p, size) * r / d + v);
 }
 
 static void add_number() {
@@ -1642,7 +1570,7 @@ static void set_cursor() {
 
 static void clear_value() {
 	if(current_markup->value.size <= sizeof(int))
-		setvalue(current_markup->value.ptr(current_object), current_markup->value.size, 0);
+		markup::set(current_markup->value.ptr(current_object), current_markup->value.size, 0);
 	else
 		memset(current_markup->value.ptr(current_object), 0, current_markup->value.size);
 }
@@ -1782,7 +1710,7 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 		x += title_width;
 		width -= title_width;
 	}
-	sb.clear(); getname(e, object, sb);
+	sb.clear(); e.getname(object, sb);
 	return field({x, y, x + width, y + draw::texth() + 3}, temp, object, e, TextSingleLine);
 }
 
@@ -1796,9 +1724,9 @@ static void checkmark(int x, int y, int state) {
 }
 
 static void change_current_check(void* pv, unsigned size, unsigned mask) {
-	auto v = getvalue(pv, size);
+	auto v = markup::get(pv, size);
 	v ^= mask;
-	setvalue(pv, size, v);
+	markup::set(pv, size, v);
 }
 
 static void change_current_check() {
@@ -1822,7 +1750,7 @@ static int checkbox(int x, int y, const char* title, const markup& e, void* obje
 			post(e, object, change_current_check, mask);
 	}
 	rc.offset(0, 1);
-	auto s = ((getvalue(pv, e.value.size) & mask) != 0) ? 1 : 0;
+	auto s = ((markup::get(pv, e.value.size) & mask) != 0) ? 1 : 0;
 	checkmark(rc.x1, rc.y1, s);
 	rc.x1 += cw;
 	textb(rc, title, flags | TextSingleLine);
@@ -1901,6 +1829,7 @@ class edit_control : contexti {
 			return 0;
 		if(e.isgroup()) {
 			contexti c1 = ctx;
+			c1.parent = &ctx;
 			c1.header = ctx.getheader(e);
 			c1.object = e.value.ptr(ctx.object);
 			return group(x, y, width, c1, e.value.type);

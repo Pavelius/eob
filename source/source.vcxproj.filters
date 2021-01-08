@@ -284,8 +284,11 @@
     <ClCompile Include="io_plugin.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="io_plugin_json.cpp">
+    <ClCompile Include="form_serializer.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="io_plugin_json.cpp">
+      <Filter>Поддержка</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

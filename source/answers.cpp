@@ -35,11 +35,8 @@ int	answers::choosebg(const char* title, bool horizontal_buttons) const {
 	imagei im = {};
 	temp[0] = 0;
 	while(p && *p) {
-		if(temp[0]) {
-			answers aw;
-			aw.add(1, "Next");
-			aw.choosebg(temp, im, horizontal_buttons);
-		}
+		if(temp[0])
+			message(temp, im);
 		p = richtexti::parse(p, im, temp, temp + sizeof(temp));
 	}
 	return choosebg(temp, im, horizontal_buttons);
@@ -49,4 +46,10 @@ void answers::message(const char* format) {
 	answers aw;
 	aw.add(1, "Continue");
 	aw.choosebg(format);
+}
+
+void answers::message(const char* format, const imagei& im) {
+	answers aw;
+	aw.add(1, "Continue");
+	aw.choosebg(format, im, true);
 }

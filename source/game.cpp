@@ -862,10 +862,18 @@ void gamei::play() {
 }
 
 void gamei::apply(variant v) {
+	int i;
 	if(v.type == ActionSet) {
 		auto& ei = bsdata<actionseti>::elements[v.value];
 		switch(ei.action) {
-		case Gold: game.addgold(ei.roll()); break;
+		case Gold:
+			i = ei.roll();
+			if(v.value == Lose20GPorReputation && getgold() < i) {
+				reputation--;
+				break;
+			}
+			game.addgold(ei.roll());
+			break;
 		case Reputation: reputation += ei.roll(); break;
 		case Prosperty:
 			if(getsettlement())
