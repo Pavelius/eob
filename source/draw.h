@@ -166,20 +166,11 @@ private:
 	struct surface*		canvas;
 	rect				clip;
 };
-struct cmd {
-	callback			proc;
-	int					param, focus;
-	constexpr cmd() : proc(0), param(0), focus(0) {}
-	constexpr cmd(callback proc, int param = 0) : proc(proc), param(param), focus((int)proc) {}
-	constexpr cmd(callback proc, int param, int focus) : proc(proc), param(param), focus(focus) {}
-	void				execute() const;
-};
 int						alignedh(const rect& rc, const char* string, unsigned state);
 int						aligned(int x, int width, unsigned flags, int dx);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& dc, int xs, int ys);
 void					blit(surface& dest, int x, int y, int width, int height, unsigned flags, surface& source, int x_source, int y_source, int width_source, int height_source);
 void					breakmodal(int result);
-int						button(int x, int y, int width, const cmd& ev, const char* name, int key = 0);
 void					buttoncancel();
 void					buttonok();
 void					buttonparam();

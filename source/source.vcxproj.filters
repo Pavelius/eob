@@ -125,9 +125,6 @@
     <ClCompile Include="view_dungeon.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="view_generate.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

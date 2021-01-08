@@ -415,7 +415,7 @@ bool talk(const char* prompt, const char* text, char& mood) {
 		mood--;
 	im.add(sb);
 	sb.add(prompt, po);
-	sb.add(":\"");
+	sb.adds("\"");
 	if(rumor_quest) {
 		sb.add(maprnd(local_rumor));
 		sb.adds(rumor_quest->rumor_activate.getname());
@@ -438,7 +438,7 @@ static bool drink_and_seat(building_s b, int coins, char& informations, bool run
 		showmessage();
 		game.passtime(xrand(30, 60));
 		party.satisfy();
-		return talk("A %+1 sit to drink with you and sad", talk_rumor(b), informations);
+		return talk("A %+1 sit to drink with you and say", talk_rumor(b), informations);
 	}
 	return true;
 }
