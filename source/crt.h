@@ -61,6 +61,7 @@ const codepages						code = CP1251;
 }
 typedef int(*fnint)(const void* object);
 typedef const char* (*fnstring)(const void* object);
+bool								equal(const char* p, const char* s);
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
 bool								ischa(unsigned u); // is alphabetical character?
 inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numeric character?
@@ -287,6 +288,35 @@ NOBSDATA(unsigned short)
 NOBSDATA(char)
 NOBSDATA(unsigned char)
 NOBSDATA(const char*)
+// Abstract serializer
+struct serializer {
+	enum type_s { Text, Number, Array, Struct };
+	struct node {
+		type_s					type;
+		const char*				name;
+		node*					parent;
+		int						index;
+		void*					object; // application defined data
+		bool					skip; // set this if you want skip block
+										  //
+		constexpr node(type_s type = Text) : parent(0), name(""), type(type), index(0), object(0), skip(false) {}
+		constexpr node(node& parent, const char* name = "", type_s type = Text) : parent(&parent), name(name), type(type), index(0), object(0), skip(false) {}
+		bool					operator==(const char* name) const { return name && strcmp(this->name, name) == 0; }
+		//
+		int						getlevel() const;
+		bool					isparent(const char* id) const { return parent && *parent == id; }
+	};
+	struct reader {
+		virtual void			open(node& e) {}
+		virtual void			set(node& e, const char* value) = 0;
+		virtual void			close(node& e) {}
+	};
+	virtual ~serializer() {}
+	virtual void				open(const char* id, type_s type = Text) = 0;
+	virtual void				set(const char* id, int v, type_s type = Number) = 0;
+	virtual void				set(const char* id, const char* v, type_s type = Text) = 0;
+	virtual void				close(const char* id, type_s type = Text) = 0;
+};
 // Get object presentation
 template<class T> const char* getstr(const T e) { return bsdata<T>::elements[e].name; }
 // Untility structures

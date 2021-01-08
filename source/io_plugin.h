@@ -1,0 +1,23 @@
+#include "io.h"
+#include "stringbuilder.h"
+
+#pragma once
+
+namespace io {
+// Plugin read file and post events to this class.
+struct plugin {
+	const char*			name;
+	const char*			fullname;
+	const char*			filter;
+	static plugin*		first;
+	plugin*				next;
+	//
+	plugin();
+	static void			addfilter(stringbuilder& sb, const char* name, const char* find_path);
+	static plugin*		find(const char* name);
+	static void			getfilter(stringbuilder& sb);
+	virtual const char*	read(const char* source, serializer::reader& r) = 0;
+	virtual serializer*	write(stream& e) = 0;
+};
+bool					read(const char* url, serializer::reader& e);
+}

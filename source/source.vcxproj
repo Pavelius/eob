@@ -126,6 +126,7 @@
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />
+    <ClInclude Include="io_plugin.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="markup.h" />
     <ClInclude Include="point.h" />
@@ -178,6 +179,8 @@
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="intellegence.cpp" />
     <ClCompile Include="io.cpp" />
+    <ClCompile Include="io_plugin.cpp" />
+    <ClCompile Include="io_plugin_json.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="itema.cpp" />
     <ClCompile Include="item_feat.cpp" />

@@ -57,6 +57,9 @@
     <ClInclude Include="markup.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="io_plugin.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -276,6 +279,12 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="export.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="io_plugin.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="io_plugin_json.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
