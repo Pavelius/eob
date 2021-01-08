@@ -171,7 +171,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="event.cpp" />
-    <ClCompile Include="export.cpp" />
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="form_serializer.cpp" />

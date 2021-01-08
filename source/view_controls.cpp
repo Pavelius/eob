@@ -93,6 +93,8 @@ static textedit			current_text;
 static void*			current_edit;
 static int				current_c1;
 static point			current_p1;
+static int				current_portrait;
+static creature*		current_player;
 const int				dx = 4;
 const int				menu_width = 168;
 static callback			next_proc;
@@ -2341,9 +2343,6 @@ static void skills(int x, int y, creature* pc) {
 		y1 += 7;
 	}
 }
-
-static int			current_portrait;
-static creature*	current_player;
 
 static void prev_portrait() {
 	current_portrait--;

@@ -275,9 +275,6 @@
     <ClCompile Include="case.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="export.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="io_plugin.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>

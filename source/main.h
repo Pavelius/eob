@@ -1359,6 +1359,27 @@ int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr 
 void					update();
 }
 typedef void(*infoproc)(void*);
+extern unsigned			frametick;
+int						ciclic(int range, int speed = 1);
+void					focusing(const rect& rc, void* v, unsigned param = 0);
+rect					form(rect rc, int count = 1, bool focused = false, bool pressed = false);
+infoproc				getmode();
+void*					getfocus();
+void					greenbar(rect rc, int vc, int vm);
+int						header(int x, int y, const char* text);
+void					initialize();
+bool					isfocus(void* ev, unsigned param = 0);
+void					itemicn(int x, int y, item itm, unsigned char alpha = 0xFF, int spell = 0);
+void					itemicn(int x, int y, item* pitm, bool invlist = false, unsigned flags = 0, void* current_item = 0);
+void					logs();
+bool					navigate(bool can_cancel = false);
+void					redraw();
+void					resetres();
+void					setbigfont();
+void					setmode(infoproc mode);
+void					setsmallfont();
+void					textb(int x, int y, const char* string, int count = -1);
+int						textb(rect rc, const char* string, unsigned flags = 0);
 void					appear(pobject proc, void* object, unsigned duration = 1000);
 void					application();
 void					avatar(int x, int y, int party_index, unsigned flags, void* current_item);
@@ -1381,6 +1402,12 @@ void					redmarker(int x, int y);
 void					setnext(void(*p)());
 bool					settiles(resource_s id);
 void					textbc(int x, int y, const char* header);
+}
+namespace colors {
+extern color			title;
+namespace info {
+extern color			text;
+}
 }
 extern gamei			game;
 extern dungeoni			location_above;
