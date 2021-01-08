@@ -120,35 +120,6 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 	return p;
 }
 
-void random_heroes() {
-	creature* p;
-	//
-	p = add_hero(0, Male, Human, Paladin, LawfulGood);
-	p->set({SwordLong, Fire}, RightHand);
-	p->equip({GreenRing, OfRegeneration});
-	p->equip({Bracers, Strenght});
-	//
-	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
-	p->set({AxeBattle, OfSharpness}, RightHand);
-	p->equip({BlueRing, Invisibility});
-	//
-	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
-	//p->setknown(Identify);
-	p->equip({RedRing, OfWizardy});
-	item s1 = {MageScroll, ReadLanguagesSpell};
-	item s2 = {MageScroll, MagicMissile};
-	s1.setidentified(1);
-	s2.setidentified(1);
-	p->add(s1);
-	p->add(s2);
-	p->equip({RedRing, ResistFire});
-	p->set({Staff, BurningHands}, RightHand);
-	//
-	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add({GreenPotion, OfAdvise});
-	p->add({GreenPotion, OfAdvise});
-}
-
 void util_main();
 
 static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0, int pallette = 0) {
@@ -230,31 +201,6 @@ static void test_monster(resource_s rs, int overlay[4]) {
 		}
 	}
 }
-#endif // DEBUG
-
-static void debug_dungeon2() {
-	location.clear();
-	location_above.clear();
-	random_heroes();
-	//test_dungeon(BRICK);
-	test_dungeon2(BRICK);
-	draw::settiles(location.head.type);
-	game.setcamera(location.getindex(16, 16), Up);
-	setnext(adventure);
-}
-
-void load_game() {
-	draw::resetres();
-	if(!game.read())
-		return;
-	setnext(adventure);
-}
-
-callback next_proc;
-void draw::setnext(void(*v)()) {
-	if(!next_proc)
-		next_proc = v;
-}
 
 static void show_monsters() {
 	static int ovr12[4] = {0, 1, 2};
@@ -286,6 +232,35 @@ static bool test_richtexti() {
 	ei.save(ta);
 	auto p1 = ta.getname();
 	return strcmp(p, p1) == 0;
+}
+
+void random_heroes() {
+	creature* p;
+	//
+	p = add_hero(0, Male, Human, Paladin, LawfulGood);
+	p->set({SwordLong, Fire}, RightHand);
+	p->equip({GreenRing, OfRegeneration});
+	p->equip({Bracers, Strenght});
+	//
+	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
+	p->set({AxeBattle, OfSharpness}, RightHand);
+	p->equip({BlueRing, Invisibility});
+	//
+	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
+	//p->setknown(Identify);
+	p->equip({RedRing, OfWizardy});
+	item s1 = {MageScroll, ReadLanguagesSpell};
+	item s2 = {MageScroll, MagicMissile};
+	s1.setidentified(1);
+	s2.setidentified(1);
+	p->add(s1);
+	p->add(s2);
+	p->equip({RedRing, ResistFire});
+	p->set({Staff, BurningHands}, RightHand);
+	//
+	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
+	p->add({GreenPotion, OfAdvise});
+	p->add({GreenPotion, OfAdvise});
 }
 
 void random_company() {
@@ -347,24 +322,32 @@ void random_company() {
 	ps->prosperty = 3;
 }
 
+void debug_dungeon2() {
+	location.clear();
+	location_above.clear();
+	random_heroes();
+	//test_dungeon(BRICK);
+	test_dungeon2(BRICK);
+	draw::settiles(location.head.type);
+	game.setcamera(location.getindex(16, 16), Up);
+}
+
+#endif // DEBUG
+
 int main(int argc, char* argv[]) {
+	srand(clock());
+#ifdef _DEBUG
 	if(!test_variant())
 		return -1;
 	if(!test_richtexti())
 		return -1;
-	srand(clock());
-#ifdef _DEBUG
 	util_main();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;
-	next_proc = mainmenu;
-	//next_proc = edit_game;
 	setbigfont();
-	while(next_proc) {
-		auto p = next_proc;
-		next_proc = 0; p();
-	}
+	setnext(mainmenu);
+	application();
 }
 
 int _stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

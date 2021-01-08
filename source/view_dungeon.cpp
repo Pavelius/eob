@@ -1229,8 +1229,9 @@ int draw::animation::thrown(indext index, direction_s dr, item_s type, direction
 	return index;
 }
 
-void draw::animation::render(int pause, bool show_screen, void* current_item, const imagei* pi) {
-	background(PLAYFLD);
+void draw::animation::render(int pause, bool show_screen, void* current_item, const imagei* pi, bool show_back) {
+	if(show_screen)
+		background(PLAYFLD);
 	if(show_screen)
 		render_screen();
 	if(pi) {

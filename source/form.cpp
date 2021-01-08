@@ -41,7 +41,7 @@ template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
 template<> const char* getnm<eventi>(const void* object, stringbuilder& sb) {
-	return ((eventi*)object)->text.getname();
+	return ((eventi*)object)->getname();
 }
 template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 	return ((moralei*)object)->name;
@@ -547,7 +547,7 @@ DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imag
 {"Enter text 6", DGREQ(data[5])},
 {}};
 DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_variant}, {}},
-{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
+{"Text", DGINH(textable, name), {getnm<textable>, 0, textable::editrich}},
 {"1)", DGREQ(ask[0])},
 {"2)", DGREQ(ask[1])},
 {"Starting", DGCHK(flags, 1 << eventi::Start)},

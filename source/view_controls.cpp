@@ -86,7 +86,6 @@ static rect				log_rect = {5, 180, 285, 198};
 static int				focus_level;
 static const void*		focus_stack[8];
 static const void*		focus_pressed;
-extern callback			next_proc;
 extern "C" void			scale3x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned pixel, unsigned width, unsigned height);
 callback				draw::domodal;
 static textedit			current_text;
@@ -95,6 +94,19 @@ static int				current_c1;
 static point			current_p1;
 const int				dx = 4;
 const int				menu_width = 168;
+static callback			next_proc;
+
+void draw::application() {
+	while(next_proc) {
+		auto p = next_proc;
+		next_proc = 0; p();
+	}
+}
+
+void draw::setnext(void(*v)()) {
+	if(!next_proc)
+		next_proc = v;
+}
 
 int draw::ciclic(int range, int speed) {
 	return iabs((int)((frametick*speed) % range * 2) - range);
@@ -1112,7 +1124,7 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 	setsmallfont();
 	openform();
 	while(ismodal()) {
-		draw::animation::render(0, false);
+		draw::animation::render(0, false, 0, 0, false);
 		rect rc = {0, 121, 319, 199};
 		fore = colors::white;
 		if(ei)
@@ -2624,8 +2636,10 @@ static bool handle_shortcuts(void* focus, bool allow_move) {
 		if(pc) {
 			auto caster = pc->getcaster();
 			auto spell_element = pc->choosespell(caster);
-			if(spell_element)
-				pc->cast(spell_element, caster, 0);
+			if(spell_element) {
+				if(pc->cast(spell_element, caster, 0))
+					return true;
+			}
 		}
 		break;
 	case 'W': movenext(KeyUp); break;
@@ -2682,9 +2696,7 @@ static bool handle_shortcuts(void* focus, bool allow_move) {
 	return false;
 }
 
-void draw::adventure() {
-	if(!game.isalive())
-		setnext(mainmenu);
+void adventurei::play() {
 	while(ismodal()) {
 		if(!getfocus())
 			setfocus(party[0]->getitem(RightHand));
@@ -2693,7 +2705,7 @@ void draw::adventure() {
 		domodal();
 		if(handle_shortcuts(getfocus(), true)) {
 			game.endround();
-			setnext(adventure);
+			setnext(play);
 		}
 	}
 }
@@ -2717,7 +2729,6 @@ static void newgame() {
 	creature::view_party();
 	draw::resetres();
 	game.enter(game.start, 1);
-	setnext(adventure);
 }
 
 static void main_new_game() {
@@ -2750,7 +2761,11 @@ static void quit_game() {
 
 static void settings() {}
 
-extern void load_game();
+static void load_game() {
+	draw::resetres();
+	if(!game.read())
+		return;
+}
 
 void draw::options(bool camp_mode) {
 	const char* on = "Game options:";
@@ -2776,8 +2791,7 @@ static void editor() {
 		game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
-		//game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		game.passtime(3 * 24 * 60);
+		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		game.write();
 		game.play();
 	} else {

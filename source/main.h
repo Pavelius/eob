@@ -233,7 +233,7 @@ enum attack_s : unsigned char {
 	OnHit, OnAllHit, OnCriticalHit,
 };
 enum reaction_s : unsigned char {
-	Indifferent, Friendly, /*Flight, Cautious, Threatening*/ Hostile,
+	Indifferent, Friendly, Hostile,
 };
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
@@ -245,12 +245,6 @@ enum action_s : unsigned char {
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
-};
-enum speech_s : unsigned char {
-	Say, Ask,
-};
-enum case_s : unsigned char {
-	Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8, Case9,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -304,7 +298,6 @@ struct variant {
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
-	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const condition_s v) : type(Condition), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
@@ -578,7 +571,7 @@ struct imagei {
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
 };
-struct eventi {
+struct eventi : textable {
 	enum flag_s : unsigned char {
 		Start,
 	};
@@ -588,7 +581,6 @@ struct eventi {
 		constexpr explicit operator bool() const { return text.operator bool(); }
 	};
 	variant				condition;
-	textable			text;
 	textable			ask[2];
 	resulti				results[4];
 	unsigned char		flags;
@@ -1153,6 +1145,7 @@ struct adventurei : textable, historyi {
 	bool				isactive() const { return stage > 0; }
 	bool				isrumor() const { return rumor_activate && (stage == 0); }
 	bool				match(variant v) const;
+	static void			play();
 };
 struct settlementi : textable {
 	imagei				image;
@@ -1162,7 +1155,6 @@ struct settlementi : textable {
 	spellf				spells;
 	unsigned char		prosperty;
 	char				mood_tavern, mood_inn, mood_other;
-	void				adventure();
 	bool				apply(building_s b, action_s a, bool run);
 	variant				enter();
 	action_s			enter(building_s id);
@@ -1173,6 +1165,7 @@ struct settlementi : textable {
 	rarity_s			getrarity() const;
 	int					getrestcost(building_s b) const;
 	bool				is(building_s v) const { return buildings.is(v); }
+	void				play();
 	void				update();
 };
 struct fractioni : textable {
@@ -1324,14 +1317,14 @@ namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);
-void					render(int pause = 300, bool show_screen = true, void* focus = 0, const imagei* pi = 0);
+void					render(int pause = 300, bool show_screen = true, void* focus = 0, const imagei* pi = 0, bool show_back = true);
 int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					update();
 }
 typedef void(*infoproc)(void*);
-void					adventure();
 void					appear(pobject proc, void* object, unsigned duration = 1000);
+void					application();
 void					avatar(int x, int y, int party_index, unsigned flags, void* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, void* current_item);
 void					background(int rid);
@@ -1401,7 +1394,6 @@ MNLNK(race_s, racei)
 MNLNK(resource_s, resourcei)
 MNLNK(size_s, sizei)
 MNLNK(spell_s, spelli)
-MNLNK(speech_s, speechi)
 MNLNK(usability_s, usabilityi)
 MNLNK(variant_s, varianti)
 MNLNK(wear_s, weari)

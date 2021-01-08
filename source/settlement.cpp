@@ -363,7 +363,6 @@ static bool explore(settlementi& e, bool run) {
 		game.pay(cost);
 		game.equiping();
 		game.rideto(r);
-		draw::setnext(draw::adventure);
 	}
 	return true;
 }
@@ -615,7 +614,7 @@ void settlementi::update() {
 	correct_talk(mood_other, chat_rang);
 }
 
-void settlementi::adventure() {
+void settlementi::play() {
 	auto v = enter();
 	switch(v.type) {
 	case Action:
@@ -629,8 +628,10 @@ void settlementi::adventure() {
 		while(game.getsettlement() == this) {
 			auto b = (building_s)v.value;
 			auto a = enter(b);
-			if(a == Leave)
+			if(a == Leave) {
+				draw::setnext(game.play);
 				break;
+			}
 			apply(b, a, true);
 			game.passtime(60);
 		}

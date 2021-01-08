@@ -454,19 +454,20 @@ void gamei::enter(variant index, char level) {
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	auto pa = getadventure();
-	if(!pa)
-		return;
-	if(!location.read(location_index.value, location_level)) {
-		pa->create(visialize_map);
-		if(!location.read(location_index.value, location_level))
-			return;
-	}
-	if(location_level > 1)
-		location_above.read(location_index.value, location_level - 1);
-	draw::settiles(location.head.type);
-	if(camera_index == Blocked)
+	if(location_index.type==Adventure) {
+		auto pa = getadventure();
+		if(!location.read(location_index.value, location_level)) {
+			pa->create(visialize_map);
+			if(!location.read(location_index.value, location_level))
+				return;
+		}
+		if(location_level > 1)
+			location_above.read(location_index.value, location_level - 1);
+		draw::settiles(location.head.type);
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+	} else if(location_index.type == Settlement)
+		camera_index = Blocked;
+	draw::setnext(play);
 }
 
 bool creature::set(ability_s skill, short unsigned index) {
@@ -755,18 +756,6 @@ void gamei::jumpto(variant v) {
 	location_index = v;
 }
 
-void gamei::play() {
-	if(!isalive()) {
-		draw::setnext(draw::mainmenu);
-		return;
-	}
-	auto ps = game.getsettlement();
-	if(ps) {
-		ps->adventure();
-		draw::setnext(play);
-	}
-}
-
 adventurei* gamei::getadventure() {
 	return location_index.getadventure();
 }
@@ -859,4 +848,15 @@ void gamei::endround() {
 bool gamei::isnight() const {
 	auto h = gethour();
 	return h >= 22 || h <= 6;
+}
+
+void gamei::play() {
+	if(!game.isalive())
+		draw::setnext(draw::mainmenu);
+	else if(game.location_index.type == Adventure)
+		game.getadventure()->play();
+	else if(game.location_index.type == Settlement)
+		game.getsettlement()->play();
+	else // Error
+		draw::setnext(draw::mainmenu);
 }
