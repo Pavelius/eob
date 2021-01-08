@@ -272,5 +272,11 @@
     <ClCompile Include="form.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="case.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="export.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

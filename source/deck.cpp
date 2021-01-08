@@ -26,3 +26,15 @@ variant	deck::getbottom() {
 		return variant();
 	return variant(type, data[count--]);
 }
+
+void deck::discard(variant v) {
+	if(v.type != type)
+		return;
+	auto p = data;
+	for(auto& e : *this) {
+		if(e == v.value)
+			continue;
+		*p++ = v.value;
+	}
+	count = p - data;
+}

@@ -1073,17 +1073,19 @@ static bool labelm(int x, int& y, int width, const char* title, void* ev, unsign
 	return run;
 }
 
-static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key) {
+static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key, int height = -1) {
 	draw::state push;
 	auto vertical = true;
 	if(width == -1) {
 		vertical = false;
 		width = getbuttonwidth(title);
 	}
+	if(height == -1)
+		height = texth();
 	if(!ev)
 		ev = (void*)title;
 	auto run = false;
-	rect rc = {x, y, x + width, y + texth() + 3};
+	rect rc = {x, y, x + width, y + height + 3};
 	focusing(rc, ev);
 	auto isfocused = isfocus(ev);
 	if((isfocused && hot::key == KeyEnter) || (key && hot::key == key))
@@ -1096,11 +1098,21 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 	if(isfocused)
 		fore = colors::focus;
 	draw::setclip(rc);
-	textb(rc.x1 + 4, rc.y1 + 2, title);
-	if(vertical)
-		y += rc.height();
-	else
+	if(vertical) {
+		auto h = rc.height();
+		rc.offset(2, 2);
+		auto r1 = rc; r1.move(1, 1);
+		auto push_color = fore;
+		//fore = colors::black.mix(colors::dark);
+		fore = colors::black;
+		text(r1, title, 0);
+		fore = push_color;
+		text(rc, title, 0);
+		y += h;
+	} else {
+		textb(rc.x1 + 4, rc.y1 + 2, title);
 		x += rc.width() + 2;
+	}
 	return run;
 }
 
@@ -1149,8 +1161,13 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 				}
 				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 			} else {
-				buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
-				y += texth() + 5;
+				auto t = elements.data[i].text;
+				auto w = 320 - x - 7;
+				auto h = texth(t, w);
+				if(buttonx(x, y, w, t, (void*)t, '1' + i, h))
+					execute(buttonparam, (int)&elements.data[i]);
+				//buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
+				y += 2;
 			}
 		}
 		domodal();
@@ -2783,23 +2800,7 @@ void draw::options(bool camp_mode) {
 		p();
 }
 
-static void editor() {
-	auto push_font = font;
-	setsmallfont();
-	if(true) {
-		random_heroes();
-		game.companyi::read("default");
-		game.addgold(200);
-		game.jumpto(bsdata<settlementi>::elements);
-		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		game.write();
-		game.play();
-	} else {
-		game.companyi::read("default");
-		edit("Company", &game, dginf<companyi>::meta, false);
-	}
-	font = push_font;
-}
+void editor();
 
 void draw::mainmenu() {
 	answers aw;

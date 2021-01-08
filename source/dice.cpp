@@ -12,13 +12,14 @@ int dice::roll(int c, int d) {
 }
 
 void dice::print(stringbuilder& sb) const {
-	if(c == 0 && d == 0)
+	if(c == 0 && d == 0 && b==0)
 		sb.adds("None");
-	else {
+	else if(d == 0)
+		sb.adds("%1i", c);
+	else
 		sb.adds("%1id%2i", c, d);
-		if(b != 0)
-			sb.add("%+1i", b);
-	}
+	if(b != 0)
+		sb.add("%+1i", b);
 }
 
 const char* dice::range(char* result, const char* result_maximum) const {

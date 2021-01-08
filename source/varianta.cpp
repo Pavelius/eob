@@ -108,7 +108,7 @@ void variantc::sort() {
 
 void variantc::select(variant_s type) {
 	auto& ei = bsdata<varianti>::elements[type];
-	auto p = ei.form.source;
+	auto p = ei.source;
 	if(!p)
 		return;
 	variant v;

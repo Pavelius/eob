@@ -37,6 +37,12 @@ template<> const char* getnm<imagei>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<adventurei>(const void* object, stringbuilder& sb) {
 	return ((adventurei*)object)->getname();
 }
+template<> const char* getnm<casei>(const void* object, stringbuilder& sb) {
+	return ((casei*)object)->name;
+}
+template<> const char* getnm<actionseti>(const void* object, stringbuilder& sb) {
+	return ((actionseti*)object)->name;
+}
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
@@ -98,10 +104,10 @@ template<> const char* getnm<variant>(const void* object, stringbuilder& sb) {
 	if(!(*p))
 		return "";
 	auto& e = bsdata<varianti>::elements[p->type];
-	if(e.form.pgetname) {
-		if(!e.form.source)
+	if(e.pgetname) {
+		if(!e.source)
 			return "No source";
-		return e.form.pgetname(e.form.source->ptr(p->value), sb);
+		return e.pgetname(e.source->ptr(p->value), sb);
 	}
 	return "Noname";
 }
@@ -130,7 +136,7 @@ const char* getnoname(const void* object, stringbuilder& sb) {
 }
 static bool variant_selectable(const void* object, const void* pointer) {
 	auto p = (varianti*)pointer;
-	return p->form.pgetname != 0;
+	return p->pgetname != 0;
 }
 static bool choose_variant(void* object, const array& source, void* pointer) {
 	auto v = (variant*)pointer;
@@ -138,10 +144,10 @@ static bool choose_variant(void* object, const array& source, void* pointer) {
 		object, &v->type, sizeof(v->type), {getnm<varianti>, variant_selectable}))
 		return false;
 	auto& e = bsdata<varianti>::elements[v->type];
-	if(!e.form.source)
+	if(!e.source)
 		return false;
-	if(!draw::choose(*e.form.source, e.name,
-		object, &v->value, sizeof(v->value), {e.form.pgetname}))
+	if(!draw::choose(*e.source, e.name,
+		object, &v->value, sizeof(v->value), {e.pgetname}))
 		return false;
 	return true;
 }
@@ -314,9 +320,11 @@ static bool allow_race(const void* object, const void* pointer) {
 	return pe->characters != 0;
 }
 GENDGINF(abilityi)
+GENDGINF(actioni)
 GENDGINF(alignmenti)
 GENDGINF(attacki)
 GENDGINF(buildingi)
+GENDGINF(casei)
 GENDGINF(damagei)
 GENDGINF(enchanti)
 GENDGINF(enchantmenti)
@@ -509,8 +517,6 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Wisdow", DGREQ(data[4])},
 {"Charisma", DGREQ(data[5])},
 {}};
-DGINF(actioni) = {{"Name", DGREQ(name)},
-{}};
 DGINF(fractioni) = {{"Name", DGINH(textable, name)},
 {}};
 DGINF(companyi) = {{"Name", DGINH(textable, name)},
@@ -560,6 +566,14 @@ DGINF(eventi) = {{"Condition", DGREQ(condition), {getnm<variant>, 0, choose_vari
 {"#div Result 4"},
 {"", DGREQ(results[3])},
 {}};
-DGINF(eventi::resulti) = {{"Text", DGREQ(text), {getnm<textable>, 0, textable::editrich}},
-{"Actions", DGREQ(actions)},
+DGINF(resultable) = {{"Text", DGINH(textable, name), {getnm<textable>, 0, textable::editrich}},
+{"Action 1", DGREQ(actions[0]), {getnm<variant>, 0, choose_variant}},
+{"Action 2", DGREQ(actions[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Action 3", DGREQ(actions[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Action 4", DGREQ(actions[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Action 5", DGREQ(actions[4]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{"Action 6", DGREQ(actions[6]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+{}};
+DGINF(actionseti) = {{"Action", DGREQ(action), {getnm<actioni>}},
+{"Count", DGREQ(count)},
 {}};

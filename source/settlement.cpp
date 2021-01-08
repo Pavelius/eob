@@ -643,3 +643,9 @@ int	settlementi::getrestcost(building_s b) const {
 	auto cost = party.getcount();
 	return cost;
 }
+
+void settlementi::addprosperty(int v) {
+	prosperty += v;
+	if(prosperty < 0)
+		prosperty = 0;
+}

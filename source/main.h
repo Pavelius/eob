@@ -241,16 +241,28 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	Greeting,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
-	Leave, Lie, Quest, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
+	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
+	Experience, Gold, Prosperty, Reputation,
 	Discard,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
+enum actionset_s : unsigned char {
+	Attack1d3, Attack1d6, Attack2d4, Attack2d6, Attack3d6,
+	Gain5GP, Gain10GP, Gain20GP,
+	GainProsperty, GainReputation,
+	Lose5GP, Lose10GP, Lose20GP,
+	LoseProsperty, LoseReputation,
+	Pay1, Pay2, Pay4, Pay10,
+};
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, Adventure, Alignment, Building, Case, Class,
+	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Class,
 	Cleveress, Condition, Creature, Damage, Event, Enchant, Feat, Gender,
 	Item, Morale, Race, Reaction, Settlement, Spell,
+};
+enum case_s : unsigned char {
+	Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8, Case9,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -268,9 +280,6 @@ enum building_s : unsigned char {
 };
 enum good_s : unsigned char {
 	Armors, Books, Clothes, Devices, Food, Jewelry, Papers, Potions, Tools, Weapons
-};
-enum variantf_s : unsigned char {
-	VarEditable, VarTextable
 };
 enum condition_s : unsigned char {
 	Healed, BadlyWounded, Wounded,
@@ -298,6 +307,7 @@ struct variant {
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
+	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const condition_s v) : type(Condition), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
@@ -331,6 +341,7 @@ struct textable {
 	unsigned			name;
 	constexpr textable() : name(0) {}
 	constexpr explicit operator bool() const { return name != 0; }
+	operator const char*() const { return getname(); }
 	static bool			edit(void* object, const array& source, void* pointer);
 	static bool			editrich(void* object, const array& source, void* pointer);
 	const char*			getname() const;
@@ -350,6 +361,14 @@ struct spellprogi {
 struct actioni {
 	const char*			name;
 	bool				talk;
+};
+struct actionseti {
+	const char*			name;
+	action_s			action;
+	int					count;
+	int					max;
+	bool				check;
+	int					roll() const;
 };
 struct abilityi {
 	const char*			name;
@@ -424,18 +443,15 @@ struct usabilityi {
 struct itemfeati {
 	const char*			name;
 };
-struct formi {
-	array*				source;
-	fntext				pgetname;
-	unsigned			uname;
-	const markup*		form;
-	bool				istextable;
+struct casei {
+	const char*			name;
 };
 struct varianti {
 	const char*			name;
 	const char*			namepl;
-	formi				form;
-	cflags<variantf_s>	flags;
+	array*				source;
+	fntext				pgetname;
+	const markup*		form;
 	static variant_s	find(const array* source);
 };
 struct combati {
@@ -571,25 +587,32 @@ struct imagei {
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
 };
+struct resultable : public textable {
+	conditiona			actions;
+	bool				isallow() const;
+	settlementi*		getsettlement() const;
+	bool				have(variant v) const;
+};
 struct eventi : textable {
 	enum flag_s : unsigned char {
 		Start,
 	};
-	struct resulti {
-		textable		text;
-		conditiona		actions;
-		constexpr explicit operator bool() const { return text.operator bool(); }
-	};
 	variant				condition;
 	textable			ask[2];
-	resulti				results[4];
+	resultable			results[4];
 	unsigned char		flags;
+	void				apply(case_s v, bool interactive) const;
+	void				clear();
+	void				discard() const;
+	void				play() const;
+	void				shufle() const;
 };
 class deck : adat<unsigned char, 256> {
 	variant_s			type;
 public:
-	void				create(variant_s v);
 	void				addbottom(variant v);
+	void				create(variant_s v);
+	void				discard(variant v);
 	variant				getbottom();
 	variant				gettop();
 };
@@ -1155,6 +1178,7 @@ struct settlementi : textable {
 	spellf				spells;
 	unsigned char		prosperty;
 	char				mood_tavern, mood_inn, mood_other;
+	void				addprosperty(int v);
 	bool				apply(building_s b, action_s a, bool run);
 	variant				enter();
 	action_s			enter(building_s id);
@@ -1201,6 +1225,7 @@ class gamei : public companyi {
 	char				reputation, luck;
 	int					gold;
 	variant				players[6];
+	deck				events_deck;
 	static void			render_worldmap(void* object);
 public:
 	void				add(creature* v);
@@ -1212,6 +1237,7 @@ public:
 	void				additem(item i, bool interactive);
 	void				addluck() { luck++; }
 	void				addsacrifice(int v) { sacrifice += v; }
+	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
 	void				clear();
@@ -1219,7 +1245,9 @@ public:
 	void				enter(variant index, char level);
 	void				equiping();
 	adventurei*			getadventure();
+	deck&				getevents() { return events_deck; }
 	void				findsecrets();
+	int					get(action_s id) const;
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
@@ -1292,6 +1320,7 @@ class answers {
 		int				id;
 		const char*		text;
 	};
+	static imagei		last_image;
 public:
 	answers();
 	adat<element, 32>	elements;
@@ -1306,10 +1335,11 @@ public:
 	int					choosemn(const char* title, bool allow_cancel = true) const;
 	int					choosemn(int x, int y, int width, resource_s id) const;
 	static int			compare(const void* v1, const void* v2);
-	int					random() const;
 	static void			clearimage();
+	static void			message(const char* format);
+	int					random() const;
+	static void			set(const imagei& v) { last_image = v; }
 	void				sort();
-	static imagei		last_image;
 };
 namespace draw {
 typedef void(*pobject)(void* object);
@@ -1361,13 +1391,13 @@ inline int				d100() { return rand() % 100; }
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
 NOBSDATA(dice)
-NOBSDATA(eventi::resulti)
 NOBSDATA(historyi)
 NOBSDATA(imagei)
 NOBSDATA(item)
 NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(point)
+NOBSDATA(resultable)
 NOBSDATA(sitei)
 NOBSDATA(sitei::chancei)
 NOBSDATA(sitei::crypti)
@@ -1381,6 +1411,7 @@ MNLNK(attack_s, attacki)
 MNLNK(building_s, buildingi)
 MNLNK(class_s, classi)
 MNLNK(action_s, actioni)
+MNLNK(actionset_s, actionseti)
 MNLNK(damage_s, damagei)
 MNLNK(enchant_s, enchanti)
 MNLNK(feat_s, feati)

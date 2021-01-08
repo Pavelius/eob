@@ -1,14 +1,15 @@
 #include "main.h"
 
-#define FORM(T) {&bsdata<T>::source, getnm<T>, FO(T, name), dginf<T>::meta}
+#define FORM(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
 
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
-{"Action", "actions"},
-{"Adventure", "adventures", FORM(adventurei), {VarTextable}},
+{"Action", "actions", FORM(actioni)},
+{"Action set", "action sets", FORM(actionseti)},
+{"Adventure", "adventures", FORM(adventurei)},
 {"Alignment", "alignments", FORM(alignmenti)},
 {"Building", "buildings", FORM(buildingi)},
-{"Case", "cases"},
+{"Case", "cases", FORM(casei)},
 {"Class", "classes", FORM(classi)},
 {"Cleaveress", "cleveress"},
 {"Condition", "conditions"},
@@ -22,7 +23,7 @@ BSDATA(varianti) = {{"None"},
 {"Morale", "morals", FORM(moralei)},
 {"Race", "races", FORM(racei)},
 {"Reaction", "reactions"},
-{"Settlement", "settlements", FORM(settlementi), {VarTextable}},
+{"Settlement", "settlements", FORM(settlementi)},
 {"Spell", "spells", FORM(spelli)},
 };
 assert_enum(variant, Spell)
@@ -36,7 +37,7 @@ variant::variant(variant_s v, const void* p) {
 		value = 0;
 	} else {
 		type = v;
-		value = bsdata<varianti>::elements[v].form.source->indexof(p);
+		value = bsdata<varianti>::elements[v].source->indexof(p);
 	}
 }
 
@@ -54,11 +55,11 @@ variant::variant(const void* p) {
 		type = NoVariant;
 		value = 0;
 		for(auto i = (variant_s)1; i <= Spell; i = (variant_s)(i + 1)) {
-			if(!bsdata<varianti>::elements[i].form.source)
+			if(!bsdata<varianti>::elements[i].source)
 				continue;
-			if(bsdata<varianti>::elements[i].form.source->indexof(p) != -1) {
+			if(bsdata<varianti>::elements[i].source->indexof(p) != -1) {
 				type = i;
-				value = bsdata<varianti>::elements[i].form.source->indexof(p);
+				value = bsdata<varianti>::elements[i].source->indexof(p);
 				break;
 			}
 		}
@@ -68,7 +69,7 @@ variant::variant(const void* p) {
 void* variant::getpointer(variant_s t) const {
 	if(type != t)
 		return 0;
-	return bsdata<varianti>::elements[t].form.source->ptr(value);
+	return bsdata<varianti>::elements[t].source->ptr(value);
 }
 
 creature* variant::getcreature() const {
@@ -80,13 +81,16 @@ creature* variant::getcreature() const {
 }
 
 const char* variant::getname() const {
+	static char strings[2][128];
+	static stringbuilder sbs[] = {strings[0], strings[1]};
+	static unsigned char counter;
 	auto p = bsdata<varianti>::elements + type;
-	if(!p->form.source)
+	if(!p->source)
 		return "None";
-	auto pe = p->form.source->ptr(value);
-	if(p->flags.is(VarTextable))
-		return ((textable*)((char*)pe + p->form.uname))->getname();
-	return *((const char**)((char*)pe + p->form.uname));
+	auto pe = p->source->ptr(value);
+	auto& sb = sbs[(counter++) % 1];
+	sb.clear();
+	return p->pgetname(pe, sb);
 }
 
 point variant::getposition() const {
@@ -99,7 +103,7 @@ point variant::getposition() const {
 
 variant_s varianti::find(const array* source) {
 	for(auto& e : bsdata<varianti>()) {
-		if(e.form.source == source)
+		if(e.source == source)
 			return variant_s(&e - bsdata<varianti>::elements);
 	}
 	return NoVariant;

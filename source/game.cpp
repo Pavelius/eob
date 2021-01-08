@@ -860,3 +860,33 @@ void gamei::play() {
 	else // Error
 		draw::setnext(draw::mainmenu);
 }
+
+void gamei::apply(variant v) {
+	if(v.type == ActionSet) {
+		auto& ei = bsdata<actionseti>::elements[v.value];
+		switch(ei.action) {
+		case Gold: game.addgold(ei.roll()); break;
+		case Reputation: reputation += ei.roll(); break;
+		case Prosperty:
+			if(getsettlement())
+				getsettlement()->addprosperty(ei.roll());
+			break;
+		case Attack:
+			for(auto p : party)
+				p->damage(Bludgeon, ei.roll(), 5);
+			break;
+		}
+	}
+}
+
+int	gamei::get(action_s id) const {
+	switch(id) {
+	case Gold: return gold;
+	case Reputation: return reputation;
+	case Prosperty:
+		if(getsettlement())
+			return getsettlement()->prosperty;
+		return 0;
+	default: return 0;
+	}
+}

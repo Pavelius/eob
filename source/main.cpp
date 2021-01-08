@@ -249,18 +249,40 @@ void random_heroes() {
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
 	//p->setknown(Identify);
 	p->equip({RedRing, OfWizardy});
-	item s1 = {MageScroll, ReadLanguagesSpell};
-	item s2 = {MageScroll, MagicMissile};
-	s1.setidentified(1);
-	s2.setidentified(1);
-	p->add(s1);
-	p->add(s2);
+	//item s1 = {MageScroll, ReadLanguagesSpell};
+	//item s2 = {MageScroll, MagicMissile};
+	//s1.setidentified(1);
+	//s2.setidentified(1);
+	//p->add(s1);
+	//p->add(s2);
 	p->equip({RedRing, ResistFire});
 	p->set({Staff, BurningHands}, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
 	p->add({GreenPotion, OfAdvise});
 	p->add({GreenPotion, OfAdvise});
+}
+
+static void random_events() {
+	auto e1 = bsdata<eventi>::elements;
+	e1->clear();
+	e1->setname("#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.");
+	e1->ask[0].setname("Talk to dwarven workers and convice them not demand more pay.");
+	e1->ask[1].setname("Talk to human boos and convice him to pay more to this poor dwarfs.");
+	e1->results[0].setname("Argessive dwarven workers calm down when see, that dwarf from party talk to them. By short conversation you convice them to do work. After all you make agreement for small raising payments and all go to work.");
+	e1->results[0].actions[0] = Case1;
+	e1->results[0].actions[1] = Dwarf;
+	e1->results[0].actions[2] = GainProsperty;
+	e1->results[0].actions[3] = Discard;
+	e1->results[1].setname("Beside all of you efforts, workers refuse talk with you, calling you \"part of a problem\". After all strike get dowm, but no one is satisfied it result.");
+	e1->results[1].actions[0] = Case1;
+	e1->results[2].setname("\"I can't pay more\" - sad boss. But after short coversation with your fighter when he \"explain\" to boss that he can pay more, boss agreed. All is satisfied.");
+	e1->results[2].actions[0] = Case1;
+	e1->results[2].actions[1] = Fighter;
+	e1->results[2].actions[2] = GainProsperty;
+	e1->results[2].actions[3] = Discard;
+	e1->results[3].setname("You can't convice boss - only anger him. After all dwarven agreed back to work, but probles is not be solved.");
+	e1->results[3].actions[0] = Case2;
 }
 
 void random_company() {
@@ -320,6 +342,7 @@ void random_company() {
 	ps->position = {1108, 449};
 	ps->buildings.add(Tavern);
 	ps->prosperty = 3;
+	random_events();
 }
 
 void debug_dungeon2() {
@@ -333,6 +356,27 @@ void debug_dungeon2() {
 }
 
 #endif // DEBUG
+
+void editor() {
+	auto push_font = font;
+	setsmallfont();
+	if(true) {
+		random_heroes();
+		random_company();
+		//game.companyi::read("default");
+		game.addgold(200);
+		game.jumpto(bsdata<settlementi>::elements);
+		bsdata<eventi>::elements[0].play();
+		//game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
+		//game.write();
+		//game.play();
+	} else {
+		game.companyi::read("default");
+		edit("Company", &game, dginf<companyi>::meta, false);
+		game.companyi::write("default");
+	}
+	font = push_font;
+}
 
 int main(int argc, char* argv[]) {
 	srand(clock());

@@ -44,3 +44,9 @@ int	answers::choosebg(const char* title, bool horizontal_buttons) const {
 	}
 	return choosebg(temp, im, horizontal_buttons);
 }
+
+void answers::message(const char* format) {
+	answers aw;
+	aw.add(1, "Continue");
+	aw.choosebg(format);
+}
