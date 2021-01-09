@@ -260,9 +260,6 @@
     <ClCompile Include="cell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="event.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="deck.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

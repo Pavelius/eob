@@ -28,29 +28,54 @@ static const char* getheader(const char* title, int index) {
 	return title;
 }
 
+static bool expand_group(const markup* p) {
+	return p == dginf<point>::meta
+		|| p == dginf<historyi>::meta;
+}
+
 static void write_req(serializer* sz, void* object, const markup* type, int index) {
 	if(type->isdecortext())
 		return;
-	char value[1024]; value[0] = 0;
-	stringbuilder sb(value);
-	type->getname(object, sb);
-	if(type->value.isnum() && type->value.size <= sizeof(int)) {
-		if(strcmp(value, "0") == 0)
-			return;
-		if(strcmp(value, "false") == 0)
-			return;
-		if(strcmp(value, "None") == 0)
-			return;
-		sz->set(type->title, value, serializer::Number);
-	} else if(type->isgroup()) {
+	else if(type->ischeckboxes()) {
+		sz->open(getheader(type->title, index), serializer::Array);
+		auto ps = type->value.source;
+		if(ps && type->list.getname) {
+			auto flags = type->get(type->value.ptr(object), type->value.size);
+			for(unsigned i = 0; i < ps->getcount(); i++) {
+				if((flags&(1 << i)) == 0)
+					continue;
+				char value[1024]; stringbuilder sb(value);
+				sz->set("element", type->list.getname(ps->ptr(i), sb));
+			}
+		}
+		sz->close(getheader(type->title, index), serializer::Array);
+	} else if(type->isgroup() || expand_group(type->value.type)) {
 		sz->open(getheader(type->title, index), serializer::Struct);
 		for(auto p = type->value.type; *p; p++)
 			write_req(sz, type->value.ptr(object), p, p - type->value.type);
 		sz->close(getheader(type->title, index), serializer::Struct);
 	} else {
-		if(strcmp(value, "None") == 0)
-			return;
-		sz->set(type->title, value, serializer::Text);
+		char value[1024]; value[0] = 0;
+		stringbuilder sb(value);
+		type->getname(object, sb);
+		if(type->value.isnum() && type->value.size <= sizeof(int) && !type->list.getname) {
+			if(strcmp(value, "0") == 0)
+				return;
+			if(strcmp(value, "false") == 0)
+				return;
+			if(strcmp(value, "None") == 0)
+				return;
+			if(strcmp(value, "true")==0)
+				sz->set(type->title, value, serializer::Number);
+			else
+				sz->set(type->title, sz2num(value), serializer::Number);
+		} else {
+			if(strcmp(value, "NONE") == 0)
+				return;
+			if(strcmp(value, "None") == 0)
+				return;
+			sz->set(type->title, value, serializer::Text);
+		}
 	}
 }
 
@@ -65,25 +90,44 @@ static void write_obj(serializer* sz, void* object, const markup* type) {
 	sz->close(pm->namepl, serializer::Struct);
 }
 
-bool gamei::writetext(const char* url, variant_s id) {
-	auto& ei = bsdata<varianti>::elements[id];
-	if(!ei.source || !ei.form)
-		return false;
+bool gamei::writetext(const char* url, std::initializer_list<variant_s> source) {
 	auto pp = io::plugin::find(szext(url));
 	if(!pp)
 		return false;
 	io::file file(url, StreamWrite | StreamText);
 	auto sz = pp->write(file);
 	sz->open("elements", serializer::Array);
-	auto pe = (unsigned char*)ei.source->end();
-	for(auto p = (unsigned char*)ei.source->begin(); p < pe; p += ei.source->getsize())
-		write_obj(sz, p, ei.form);
+	for(auto id : source) {
+		auto& ei = bsdata<varianti>::elements[id];
+		if(!ei.source || !ei.form)
+			continue;
+		auto pe = ei.source->end();
+		auto p = ei.source->begin();
+		if(id == Creature)
+			p = (char*)ei.source->ptr(4);
+		for(; p < pe; p += ei.source->getsize())
+			write_obj(sz, p, ei.form);
+	}
 	sz->close("elements", serializer::Array);
 	return true;
 }
 
 bool gamei::readtext(const char* url) {
 	struct reader : serializer::reader {
+		static int find_array(array* source, fntext getname, const char* value) {
+			if(!source || !getname || !value || value[0] == 0)
+				return -1;
+			auto pe = source->end();
+			for(auto p = source->begin(); p < pe; p += source->getsize()) {
+				char temp[1024]; stringbuilder sb(temp);
+				auto pn = getname(p, sb);
+				if(!pn || pn[0] == 0)
+					continue;
+				if(strcmp(pn, value) == 0)
+					return source->indexof(p);
+			}
+			return -1;
+		}
 		void open(serializer::node& e) override {
 			if(!e.parent)
 				return;
@@ -96,7 +140,10 @@ bool gamei::readtext(const char* url) {
 				auto f = type->find(e.name);
 				if(f) {
 					e.object = f->value.ptr(e.parent->object);
-					e.object_type = f->value.type;
+					if(f->ischeckboxes())
+						e.object_type = f;
+					else
+						e.object_type = f->value.type;
 				}
 			}
 		}
@@ -115,11 +162,23 @@ bool gamei::readtext(const char* url) {
 			} else if(e.parent->object && e.parent->object_type) {
 				auto object = e.parent->object;
 				auto type = (const markup*)e.parent->object_type;
+				if(type->ischeckboxes()) {
+					auto i = find_array(type->value.source, type->list.getname, value);
+					if(i != -1)
+						type->set(object, type->value.size, type->get(object, type->value.size) | (1<<i));
+					return;
+				}
 				auto f = type->find(e.name);
 				if(!f)
 					return;
 				auto pv = f->value.ptr(object);
-				if(e.type == serializer::Number) {
+				if(f->list.getname == getnm<textable>) {
+					textable v; v.setname(value);
+					f->set(pv, f->value.size, v.name);
+				} else if(f->list.getname == getnm<variant>) {
+					variant v = variant::find(value);
+					f->set(pv, f->value.size, *((short unsigned*)&v));
+				} else if(e.type == serializer::Number) {
 					if(f->value.mask) {
 						if(strcmp(value, "true") == 0)
 							f->set(pv, f->value.size, f->get(pv, f->value.size) | f->value.mask);
@@ -127,12 +186,6 @@ bool gamei::readtext(const char* url) {
 							f->set(pv, f->value.size, f->get(pv, f->value.size) & (~f->value.mask));
 					} else
 						f->set(pv, f->value.size, sz2num(value));
-				} else if(f->list.getname == getnm<textable>) {
-					textable v; v.setname(value);
-					f->set(pv, f->value.size, v.name);
-				} else if(f->list.getname == getnm<variant>) {
-					variant v = variant::find(value);
-					f->set(pv, f->value.size, *((short unsigned*)&v));
 				}
 			}
 		}

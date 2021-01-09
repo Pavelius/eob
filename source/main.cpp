@@ -314,27 +314,7 @@ static void random_events() {
 	e1->results[2].actions[0] = Case2;
 }
 
-void random_company() {
-	static sitei collectors[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
-	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
-	};
-	static sitei dead_crypt[] = {{{BRICK, {Skeleton, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 1, {10}},
-	};
-	game.clear();
-	game.setname("Western heartlands");
-	game.start = 0;
-	game.pixels_per_day = 120;
-	auto pa = (adventurei*)bsdata<adventurei>::source.add();
-	pa->setname("Flooded collectors");
-	pa->position = {614, 294};
-	pa->rumor_activate.setname("Since last month people of Baldur's gate myserious disapears. Some old beggar tells story about flooded collectors and monsters, who dwelve in it. Ask city guards about flooded collectors and maybe you get a job.");
-	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
-	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
-	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
-	pa->activate();
-	memcpy(pa->levels, collectors, sizeof(collectors));
+static void random_settlements() {
 	auto ps = (settlementi*)bsdata<settlementi>::source.add();
 	ps->setname("Baldur's gate");
 	ps->position = {495, 404};
@@ -373,6 +353,29 @@ void random_company() {
 	ps->prosperty = 3;
 }
 
+void random_company() {
+	static sitei collectors[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
+	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
+	};
+	static sitei dead_crypt[] = {{{BRICK, {Skeleton, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
+	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 1, {10}},
+	};
+	game.clear();
+	game.setname("Western heartlands");
+	game.start = 0;
+	game.pixels_per_day = 120;
+	auto pa = (adventurei*)bsdata<adventurei>::source.add();
+	pa->setname("Flooded collectors");
+	pa->position = {614, 294};
+	pa->rumor_activate.setname("Since last month people of Baldur's gate myserious disapears. Some old beggar tells story about flooded collectors and monsters, who dwelve in it. Ask city guards about flooded collectors and maybe you get a job.");
+	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
+	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
+	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
+	pa->activate();
+	memcpy(pa->levels, collectors, sizeof(collectors));
+}
+
 void debug_dungeon2() {
 	location.clear();
 	location_above.clear();
@@ -390,9 +393,11 @@ void editor() {
 	setsmallfont();
 	random_heroes();
 	random_company();
+	//random_settlements();
 	//random_events();
-	//game.writetext("test.json", Event);
-	game.readtext("test.json");
+	//game.writetext("test2.json", {Settlement, Event});
+	game.readtext("test2.json");
+	//game.readtext("test.json");
 	if(false) {
 		//game.companyi::read("default");
 		game.addgold(200);

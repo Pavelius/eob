@@ -490,13 +490,12 @@ bool creature::set(ability_s skill, short unsigned index) {
 static bool addstatical(archive& a) {
 	if(!a.signature("STD"))
 		return false;
-	if(!a.version(0, 3))
+	if(!a.version(0, 4))
 		return false;
 	a.set(textable::getstrings());
 	a.set(bsdata<adventurei>::source);
 	a.set(bsdata<creature>::source);
 	a.set(bsdata<settlementi>::source);
-	a.set(bsdata<fractioni>::source);
 	a.set(bsdata<eventi>::source);
 	return true;
 }

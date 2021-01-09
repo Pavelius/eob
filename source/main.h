@@ -1198,9 +1198,6 @@ struct settlementi : textable {
 	void				play();
 	void				update();
 };
-struct fractioni : textable {
-	char				progress;
-};
 struct companyi : textable {
 	short unsigned		start; // starting settlement
 	int					pixels_per_day;
@@ -1296,7 +1293,8 @@ public:
 	void				thrown(item* itm);
 	void				worldmap();
 	void				write();
-	static bool			writetext(const char* url, variant_s id);
+	static bool			writetext(const char* url, std::initializer_list<variant_s> source);
+	static bool			writetext(const char* url, variant_s id) { return writetext(url, {id}); }
 };
 struct richtexti {
 	static constexpr int maximum = 6;

@@ -85,9 +85,6 @@ template<> const char* getnm<historyi>(const void* object, stringbuilder& sb) {
 	sb.add("Have %1i stages", m);
 	return sb;
 }
-template<> const char* getnm<fractioni>(const void* object, stringbuilder& sb) {
-	return ((fractioni*)object)->getname();
-}
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
 	if(p->feats.is(Natural)) {
@@ -348,7 +345,8 @@ static bool choose_conditions(const void* object, array& source, void* pointer) 
 	auto v = (conditiona*)pointer;
 	return true;
 }
-DGINF(point) = {{0, DGREQ(x), {getnm<point>, 0, choose_wordmap_point}},
+DGINF(point) = {{"x", DGREQ(x)},
+{"y", DGREQ(y)},
 {}};
 DGINF(textable) = {{0, DGREQ(name), {getnm<textable>, 0, textable::edit}},
 {}};
@@ -500,7 +498,7 @@ DGINF(adventurei) = {{"Name", DGINH(textable, name)},
 {"Before", DGREQ(message_before)},
 {"Accept", DGREQ(message_agree)},
 {"Right here", DGREQ(message_righthere)},
-{"Position", DGREQ(position)},
+{"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
 {"History", DGINH(historyi, history), {getnm<historyi>, 0, choose_history}},
 {"#tab Part 1", DGREQ(levels[0])},
 {"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, visible_level}},
@@ -518,24 +516,21 @@ DGINF(abilitya) = {{"Strenght", DGREQ(data[0])},
 {"Wisdow", DGREQ(data[4])},
 {"Charisma", DGREQ(data[5])},
 {}};
-DGINF(fractioni) = {{"Name", DGINH(textable, name)},
-{}};
 DGINF(companyi) = {{"Name", DGINH(textable, name)},
 {"Start", DGENM(start, settlementi), {getnm<settlementi>}},
 {"Pixels/day", DGREQ(pixels_per_day)},
 {"#div Modules"},
 {"Adventures", DGLST(adventurei), {getnm<adventurei>}},
 {"Characters", DGLST(creature), {getnm<creature>}},
-{"Fractions", DGLST(fractioni), {getnm<fractioni>}},
 {"Events", DGLST(eventi), {getnm<eventi>}},
 {"Settlements", DGLST(settlementi), {getnm<settlementi>}},
 {}};
 DGINF(imagei) = {{0, DGREQ(res), {getnm<resourcei>, 0, 0, resourcei::preview, 130}},
 {}};
-DGINF(settlementi) = {{"Name", DGINH(textable, name)},
+DGINF(settlementi) = {{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
 {"Image", DGREQ(image), {getnm<imagei>, scene_resources, imagei::choose}},
-{"Position", DGREQ(position)},
-{"Description", DGREQ(description)},
+{"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
+{"Description", DGREQ(description), {getnm<textable>, 0, textable::edit}},
 {"Prosperty", DGREQ(prosperty)},
 {"#chk Buildings", DGREQ(buildings), {getnm<buildingi>}},
 {}};
