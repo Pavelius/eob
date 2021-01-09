@@ -205,7 +205,9 @@ bool gamei::readtext(const char* url) {
 				if(!meta)
 					return;
 				auto index = -1;
-				auto pk = type->find("Name");
+				auto pk = type->find("ID");
+				if(!pk)
+					pk = type->find("Name");
 				if(!pk)
 					pk = type->find("Text");
 				if(pk)

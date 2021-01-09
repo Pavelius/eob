@@ -699,22 +699,6 @@ bool gamei::roll(int value) {
 	return value < dice;
 }
 
-void gamei::additem(item i, bool interactive) {
-	for(auto p : party) {
-		if(!p)
-			continue;
-		if(p->add(i)) {
-			if(interactive) {
-				char t1[260]; stringbuilder s1(t1); i.getname(s1);
-				mslog("%1 gain %2", p->getname(), t1);
-			}
-			return;
-		}
-	}
-	if(location)
-		location.dropitem(game.getcamera(), i, game.getside(0, game.getdirection()));
-}
-
 void gamei::clear() {
 	memset(this, 0, sizeof(*this));
 	camera_index = Blocked;
@@ -858,32 +842,6 @@ void gamei::play() {
 		game.getsettlement()->play();
 	else // Error
 		draw::setnext(draw::mainmenu);
-}
-
-void gamei::apply(variant v) {
-	int i;
-	if(v.type == ActionSet) {
-		auto& ei = bsdata<actionseti>::elements[v.value];
-		switch(ei.action) {
-		case Gold:
-			i = ei.roll();
-			if(v.value == Lose20GPorReputation && getgold() < i) {
-				reputation--;
-				break;
-			}
-			game.addgold(ei.roll());
-			break;
-		case Reputation: reputation += ei.roll(); break;
-		case Prosperty:
-			if(getsettlement())
-				getsettlement()->addprosperty(ei.roll());
-			break;
-		case Attack:
-			for(auto p : party)
-				p->damage(Bludgeon, ei.roll(), 5);
-			break;
-		}
-	}
 }
 
 int	gamei::get(action_s id) const {

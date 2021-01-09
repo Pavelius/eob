@@ -151,3 +151,20 @@ void creaturea::apply(creaturea::fnapply proc) {
 		(p->*proc)();
 	}
 }
+
+bool creaturea::additem(item v, bool interactive) {
+	for(auto p : *this) {
+		if(p->add(v)) {
+			if(interactive) {
+				char t1[260]; stringbuilder s1(t1); v.getname(s1);
+				mslog("%1 gain %2", p->getname(), t1);
+			}
+			return true;
+		}
+	}
+	if(location) {
+		location.dropitem(game.getcamera(), v, game.getside(0, game.getdirection()));
+		return true;
+	}
+	return false;
+}

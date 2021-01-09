@@ -8,6 +8,11 @@ void itema::select() {
 	}
 }
 
+void itema::select(adat<item>& source) {
+	for(auto& e : source)
+		add(&e);
+}
+
 void itema::is(good_s v, bool keep) {
 	auto ps = data;
 	for(auto p : *this) {

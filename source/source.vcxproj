@@ -215,6 +215,9 @@
     <ClCompile Include="win_io_file.cpp" />
     <ClCompile Include="win_time.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\import\western_heartlands.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

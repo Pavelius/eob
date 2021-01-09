@@ -241,20 +241,12 @@ enum intellegence_s : unsigned char {
 enum action_s : unsigned char {
 	Greeting,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
-	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell, Talk, Trade, Travel, Pet,
+	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell,
+	Talk, Take, Trade, Travel, Pet, Work,
 	Experience, Gold, Prosperty, Reputation,
 	Reshufle,
 	FailLie,
 	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
-};
-enum actionset_s : unsigned char {
-	Attack1d3, Attack1d6, Attack2d4, Attack2d6, Attack3d6,
-	Gain5GP, Gain10GP, Gain20GP,
-	Gain50Exp, Gain100Exp,
-	GainProsperty, GainReputation,
-	Lose5GP, Lose10GP, Lose20GP, Lose20GPorReputation,
-	LoseProsperty, LoseReputation,
-	Pay1, Pay2, Pay4, Pay10,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -285,6 +277,9 @@ enum good_s : unsigned char {
 enum condition_s : unsigned char {
 	Healed, BadlyWounded, Wounded,
 };
+enum actionf_s : unsigned char {
+	CheckCondition, MayLoseReputation, DependOnReputation,
+};
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
@@ -306,7 +301,6 @@ struct variant {
 	constexpr variant(const variant_s t, unsigned char v) : type(t), value(v) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
-	constexpr variant(const actionset_s v) : type(ActionSet), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
@@ -368,10 +362,11 @@ struct actioni {
 struct actionseti {
 	const char*			name;
 	action_s			action;
-	int					count;
-	int					max;
-	bool				check;
+	int					count1, count2;
+	cflags<actionf_s>	flags;
+	int					count3;
 	int					roll() const;
+	bool				is(actionf_s v) const { return flags.is(v); }
 };
 struct abilityi {
 	const char*			name;
@@ -602,6 +597,7 @@ struct eventi : textable {
 	enum flag_s : unsigned char {
 		Start, Wilderness,
 	};
+	textable			id;
 	textable			ask[2];
 	resultable			results[4];
 	unsigned char		flags;
@@ -716,6 +712,7 @@ public:
 	bool				issmall() const;
 	bool				istwohanded() const { return is(TwoHanded); }
 	bool				match(const typea& v) const { for(auto e : v) if(e == type) return true; return false; }
+	static void			select(adat<item>& result, good_s good, rarity_s rarity);
 	void				setbroken(int value) { broken = value; }
 	void				setcharges(int v);
 	void				setcount(int v);
@@ -766,6 +763,7 @@ public:
 	void				forsale(bool keep);
 	item*				random();
 	void				select();
+	void				select(adat<item>& source);
 	void				sort();
 };
 class creature {
@@ -831,6 +829,7 @@ public:
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
 	void				enchant(spell_s id, int level);
 	void				equip(item it);
+	void				exhause();
 	item*				find(item_s v) const;
 	void				finish();
 	void				flee(bool interactive);
@@ -979,7 +978,9 @@ class creaturea : public adat<creature*, 12> {
 	typedef void (creature::*fnapply)();
 	void				apply(fnapply p);
 public:
+	bool				additem(item it, bool intractive = false);
 	creature*			choose() const;
+	void				exhause() { apply(&creature::exhause); }
 	int					getaverage(ability_s v) const;
 	creature*			getbest(ability_s v) const;
 	creature*			getmostdamaged() const;
@@ -1232,7 +1233,6 @@ public:
 	void				adddonation(unsigned v) { gold_donated += v; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
-	void				additem(item i, bool interactive);
 	void				addluck() { luck++; }
 	void				addsacrifice(int v) { sacrifice += v; }
 	void				apply(variant v);
@@ -1438,7 +1438,6 @@ MNLNK(attack_s, attacki)
 MNLNK(building_s, buildingi)
 MNLNK(class_s, classi)
 MNLNK(action_s, actioni)
-MNLNK(actionset_s, actionseti)
 MNLNK(damage_s, damagei)
 MNLNK(enchant_s, enchanti)
 MNLNK(feat_s, feati)

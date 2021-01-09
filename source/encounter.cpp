@@ -123,7 +123,7 @@ static void trade_items(int cost, item_s goods[3], rarity_s rarity = Uncommon) {
 			continue;
 		item it(goods[i - 1]);
 		it.setpower(rarity);
-		game.additem(it, true);
+		party.additem(it, true);
 		cost -= i;
 	}
 }

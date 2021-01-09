@@ -645,3 +645,22 @@ wear_s item::getequiped() const {
 		return p->getslot(this);
 	return Backpack;
 }
+
+void item::select(adat<item>& result, good_s good, rarity_s rarity) {
+	for(auto& ei : bsdata<itemi>()) {
+		if(!ei.enchantments)
+			continue;
+		if(ei.goods != good)
+			continue;
+		auto type = (item_s)(&ei - bsdata<itemi>::elements);
+		for(auto& ep : ei.enchantments) {
+			if(ep.rarity != rarity)
+				continue;
+			auto pi = result.add();
+			pi->clear();
+			pi->type = type;
+			pi->subtype = &ep - ei.enchantments.data;
+			pi->finish();
+		}
+	}
+}

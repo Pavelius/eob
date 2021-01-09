@@ -264,7 +264,7 @@ void random_heroes() {
 	p->add({GreenPotion, OfAdvise});
 }
 
-static void random_events() {
+/*static void random_events() {
 	auto e1 = (eventi*)bsdata<eventi>::source.add();
 	e1->clear();
 	e1->setname("#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.");
@@ -312,7 +312,7 @@ static void random_events() {
 	e1->results[1].actions[1] = Reshufle;
 	e1->results[2].setname("You laugh and gesture the halfling away. You can recognize a low - life swindler when you see one. And that piece of garbage was just...foul.");
 	e1->results[2].actions[0] = Case2;
-}
+}*/
 
 static void random_settlements() {
 	auto ps = (settlementi*)bsdata<settlementi>::source.add();

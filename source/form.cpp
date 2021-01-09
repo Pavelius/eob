@@ -51,7 +51,7 @@ template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
 template<> const char* getnm<eventi>(const void* object, stringbuilder& sb) {
-	return ((eventi*)object)->getname();
+	return ((eventi*)object)->id.getname();
 }
 template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 	return ((moralei*)object)->name;
@@ -543,7 +543,8 @@ DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imag
 {"", DGREQ(images[5]), {getnm<imagei>, scene_resources, imagei::choose}},
 {"Enter text 6", DGREQ(data[5])},
 {}};
-DGINF(eventi) = {{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
+DGINF(eventi) = {{"ID", DGREQ(id), {getnm<textable>, 0, textable::edit}},
+{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
 {"1)", DGREQ(ask[0]), {getnm<textable>, 0, textable::edit}},
 {"2)", DGREQ(ask[1]), {getnm<textable>, 0, textable::edit}},
 {"Starting", DGCHK(flags, 1 << eventi::Start)},
@@ -562,5 +563,6 @@ DGINF(resultable) = {{"Text", DGREQ(name), {getnm<textable>, 0, textable::editri
 {"Action 6", DGREQ(actions[5]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
 {}};
 DGINF(actionseti) = {{"Action", DGREQ(action), {getnm<actioni>}},
-{"Count", DGREQ(count)},
+{"Count 1", DGREQ(count1)},
+{"Count 2", DGREQ(count2)},
 {}};

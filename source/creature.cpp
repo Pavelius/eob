@@ -391,6 +391,12 @@ void creature::satisfy() {
 	food = getfoodmax();
 }
 
+void creature::exhause() {
+	food = 0;
+	if(!roll(Constitution, 2))
+		damage(Magic, 1, 5);
+}
+
 void creature::subenergy() {
 	if(food > 0)
 		food--;

@@ -59,7 +59,7 @@ action_s settlementi::enter(building_s id) {
 	auto& ei = bsdata<buildingi>::elements[id];
 	answers aw;
 	aw.add(Leave, bsdata<actioni>::elements[Leave].name);
-	for(auto i = action_s(0); i <= Pet; i = (action_s)(i + 1)) {
+	for(auto i = action_s(0); i <= Work; i = (action_s)(i + 1)) {
 		if(!ei.is(i))
 			continue;
 		if(!apply(id, i, false))
@@ -145,13 +145,6 @@ static void create(adat<item>& pi, const goodf& goods, rarity_s rarity) {
 	}
 }
 
-static void create(itema& result, adat<item>& source) {
-	for(auto& e : source) {
-		auto p = result.add();
-		*p = &e;
-	}
-}
-
 static bool confirm(const char* text) {
 	answers aw;
 	aw.add(1, "Yes");
@@ -175,7 +168,7 @@ static bool buy_items(building_s b, rarity_s rarity, bool run) {
 		create(genitems, ei.goods, rarity);
 	else
 		create(genitems, ei.goods);
-	create(items, genitems);
+	items.select(genitems);
 	items.costgp(true);
 	if(!ismagicitems)
 		items.match(rarity, true);
@@ -195,7 +188,7 @@ static bool buy_items(building_s b, rarity_s rarity, bool run) {
 		if(!confirm(sb))
 			return false;
 		game.addgold(-cost);
-		game.additem(*p, false);
+		party.additem(*p, false);
 	}
 	return true;
 }

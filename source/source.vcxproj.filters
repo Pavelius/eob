@@ -16,6 +16,9 @@
     <Filter Include="Логика">
       <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ресурсы">
+      <UniqueIdentifier>{c435d3ae-b52e-4ec7-9224-3bdb377b9bfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win.h">
@@ -278,5 +281,10 @@
     <ClCompile Include="io_plugin_json.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\import\western_heartlands.json">
+      <Filter>Ресурсы</Filter>
+    </None>
   </ItemGroup>
 </Project>
