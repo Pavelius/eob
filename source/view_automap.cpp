@@ -24,7 +24,7 @@ void draw::redmarker(int x, int y) {
 }
 
 void draw::textbc(int x, int y, const char* header) {
-	draw::textb(x - draw::textw(header)/2, y, header);
+	draw::text(x - draw::textw(header)/2, y, header, -1, TextBold);
 }
 
 static void show_camera_pos() {

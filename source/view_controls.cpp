@@ -291,7 +291,7 @@ rect draw::form(rect rc, int count, bool focused, bool pressed) {
 int draw::header(int x, int y, const char* text) {
 	state push;
 	fore = colors::header;
-	draw::textb(x, y, text);
+	draw::text(x, y, text, -1, TextBold);
 	return draw::texth() + 2;
 }
 
@@ -474,36 +474,6 @@ static int texti(rect rc, const char* string, unsigned state, int i1, point& p1)
 	}
 }
 
-void draw::textb(int x, int y, const char* string, int count) {
-	//if(true) {
-	//	state push;
-	//	fore = colors::black;
-	//	text(x + 1, y + 1, string, count);
-	//}
-	text(x, y, string, -1, TextBold);
-}
-
-static int textbi(rect rc, const char* string, unsigned flags, int i1, point& p1) {
-	if(true) {
-		draw::state push;
-		fore = colors::black;
-		rect rc1 = rc; rc1.move(1, 1);
-		text(rc1, string, flags);
-	}
-	return texti(rc, string, flags, i1, p1);
-}
-
-int draw::textb(rect rc, const char* string, unsigned flags) {
-	if(true) {
-		draw::state push;
-		fore = colors::black;
-		rect rc1 = rc; rc1.move(1, 1);
-		point p1;
-		texti(rc1, string, flags, 0, p1);
-	}
-	return text(rc, string, flags);
-}
-
 static void place_item(item* itm) {
 	if(drag_item) {
 		creature::swap(drag_item, itm);
@@ -597,18 +567,18 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	}
 	y1 = rc.y2 + 3;
 	sb.clear(); sb.add("Path: %1", bsdata<packi>::elements[p->pack].url);
-	textb(x, y1, temp, -1); y1 += texth();
+	text(x, y1, temp, -1, TextBold); y1 += texth();
 	if(sp) {
 		if(ei.choose_frame) {
 			sb.clear(); sb.add("Sprite: %1i of %2i", current_res_frame, sp->count);
-			textb(x, y1, temp, -1); y1 += texth();
+			text(x, y1, temp, -1, TextBold); y1 += texth();
 		}
 	}
 	if(p->ismonster()) {
 		auto overlays = (sp->count / 6) - 1;
 		if(overlays) {
 			sb.clear(); sb.add("Number of overlays: %1i", overlays);
-			textb(x, y1, temp, -1); y1 += texth();
+			text(x, y1, temp, -1, TextBold); y1 += texth();
 		}
 	}
 	return y1 - y;
@@ -949,7 +919,7 @@ static bool labelt(int& x, int& y, int width, const char* title, void* ev, unsig
 	}
 	if(key && hot::key == key)
 		run = true;
-	textb(x, y, title);
+	text(x, y, title, -1, TextBold);
 	if(vertical)
 		y += texth();
 	else
@@ -969,7 +939,7 @@ static bool labelm(int x, int& y, int width, const char* title, void* ev, unsign
 	}
 	if(key && hot::key == key)
 		run = true;
-	textb(aligned(x, width, AlignCenter, textw(title)), y, title);
+	text(aligned(x, width, AlignCenter, textw(title)), y, title, -1, TextBold);
 	y += texth();
 	return run;
 }
@@ -978,7 +948,6 @@ static bool labelxm(const rect& rc, const char* title, unsigned key) {
 	draw::state push;
 	auto run = false;
 	auto ev = (void*)title;
-	//rect r1 = {rc.x1 - 3, rc.y1 - 2, rc.x2 + 3, rc.y2 + 1};
 	focusing(rc, ev);
 	auto isfocused = isfocus(ev);
 	if((isfocused && hot::key == KeyEnter) || (key && hot::key == key))
@@ -987,10 +956,9 @@ static bool labelxm(const rect& rc, const char* title, unsigned key) {
 		focus_pressed = 0;
 		run = true;
 	}
-	//form(r1, 1, false, focus_pressed == ev);
 	draw::setclip(rc);
 	if(isfocused) {
-		fore = colors::focus;
+		fore = colors::focus.mix(fore, 128);
 		text(rc, title, AlignLeft | TextBold);
 	} else {
 		fore = colors::white.mix(colors::main, 64);
@@ -1087,7 +1055,7 @@ bool draw::dlgask(const char* text) {
 		auto wd = rc.width() - dx * 2;
 		auto rct = rc; rct.offset(dx, dx);
 		y1 += draw::text(rct, text) + dx;
-		x1 = (320 - (6*3 + 6*3 + 2 + 6*2)) / 2;
+		x1 = (320 - (6 * 3 + 6 * 3 + 2 + 6 * 2)) / 2;
 		if(buttonx(x1, y1, -1, "Yes", (void*)"Yes", KeyEnter))
 			execute(buttonok);
 		if(buttonx(x1, y1, -1, "No", (void*)"No", KeyEscape))
@@ -1136,7 +1104,7 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 				}
 				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 			} else {
-				if(labelxm(x, y, 320-10, elements.data[i].text, '1' + i))
+				if(labelxm(x, y, 320 - 10, elements.data[i].text, '1' + i))
 					execute(buttonparam, (int)&elements.data[i]);
 			}
 		}
@@ -1231,11 +1199,11 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 		sb.adds(subtitle);
 	auto fore_push = fore;
 	fore = colors::title;
-	textb(6, 6, temp);
+	text(6, 6, temp, -1, TextBold);
 	if(page_maximum > 1) {
 		sb.clear();
 		sb.add("Page %1i of %2i", page + 1, page_maximum);
-		textb(draw::getwidth() - 6 - textw(temp), 6, temp);
+		text(draw::getwidth() - 6 - textw(temp), 6, temp, -1, TextBold);
 	}
 	fore = fore_push;
 	return 11;
@@ -1651,11 +1619,11 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 		}
 	}
 	if(!islist && !isnum && focused) {
-		textbi(rc, title, flags, current_c1, current_p1);
+		texti(rc, title, flags, current_c1, current_p1);
 		if((frametick / 10) % 2)
 			line(current_p1.x, current_p1.y - 1, current_p1.x, current_p1.y + texth());
 	} else
-		textb(rc, title, flags);
+		text(rc, title, flags);
 	draw::fore = push_fore;
 	return rco.height() + 2;
 }
@@ -1665,12 +1633,12 @@ static int field(int x, int y, int width, const char* title, void* object, int t
 	if(e.proc.getheader)
 		title = e.proc.getheader(object, sb);
 	if(title && title[0]) {
-		textb(x + 6, y + 2, title);
+		text(x + 6, y + 2, title, -1, TextBold);
 		x += title_width;
 		width -= title_width;
 	}
 	sb.clear(); e.getname(object, sb);
-	return field({x, y, x + width, y + draw::texth() + 3}, temp, object, e, TextSingleLine);
+	return field({x, y, x + width, y + draw::texth() + 3}, temp, object, e, TextSingleLine | TextBold);
 }
 
 static void checkmark(int x, int y, int state) {
@@ -1712,7 +1680,7 @@ static int checkbox(int x, int y, const char* title, const markup& e, void* obje
 	auto s = ((markup::get(pv, e.value.size) & mask) != 0) ? 1 : 0;
 	checkmark(rc.x1, rc.y1, s);
 	rc.x1 += cw;
-	textb(rc, title, flags | TextSingleLine);
+	text(rc, title, flags | TextSingleLine | TextBold);
 	return draw::texth() + 2;
 }
 
@@ -2144,7 +2112,7 @@ item* itema::choose(const char* format, bool* cancel_button, const creature* cur
 			auto x = 6, y = 6;
 			if(format) {
 				fore = colors::title;
-				textb(6, 6, "Scrolls available:");
+				text(6, 6, "Scrolls available:", -1, TextBold);
 				y += texth() + 3;
 			}
 			fore = colors::white;
@@ -2183,7 +2151,7 @@ int answers::choosemn(const char* title, bool allow_cancel) const {
 		auto x = 6, y = 6;
 		if(title) {
 			fore = colors::title;
-			textb(x + 2, y, title);
+			text(x + 2, y, title, -1, TextBold);
 			y += texth() + 2;
 		}
 		fore = colors::white;
@@ -2235,6 +2203,10 @@ char monsteri::getpallette() const {
 	return xrand(0, 2);
 }
 
+static void texth3(int x, int y, const char* name) {
+	text(x, y, name);
+}
+
 static const char* get_race(creature* p, stringbuilder& sb) {
 	sb.clear();
 	sb.add(getstr(p->getrace()));
@@ -2244,7 +2216,7 @@ static const char* get_race(creature* p, stringbuilder& sb) {
 
 static int number(int x, int y, const char* name, int v1) {
 	char temp[32]; stringbuilder sb(temp);
-	text(x, y, name);
+	texth3(x, y, name);
 	sb.add("%1i", v1);
 	text(x + 6 * 4, y, temp);
 	return 7;
@@ -2252,16 +2224,16 @@ static int number(int x, int y, const char* name, int v1) {
 
 static int number(int x, int y, const char* name, int v1, int v2) {
 	char temp[32]; stringbuilder sb(temp);
-	text(x, y, name);
+	texth3(x, y, name);
 	sb.add("%1i/%2i", v1, v2);
 	text(x + 6 * 4, y, temp);
 	return 7;
 }
 
 static int number(int x, int y, const char* name, const combati& v) {
-	char temp[64];
-	text(x, y, name);
-	v.damage.range(temp, zendof(temp));
+	char temp[64]; stringbuilder sb(temp);
+	texth3(x, y, name);
+	v.damage.range(sb);
 	text(x + 6 * 4, y, temp);
 	return 7;
 }
@@ -2365,9 +2337,9 @@ static void skills(int x, int y, creature* pc) {
 		int value = pc->get(i);
 		if(value <= 0)
 			continue;
-		char temp[16];
-		text(x1, y1, getstr(i));
-		zprint(temp, "%1i%%", value);
+		char temp[16]; stringbuilder sb(temp);
+		texth3(x1, y1, getstr(i));
+		sb.add("%1i%%", value);
 		text(x1 + 6 * 19, y1, temp);
 		y1 += 7;
 	}
@@ -2480,58 +2452,52 @@ static void portraits(int x, int y, int& n, int cur, int count, int max_avatars,
 	}
 }
 
-static int number(int x, int y, int w, const char* title, const char* v, bool use_bold = true) {
-	if(use_bold)
-		draw::textb(x, y, title);
-	else
-		draw::text(x, y, title);
-	if(use_bold)
-		draw::textb(x + w, y, v);
-	else
-		draw::text(x + w, y, v);
+static int number(int x, int y, int w, const char* title, const char* v, unsigned flags) {
+	text(x, y, title, -1, flags);
+	text(x + w, y, v, -1, flags);
 	return draw::texth() + 1;
 }
 
-static int number(int x, int y, int w, const char* title, int v, bool use_bold) {
+static int number(int x, int y, int w, const char* title, int v, unsigned flags) {
 	char temp[32];
 	sznum(temp, v);
-	return number(x, y, w, title, temp, use_bold);
+	return number(x, y, w, title, temp, flags);
 }
 
-static int number(int x, int y, int w, const char* title, const dice& v, bool use_bold) {
-	char temp[32];
-	v.range(temp, zendof(temp));
-	return number(x, y, w, title, temp, use_bold);
+static int number(int x, int y, int w, const char* title, const dice& v, unsigned flags) {
+	char temp[32]; stringbuilder sb(temp);
+	v.range(sb);
+	return number(x, y, w, title, temp, flags);
 }
 
-static int number(int x, int y, int w, const char* title, int v1, int v2, const char* format, bool use_bold) {
-	char temp[32];
-	szprint(temp, zendof(temp), format, v1, v2);
-	return number(x, y, w, title, temp, use_bold);
+static int number(int x, int y, int w, const char* title, int v1, int v2, const char* format, unsigned flags) {
+	char temp[32]; stringbuilder sb(temp);
+	sb.add(format, v1, v2);
+	return number(x, y, w, title, temp, flags);
 }
 
-int creature::render_ability(int x, int y, int width, bool use_bold) const {
+int creature::render_ability(int x, int y, int width, unsigned flags) const {
 	auto y0 = y;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto v = get(i);
 		if(i == Strenght && v == 18 && str_exeptional > 0) {
 			if(str_exeptional == 100)
-				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", use_bold);
+				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", flags);
 			else
-				y += number(x, y, width, getstr(i), 18, str_exeptional, "%1i/%2i", use_bold);
+				y += number(x, y, width, getstr(i), 18, str_exeptional, "%1i/%2.2i", flags);
 		} else
-			y += number(x, y, width, getstr(i), get(i), use_bold);
+			y += number(x, y, width, getstr(i), get(i), flags);
 	}
 	return y - y0;
 }
 
-int creature::render_combat(int x, int y, int width, bool use_bold) const {
+int creature::render_combat(int x, int y, int width, unsigned flags) const {
 	auto y0 = y;
 	combati ai = {}; get(ai);
-	y += number(x, y, width, "AC", 10 - getac(), use_bold);
-	y += number(x, y, width, "ATT", 20 - ai.bonus, use_bold);
-	y += number(x, y, width, "DAM", ai.damage, use_bold);
-	y += number(x, y, width, "HP", gethits(), gethitsmaximum(), "%1i/%2i", use_bold);
+	y += number(x, y, width, "AC", 10 - getac(), flags);
+	y += number(x, y, width, "ATT", 20 - ai.bonus, flags);
+	y += number(x, y, width, "DAM", ai.damage, flags);
+	y += number(x, y, width, "HP", gethits(), gethitsmaximum(), "%1i/%2i", flags);
 	return y - y0;
 }
 
@@ -2562,11 +2528,11 @@ void creature::view_ability() {
 		y += buttonx(x, y, 0, KeyRight, next_portrait, 0);
 		x = 148; y = 104;
 		zprint(temp, "%1 %2", getstr(race), getstr(gender));
-		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
+		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
 		zprint(temp, getstr(type));
-		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 2;
-		render_ability(148, 128, 32, true);
-		render_combat(224, 128, 32, true);
+		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
+		render_ability(148, 128, 32, TextBold);
+		render_combat(224, 128, 32, TextBold);
 		y = 168; x = 223;
 		buttonx(x, y, "Roll", 'R', roll_character, 0);
 		buttonx(x + 39, y, "Keep", 'K', buttonok, 0);
@@ -2638,7 +2604,7 @@ static bool is_party_created() {
 static void apply_change_character() {
 	if(!current_player)
 		return;
-	char temp[260];
+	char temp[260]; stringbuilder sb(temp);
 	draw::state push;
 	setbigfont();
 	fore = colors::white;
@@ -2654,13 +2620,13 @@ static void apply_change_character() {
 		genheader();
 		current_player->view_portrait(205, 66);
 		auto pn = current_player->getname();
-		draw::textb(x + (width - draw::textw(pn)) / 2, y, pn); y += draw::texth() + 1;
-		zprint(temp, "%1 %2", getstr(race), getstr(gender));
-		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
-		zprint(temp, getstr(type));
-		draw::textb(x + (width - draw::textw(temp)) / 2, y, temp); y += draw::texth() + 1;
-		current_player->render_ability(148, 128, 32, true);
-		current_player->render_combat(224, 128, 32, true);
+		text(x + (width - draw::textw(pn)) / 2, y, pn, -1, TextBold); y += draw::texth() + 1;
+		sb.clear(); sb.add("%1 %2", getstr(race), getstr(gender));
+		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 1;
+		sb.clear(); sb.add(getstr(type));
+		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 1;
+		current_player->render_ability(148, 128, 32, TextBold);
+		current_player->render_combat(224, 128, 32, TextBold);
 		y = 168; x = 223;
 		buttonx(x, y, 0, 'D', delete_character, 0);
 		buttonx(x + 39, y, "OK", 'K', buttonok, 0);
@@ -2696,7 +2662,7 @@ int answers::choose(const char* title_string) const {
 		genheader();
 		auto x = 148, y = 68;
 		if(title_string)
-			y += draw::header(148, 68, title_string);
+			y += header(148, 68, title_string);
 		for(auto& e : elements) {
 			if(labelt(x, y, 128, e.text, (void*)&e, 0))
 				execute(buttonparam, e.id);
@@ -2723,7 +2689,7 @@ void creature::view_party() {
 			zprint(temp, "Your party is complete. Select PLAY button or press 'P' to start the game.");
 			buttonx(25, 181, 0, 'P', new_game, 0);
 		}
-		textb(rc, temp);
+		text(rc, temp, TextBold);
 		domodal();
 		navigate();
 	}
@@ -2778,7 +2744,7 @@ void creature::preparespells(class_s type) {
 		form({0, 0, menu_width + 10, 174}, 2);
 		fore = colors::title;
 		auto x = 6, y = 6;
-		textb(x + 2, y, "Spells available:");
+		text(x + 2, y, "Spells available:", -1, TextBold);
 		y += texth() + 2;
 		fore = colors::white;
 		auto x1 = x;
@@ -2788,13 +2754,13 @@ void creature::preparespells(class_s type) {
 		sb.clear();
 		sb.add("%1i of %2i remaining", prepared_spells, maximum_spells);
 		fore = colors::title;
-		textb(x + 2, y, temp);
+		text(x + 2, y, temp, -1, TextBold);
 		y += texth() + 2;
 		fore = colors::white;
 		auto ym = 174 - texth() * 2 - 7 - 6;
 		for(auto& e : result) {
 			sznum(temp, pc->getprepare(e));
-			textb(aligned(x, menu_width, AlignRight, textw(temp)), y, temp);
+			text(aligned(x, menu_width, AlignRight, textw(temp)), y, temp, -1, TextBold);
 			labelt(x, y, menu_width - 8 * 2, getstr(e), &e, 0);
 			if(y >= ym)
 				break;

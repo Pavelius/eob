@@ -22,8 +22,7 @@ void dice::print(stringbuilder& sb) const {
 		sb.add("%+1i", b);
 }
 
-const char* dice::range(char* result, const char* result_maximum) const {
-	stringbuilder sc(result, result_maximum);
-	sc.add("%1i-%2i", c + b, c*d + b);
-	return result;
+const char* dice::range(stringbuilder& sb) const {
+	sb.add("%1i-%2i", c + b, c*d + b);
+	return sb;
 }

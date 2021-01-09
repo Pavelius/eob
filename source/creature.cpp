@@ -1289,6 +1289,12 @@ void creature::random_ability() {
 	auto bst_position = bsdata<classi>::elements[type].ability;
 	if(max_position != -1)
 		iswap(result[max_position], result[bst_position]);
+	// Womans more charismatic, Mans more intellegent
+	if(bst_position != Intellegence && bst_position != Charisma) {
+		if((getgender() == Male && result[Intellegence] < result[Charisma])
+			|| (getgender() == Female && result[Charisma] < result[Intellegence]))
+			iswap(result[Intellegence], result[Charisma]);
+	}
 	// Check maximum by class
 	for(int j = 0; j < 6; j++) {
 		int m = bsdata<classi>::elements[type].minimum.data[j];

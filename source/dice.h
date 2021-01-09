@@ -9,7 +9,7 @@ struct dice {
 	void				clear() { c = d = m = b = 0; }
 	constexpr int		maximal() const { return c * d + b; }
 	void				print(stringbuilder& sb) const;
-	const char*			range(char* result, const char* result_maximum) const;
+	const char*			range(stringbuilder& sb) const;
 	int					roll() const { return roll(c, d) + b; }
 	static int			roll(int c, int d);
 };
