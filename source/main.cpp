@@ -397,9 +397,9 @@ void editor() {
 	//random_events();
 	//game.writetext("western_heartlands.json", {Company, Settlement, Adventure, Event, Creature});
 	//game.readtext("test2.json");
-	game.readtext("import/western_heartlands.json");
+	//game.readtext("import/western_heartlands.json");
 	if(false) {
-		//game.companyi::read("default");
+		game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);
 		bsdata<eventi>::elements[2].play();
@@ -407,9 +407,9 @@ void editor() {
 		game.write();
 		game.play();
 	} else {
-		//game.companyi::read("default");
+		game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);
-		//game.companyi::write("default");
+		game.companyi::write("default");
 	}
 	font = push_font;
 }

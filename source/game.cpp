@@ -430,7 +430,7 @@ void gamei::passround() {
 	}
 	// Every 4 hours update
 	while(rounds_daypart < rounds) {
-		rounds_daypart += 4*60;
+		rounds_daypart += 4 * 60;
 		for(auto& e : bsdata<settlementi>())
 			e.update();
 	}
@@ -454,7 +454,7 @@ void gamei::enter(variant index, char level) {
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	if(location_index.type==Adventure) {
+	if(location_index.type == Adventure) {
 		auto pa = getadventure();
 		if(!location.read(location_index.value, location_level)) {
 			pa->create(visialize_map);
@@ -592,7 +592,7 @@ void gamei::equiping() {
 	for(auto p : party) {
 		if(!p)
 			continue;
-		p->random_equipment();
+		p->random_equipment(1);
 		p->enchant(Identify, 1);
 	}
 }
@@ -854,4 +854,26 @@ int	gamei::get(action_s id) const {
 		return 0;
 	default: return 0;
 	}
+}
+
+void gamei::newgame() {
+	location.clear();
+	location_above.clear();
+	game.clear();
+	game.companyi::read("default");
+	party.clear();
+	for(unsigned i = 0; i < 4; i++)
+		bsdata<creature>::elements[i].clear();
+	creature::view_party();
+	for(unsigned i = 0; i < 4; i++) {
+		auto p = bsdata<creature>::elements + i;
+		p->random_equipment(0);
+		party.add(p);
+	}
+	game.addgold(game.start_gold);
+	game.passtime(12 * 60);
+	if(game.intro)
+		answers::message(game.intro.getname());
+	draw::resetres();
+	game.enter(variant(Settlement, game.start), 1);
 }

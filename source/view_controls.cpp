@@ -2676,8 +2676,6 @@ void creature::view_party() {
 	draw::state push;
 	fore = colors::white;
 	setbigfont();
-	if(bsdata<creature>::source.getcount() < 4)
-		bsdata<creature>::source.setcount(4);
 	openform();
 	while(ismodal()) {
 		genheader(change_character);
@@ -2694,7 +2692,6 @@ void creature::view_party() {
 		navigate();
 	}
 	closeform();
-	party.clear();
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
@@ -2965,23 +2962,14 @@ void adventurei::play() {
 //	}
 //}
 
-static void newgame() {
-	game.clear();
-	game.companyi::read("default");
-	game.setcamera(Blocked);
-	creature::view_party();
-	draw::resetres();
-	game.enter(game.start, 1);
-}
-
 static void main_new_game() {
-	setnext(newgame);
+	setnext(game.newgame);
 }
 
 static void option_new_game() {
 	if(!dlgask("Are you really want to start new game?"))
 		return;
-	setnext(newgame);
+	setnext(game.newgame);
 }
 
 static void memorize_spells() {

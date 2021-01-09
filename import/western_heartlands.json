@@ -3,6 +3,8 @@
     "objectid": "Company",
     "Name": "Western heartlands",
     "Start": "Baldur's gate",
+    "Introducion": "#SCENES 3\nAt least you meet in tavern. All of you leave your settlement about weeks or two ago and mett in this tavern.\nEach of you have all reason to leave settlement.",
+    "Start gold": 100,
     "Pixels/day": 120
   },
   {

@@ -912,7 +912,7 @@ public:
 	void				poison(save_s save, char save_bonus = 0);
 	void				preparespells();
 	static void			preparespells(class_s type);
-	void				random_equipment();
+	void				random_equipment(int level);
 	void				random_name();
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
@@ -1195,7 +1195,9 @@ struct settlementi : textable {
 	void				update();
 };
 struct companyi : textable {
-	short unsigned		start; // starting settlement
+	unsigned char		start; // starting settlement
+	textable			intro; // When start new game
+	int					start_gold;
 	int					pixels_per_day;
 	bool				read(const char* name);
 	void				write(const char* name);
@@ -1271,6 +1273,7 @@ public:
 	bool				isnight() const;
 	void				jumpto(variant v);
 	bool				manipulate(item* itm, direction_s direction);
+	static void			newgame();
 	void				passround();
 	void				passtime(int minutes);
 	void				pay(int coins) { addgold(-coins); }
