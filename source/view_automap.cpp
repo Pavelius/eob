@@ -61,7 +61,7 @@ static void show_camera_pos() {
 	}
 }
 
-cell_s tget(const dungeoni& location, int x, int y) {
+static cell_s tget(const dungeoni& location, int x, int y) {
 	if(!location.is(location.getindex(x, y), CellExplored))
 		return CellWall;
 	auto t = location.get(x, y);

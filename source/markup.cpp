@@ -73,11 +73,27 @@ void markup::getname(const void* object, stringbuilder& sb) const {
 		} else if(value.isnum()) {
 			if(value.size <= sizeof(int)) {
 				auto v = get(pv, value.size);
-				sb.add("%1i", v);
+				if(value.mask) {
+					if((v&value.mask) != 0)
+						sb.add("true");
+					else
+						sb.add("false");
+				} else
+					sb.add("%1i", v);
 			} else
 				sb.add((char*)pv);
 		}
 	}
 	if(!sb || !sb[0])
 		sb.add("None");
+}
+
+const markup* markup::find(const char* name) const {
+	for(auto t = this; *t; t++) {
+		if(!t->title || t->title[0] == 0)
+			continue;
+		if(strcmp(t->title, name) == 0)
+			return t;
+	}
+	return 0;
 }

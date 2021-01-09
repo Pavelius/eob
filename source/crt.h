@@ -295,15 +295,15 @@ struct serializer {
 		type_s					type;
 		const char*				name;
 		node*					parent;
-		int						index;
-		void*					object; // application defined data
+		int						index; // Index of array/structure element
 		bool					skip; // set this if you want skip block
-										  //
-		constexpr node(type_s type = Text) : parent(0), name(""), type(type), index(0), object(0), skip(false) {}
-		constexpr node(node& parent, const char* name = "", type_s type = Text) : parent(&parent), name(name), type(type), index(0), object(0), skip(false) {}
+		void*					object; // application defined data
+		const void*				object_type; // application defined data
+		constexpr node(type_s type = Text) : parent(0), name(""), type(type), index(0), skip(false), object(0), object_type(0) {}
+		constexpr node(node& parent, const char* name = "", type_s type = Text) : parent(&parent), name(name), type(type), index(0), skip(false), object(0), object_type(0) {}
 		bool					operator==(const char* name) const { return name && strcmp(this->name, name) == 0; }
-		//
 		int						getlevel() const;
+		bool					isroot() const { return parent == 0; }
 		bool					isparent(const char* id) const { return parent && *parent == id; }
 	};
 	struct reader {

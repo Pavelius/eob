@@ -4,8 +4,7 @@
     "Text":"#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.",
     "1)":"Talk to dwarven workers and convice them not demand more pay.",
     "2)":"Talk to human boos and convice him to pay more to this poor dwarfs.",
-    "Starting":"1",
-    "Wilderness event":"1",
+    "Starting":true,
     "#tab Result 1":{
       "Text":"Argessive dwarven workers calm down when see, that dwarf from party talk to them. By short conversation you convice them to do work. After all you make agreement for small raising payments and all go to work.",
       "Action 1":"Case1",
@@ -34,8 +33,7 @@
     "Text":"#SCENES 0\nYou decide to unwind at the local tavern, but just as you are starting to relax, a bear of a man crashes into your table, scattering your drinks across the floor.\nTowering over him is a massive dwarf. \"What did you say about my bread?\" the dwarf shouts. The man stands up and brushes shards of glass from his tunic. \"I said the sight of it makes me want to vomit!\"\nThe dwarf roars and charges into the man, crashing through more tables in the process. At this, the entire tavern erupts into violence. After all, when a man is deep into his drink, the last thing you want to do is knock that drink over.",
     "1)":"Join the fray! These insults will not go unanswered!",
     "2)":"Do your best to stop the fighting. This is a respectable establishment.",
-    "Starting":"1",
-    "Wilderness event":"1",
+    "Starting":true,
     "#tab Result 1":{
       "Text":"Nothing like busting some drunken skulls to lift one's spirits. It turns out to be a great way to unwind. Unfortunately, the proprietor of the local tavern doesn't exactly see it that way, and he sullenly asks for compensation for the damage you caused.",
       "Action 1":"Case1",

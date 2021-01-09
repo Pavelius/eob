@@ -329,6 +329,7 @@ struct variant {
 	constexpr explicit operator int() const { return (type << 8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
+	static variant		find(const char* name);
 	auto				getadventure() const { return (adventurei*)getpointer(Adventure); }
 	creature*			getcreature() const;
 	void*				getpointer(variant_s t) const;
@@ -454,7 +455,9 @@ struct varianti {
 	array*				source;
 	fntext				pgetname;
 	const markup*		form;
-	static variant_s	find(const array* source);
+	static variant_s	find(const array* v);
+	static varianti*	find(const markup* v);
+	variant				find(const char* v) const;
 };
 struct combati {
 	attack_s			attack;

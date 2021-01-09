@@ -332,7 +332,7 @@ int array::find(const char* value, unsigned offset) const {
 int array::find(void* value, unsigned offset, unsigned size) const {
 	auto m = getcount();
 	for(unsigned i = 0; i < m; i++) {
-		if(memcmp(data, (char*)ptr(i) + offset, size) == 0)
+		if(memcmp(value, (char*)ptr(i) + offset, size) == 0)
 			return i;
 	}
 	return -1;

@@ -69,6 +69,7 @@ struct markup {
 	fnlist				list;
 	fnelement			proc;
 	//
+	const markup*		find(const char* name) const;
 	static int			get(void* p, unsigned size);
 	void				getname(const void* p, stringbuilder& sb) const;
 	bool				is(const char* id) const;

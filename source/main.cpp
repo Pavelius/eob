@@ -370,7 +370,6 @@ void random_company() {
 	ps->position = {1108, 449};
 	ps->buildings.add(Tavern);
 	ps->prosperty = 3;
-	random_events();
 }
 
 void debug_dungeon2() {
@@ -390,8 +389,10 @@ void editor() {
 	setsmallfont();
 	random_heroes();
 	random_company();
-	game.writetext("test.json", Event);
-	if(true) {
+	//random_events();
+	//game.writetext("test.json", Event);
+	game.readtext("test.json");
+	if(false) {
 		//game.companyi::read("default");
 		game.addgold(200);
 		game.jumpto(bsdata<settlementi>::elements);

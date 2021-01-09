@@ -1,3 +1,4 @@
+
 #include "main.h"
 
 #define FORM(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
@@ -45,10 +46,10 @@ variant::variant(const void* p) {
 	if(!p) {
 		type = NoVariant;
 		value = 0;
-	} else if(bsdata<creature>::source.indexof(p)!=-1) {
+	} else if(bsdata<creature>::source.indexof(p) != -1) {
 		type = Creature;
 		value = creature_players_base + bsdata<creature>::source.indexof(p);
-	} else if(p>=location.monsters && p<=(location.monsters + sizeof(location.monsters)/sizeof(location.monsters[0]))) {
+	} else if(p >= location.monsters && p <= (location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))) {
 		type = Creature;
 		value = (creature*)p - location.monsters;
 	} else {
@@ -101,10 +102,58 @@ point variant::getposition() const {
 	}
 }
 
+varianti* varianti::find(const markup* v) {
+	for(auto& e : bsdata<varianti>()) {
+		if(e.form == v)
+			return &e;
+	}
+	return 0;
+}
+
 variant_s varianti::find(const array* source) {
 	for(auto& e : bsdata<varianti>()) {
 		if(e.source == source)
 			return variant_s(&e - bsdata<varianti>::elements);
 	}
 	return NoVariant;
+}
+
+variant variant::find(const char* name) {
+	if(!name || name[0] == 0)
+		return variant();
+	char temp[260]; stringbuilder sb(temp);
+	for(auto& ei : bsdata<varianti>()) {
+		if(!ei.source || !ei.pgetname)
+			continue;
+		auto m = ei.source->getcount();
+		for(unsigned v = 0; v < m; v++) {
+			sb.clear();
+			auto object = ei.source->ptr(v);
+			auto pn = ei.pgetname(object, sb);
+			if(pn && pn[0] && strcmp(name, pn) == 0) {
+				auto t = (variant_s)(&ei - bsdata<varianti>::elements);
+				return {t, (unsigned char)v};
+			}
+		}
+		sb.clear();
+	}
+	return variant();
+}
+
+variant varianti::find(const char* name) const {
+	if(!name || name[0] == 0 || !source || !pgetname)
+		return variant();
+	char temp[260]; stringbuilder sb(temp);
+	auto m = source->getcount();
+	for(unsigned v = 0; v < m; v++) {
+		sb.clear();
+		auto object = source->ptr(v);
+		auto pn = pgetname(object, sb);
+		if(pn && pn[0] && strcmp(name, pn) == 0) {
+			auto t = (variant_s)(this - bsdata<varianti>::elements);
+			return {t, (unsigned char)v};
+		}
+	}
+	sb.clear();
+	return variant();
 }

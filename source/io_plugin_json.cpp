@@ -207,10 +207,22 @@ struct json_writer : serializer {
 		write_name(name);
 		e << value;
 	}
+	bool write_no_string(const char* value, const char* name) {
+		if(strcmp(value, name) != 0)
+			return false;
+		e.write(value, zlen(value));
+		return true;
+	}
 	void set(const char* name, const char* value, serializer::type_s type) override {
 		if(!value)
 			return;
 		write_name(name);
+		if(write_no_string(value, "true"))
+			return;
+		if(write_no_string(value, "false"))
+			return;
+		if(write_no_string(value, "null"))
+			return;
 		e.write("\"", 1);
 		while(true) {
 			switch(*value) {

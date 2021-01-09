@@ -553,8 +553,8 @@ DGINF(richtexti) = {{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imag
 {"Enter text 6", DGREQ(data[5])},
 {}};
 DGINF(eventi) = {{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
-{"1)", DGREQ(ask[0]), {getnm<textable>}},
-{"2)", DGREQ(ask[1]), {getnm<textable>}},
+{"1)", DGREQ(ask[0]), {getnm<textable>, 0, textable::edit}},
+{"2)", DGREQ(ask[1]), {getnm<textable>, 0, textable::edit}},
 {"Starting", DGCHK(flags, 1 << eventi::Start)},
 {"Wilderness event", DGCHK(flags, 1 << eventi::Wilderness)},
 {"#tab Result 1", DGREQ(results[0])},
