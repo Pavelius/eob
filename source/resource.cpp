@@ -1,4 +1,5 @@
-#include "view.h"
+#include "main.h"
+#include "draw.h"
 
 using namespace draw;
 
@@ -88,7 +89,7 @@ const char* resourcei::geturl() const {
 	return bsdata<packi>::elements[pack].url;
 }
 
-sprite* draw::gres(resource_s id) {
+sprite* gres(resource_s id) {
 	auto& e = bsdata<resourcei>::elements[id];
 	if(!e.data) {
 		if(!id)

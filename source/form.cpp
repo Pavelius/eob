@@ -1,4 +1,5 @@
-#include "view.h"
+#include "main.h"
+#include "draw.h"
 #include "io.h"
 
 #define GENDGINF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};

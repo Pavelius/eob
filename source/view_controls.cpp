@@ -1,4 +1,5 @@
-#include "view.h"
+#include "main.h"
+#include "draw.h"
 
 using namespace draw;
 
@@ -98,6 +99,7 @@ static creature*		current_player;
 const int				dx = 4;
 const int				menu_width = 168;
 static callback			next_proc;
+extern sprite*			gres(resource_s id);
 
 void draw::application() {
 	while(next_proc) {
@@ -551,7 +553,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	auto x0 = x + 86 + 3;
 	auto y0 = y + 128 / 2 - 3;
 	auto y1 = y + 196 / 2 - 3;
-	auto sp = draw::gres(id);
+	auto sp = gres(id);
 	rect rc = {x, y, x + 176 + 1, y + 120 + 1};
 	if(!isfocus(current_res_focus)) {
 		current_res_focus = getfocus();
@@ -570,7 +572,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 	if(true) {
 		draw::state push; draw::setclip({rc.x1 + 1, rc.y1 + 1, rc.x2, rc.y2});
 		if(p->ismonster()) {
-			draw::image(x0, y0, draw::gres(BLUE), 0, 0);
+			draw::image(x0, y0, gres(BLUE), 0, 0);
 			draw::image(x0, y1, sp, 0, 0);
 		} else if(p->isdungeon())
 			dungeon_preview(x0, y0, sp);
@@ -578,7 +580,7 @@ int resourcei::preview(int x, int y, int width, const void* object) {
 			draw::image(x + 1, y + 1, gres(BORDER), 0, 0);
 			draw::image(x + 1 + 8, y + 1 + 8, sp, current_res_frame, 0);
 		} else if(p->pack == PackOuttake) {
-			dungeon_corner(x0, y0, draw::gres(BLUE));
+			dungeon_corner(x0, y0, gres(BLUE));
 			draw::image(x0, y1, sp, current_res_frame, 0);
 		} else if(p->pack == PackCenter)
 			draw::image(x0, y1 - 32, sp, current_res_frame, 0);
@@ -2368,7 +2370,7 @@ static int buttonx(int x, int y, const char* name, int key, callback proc, int p
 		if(key && hot::key == key)
 			draw::execute(proc, param);
 	}
-	auto pi = draw::gres(CHARGENB);
+	auto pi = gres(CHARGENB);
 	auto si = 0;
 	if(proc == next_portrait || proc == prev_portrait)
 		si = 2;
@@ -2392,7 +2394,7 @@ static int buttonx(int x, int y, const char* name, int key, callback proc, int p
 
 static void genavatar(int x, int y, creature* pc, callback proc) {
 	if(current_player == pc)
-		image(x, y, draw::gres(XSPL), (clock() / 150) % 10, 0);
+		image(x, y, gres(XSPL), (clock() / 150) % 10, 0);
 	else if(*pc) {
 		draw::state push;
 		fore = colors::white;
@@ -2424,7 +2426,7 @@ static void genheader(callback proc = 0) {
 }
 
 static void portraits(int x, int y, int& n, int cur, int count, int max_avatars, short unsigned* port) {
-	auto ps = draw::gres(PORTM);
+	auto ps = gres(PORTM);
 	if(cur < n)
 		n = cur;
 	else if(cur >= n + count)

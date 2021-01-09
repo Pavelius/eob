@@ -45,9 +45,6 @@
     <ClInclude Include="rect.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="view.h">
-      <Filter>Логика</Filter>
-    </ClInclude>
     <ClInclude Include="archive.h">
       <Filter>Поддержка</Filter>
     </ClInclude>

@@ -1,7 +1,12 @@
-#include "view.h"
+#include "main.h"
+#include "draw.h"
 
 using namespace draw;
 
+namespace {
+struct palspr : pma {
+	unsigned char		data[18][16];
+};
 struct renderi {
 	short				x, y, z;
 	short				frame[4];
@@ -18,6 +23,8 @@ struct renderi {
 	void				paint() const;
 	void clear() { memset(this, 0, sizeof(renderi)); }
 };
+}
+extern sprite*			gres(resource_s id);
 static cell_s			render_mirror1, render_mirror2;
 static resource_s		render_door_type;
 static int				render_flipped_wall;
@@ -238,9 +245,9 @@ static void compass() {
 	draw::fore = colors::white;
 	auto d = game.getdirection();
 	auto i = get_compass_index(d);
-	draw::image(114, 132, draw::gres(COMPASS), i, 0);
-	draw::image(79, 158, draw::gres(COMPASS), 4 + i, 0);
-	draw::image(150, 158, draw::gres(COMPASS), 8 + i, 0);
+	draw::image(114, 132, gres(COMPASS), i, 0);
+	draw::image(79, 158, gres(COMPASS), 4 + i, 0);
+	draw::image(150, 158, gres(COMPASS), 8 + i, 0);
 	draw::logs();
 }
 
@@ -248,7 +255,7 @@ static void render_player_damage(int x, int y, int hits, unsigned counter) {
 	draw::state push;
 	char temp[32];
 	sznum(temp, hits);
-	draw::image(x, y - 1, draw::gres(THROWN), 0, (counter % 2) ? ImageMirrorH : 0);
+	draw::image(x, y - 1, gres(THROWN), 0, (counter % 2) ? ImageMirrorH : 0);
 	draw::fore = colors::damage;
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);
 }
@@ -261,7 +268,7 @@ static void render_player_attack(int x, int y, int hits) {
 		zprint(temp, "miss");
 	else
 		sznum(temp, hits);
-	draw::image(x, y - 1, draw::gres(THROWN), 1, ((side++) % 2) ? ImageMirrorH : 0);
+	draw::image(x, y - 1, gres(THROWN), 1, ((side++) % 2) ? ImageMirrorH : 0);
 	draw::fore = colors::damage;
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);
 }
@@ -507,9 +514,9 @@ static int get_throw_index(item_s type) {
 
 static void fill_item_sprite(renderi* p, item_s type, int frame = 0) {
 	if(bsdata<itemi>::elements[type].image.size == 1)
-		p->rdata = draw::gres(ITEMGL);
+		p->rdata = gres(ITEMGL);
 	else
-		p->rdata = draw::gres(ITEMGS);
+		p->rdata = gres(ITEMGS);
 	p->frame[frame] = bsdata<itemi>::elements[type].image.ground;
 }
 
@@ -517,11 +524,11 @@ static void fill_sprite(renderi* p, item_s type, direction_s drs) {
 	switch(type) {
 	case FireThrown: case LightingThrown: case IceThrown: case MagicThrown:
 		p->frame[0] = (type - FireThrown) + 2;
-		p->rdata = draw::gres(THROWN);
+		p->rdata = gres(THROWN);
 		break;
 	case Spear:case Dart: case Dagger: case Arrow:
 		p->frame[0] = get_throw_index(type);
-		p->rdata = draw::gres(THROWN);
+		p->rdata = gres(THROWN);
 		if(drs == Right)
 			p->flags[0] |= ImageMirrorH;
 		break;
@@ -914,7 +921,7 @@ static renderi* create_monsters(renderi* p, int i, indext index, direction_s dr,
 		}
 		p->percent = item_distances[d][0];
 		p->alpha = (unsigned char)item_distances[d][1];
-		p->rdata = draw::gres(pc->getres());
+		p->rdata = gres(pc->getres());
 		if(!p->rdata)
 			continue;
 		p->pc = pc;
@@ -1044,7 +1051,7 @@ static int compare_drawable(const void* p1, const void* p2) {
 	return e2 - e1;
 }
 
-void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int percent, unsigned char shadow) {
+static void imagex(int x, int y, const sprite* res, int id, unsigned flags, int percent, unsigned char shadow) {
 	const sprite::frame& f = res->get(id);
 	int sx = f.sx;
 	int sy = f.sy;
@@ -1073,6 +1080,20 @@ void draw::imagex(int x, int y, const sprite* res, int id, unsigned flags, int p
 		blit(*draw::canvas, x - sox, y - soy, ssx, ssy, ImageTransparent, scaler2, 0, 0);
 }
 
+void add_color_data(pma* result, const unsigned char* bitdata) {
+	palspr* epr = static_cast<palspr*>(result);
+	epr->name[0] = 'C';
+	epr->name[1] = 'O';
+	epr->name[2] = 'L';
+	epr->name[3] = 0;
+	epr->size = sizeof(epr);
+	epr->count = 18;
+	for(auto x = 0; x < 18; x++) {
+		for(auto y = 0; y < 16; y++)
+			epr->data[x][y] = bitdata[(200 - 16 + y) * 320 + (320 - 18 + x)];
+	}
+}
+
 void renderi::paint() const {
 	color pal[256];
 	auto push_pal = palt;
@@ -1097,9 +1118,9 @@ void renderi::paint() const {
 		if(i && !frame[i])
 			break;
 		if(!percent && (flags[i] & ImageColor) == 0)
-			draw::image(x, y, rdata, frame[i], flags[i] | flags_addon);
+			image(x, y, rdata, frame[i], flags[i] | flags_addon);
 		else
-			draw::imagex(x, y, rdata, frame[i], flags[i] | flags_addon, percent, alpha);
+			imagex(x, y, rdata, frame[i], flags[i] | flags_addon, percent, alpha);
 	}
 	palt = push_pal;
 }

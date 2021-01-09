@@ -132,7 +132,6 @@
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringbuilder.h" />
-    <ClInclude Include="view.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
   <ItemGroup>

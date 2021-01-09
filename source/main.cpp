@@ -1,4 +1,5 @@
-#include "view.h"
+#include "main.h"
+#include "draw.h"
 
 using namespace draw;
 
@@ -122,85 +123,85 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 
 void util_main();
 
-static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0, int pallette = 0) {
-	color pal[256];
-	auto push_pal = draw::palt;
-	auto sp = draw::gres(rs);
-	if(pallette) {
-		auto s1 = (palspr*)sp->getheader("COL");
-		if(s1) {
-			auto& fr = sp->get(frame);
-			auto pa = (color*)sp->offs(fr.pallette);
-			memcpy(pal, pa, sizeof(pal));
-			draw::palt = pal;
-			for(auto i = 0; i < 16; i++) {
-				auto i1 = s1->data[0][i];
-				if(!i1)
-					break;
-				pal[i1] = pa[s1->data[pallette][i]];
-			}
-			flags |= ImagePallette;
-		}
-	}
-	if(overlay) {
-		auto pb = overlay;
-		auto pe = overlay + 4;
-		while(pb < pe) {
-			if(pb > overlay && *pb == 0)
-				break;
-			if(percent == 1000)
-				draw::image(x, y, sp, (*pb) * 6 + frame, flags);
-			else
-				draw::imagex(x, y, sp, (*pb) * 6 + frame, flags, percent, darkness);
-			pb++;
-		}
-	} else {
-		if(percent == 1000)
-			draw::image(x, y, sp, frame, flags);
-		else
-			draw::imagex(x, y, sp, frame, flags, percent, darkness);
-	}
-	draw::palt = push_pal;
-}
+//static void draw_monster(int x, int y, resource_s rs, int frame, int* overlay, unsigned flags, int percent, unsigned char darkness = 0, int pallette = 0) {
+//	color pal[256];
+//	auto push_pal = draw::palt;
+//	auto sp = draw::gres(rs);
+//	if(pallette) {
+//		auto s1 = (palspr*)sp->getheader("COL");
+//		if(s1) {
+//			auto& fr = sp->get(frame);
+//			auto pa = (color*)sp->offs(fr.pallette);
+//			memcpy(pal, pa, sizeof(pal));
+//			draw::palt = pal;
+//			for(auto i = 0; i < 16; i++) {
+//				auto i1 = s1->data[0][i];
+//				if(!i1)
+//					break;
+//				pal[i1] = pa[s1->data[pallette][i]];
+//			}
+//			flags |= ImagePallette;
+//		}
+//	}
+//	if(overlay) {
+//		auto pb = overlay;
+//		auto pe = overlay + 4;
+//		while(pb < pe) {
+//			if(pb > overlay && *pb == 0)
+//				break;
+//			if(percent == 1000)
+//				draw::image(x, y, sp, (*pb) * 6 + frame, flags);
+//			else
+//				draw::imagex(x, y, sp, (*pb) * 6 + frame, flags, percent, darkness);
+//			pb++;
+//		}
+//	} else {
+//		if(percent == 1000)
+//			draw::image(x, y, sp, frame, flags);
+//		else
+//			draw::imagex(x, y, sp, frame, flags, percent, darkness);
+//	}
+//	draw::palt = push_pal;
+//}
 
-static void test_monster(resource_s rs, int overlay[4]) {
-	int percent = 1000;
-	unsigned char alpha = 0;
-	unsigned flags = 0;
-	int x = 100;
-	int y = 100;
-	int pal = 2;
-	while(ismodal()) {
-		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-		draw_monster(x, y, rs, 0, overlay, flags, percent, 0, pal);
-		domodal();
-		switch(hot::key) {
-		case KeyEscape:
-			return;
-		case 'A':
-			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-			draw_monster(x, y, rs, 4, overlay, flags, percent, 0, pal);
-			draw::redraw(); sleep(500);
-			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
-			draw_monster(x, y, rs, 5, overlay, flags, percent, 0, pal);
-			draw::redraw(); sleep(500);
-			break;
-		case 'M':
-			flags ^= ImageMirrorH;
-			break;
-		case KeyUp:
-			percent -= 100;
-			if(percent < 100)
-				percent = 100;
-			break;
-		case KeyDown:
-			percent += 100;
-			if(percent > 1000)
-				percent = 1000;
-			break;
-		}
-	}
-}
+//static void test_monster(resource_s rs, int overlay[4]) {
+//	int percent = 1000;
+//	unsigned char alpha = 0;
+//	unsigned flags = 0;
+//	int x = 100;
+//	int y = 100;
+//	int pal = 2;
+//	while(ismodal()) {
+//		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
+//		draw_monster(x, y, rs, 0, overlay, flags, percent, 0, pal);
+//		domodal();
+//		switch(hot::key) {
+//		case KeyEscape:
+//			return;
+//		case 'A':
+//			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
+//			draw_monster(x, y, rs, 4, overlay, flags, percent, 0, pal);
+//			draw::redraw(); sleep(500);
+//			draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::blue);
+//			draw_monster(x, y, rs, 5, overlay, flags, percent, 0, pal);
+//			draw::redraw(); sleep(500);
+//			break;
+//		case 'M':
+//			flags ^= ImageMirrorH;
+//			break;
+//		case KeyUp:
+//			percent -= 100;
+//			if(percent < 100)
+//				percent = 100;
+//			break;
+//		case KeyDown:
+//			percent += 100;
+//			if(percent > 1000)
+//				percent = 1000;
+//			break;
+//		}
+//	}
+//}
 
 static void show_monsters() {
 	static int ovr12[4] = {0, 1, 2};
