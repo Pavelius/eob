@@ -3,6 +3,8 @@
 
 #define FORM(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
 
+static array game_source(&game, sizeof(companyi), 1);
+
 BSDATA(varianti) = {{"None"},
 {"Ability", "abilities", FORM(abilityi)},
 {"Action", "actions", FORM(actioni)},
@@ -13,6 +15,7 @@ BSDATA(varianti) = {{"None"},
 {"Case", "cases", FORM(casei)},
 {"Class", "classes", FORM(classi)},
 {"Cleaveress", "cleveress"},
+{"Company", "companies", &game_source, getnm<companyi>, dginf<companyi>::meta},
 {"Condition", "conditions"},
 {"Creature", "creatures", FORM(creature)},
 {"Damage", "damages", FORM(damagei)},

@@ -259,7 +259,7 @@ enum actionset_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Class,
-	Cleveress, Condition, Creature, Damage, Enchant, Event, Feat, Gender,
+	Cleveress, Company, Condition, Creature, Damage, Enchant, Event, Feat, Gender,
 	Item, Morale, Race, Reaction, Settlement, Spell,
 };
 enum case_s : unsigned char {
@@ -637,15 +637,10 @@ struct sitei {
 	struct chancei {
 		char			curse;
 	};
-	struct eventi {
-		imagei			image;
-		textable		text;
-	};
 	headi				head;
 	char				levels;
 	chancei				chance;
 	crypti				crypt;
-	eventi				events[12];
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
 };
@@ -1435,10 +1430,6 @@ NOBSDATA(historyi)
 NOBSDATA(point)
 NOBSDATA(resultable)
 NOBSDATA(sitei)
-NOBSDATA(sitei::chancei)
-NOBSDATA(sitei::crypti)
-NOBSDATA(sitei::eventi)
-NOBSDATA(sitei::headi)
 NOBSDATA(textable)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)

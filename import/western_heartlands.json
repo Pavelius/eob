@@ -1,5 +1,152 @@
 ﻿[
   {
+    "objectid":"Company",
+    "Name":"Western heartlands",
+    "Start":"Baldur's gate",
+    "Pixels/day":120
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Baldur's gate",
+    "Position":{
+      "x":495,
+      "y":404
+    },
+    "Prosperty":50,
+    "#chk Buildings":[
+      "Armory",
+      "Stable",
+      "Tavern",
+      "Temple",
+      "Tower"
+    ]
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Upper Chionthar",
+    "Position":{
+      "x":623,
+      "y":285
+    },
+    "Prosperty":7,
+    "#chk Buildings":[
+      "Tavern"
+    ]
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Ulgoth's Beard",
+    "Position":{
+      "x":185,
+      "y":279
+    },
+    "Prosperty":10,
+    "#chk Buildings":[
+      "Brothel",
+      "Temple"
+    ]
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Lower Chionthar",
+    "Position":{
+      "x":829,
+      "y":386
+    },
+    "Prosperty":3,
+    "#chk Buildings":[
+      "Inn"
+    ]
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Friendly arm",
+    "Position":{
+      "x":1041,
+      "y":740
+    },
+    "Prosperty":5,
+    "#chk Buildings":[
+      "Inn",
+      "Tavern"
+    ]
+  },
+  {
+    "objectid":"Settlement",
+    "Name":"Dwain hunter",
+    "Position":{
+      "x":1108,
+      "y":449
+    },
+    "Prosperty":3,
+    "#chk Buildings":[
+      "Tavern"
+    ]
+  },
+  {
+    "objectid":"Adventure",
+    "Name":"Flooded collectors",
+    "Settlement":"Baldur's gate",
+    "Rumor":"Since last month people of Baldur's gate myserious disapears. Some old beggar tells story about flooded collectors and monsters, who dwelve in it. Ask city guards about flooded collectors and maybe you get a job.",
+    "Position":{
+      "x":614,
+      "y":294
+    },
+    "History":{
+      "Stage 1":"Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.",
+      "Stage 2":"Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!",
+      "Stage 3":"This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here."
+    },
+    "#tab Part 1":{
+      "Resource":"BRICK",
+      "Monster 1":"Kobold",
+      "Monster 2":"Leech",
+      "Key 1":"Silver key",
+      "Key 2":"Cooper key",
+      "Special":"Stone orb",
+      "Language":"Human",
+      "Curse item":5,
+      "Levels":2
+    },
+    "#tab Part 2":{
+      "Resource":"BRICK",
+      "Monster 1":"Skeleton",
+      "Monster 2":"Zombie",
+      "Key 1":"Silver key",
+      "Key 2":"Cooper key",
+      "Special":"Stone dagger",
+      "Language":"Human",
+      "Curse item":10,
+      "Levels":2
+    },
+    "#tab Part 3":{
+      "Resource":"BRICK",
+      "Monster 1":"Zombie",
+      "Monster 2":"Ghoul",
+      "Key 1":"Silver key",
+      "Key 2":"Cooper key",
+      "Language":"Human",
+      "Curse item":10,
+      "Levels":1,
+      "Boss":"Wight"
+    },
+    "#tab Part 4":{
+      "Language":"Dwarf"
+    },
+    "#tab Part 5":{
+      "Language":"Dwarf"
+    },
+    "#tab Part 6":{
+      "Language":"Dwarf"
+    },
+    "#tab Part 7":{
+      "Language":"Dwarf"
+    },
+    "#tab Part 8":{
+      "Language":"Dwarf"
+    }
+  },
+  {
     "objectid":"Event",
     "Text":"#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.",
     "1)":"Talk to dwarven workers and convice them not demand more pay.",

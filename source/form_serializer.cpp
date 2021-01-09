@@ -33,6 +33,17 @@ static bool expand_group(const markup* p) {
 		|| p == dginf<historyi>::meta;
 }
 
+static bool emphty_value(const char* value) {
+	static const char* source[] = {"NONE", "None", "No monster", "No item"};
+	if(!value || value[0] == 0)
+		return true;
+	for(auto v : source) {
+		if(strcmp(v, value) == 0)
+			return true;
+	}
+	return false;
+}
+
 static void write_req(serializer* sz, void* object, const markup* type, int index) {
 	if(type->isdecortext())
 		return;
@@ -54,7 +65,7 @@ static void write_req(serializer* sz, void* object, const markup* type, int inde
 		for(auto p = type->value.type; *p; p++)
 			write_req(sz, type->value.ptr(object), p, p - type->value.type);
 		sz->close(getheader(type->title, index), serializer::Struct);
-	} else {
+	} else if(type->value.size) {
 		char value[1024]; value[0] = 0;
 		stringbuilder sb(value);
 		type->getname(object, sb);
@@ -63,16 +74,14 @@ static void write_req(serializer* sz, void* object, const markup* type, int inde
 				return;
 			if(strcmp(value, "false") == 0)
 				return;
-			if(strcmp(value, "None") == 0)
+			if(emphty_value(value))
 				return;
 			if(strcmp(value, "true")==0)
 				sz->set(type->title, value, serializer::Number);
 			else
 				sz->set(type->title, sz2num(value), serializer::Number);
 		} else {
-			if(strcmp(value, "NONE") == 0)
-				return;
-			if(strcmp(value, "None") == 0)
+			if(emphty_value(value))
 				return;
 			sz->set(type->title, value, serializer::Text);
 		}
@@ -153,9 +162,9 @@ bool gamei::readtext(const char* url) {
 			else if(e.isparent("element") && e == "objectid" && e.parent->parent->isroot()) {
 				auto pv = getmetatype(value);
 				if(pv->source && pv->form) {
-					if(pv->source->getcount() >= pv->source->getmaximum())
-						return;
 					auto object = pv->source->ptr(pv->source->getcount());
+					if(pv->source->getcount() >= pv->source->getmaximum())
+						object = pv->source->ptr(pv->source->getcount()-1);
 					e.parent->object = object;
 					e.parent->object_type = pv->form;
 				}

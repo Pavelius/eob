@@ -392,12 +392,12 @@ void editor() {
 	auto push_font = font;
 	setsmallfont();
 	random_heroes();
-	random_company();
+	//random_company();
 	//random_settlements();
 	//random_events();
-	//game.writetext("test2.json", {Settlement, Event});
-	game.readtext("test2.json");
-	//game.readtext("test.json");
+	//game.writetext("western_heartlands.json", {Company, Settlement, Adventure, Event, Creature});
+	//game.readtext("test2.json");
+	game.readtext("import/western_heartlands.json");
 	if(false) {
 		//game.companyi::read("default");
 		game.addgold(200);
