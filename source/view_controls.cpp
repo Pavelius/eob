@@ -702,10 +702,6 @@ static render_control* getnextfocus(void* ev, int key, unsigned param) {
 	}
 }
 
-static void test_map() {
-	game.scriblescrolls();
-}
-
 static void setfocus(void* v, unsigned param = 0) {
 	current_focus = v;
 	current_focus_param = param;
@@ -2813,6 +2809,10 @@ static void show_abilities(void* current_item) {
 static void show_skills(void* current_item) {
 	skills(178, 0, creature::get(current_item));
 }
+
+#ifdef _DEBUG
+void test_map();
+#endif // _DEBUG
 
 static bool handle_shortcuts(bool allow_move) {
 	auto pc = creature::get(current_focus);

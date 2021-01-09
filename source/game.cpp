@@ -189,19 +189,20 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 					attacker->attack(index_of_monsters, dr, 4, ranged, 1);
 			}
 		}
-	}
-	// Standart attack
-	for(auto attacker : parcipants) {
-		if(!attacker->isready())
-			continue;
-		attacker->attack(index_of_monsters, dr, 0, ranged, 1);
-	}
-	// RULE: Hasted units make second move at end of combat round
-	for(auto attacker : parcipants) {
-		if(!attacker->isready())
-			continue;
-		if(attacker->is(Haste))
+		attack(index_of_monsters, ranged, NoAmbush);
+	} else {
+		for(auto attacker : parcipants) {
+			if(!attacker->isready())
+				continue;
 			attacker->attack(index_of_monsters, dr, 0, ranged, 1);
+		}
+		// RULE: Hasted units make second move at end of combat round
+		for(auto attacker : parcipants) {
+			if(!attacker->isready())
+				continue;
+			if(attacker->is(Haste))
+				attacker->attack(index_of_monsters, dr, 0, ranged, 1);
+		}
 	}
 }
 

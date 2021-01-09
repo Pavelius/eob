@@ -117,7 +117,6 @@ static creature* add_hero(int n, gender_s gender, race_s race, class_s type, ali
 		bsdata<creature>::source.setcount(4);
 	auto p = bsdata<creature>::elements + n;
 	p->create(gender, race, type, alignment);
-	party.add(p);
 	return p;
 }
 
@@ -274,6 +273,10 @@ void debug_dungeon2() {
 	game.setcamera(location.getindex(16, 16), Up);
 }
 
+void test_map() {
+	bsdata<eventi>::elements[6].play();
+}
+
 #endif // DEBUG
 
 void editor() {
@@ -282,10 +285,12 @@ void editor() {
 	game.readtext("import/western_heartlands.json");
 	if(true) {
 		random_heroes();
+		for(auto i = 0; i < 4; i++)
+			party.add(bsdata<creature>::elements + i);
 		game.addgold(100);
 		game.jumpto(bsdata<settlementi>::elements);
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		bsdata<eventi>::elements[xrand(0, 5)].play();
+		bsdata<eventi>::elements[6].play();
 		//game.play();
 	} else {
 		//game.companyi::read("default");

@@ -287,5 +287,22 @@
       "Action 2": "Gain 20 gold coins",
       "Action 3": "Gain 20 gold if Reputation < -4"
     }
+  },
+  {
+    "objectid": "Event",
+    "ID": "Test",
+    "Text": "#BUILDNGS 23\nTest damage.",
+    "1)": "Apply damage.",
+    "2)": "Apply exhause.",
+    "#tab Result 1": {
+      "Text": "You are damaged.",
+      "Action 1": "Case1",
+      "Action 2": "Attack 1-3"
+    },
+    "#tab Result 2": {
+      "Text": "You are exhaused.",
+      "Action 1": "Case2",
+      "Action 2": "Exhause party"
+    }
   }
 ]
