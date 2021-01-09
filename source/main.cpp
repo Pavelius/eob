@@ -264,118 +264,6 @@ void random_heroes() {
 	p->add({GreenPotion, OfAdvise});
 }
 
-/*static void random_events() {
-	auto e1 = (eventi*)bsdata<eventi>::source.add();
-	e1->clear();
-	e1->setname("#NPC 56\nIn middle of day you see a group of dwarven worker, cornered their human boss. They demand more pays for work. Boss don't agreed. You think that the boss will be beaten a for a few moments.");
-	e1->ask[0].setname("Talk to dwarven workers and convice them not demand more pay.");
-	e1->ask[1].setname("Talk to human boos and convice him to pay more to this poor dwarfs.");
-	e1->results[0].setname("Argessive dwarven workers calm down when see, that dwarf from party talk to them. By short conversation you convice them to do work. After all you make agreement for small raising payments and all go to work.");
-	e1->results[0].actions[0] = Case1;
-	e1->results[0].actions[1] = Dwarf;
-	e1->results[0].actions[2] = GainProsperty;
-	e1->results[1].setname("Beside all of you efforts, workers refuse talk with you, calling you \"part of a problem\". After all strike get dowm, but no one is satisfied it result.");
-	e1->results[1].actions[0] = Case1;
-	e1->results[1].actions[1] = Reshufle;
-	e1->results[2].setname("\"I can't pay more\" - sad boss. But after short coversation with your fighter when he \"explain\" to boss that he can pay more, boss agreed. All is satisfied.");
-	e1->results[2].actions[0] = Case2;
-	e1->results[2].actions[1] = Fighter;
-	e1->results[2].actions[2] = GainProsperty;
-	e1->results[3].setname("You can't convice boss - only anger him. After all dwarven agreed back to work, but probles is not be solved.");
-	e1->results[3].actions[0] = Case2;
-	e1->results[3].actions[1] = Reshufle;
-	e1->set(eventi::Start);
-	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
-	e1->clear();
-	e1->setname("#SCENES 0\nYou decide to unwind at the local tavern, but just as you are starting to relax, a bear of a man crashes into your table, scattering your drinks across the floor.\n"
-		"Towering over him is a massive dwarf. \"What did you say about my bread?\" the dwarf shouts. The man stands up and brushes shards of glass from his tunic. \"I said the sight of it makes me want to vomit!\"\nThe dwarf roars and charges into the man, crashing through more tables in the process. At this, the entire tavern erupts into violence. After all, when a man is deep into his drink, the last thing you want to do is knock that drink over.");
-	e1->ask[0].setname("Join the fray! These insults will not go unanswered!");
-	e1->ask[1].setname("Do your best to stop the fighting. This is a respectable establishment.");
-	e1->results[0].setname("Nothing like busting some drunken skulls to lift one's spirits. It turns out to be a great way to unwind. Unfortunately, the proprietor of the local tavern doesn't exactly see it that way, and he sullenly asks for compensation for the damage you caused.");
-	e1->results[0].actions[0] = Case1;
-	e1->results[0].actions[1] = Gain100Exp;
-	e1->results[0].actions[2] = Lose20GPorReputation;
-	e1->results[1].setname("After restraining the enraged dwarf and offering to replace the drinks of a few of the more belligerent patrons, you calm the place down a bit. Some of the non-human patrons are understandably on edge, but the proprietor thanks you for your efforts and reimburses you for the drinks.");
-	e1->results[1].actions[0] = Case2;
-	e1->results[1].actions[1] = GainReputation;
-	e1->set(eventi::Start);
-	e1 = e1 = (eventi*)bsdata<eventi>::source.add();
-	e1->clear();
-	e1->setname("#SCENES 2\nAs the daylight fades, you find yourselves wandering through a half-crowded market street, browsing wares.\n#NPC 71\n\"Hey! Over here!\" You turn in the direction of the voice to see a filthy halfling gesturing from a dark alley.\n\"Yeah, you grim - looking chaps. I have something you might be interested in.\"\nThe halfling holds out a piece of metal covered in sludge. \"Found this in the sewer. Writing on it I don't understand, but I know it's valuable. You can have it for ten gold!\"");
-	e1->ask[0].setname("Pay for the thing. You never know.");
-	e1->ask[1].setname("Refuse to pay. Never trust a rogue halfling.");
-	e1->results[0].setname("You hand over the gold and take hold of the piece of garbage. Amidst troubling brown smears you see a lot of meaningless scratches likely made by rats and bugs. Oh well. Sometimes the long shot doesn\'t pay off.");
-	e1->results[0].actions[0] = Case1;
-	e1->results[0].actions[1] = Pay10;
-	e1->results[1].setname("\"Bah! You don't have enough. Come back when you do!\"");
-	e1->results[1].actions[0] = Case1;
-	e1->results[1].actions[1] = Reshufle;
-	e1->results[2].setname("You laugh and gesture the halfling away. You can recognize a low - life swindler when you see one. And that piece of garbage was just...foul.");
-	e1->results[2].actions[0] = Case2;
-}*/
-
-static void random_settlements() {
-	auto ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Baldur's gate");
-	ps->position = {495, 404};
-	ps->prosperty = 50;
-	ps->buildings.add(WizardTower);
-	ps->buildings.add(Tavern);
-	ps->buildings.add(Temple);
-	ps->buildings.add(Stable);
-	ps->buildings.add(Armory);
-	ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Upper Chionthar");
-	ps->buildings.add(Tavern);
-	ps->position = {623, 285};
-	ps->prosperty = 7;
-	ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Ulgoth's Beard");
-	ps->position = {185, 279};
-	ps->prosperty = 10;
-	ps->buildings.add(Brothel);
-	ps->buildings.add(Temple);
-	ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Lower Chionthar");
-	ps->buildings.add(Inn);
-	ps->position = {829, 386};
-	ps->prosperty = 3;
-	ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Friendly arm");
-	ps->position = {1041, 740};
-	ps->buildings.add(Tavern);
-	ps->buildings.add(Inn);
-	ps->prosperty = 5;
-	ps = (settlementi*)bsdata<settlementi>::source.add();
-	ps->setname("Dwain hunter");
-	ps->position = {1108, 449};
-	ps->buildings.add(Tavern);
-	ps->prosperty = 3;
-}
-
-void random_company() {
-	static sitei collectors[] = {{{BRICK, {Kobold, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 2, {10}},
-	{{BRICK, {Zombie, Ghoul}, {KeySilver, KeyCooper}, {}, Human}, 1, {10}, {Wight}}
-	};
-	static sitei dead_crypt[] = {{{BRICK, {Skeleton, Leech}, {KeySilver, KeyCooper}, StoneOrb, Human}, 2, {5}},
-	{{BRICK, {Skeleton, Zombie}, {KeySilver, KeyCooper}, StoneDagger, Human}, 1, {10}},
-	};
-	game.clear();
-	game.setname("Western heartlands");
-	game.start = 0;
-	game.pixels_per_day = 120;
-	auto pa = (adventurei*)bsdata<adventurei>::source.add();
-	pa->setname("Flooded collectors");
-	pa->position = {614, 294};
-	pa->rumor_activate.setname("Since last month people of Baldur's gate myserious disapears. Some old beggar tells story about flooded collectors and monsters, who dwelve in it. Ask city guards about flooded collectors and maybe you get a job.");
-	pa->history[0].setname("Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.");
-	pa->history[1].setname("Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!");
-	pa->history[2].setname("This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.");
-	pa->activate();
-	memcpy(pa->levels, collectors, sizeof(collectors));
-}
-
 void debug_dungeon2() {
 	location.clear();
 	location_above.clear();
@@ -391,27 +279,45 @@ void debug_dungeon2() {
 void editor() {
 	auto push_font = font;
 	setsmallfont();
-	random_heroes();
-	//random_company();
-	//random_settlements();
-	//random_events();
-	//game.writetext("western_heartlands.json", {Company, Settlement, Adventure, Event, Creature});
-	//game.readtext("test2.json");
-	//game.readtext("import/western_heartlands.json");
-	if(false) {
-		game.companyi::read("default");
-		game.addgold(200);
+	game.readtext("import/western_heartlands.json");
+	if(true) {
+		random_heroes();
+		game.addgold(100);
 		game.jumpto(bsdata<settlementi>::elements);
-		bsdata<eventi>::elements[2].play();
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		game.write();
-		game.play();
+		bsdata<eventi>::elements[xrand(0, 5)].play();
+		//game.play();
 	} else {
-		game.companyi::read("default");
+		//game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);
 		game.companyi::write("default");
 	}
 	font = push_font;
+}
+
+void gamei::newgame() {
+	location.clear();
+	location_above.clear();
+	game.clear();
+	game.companyi::read("default");
+	party.clear();
+	if(true) {
+		for(unsigned i = 0; i < 4; i++)
+			bsdata<creature>::elements[i].clear();
+		creature::view_party();
+	}
+	for(unsigned i = 0; i < 4; i++) {
+		auto p = bsdata<creature>::elements + i;
+		p->random_equipment(0);
+		party.add(p);
+	}
+	game.addgold(game.start_gold);
+	game.passtime(12 * 60);
+	if(game.intro)
+		answers::message(game.intro.getname());
+	draw::resetres();
+	game.enter(variant(Settlement, game.start), 1);
+	game.write();
 }
 
 int main(int argc, char* argv[]) {
@@ -422,6 +328,7 @@ int main(int argc, char* argv[]) {
 	if(!test_richtexti())
 		return -1;
 	util_main();
+	random_heroes();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;

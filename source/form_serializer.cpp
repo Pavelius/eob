@@ -195,6 +195,10 @@ bool gamei::readtext(const char* url) {
 							f->set(pv, f->value.size, f->get(pv, f->value.size) & (~f->value.mask));
 					} else
 						f->set(pv, f->value.size, sz2num(value));
+				} else if(f->value.source && f->list.getname && f->value.size<=sizeof(int)) {
+					auto i = find_array(f->value.source, f->list.getname, value);
+					if(i != -1)
+						type->set(pv, f->value.size, i);
 				}
 			}
 		}

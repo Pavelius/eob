@@ -552,18 +552,8 @@ void companyi::write(const char* name) {
 	serialize(name, *this, true);
 }
 
-#ifdef _DEBUG
-void random_company();
-#endif
-
 bool companyi::read(const char* name) {
 	auto result = serialize(name, *this, false);
-#ifdef _DEBUG
-	if(!result) {
-		random_company();
-		result = true;
-	}
-#endif // _DEBUG
 	return result;
 }
 
@@ -854,26 +844,4 @@ int	gamei::get(action_s id) const {
 		return 0;
 	default: return 0;
 	}
-}
-
-void gamei::newgame() {
-	location.clear();
-	location_above.clear();
-	game.clear();
-	game.companyi::read("default");
-	party.clear();
-	for(unsigned i = 0; i < 4; i++)
-		bsdata<creature>::elements[i].clear();
-	creature::view_party();
-	for(unsigned i = 0; i < 4; i++) {
-		auto p = bsdata<creature>::elements + i;
-		p->random_equipment(0);
-		party.add(p);
-	}
-	game.addgold(game.start_gold);
-	game.passtime(12 * 60);
-	if(game.intro)
-		answers::message(game.intro.getname());
-	draw::resetres();
-	game.enter(variant(Settlement, game.start), 1);
 }

@@ -189,6 +189,12 @@ int draw::textw(int sym) {
 }
 
 void draw::glyph(int x, int y, int sym, unsigned flags) {
+	if(flags&TextBold) {
+		auto push_fore = fore;
+		fore = colors::black;
+		glyph(x + 1, y + 1, sym, 0);
+		fore = push_fore;
+	}
 	auto f = (fxt*)font;
 	int height = f->height;
 	int width = f->width;
@@ -469,12 +475,12 @@ static int texti(rect rc, const char* string, unsigned state, int i1, point& p1)
 }
 
 void draw::textb(int x, int y, const char* string, int count) {
-	if(true) {
-		state push;
-		fore = colors::black;
-		text(x + 1, y + 1, string, count);
-	}
-	text(x, y, string);
+	//if(true) {
+	//	state push;
+	//	fore = colors::black;
+	//	text(x + 1, y + 1, string, count);
+	//}
+	text(x, y, string, -1, TextBold);
 }
 
 static int textbi(rect rc, const char* string, unsigned flags, int i1, point& p1) {
@@ -968,6 +974,38 @@ static bool labelm(int x, int& y, int width, const char* title, void* ev, unsign
 	return run;
 }
 
+static bool labelxm(const rect& rc, const char* title, unsigned key) {
+	draw::state push;
+	auto run = false;
+	auto ev = (void*)title;
+	//rect r1 = {rc.x1 - 3, rc.y1 - 2, rc.x2 + 3, rc.y2 + 1};
+	focusing(rc, ev);
+	auto isfocused = isfocus(ev);
+	if((isfocused && hot::key == KeyEnter) || (key && hot::key == key))
+		focus_pressed = ev;
+	else if(hot::key == InputKeyUp && focus_pressed == ev) {
+		focus_pressed = 0;
+		run = true;
+	}
+	//form(r1, 1, false, focus_pressed == ev);
+	draw::setclip(rc);
+	if(isfocused) {
+		fore = colors::focus;
+		text(rc, title, AlignLeft | TextBold);
+	} else {
+		fore = colors::white.mix(colors::main, 64);
+		text(rc, title, AlignLeft);
+	}
+	return run;
+}
+
+static bool labelxm(int x, int& y, int width, const char* title, unsigned key) {
+	rect rc = {x, y, x + width, y};
+	textw(rc, title);
+	y += rc.height() + 1;
+	return labelxm(rc, title, key);
+}
+
 static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key, int height = -1) {
 	draw::state push;
 	auto vertical = true;
@@ -993,7 +1031,7 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 	if(isfocused)
 		fore = colors::focus;
 	draw::setclip(rc);
-	textb(rc.x1 + 4, rc.y1 + 2, title);
+	text(rc.x1 + 4, rc.y1 + 2, title, -1, TextBold);
 	if(vertical)
 		y += height + 3;
 	else
@@ -1049,10 +1087,10 @@ bool draw::dlgask(const char* text) {
 		auto wd = rc.width() - dx * 2;
 		auto rct = rc; rct.offset(dx, dx);
 		y1 += draw::text(rct, text) + dx;
-		x1 = (320 - (36 + 36)) / 2;
-		if(buttonx(x1, y1, 32, "Yes", (void*)"Yes", KeyEnter))
+		x1 = (320 - (6*3 + 6*3 + 2 + 6*2)) / 2;
+		if(buttonx(x1, y1, -1, "Yes", (void*)"Yes", KeyEnter))
 			execute(buttonok);
-		if(buttonx(x1, y1, 32, "No", (void*)"No", KeyEscape))
+		if(buttonx(x1, y1, -1, "No", (void*)"No", KeyEscape))
 			execute(buttoncancel);
 		domodal();
 		navigate();
@@ -1086,6 +1124,8 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		auto x = rc.x1, y = rc.y1;
 		if(horizontal_buttons)
 			y = getheight() - texth() - 6;
+		else
+			y += 2;
 		for(unsigned i = 0; i < elements.count; i++) {
 			if(horizontal_buttons) {
 				auto pn = elements.data[i].text;
@@ -1096,12 +1136,8 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 				}
 				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 			} else {
-				auto t = elements.data[i].text;
-				auto w = 320 - x - 7;
-				auto h = texth(t, w);
-				if(buttonx(x, y, w, t, (void*)t, '1' + i, h))
+				if(labelxm(x, y, 320-10, elements.data[i].text, '1' + i))
 					execute(buttonparam, (int)&elements.data[i]);
-				y += 2;
 			}
 		}
 		domodal();
