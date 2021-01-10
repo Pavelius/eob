@@ -34,7 +34,7 @@ private:
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
 #define BSDATA(e) template<> e bsdata<e>::elements[]
-#define BSDATAC(e, c) template<> e bsdata<e>::elements[c]; template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
+#define BSDATAC(e, c) e bsdata<e>::elements[c]; array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define BSLNK(R, S) template<> struct bsdata<R> : bsdata<S> {};
 #define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
 #define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
@@ -190,7 +190,7 @@ class cflags {
 	DT						data;
 public:
 	constexpr cflags() : data(0) {}
-	constexpr cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
+	cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
 	constexpr explicit operator bool() const { return data != 0; }
 	constexpr void			add(const T id) { data |= 1 << id; }
 	constexpr void			add(const cflags& e) { data |= e.data; }

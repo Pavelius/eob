@@ -1315,7 +1315,7 @@ static void* choose_element(const char* title, const void* current_value, int wi
 		if(params.origin > 0)
 			x += buttonw(x, y, "Prev", prevpage, KeyPageUp, prevpage, (int)&params);
 		if(source)
-			x += buttonw(x, y, "Add", "Add", F3, setparam, F3);
+			x += buttonw(x, y, "Add", (void*)"Add", F3, setparam, F3);
 		domodal();
 		if(current_param == F3) {
 			params.origin = source->getcount();
