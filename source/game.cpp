@@ -628,6 +628,9 @@ void gamei::rideto(variant v) {
 	draw::fullimage(location_index.getposition(), v.getposition(), 0);
 	location_index = v;
 	draw::appear(render_worldmap, this, 1000);
+	auto pa = location_index.getadventure();
+	if(pa && pa->message_entering)
+		answers::message(pa->message_entering);
 	enter(location_index, 1);
 }
 

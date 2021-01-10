@@ -120,10 +120,3 @@ void variantc::select(variant_s type) {
 		add(v);
 	}
 }
-
-bool adventurei::match(variant v) const {
-	switch(v.type) {
-	case Settlement: return settlement == v.value;
-	default: return false;
-	}
-}

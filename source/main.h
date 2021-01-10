@@ -1161,8 +1161,10 @@ struct adventurei : textable, historyi {
 	unsigned char		stage; // 0 - non active
 	textable			message_before;
 	textable			message_agree;
-	textable			message_righthere;
+	textable			message_entering;
 	textable			rumor_activate;
+	textable			message_done;
+	textable			message_fail;
 	point				position;
 	sitei				levels[8];
 	void				activate() { if(!stage) stage++; }

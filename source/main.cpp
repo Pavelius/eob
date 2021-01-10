@@ -283,7 +283,7 @@ void editor() {
 	auto push_font = font;
 	setsmallfont();
 	game.readtext("import/western_heartlands.json");
-	if(true) {
+	if(false) {
 		random_heroes();
 		for(auto i = 0; i < 4; i++)
 			party.add(bsdata<creature>::elements + i);
@@ -306,11 +306,13 @@ void gamei::newgame() {
 	game.clear();
 	game.companyi::read("default");
 	party.clear();
-	if(true) {
-		for(unsigned i = 0; i < 4; i++)
-			bsdata<creature>::elements[i].clear();
-		creature::view_party();
-	}
+	for(unsigned i = 0; i < 4; i++)
+		bsdata<creature>::elements[i].clear();
+#ifdef _DEBUG
+	random_heroes();
+#else
+	creature::view_party();
+#endif // _DEBUG
 	for(unsigned i = 0; i < 4; i++) {
 		auto p = bsdata<creature>::elements + i;
 		p->random_equipment(0);

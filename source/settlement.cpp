@@ -347,6 +347,14 @@ static bool explore(settlementi& e, bool run) {
 		auto pa = r.getadventure();
 		if(!pa)
 			return false;
+		if(pa->message_before) {
+			answers aw;
+			aw.add(1, "Accept");
+			aw.add(0, "Decline");
+			auto i = aw.choosebg(pa->message_before);
+			if(!i)
+				return false;
+		}
 		auto cost = e.getequipmentcost(*pa);
 		sb.clear();
 		im.add(sb);
@@ -355,6 +363,8 @@ static bool explore(settlementi& e, bool run) {
 			return false;
 		game.pay(cost);
 		game.equiping();
+		if(pa->message_agree)
+			answers::message(pa->message_agree);
 		game.rideto(r);
 	}
 	return true;
