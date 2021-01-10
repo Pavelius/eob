@@ -5,6 +5,10 @@ void deck::create(variant_s v) {
 	clear();
 }
 
+void deck::shuffle() {
+	zshuffle(data, count);
+}
+
 void deck::addbottom(variant v) {
 	if(v.type != type)
 		return;

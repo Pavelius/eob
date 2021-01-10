@@ -319,6 +319,7 @@ void gamei::newgame() {
 		party.add(p);
 	}
 	game.addgold(game.start_gold);
+	game.createdecks();
 	game.passtime(12 * 60);
 	if(game.intro)
 		answers::message(game.intro.getname());

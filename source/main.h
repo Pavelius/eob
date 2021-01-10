@@ -615,6 +615,7 @@ public:
 	void				addbottom(variant v);
 	void				create(variant_s v);
 	void				discard(variant v);
+	void				shuffle();
 	variant				getbottom();
 	variant				gettop();
 };
@@ -1243,6 +1244,7 @@ public:
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
 	void				clear();
+	void				createdecks();
 	void				endround();
 	void				enter(variant index, char level);
 	void				equiping();

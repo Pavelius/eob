@@ -849,3 +849,12 @@ int	gamei::get(action_s id) const {
 	default: return 0;
 	}
 }
+
+void gamei::createdecks() {
+	events_deck.create(Event);
+	for(auto& e : bsdata<eventi>()) {
+		if(e.is(eventi::Start))
+			events_deck.addbottom(&e);
+	}
+	events_deck.shuffle();
+}
