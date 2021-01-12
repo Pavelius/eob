@@ -239,14 +239,15 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum action_s : unsigned char {
-	Greeting,
+	Reshufle,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
 	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell,
 	Talk, Take, Trade, Travel, Pet, Work,
 	Experience, Gold, Prosperty, Reputation,
-	Reshufle,
-	FailLie,
-	TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
+};
+enum talk_s : unsigned char {
+	Greeting,
+	FailLie, TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -358,6 +359,9 @@ struct spellprogi {
 struct actioni {
 	const char*			name;
 	bool				talk;
+};
+struct talki {
+	const char*			name;
 };
 struct actionseti {
 	const char*			name;
@@ -1207,7 +1211,7 @@ struct companyi : textable {
 };
 struct encounteri : public creaturea {
 	reaction_s			reaction;
-	action_s			next;
+	talk_s				next;
 	constexpr encounteri() : creaturea(), reaction(Indifferent), next(Greeting) {}
 	bool				apply(action_s id, bool run);
 	creature*			getleader() const;

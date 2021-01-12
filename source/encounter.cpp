@@ -2,7 +2,7 @@
 
 namespace {
 struct chati {
-	action_s	action;
+	talk_s		action;
 	conditiona	conditions;
 	const char*	text;
 };
@@ -30,7 +30,7 @@ static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack};
 static cflags<action_s> friendly_actions = {Trade, Talk, Repair, Pet};
 static item_s common_trade[] = {Ration, KeySilver, BluePotion};
 
-static const chati* find(action_s id, encounteri& scene, const aref<chati>& source) {
+static const chati* find(talk_s id, encounteri& scene, const aref<chati>& source) {
 	adat<const chati*> result;
 	for(auto& e : source) {
 		if(e.action != id)
@@ -52,7 +52,7 @@ static void prompt(const char* title) {
 
 static void prompt(encounteri& scene, const char* title, const cflags<action_s>& actions) {
 	answers aw;
-	for(auto i = Greeting; i <= FailLie; i = (action_s)(i + 1)) {
+	for(auto i = (action_s)0; i < Experience; i = (action_s)(i + 1)) {
 		if(!actions.is(i))
 			continue;
 		if(!scene.apply(i, false))
@@ -63,7 +63,7 @@ static void prompt(encounteri& scene, const char* title, const cflags<action_s>&
 	scene.apply(i, true);
 }
 
-static void prompt(encounteri& scene, action_s id, const aref<chati>& dialogs, const cflags<action_s>& actions) {
+static void prompt(encounteri& scene, talk_s id, const aref<chati>& dialogs, const cflags<action_s>& actions) {
 	auto leader = scene.getleader();
 	if(!leader)
 		return;
@@ -128,7 +128,7 @@ static void trade_items(int cost, item_s goods[3], rarity_s rarity = Uncommon) {
 	}
 }
 
-static bool talk_subject(action_s id, encounteri& scene, bool run) {
+static bool talk_subject(talk_s id, encounteri& scene, bool run) {
 	adventurei* pa;
 	itema items;
 	char subject_temp[260];
@@ -203,11 +203,9 @@ static bool talk_subject(action_s id, encounteri& scene, bool run) {
 }
 
 static bool talk_subject(encounteri& scene, bool run) {
-	adat<action_s> subjects;
-	for(auto& e : bsdata<actioni>()) {
-		if(!e.talk)
-			continue;
-		auto id = (action_s)(&e - bsdata<actioni>::elements);
+	adat<talk_s> subjects;
+	for(auto& e : bsdata<talki>()) {
+		auto id = (talk_s)(&e - bsdata<talki>::elements);
 		if(!talk_subject(id, scene, false))
 			continue;
 		subjects.add(id);

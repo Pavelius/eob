@@ -286,5 +286,8 @@
     <None Include="..\import\western_heartlands.json">
       <Filter>Ресурсы</Filter>
     </None>
+    <None Include="cpp.hint">
+      <Filter>Ресурсы</Filter>
+    </None>
   </ItemGroup>
 </Project>
