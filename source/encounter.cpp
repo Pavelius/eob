@@ -202,9 +202,11 @@ static bool talk_subject(talk_s id, encounteri& scene, bool run) {
 	return true;
 }
 
-static bool talk_subject(encounteri& scene, bool run) {
+static bool talk_subject(encounteri& scene, reaction_s r, bool run) {
 	adat<talk_s> subjects;
 	for(auto& e : bsdata<talki>()) {
+		if(!e.flags.is(r))
+			continue;
 		auto id = (talk_s)(&e - bsdata<talki>::elements);
 		if(!talk_subject(id, scene, false))
 			continue;
@@ -276,7 +278,7 @@ bool encounteri::apply(action_s id, bool run) {
 	case Talk:
 		if(leader->ismindless())
 			return false;
-		return talk_subject(*this, run);
+		return talk_subject(*this, Friendly, run);
 	case Attack:
 		if(run) {
 			set(Hostile);

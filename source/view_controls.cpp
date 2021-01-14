@@ -1527,7 +1527,9 @@ static int field(const rect& rco, const char* title, void* object, const markup&
 	else
 		form(rco);
 	focusing(rco, pf);
-	auto rc = rco; rc.offset(4, 2);
+	auto rc = rco;
+	rc.x1 += 4; rc.x2 -= 4;
+	rc.y1 += 2; rc.y2 -= 1;
 	auto focused = isfocus(pf);
 	auto islist = e.list.choose || !e.value.isnum();
 	if(focused) {

@@ -35,13 +35,13 @@ INSTELEM(actioni)
 BSDATA(talki) = {
 	{"Greeting"},
 	{"Fail lie roll"},
-	{"Talk about artifact"},
-	{"Talk about cursed item"},
-	{"Talk about magic item"},
-	{"Talk about magic loot on the ground"},
-	{"Talk about magic loot in cellar"},
-	{"Talk about history this place"},
-	{"Rumor"},
+	{"Talk about artifact", {Friendly}},
+	{"Talk about cursed item", {Friendly}},
+	{"Talk about magic item", {Friendly}},
+	{"Talk about magic loot on the ground", {Friendly}},
+	{"Talk about magic loot in cellar", {Friendly}},
+	{"Talk about history this place", {Friendly}},
+	{"Rumor", {Friendly}},
 };
 INSTELEM(talki)
 

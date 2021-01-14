@@ -370,6 +370,10 @@ static bool explore(settlementi& e, bool run) {
 	return true;
 }
 
+static const char* talk_settlement() {
+	return 0;
+}
+
 static const char* talk_boring() {
 	return maprnd(answer_boring);
 }
@@ -610,9 +614,8 @@ static void correct_talk(char& v, int maximum) {
 }
 
 void settlementi::update() {
-	auto rang = getrarity();
-	auto chat_rang = 1 + rang;
-	correct_talk(mood_tavern, chat_rang + 1);
+	auto chat_rang = 2;
+	correct_talk(mood_tavern, chat_rang);
 	correct_talk(mood_inn, chat_rang);
 	correct_talk(mood_other, chat_rang);
 }

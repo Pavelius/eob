@@ -362,6 +362,7 @@ struct actioni {
 };
 struct talki {
 	const char*			name;
+	cflags<reaction_s>	flags;
 };
 struct actionseti {
 	const char*			name;
