@@ -1,7 +1,7 @@
 #include "markup.h"
 
-DGINF(int) = {{}};
-DGINF(const char*) = {{}};
+DGINF(int) = {{"int"}};
+DGINF(const char*) = {{"text"}};
 
 bool markup::is(const char* id) const {
 	return title

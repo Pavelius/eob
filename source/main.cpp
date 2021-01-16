@@ -320,7 +320,7 @@ void gamei::newgame() {
 	creature::view_party();
 #endif // _DEBUG
 	for(unsigned i = 0; i < 4; i++) {
-		auto p = bsdata<creature>::elements + i;
+		auto p = (creature*)bsdata<creature>::source.add();
 		p->random_equipment(0);
 		party.add(p);
 	}

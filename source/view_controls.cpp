@@ -2673,6 +2673,7 @@ int answers::choose(const char* title_string) const {
 }
 
 void creature::view_party() {
+	char temp[1024];
 	draw::state push;
 	fore = colors::white;
 	setbigfont();
@@ -2680,11 +2681,11 @@ void creature::view_party() {
 	while(ismodal()) {
 		genheader(change_character);
 		rect rc = {150, 74, 296, 184};
-		char temp[1024];
-		zprint(temp, "Select the box of the character you wish to create or view.");
+		stringbuilder sb(temp);
+		sb.add("Select the box of the character you wish to create or view.");
 		if(is_party_created()) {
-			zcat(temp, "\n\n");
-			zprint(temp, "Your party is complete. Select PLAY button or press 'P' to start the game.");
+			sb.add("\n\n");
+			sb.add("Your party is complete. Select PLAY button or press 'P' to start the game.");
 			buttonx(25, 181, 0, 'P', new_game, 0);
 		}
 		text(rc, temp, TextBold);
