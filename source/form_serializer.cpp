@@ -181,7 +181,7 @@ bool gamei::readtext(const char* url) {
 				if(!f)
 					return;
 				auto pv = f->value.ptr(object);
-				if(f->list.getname == getnm<textable>) {
+				if(f->list.getname == getnm<textable> && !f->value.source) {
 					textable v; v.setname(value);
 					f->set(pv, f->value.size, v.name);
 				} else if(f->list.getname == getnm<variant>) {
@@ -224,5 +224,6 @@ bool gamei::readtext(const char* url) {
 		}
 	};
 	reader e;
+	clear();
 	return io::read(url, e);
 }

@@ -66,8 +66,8 @@ static void test_room(int x, int y) {
 	location.set(location.getindex(x + 3, y - 2), CellWebTorned);
 	location.set(location.getindex(x + 5, y - 2), CellEyeColumn);
 	location.set(location.getindex(x, y - 4), CellCocon);
-	location.set(location.getindex(x-1, y - 4), CellGrave);
-	location.set(location.getindex(x-1, y - 5), CellGrave);
+	location.set(location.getindex(x - 1, y - 4), CellGrave);
+	location.set(location.getindex(x - 1, y - 5), CellGrave);
 	location.set(location.getindex(x + 2, y - 3), CellPit);
 	location.set(location.getindex(x + 2, y - 4), CellButton);
 	location_above.set(location.getindex(x + 2, y - 4), CellPit);
@@ -284,8 +284,8 @@ void test_orientation();
 void editor() {
 	auto push_font = font;
 	setsmallfont();
+	//game.readtext("import/western_heartlands.json");
 #ifdef _DEBUG
-	game.readtext("import/western_heartlands.json");
 	if(false) {
 		random_heroes();
 		for(auto i = 0; i < 4; i++)
@@ -315,7 +315,6 @@ void gamei::newgame() {
 	for(unsigned i = 0; i < 4; i++)
 		bsdata<creature>::elements[i].clear();
 #ifdef _DEBUG
-	creature::view_party();
 	//random_heroes();
 #else
 	creature::view_party();
