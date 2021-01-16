@@ -2185,7 +2185,7 @@ int answers::choosemn(int x0, int y0, int width, resource_s id) const {
 			y += 1;
 		}
 		domodal();
-		navigate(true);
+		navigate(false);
 	}
 	closeform();
 	return getresult();
@@ -2380,7 +2380,7 @@ static int buttonx(int x, int y, const char* name, int key, callback proc, int p
 	auto si = 0;
 	if(proc == next_portrait || proc == prev_portrait)
 		si = 2;
-	else if(proc == new_game)
+	else if(proc == new_game && key=='P')
 		si = 4;
 	else if(proc == delete_character)
 		si = 6;
@@ -2924,9 +2924,11 @@ static bool handle_shortcuts(bool allow_move) {
 	case 'F':
 		draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 		break;
+#ifdef _DEBUG
 	case 'H':
 		test_map();
 		break;
+#endif // _DEBUG
 	case '1': case '2': case '3': case '4': case '5': case '6':
 		pc = party[hot::key - '1'];
 		if(!pc)
@@ -2990,8 +2992,7 @@ static void option_save_game() {
 
 static void quit_game() {
 	if(!dlgask("Are you really want to quit game?"))
-		return;
-	exit(0);
+		setnext(mainmenu);
 }
 
 static void settings() {}

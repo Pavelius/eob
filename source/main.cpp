@@ -284,6 +284,7 @@ void test_orientation();
 void editor() {
 	auto push_font = font;
 	setsmallfont();
+#ifdef _DEBUG
 	game.readtext("import/western_heartlands.json");
 	if(false) {
 		random_heroes();
@@ -294,10 +295,13 @@ void editor() {
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		bsdata<eventi>::elements[6].play();
 		//game.play();
-	} else {
-		//game.companyi::read("default");
+	} else
+#endif
+	{
+		game.companyi::read("default");
 		edit("Company", &game, dginf<companyi>::meta, false);
 		game.companyi::write("default");
+		setnext(mainmenu);
 	}
 	font = push_font;
 }
@@ -311,7 +315,8 @@ void gamei::newgame() {
 	for(unsigned i = 0; i < 4; i++)
 		bsdata<creature>::elements[i].clear();
 #ifdef _DEBUG
-	random_heroes();
+	creature::view_party();
+	//random_heroes();
 #else
 	creature::view_party();
 #endif // _DEBUG
