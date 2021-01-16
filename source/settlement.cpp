@@ -40,8 +40,31 @@ static unsigned char	prosperty_progress[10] = {0, 5, 10, 15, 20, 30, 40, 55, 80,
 static rarity_s			rarity_items[10] = {Common, Common, Common, Uncommon, Uncommon, Uncommon, Rare, Rare, VeryRare, Artifact};
 static const char*		kind_n1[10] = {"", "", "", "small", "", "small", "", "small", "large", ""};
 static const char*		kind_n2[10] = {"community", "outpost", "hamlet", "village", "village", "town", "town", "city", "city", "megapolis"};
+static const char*		direction_names[] = {"center", "north", "north east", "east", "south east", "south", "south west", "west", "north west"};
+static const char*		distance_days[] = {"near", "one day of the road", "two days of the road", "three days of the road", "several days of the road", "several days of the road", "week of the road", "week of the road", "far"};
+
+static const unsigned char orientations_3b3[3 * 3] = {
+	8, 1, 2,
+	7, 0, 3,
+	6, 5, 4,
+};
+
+static unsigned char getorientation(point s, point d) {
+	const int osize = 3;
+	int dx = d.x - s.x;
+	int dy = d.y - s.y;
+	int st = (2 * imax(iabs(dx), iabs(dy)) + osize - 1) / osize;
+	if(!st)
+		return 0;
+	int ax = dx / st;
+	int ay = dy / st;
+	return orientations_3b3[(ay + (osize / 2)) * osize + ax + (osize / 2)];
+}
 
 static int getlevel(int v) {
+	v += game.getprosperty();
+	if(v < 0)
+		v = 0;
 	auto r = 0;
 	for(auto e : prosperty_progress) {
 		if(v <= e)
@@ -233,7 +256,7 @@ static bool confirm_pay() {
 }
 
 static bool gamble(settlementi& e, bool run) {
-	static imagei ei = {BUILDNGS, 1};
+	static imagei ei = {BUILDNGS, 24};
 	static int bits[] = {10, 20, 50, 100, 300, 500, 1000, 2000};
 	creaturea creatures;
 	creatures.select();
@@ -252,6 +275,8 @@ static bool gamble(settlementi& e, bool run) {
 				aw.add(b, "%1i", b);
 		}
 		auto b = aw.choosebg(sb);
+		if(!b)
+			return true;
 		auto p = creatures.getbest(Charisma);
 		auto gv = p->get(Charisma);
 		sb.clear();
@@ -391,6 +416,16 @@ static const char* talk_rumor(building_s b) {
 	}
 }
 
+static settlementi* random_nearest_settlement(settlementi* pb, int distance_days) {
+	variantc var;
+	var.select(Settlement);
+	var.exclude(pb);
+	var.match(pb->position, distance_days * game.pixels_per_day, true);
+	if(!var)
+		return 0;
+	return var.random().getsettlement();
+}
+
 static const char* random_opponent() {
 	return maprnd(talk_opponent);
 }
@@ -406,10 +441,12 @@ adventurei* allowed_rumor() {
 
 bool talk(const char* prompt, const char* text, char& mood) {
 	sb.clear();
-	static imagei im = {BUILDNGS, 20};
+	static imagei im = {BUILDNGS, 25};
 	auto po = random_opponent();
 	auto chance_heard_true = 25 + mood * 5;
 	adventurei* rumor_quest = 0;
+	settlementi* rumor_settlement = 0;
+	settlementi* settlement = game.getsettlement();
 	if(mood <= -4) {
 		sb.add("There is no one who want to talk with you. Try talk another day.");
 		showmessage();
@@ -418,6 +455,8 @@ bool talk(const char* prompt, const char* text, char& mood) {
 		text = talk_boring();
 	else if(d100() < chance_heard_true)
 		rumor_quest = allowed_rumor();
+	else if(settlement && d100() < chance_heard_true / 2)
+		rumor_settlement = random_nearest_settlement(settlement, 10);
 	if(!game.roll(party.getaverage(Charisma)))
 		mood--;
 	im.add(sb);
@@ -427,6 +466,14 @@ bool talk(const char* prompt, const char* text, char& mood) {
 		sb.add(maprnd(local_rumor));
 		sb.adds(rumor_quest->rumor_activate.getname());
 		rumor_quest->activate();
+	} else if(rumor_settlement) {
+		sb.add("%+1", distance_days[settlement->position.range(rumor_settlement->position) / game.pixels_per_day]);
+		sb.adds("to the %1 from here", direction_names[getorientation(settlement->position, rumor_settlement->position)]);
+		sb.adds("lies a");
+		rumor_settlement->getdescriptor(sb);
+		sb.adds("named %1.", rumor_settlement->getname());
+		if(rumor_settlement->description)
+			sb.adds(rumor_settlement->description);
 	} else
 		sb.add(text);
 	sb.add("\"");
@@ -505,7 +552,7 @@ static bool donate(bool run) {
 		answers aw;
 		aw.add(-1, "Nothing");
 		for(unsigned i = 0; i < sizeof(level) / sizeof(level[0]); i++) {
-			if(game.getgold()>=level[i][0])
+			if(game.getgold() >= level[i][0])
 				aw.add(i, "%1i", level[i][0]);
 		}
 		auto i = aw.choosebg(sb);
@@ -548,7 +595,7 @@ static bool havefun(int cost, bool run) {
 			} else
 				sb.adds("%1 will be very shy.", p->getname());
 		}
-		game.passtime(xrand(3*60, 5*60));
+		game.passtime(xrand(3 * 60, 5 * 60));
 		showmessage();
 	}
 	return true;
@@ -605,6 +652,8 @@ int	settlementi::gethealingcost() const {
 }
 
 int	settlementi::getequipmentcost(adventurei& e) const {
+	if(!game.pixels_per_day)
+		return 2;
 	return 2 + position.range(e.position) / game.pixels_per_day;
 }
 
@@ -624,7 +673,7 @@ void settlementi::play() {
 	auto v = enter();
 	switch(v.type) {
 	case Action:
-		if(v.value==Rest)
+		if(v.value == Rest)
 			resting("You can rest right here. But you can't sleep comfortable, so you can't restore spells and have a healing sleep.",
 				0, false, false);
 		else
@@ -650,8 +699,16 @@ int	settlementi::getrestcost(building_s b) const {
 	return cost;
 }
 
-void settlementi::addprosperty(int v) {
-	prosperty += v;
-	if(prosperty < 0)
-		prosperty = 0;
+void test_orientation() {
+	char temp[512];
+	auto start = bsdata<adventurei>::elements[0].position;
+	while(true) {
+		auto destination = draw::choosepoint(start);
+		if(!destination)
+			return;
+		auto direction = getorientation(start, destination);
+		stringbuilder sb(temp);
+		sb.add("Site located to %1 of Baldurs gate.", direction_names[direction]);
+		draw::dlgmsg(temp);
+	}
 }

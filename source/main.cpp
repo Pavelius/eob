@@ -277,6 +277,8 @@ void test_map() {
 	bsdata<eventi>::elements[6].play();
 }
 
+void test_orientation();
+
 #endif // DEBUG
 
 void editor() {

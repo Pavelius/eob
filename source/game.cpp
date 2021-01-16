@@ -1,6 +1,7 @@
 #include "archive.h"
 #include "main.h"
 
+const int save_subversion = 7;
 #ifdef _DEBUG
 const bool visialize_map = false;
 #else
@@ -491,7 +492,7 @@ bool creature::set(ability_s skill, short unsigned index) {
 static bool addstatical(archive& a) {
 	if(!a.signature("STD"))
 		return false;
-	if(!a.version(0, 4))
+	if(!a.version(0, save_subversion))
 		return false;
 	a.set(textable::getstrings());
 	a.set(bsdata<adventurei>::source);
@@ -508,7 +509,7 @@ static bool serialize(bool writemode) {
 	archive a(file, writemode);
 	if(!a.signature("SAV"))
 		return false;
-	if(!a.version(0, 6))
+	if(!a.version(0, save_subversion))
 		return false;
 	if(writemode)
 		game.preserial(true);
@@ -528,7 +529,7 @@ static bool serialize(dungeoni& e, short unsigned index, char level, bool write_
 	archive a(file, write_mode);
 	if(!a.signature("DNG"))
 		return false;
-	if(!a.version(0, 1))
+	if(!a.version(0, save_subversion))
 		return false;
 	a.set(e);
 	return true;

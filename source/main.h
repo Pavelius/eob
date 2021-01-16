@@ -1188,7 +1188,6 @@ struct settlementi : textable {
 	spellf				spells;
 	unsigned char		prosperty;
 	char				mood_tavern, mood_inn, mood_other;
-	void				addprosperty(int v);
 	bool				apply(building_s b, action_s a, bool run);
 	variant				enter();
 	action_s			enter(building_s id);
@@ -1231,7 +1230,7 @@ class gamei : public companyi {
 	unsigned			rounds_daypart;
 	unsigned			killed[LastMonster + 1];
 	unsigned			found_secrets, sacrifice, gold_donated;
-	char				reputation, luck;
+	char				reputation, luck, prosperty;
 	int					gold;
 	variant				players[6];
 	deck				events_deck;
@@ -1244,6 +1243,7 @@ public:
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				addluck() { luck++; }
+	void				addprosperty(int v) { prosperty += v; }
 	void				addsacrifice(int v) { sacrifice += v; }
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
@@ -1255,6 +1255,7 @@ public:
 	void				equiping();
 	adventurei*			getadventure();
 	deck&				getevents() { return events_deck; }
+	int					getprosperty() const { return prosperty; }
 	void				findsecrets();
 	int					get(action_s id) const;
 	int					getaverage(ability_s v) const;

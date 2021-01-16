@@ -195,8 +195,7 @@ void gamei::apply(variant v) {
 			game.addgold(ei.roll());
 			break;
 		case Prosperty:
-			if(getsettlement())
-				getsettlement()->addprosperty(ei.roll());
+			game.addprosperty(ei.roll());
 			break;
 		case Reputation:
 			reputation += ei.roll();
