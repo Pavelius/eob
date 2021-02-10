@@ -282,9 +282,6 @@ void test_orientation();
 #endif // DEBUG
 
 void editor() {
-	auto push_font = font;
-	setsmallfont();
-	//game.readtext("import/western_heartlands.json");
 #ifdef _DEBUG
 	if(false) {
 		random_heroes();
@@ -295,6 +292,12 @@ void editor() {
 		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
 		bsdata<eventi>::elements[6].play();
 		//game.play();
+	} else if(true) {
+		random_heroes();
+		game.readtext("import/western_heartlands.json");
+		edit("Company", &game, dginf<companyi>::meta, false);
+		game.companyi::write("default");
+		setnext(mainmenu);
 	} else
 #endif
 	{
@@ -303,7 +306,6 @@ void editor() {
 		game.companyi::write("default");
 		setnext(mainmenu);
 	}
-	font = push_font;
 }
 
 void gamei::newgame() {
@@ -315,12 +317,16 @@ void gamei::newgame() {
 	for(unsigned i = 0; i < 4; i++)
 		bsdata<creature>::elements[i].clear();
 #ifdef _DEBUG
-	//random_heroes();
+	random_heroes();
 #else
 	creature::view_party();
 #endif // _DEBUG
+	if(bsdata<creature>::source.getcount() < 4) {
+		for(unsigned i = 0; i < 4; i++)
+			bsdata<creature>::source.add();
+	}
 	for(unsigned i = 0; i < 4; i++) {
-		auto p = (creature*)bsdata<creature>::source.add();
+		auto p = (creature*)bsdata<creature>::source.ptr(i);
 		p->random_equipment(0);
 		party.add(p);
 	}
@@ -342,7 +348,6 @@ int main(int argc, char* argv[]) {
 	if(!test_richtexti())
 		return -1;
 	util_main();
-	random_heroes();
 #endif // _DEBUG
 	draw::initialize();
 	fore = colors::white;

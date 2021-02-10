@@ -609,7 +609,7 @@ struct eventi : textable {
 	void				apply(case_s v, bool interactive) const;
 	void				clear();
 	void				discard() const;
-	bool				is(flag_s v) const { return (flags&(1 << v)) != 0; }
+	bool				is(flag_s v) const { return (flags & (1 << v)) != 0; }
 	void				play() const;
 	void				set(flag_s v) { flags |= 1 << v; }
 	void				shufle() const;
@@ -773,33 +773,33 @@ public:
 	void				sort();
 };
 class creature {
-	alignment_s			alignment;
-	race_s				race;
-	gender_s			gender;
-	class_s				type;
-	monster_s			kind;
-	indext				index;
-	unsigned char		side;
-	direction_s			direction;
+	alignment_s			alignment = LawfulGood;
+	race_s				race = Human;
+	gender_s			gender = Male;
+	class_s				type = NoClass;
+	monster_s			kind = NoMonster;
+	indext				index = Blocked;
+	unsigned char		side = 0;
+	direction_s			direction = Up;
 	feata				feats;
 	usabilitya			usability;
-	short				hits, hits_aid, hits_rolled;
-	char				initiative;
-	char				levels[3];
-	char				ability[LastAbility + 1];
-	item				wears[LastInvertory + 1];
-	char				spells[LastSpellAbility + 1];
-	char				prepared[LastSpellAbility + 1];
+	short				hits = 0, hits_aid = 0, hits_rolled = 0;
+	char				initiative = 0;
+	char				levels[3] = {};
+	char				ability[LastAbility + 1] = {};
+	item				wears[LastInvertory + 1] = {};
+	char				spells[LastSpellAbility + 1] = {};
+	char				prepared[LastSpellAbility + 1] = {};
 	spellf				known_spells;
 	spellf				active_spells;
-	char				avatar;
-	unsigned			experience;
-	unsigned short		name;
-	char				str_exeptional;
-	char				drain_energy, drain_strenght, disease_progress;
-	char				pallette;
-	short				food;
-	reaction_s			reaction;
+	char				avatar = 0;
+	unsigned			experience = 0;
+	unsigned short		name = 0;
+	char				str_exeptional = 0;
+	char				drain_energy = 0, drain_strenght = 0, disease_progress = 0;
+	char				pallette = 0;
+	short				food = 0;
+	reaction_s			reaction = Indifferent;
 	//
 	void				addboost(variant id, unsigned duration, char value = 0) const;
 	void				attack_drain(creature* defender, char& value, int& hits);
@@ -1018,7 +1018,7 @@ struct dungeoni {
 		short unsigned	flags;
 		constexpr explicit operator bool() const { return index != Blocked; }
 		void			clear();
-		bool			is(overlay_flag_s v) const { return (flags&(1 << v)) != 0; }
+		bool			is(overlay_flag_s v) const { return (flags & (1 << v)) != 0; }
 		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
 		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
@@ -1063,7 +1063,7 @@ struct dungeoni {
 	sitei::headi		head;
 	statei				stat;
 	sitei::chancei		chance;
-	unsigned char		data[mpx*mpy];
+	unsigned char		data[mpx * mpy];
 	groundi				items[512];
 	overlayi			overlays[256];
 	overlayitem			cellar_items[256];
@@ -1212,7 +1212,7 @@ struct companyi : textable {
 struct encounteri : public creaturea {
 	reaction_s			reaction;
 	talk_s				next;
-	constexpr encounteri() : creaturea(), reaction(Indifferent), next(Greeting) {}
+	encounteri() : creaturea(), reaction(Indifferent), next(Greeting) {}
 	bool				apply(action_s id, bool run);
 	creature*			getleader() const;
 	bool				match(const conditiona& e) const;
