@@ -135,6 +135,23 @@ void* item::getenchantptr(const void* object, int index) {
 const char* getnoname(const void* object, stringbuilder& sb) {
 	return 0;
 }
+static bool variant_action_selectable(const void* object, const void* pointer) {
+	auto p = (varianti*)pointer;
+	return p->allowed.is(Action);
+}
+static bool choose_action_variant(void* object, const array& source, void* pointer) {
+	auto v = (variant*)pointer;
+	if(!draw::choose(bsdata<varianti>::source, "Type",
+		object, &v->type, sizeof(v->type), {getnm<varianti>, variant_action_selectable}))
+		return false;
+	auto& e = bsdata<varianti>::elements[v->type];
+	if(!e.source)
+		return false;
+	if(!draw::choose(*e.source, e.name,
+		object, &v->value, sizeof(v->value), {e.pgetname}))
+		return false;
+	return true;
+}
 static bool variant_selectable(const void* object, const void* pointer) {
 	auto p = (varianti*)pointer;
 	return p->pgetname != 0;
@@ -564,12 +581,12 @@ DGINF(eventi) = {
 	{}};
 DGINF(resultable) = {
 	{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
-	{"Action 1", DGREQ(actions[0]), {getnm<variant>, 0, choose_variant}},
-	{"Action 2", DGREQ(actions[1]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-	{"Action 3", DGREQ(actions[2]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-	{"Action 4", DGREQ(actions[3]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-	{"Action 5", DGREQ(actions[4]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
-	{"Action 6", DGREQ(actions[5]), {getnm<variant>, 0, choose_variant}, {0, 0, visible_condition}},
+	{"Action 1", DGREQ(actions[0]), {getnm<variant>, 0, choose_action_variant}},
+	{"Action 2", DGREQ(actions[1]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
+	{"Action 3", DGREQ(actions[2]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
+	{"Action 4", DGREQ(actions[3]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
+	{"Action 5", DGREQ(actions[4]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
+	{"Action 6", DGREQ(actions[5]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
 	{}};
 DGINF(actionseti) = {
 	{"Action", DGREQ(action), {getnm<actioni>}},

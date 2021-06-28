@@ -1,34 +1,34 @@
-
 #include "main.h"
 
 #define FORM(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
 
 static array game_source(&game, sizeof(companyi), 1);
 
-BSDATA(varianti) = {{"None"},
-{"Ability", "abilities", FORM(abilityi)},
-{"Action", "actions", FORM(actioni)},
-{"Action set", "action sets", FORM(actionseti)},
-{"Adventure", "adventures", FORM(adventurei)},
-{"Alignment", "alignments", FORM(alignmenti)},
-{"Building", "buildings", FORM(buildingi)},
-{"Case", "cases", FORM(casei)},
-{"Class", "classes", FORM(classi)},
-{"Cleaveress", "cleveress"},
-{"Company", "companies", &game_source, getnm<companyi>, dginf<companyi>::meta},
-{"Condition", "conditions"},
-{"Creature", "creatures", FORM(creature)},
-{"Damage", "damages", FORM(damagei)},
-{"Enchant", "enchants", FORM(enchanti)},
-{"Event", "events", FORM(eventi)},
-{"Feat", "feats", FORM(feati)},
-{"Gender", "genders", FORM(genderi)},
-{"Item", "items", FORM(itemi)},
-{"Morale", "morals", FORM(moralei)},
-{"Race", "races", FORM(racei)},
-{"Reaction", "reactions"},
-{"Settlement", "settlements", FORM(settlementi)},
-{"Spell", "spells", FORM(spelli)},
+BSDATA(varianti) = {
+	{"None"},
+	{"Ability", "abilities", {Action}, FORM(abilityi)},
+	{"Action", "actions", {Action}, FORM(actioni)},
+	{"Action set", "action sets", {Action}, FORM(actionseti)},
+	{"Adventure", "adventures", {}, FORM(adventurei)},
+	{"Alignment", "alignments", {Action}, FORM(alignmenti)},
+	{"Building", "buildings", {Action}, FORM(buildingi)},
+	{"Case", "cases", {Action}, FORM(casei)},
+	{"Class", "classes", {Action}, FORM(classi)},
+	{"Cleaveress", "cleveress"},
+	{"Company", "companies", {}, &game_source, getnm<companyi>, dginf<companyi>::meta},
+	{"Condition", "conditions", {Action}},
+	{"Creature", "creatures", {}, FORM(creature)},
+	{"Damage", "damages", {}, FORM(damagei)},
+	{"Enchant", "enchants", {}, FORM(enchanti)},
+	{"Event", "events", {}, FORM(eventi)},
+	{"Feat", "feats", {Action}, FORM(feati)},
+	{"Gender", "genders", {Action}, FORM(genderi)},
+	{"Item", "items", {Action}, FORM(itemi)},
+	{"Morale", "morals", {}, FORM(moralei)},
+	{"Race", "races", {Action}, FORM(racei)},
+	{"Reaction", "reactions", {Action}},
+	{"Settlement", "settlements", {}, FORM(settlementi)},
+	{"Spell", "spells", {}, FORM(spelli)},
 };
 assert_enum(variant, Spell)
 INSTELEM(varianti)

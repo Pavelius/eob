@@ -563,11 +563,18 @@ static bool donate(bool run) {
 		auto chance_increase_luck = level[i][1];
 		sb.clear();
 		if(d100() < chance_increase_luck) {
-			static const char* t[] = {"The god has been pleased!", "Mighty god smiles and accept your donation!", "Oh, holy god! I feel a the power! Your donation is accept!"};
+			static const char* t[] = {
+				"The god has been pleased!",
+				"Mighty god smiles and accept your donation!",
+				"Oh, holy god! I feel a the power! Your donation is accept!"
+			};
 			sb.add("\"%1\"", maprnd(t));
 			game.addluck();
 		} else {
-			static const char* t[] = {"Your donation is not enought. You must donate more.", "Donation is made. God is watching you."};
+			static const char* t[] = {
+				"Your donation is not enought. You must donate more.",
+				"Donation is made. God is watching you."
+			};
 			sb.add("\"%1\"", maprnd(t));
 		}
 		showmessage();

@@ -452,6 +452,7 @@ struct casei {
 struct varianti {
 	const char*			name;
 	const char*			namepl;
+	variantf			allowed;
 	array*				source;
 	fntext				pgetname;
 	const markup*		form;

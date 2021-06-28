@@ -13,57 +13,6 @@ static int turn_undead_chance[][12] = {{10, 7, 4, 0, 0, -1, -1, -2, -2, -2, -2, 
 {30, 30, 30, 30, 30, 20, 19, 16, 13, 10, 7, 4},
 };
 
-static bool cast_on_items(spell_s id, int level, creature* caster, itema& result) {
-	auto& si = bsdata<spelli>::elements[id];
-	auto count = si.effect.damage.roll();
-	if(!count)
-		count = 1;
-	auto say_success = si.talk;
-	auto pb = result.data;
-	for(auto p : result) {
-		if(!p->cast(id, level, false))
-			continue;
-		*pb++ = p;
-	}
-	result.count = pb - result.data;
-	zshuffle(result.data, result.count);
-	if(!result)
-		return false;
-	for(auto p : result) {
-		if(count-- <= 0)
-			break;
-		p->cast(id, level, true);
-		if(say_success) {
-			char temp[260]; stringbuilder sb(temp); p->getname(sb);
-			auto pt = say_success[rand() % 3];
-			caster->say(pt, temp);
-		}
-	}
-	return true;
-}
-
-static bool cast_on_party_items(spell_s id, int level, creature* caster) {
-	itema result;
-	for(auto p : party) {
-		if(!p)
-			continue;
-		p->select(result);
-	}
-	return cast_on_items(id, level, caster, result);
-}
-
-static bool cast_on_ally_items(spell_s id, int level, creature* caster, creature* target) {
-	itema result;
-	target->select(result);
-	return cast_on_items(id, level, caster, result);
-}
-
-static bool cast_on_own_items(spell_s id, int level, creature* caster) {
-	itema result;
-	caster->select(result);
-	return cast_on_items(id, level, caster, result);
-}
-
 BSDATA(spelli) = {{"No spell", {0, 0}, TargetSelf, {}},
 {"Bless", {0, 1}, TargetAlly, {Bless, DurationHour}},
 {"Burning Hands", {1, 0}, TargetAllClose, {Fire, Instant, SaveHalf, 0, {1, 3}, {2}, 1, 10}, FireThrown},
@@ -141,6 +90,57 @@ short unsigned get_enemy_distance(short unsigned index, direction_s dir, item_s 
 	return 0;
 }
 
+static bool cast_on_items(spell_s id, int level, creature* caster, itema& result) {
+	auto& si = bsdata<spelli>::elements[id];
+	auto count = si.effect.damage.roll();
+	if(!count)
+		count = 1;
+	auto say_success = si.talk;
+	auto pb = result.data;
+	for(auto p : result) {
+		if(!p->cast(id, level, false))
+			continue;
+		*pb++ = p;
+	}
+	result.count = pb - result.data;
+	zshuffle(result.data, result.count);
+	if(!result)
+		return false;
+	for(auto p : result) {
+		if(count-- <= 0)
+			break;
+		p->cast(id, level, true);
+		if(say_success) {
+			char temp[260]; stringbuilder sb(temp); p->getname(sb);
+			auto pt = say_success[rand() % 3];
+			caster->say(pt, temp);
+		}
+	}
+	return true;
+}
+
+static bool cast_on_party_items(spell_s id, int level, creature* caster) {
+	itema result;
+	for(auto p : party) {
+		if(!p)
+			continue;
+		p->select(result);
+	}
+	return cast_on_items(id, level, caster, result);
+}
+
+static bool cast_on_ally_items(spell_s id, int level, creature* caster, creature* target) {
+	itema result;
+	target->select(result);
+	return cast_on_items(id, level, caster, result);
+}
+
+static bool cast_on_own_items(spell_s id, int level, creature* caster) {
+	itema result;
+	caster->select(result);
+	return cast_on_items(id, level, caster, result);
+}
+
 void creature::say(spell_s id) const {
 	mslog("%1 cast %2", getname(), getstr(id));
 }
@@ -156,13 +156,13 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		spell_level = getlevel(id, Mage);
 	if(!spell_level)
 		spell_level = getlevel(id, Cleric);
+	if(!spell_level)
+		return false;
 	auto level = getcasterlevel(type);
 	if(!level)
 		level = gethd();
 	if(wand_magic)
 		level = (spell_level + wand_magic - 1) * 2 - 1;
-	if(!spell_level)
-		return false;
 	if(is(Deafness) && (d100() < 20)) {
 		if(ishero())
 			mslog("Spell failed due to deafness!");
@@ -248,7 +248,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 			set(id, get(id) - 1);
 	}
 	// RULE: When casting you gain experience
-	int exp = 20 * spell_level;
+	auto exp = 20 * spell_level;
 	if(wand_magic)
 		exp /= 2;
 	else if(type == Mage)

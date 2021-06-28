@@ -1,6 +1,8 @@
 #include "archive.h"
 #include "main.h"
 
+// Dungeon can hold from 1 to 10 levels.
+
 const int save_subversion = 7;
 #ifdef _DEBUG
 const bool visialize_map = false;
