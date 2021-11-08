@@ -194,15 +194,9 @@ void gamei::apply(variant v) {
 			}
 			game.addgold(ei.roll());
 			break;
-		case Prosperty:
-			game.addprosperty(ei.roll());
-			break;
-		case Reputation:
-			reputation += ei.roll();
-			break;
-		case Work:
-			party.exhause();
-			break;
+		case Prosperty: game.addprosperty(ei.roll()); break;
+		case Reputation: reputation += ei.roll(); break;
+		case Work: party.exhause(); break;
 		}
 	}
 }

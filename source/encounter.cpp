@@ -20,7 +20,7 @@ static chati messages[] = {{Greeting, {Indifferent, Ave}, "\"Who is you? How you
 {FailLie, {}, "\"You are liers! Prepare to die!!\""},
 {TalkArtifact, {}, "\"I heard, that famous %1 lies in %2 part of this place. Find it as fast as possible.\""},
 {TalkMagic, {}, "\"Wait a minute, one item from your equipment seems familiar to me. It's a %1 and it's magical.\""},
-{TalkCursed, {}, "\"Oh, no. You have one cursed item %1. Be careful with it.\""},
+{TalkCursed, {}, "\"Oh, no. You have %1. Be careful with it.\""},
 {TalkHistory, {}, "\"This place not always be like this. Long time ago it be absolutely different and has it own secrets.\""},
 {TalkRumor, {}, "\"Our fate is doomed. Keep you mind open.\""},
 {TalkRumor, {}, "\"In a few days an event will come that will change the whole world.\""},
