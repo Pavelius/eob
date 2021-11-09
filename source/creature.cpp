@@ -37,18 +37,18 @@ static char hit_points_adjustment[] = {-4,
 5, 6, 6, 6, 7, 7
 };
 static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
-{2, 0, 0, 0, 0, 0, 0}, // Wisdow 14
-{2, 1, 0, 0, 0, 0, 0}, // Wisdow 15
-{2, 2, 0, 0, 0, 0, 0}, // Wisdow 16
-{2, 2, 1, 0, 0, 0, 0}, // Wisdow 17
-{2, 2, 1, 1, 0, 0, 0}, // Wisdow 18
-{3, 2, 2, 1, 0, 0, 0}, // Wisdow 19
-{3, 3, 2, 2, 0, 0, 0}, // Wisdow 20
-{3, 3, 3, 2, 1, 0, 0}, // Wisdow 21
-{3, 3, 3, 3, 2, 0, 0}, // Wisdow 22
-{4, 3, 3, 3, 2, 1, 0}, // Wisdow 23
-{4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
-{4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
+	{2, 0, 0, 0, 0, 0, 0}, // Wisdow 14
+	{2, 1, 0, 0, 0, 0, 0}, // Wisdow 15
+	{2, 2, 0, 0, 0, 0, 0}, // Wisdow 16
+	{2, 2, 1, 0, 0, 0, 0}, // Wisdow 17
+	{2, 2, 1, 1, 0, 0, 0}, // Wisdow 18
+	{3, 2, 2, 1, 0, 0, 0}, // Wisdow 19
+	{3, 3, 2, 2, 0, 0, 0}, // Wisdow 20
+	{3, 3, 3, 2, 1, 0, 0}, // Wisdow 21
+	{3, 3, 3, 3, 2, 0, 0}, // Wisdow 22
+	{4, 3, 3, 3, 2, 1, 0}, // Wisdow 23
+	{4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
+	{4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
 static char charisma_reaction_bonus[] = {-8,
 -7, -6, -5, -4, -3, -2, -1, 0, 0, 0,
@@ -321,7 +321,8 @@ bool creature::isenemy(creature* target) const {
 }
 
 void creature::say(const item& it, const char* format, ...) {
-	char name[128]; stringbuilder sb(name); it.getname(sb);
+	char name[128]; stringbuilder sb(name);
+	it.getname(sb);
 	say(format, name);
 }
 
@@ -1095,7 +1096,7 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 		if(v) {
 			if(v > 100)
 				v = 100;
-			hits = hits*(100 - v) / 100;
+			hits = hits * (100 - v) / 100;
 		}
 	}
 	if(di.immunity && is(di.immunity))
@@ -1183,7 +1184,8 @@ bool creature::swap(item* itm1, item* itm2) {
 bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
 	if(slot >= Head && slot <= Legs) {
 		if(i.iscursed()) {
-			static const char* speech[] = {"It's mine!",
+			static const char* speech[] = {
+				"It's mine!",
 				"Get yours hands off!",
 				"I don't leave this",
 			};
@@ -1191,7 +1193,8 @@ bool creature::isallowremove(const item i, wear_s slot, bool interactive) {
 				say(maprnd(speech));
 			return false;
 		} else if(i.isnatural()) {
-			static const char* speech[] = {"It's part of me!",
+			static const char* speech[] = {
+				"It's part of me!",
 				"No, I can't remove this!"
 			};
 			if(interactive)

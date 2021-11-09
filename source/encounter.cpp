@@ -8,23 +8,25 @@ struct chati {
 };
 }
 
-static chati messages[] = {{Greeting, {Indifferent, Ave}, "\"Who is you? How you get there?\""},
-{Greeting, {Indifferent, Low}, "\"Who is there? How you dig so deep?\""},
-{Greeting, {Indifferent, Low}, "\"Whatta you doing here? And a who is you?\""},
-{Greeting, {Indifferent, Low}, "\"What a ... Who is you?\""},
-{Greeting, {Indifferent}, "%1 is glazing at you. But not attack, carefully watching."},
-{Greeting, {Friendly, High}, "\"Welcome, my very best friends! I so glad to see you! What can I do for you?\""},
-{Greeting, {Friendly, Ave}, "\"Welcome friends, I am at your service! What can I do for your?\""},
-{Greeting, {Friendly, Low}, "\"Welcome strangers, me and my friends like you. Whata me can do for you?\""},
-{Greeting, {Friendly}, "%1 is glazing at you. But not attack, carefully watching."},
-{FailLie, {}, "\"You are liers! Prepare to die!!\""},
-{TalkArtifact, {}, "\"I heard, that famous %1 lies in %2 part of this place. Find it as fast as possible.\""},
-{TalkMagic, {}, "\"Wait a minute, one item from your equipment seems familiar to me. It's a %1 and it's magical.\""},
-{TalkCursed, {}, "\"Oh, no. You have %1. Be careful with it.\""},
-{TalkHistory, {}, "\"This place not always be like this. Long time ago it be absolutely different and has it own secrets.\""},
-{TalkRumor, {}, "\"Our fate is doomed. Keep you mind open.\""},
-{TalkRumor, {}, "\"In a few days an event will come that will change the whole world.\""},
-{TalkRumor, {}, "\"Dark side is strong.\""},
+static chati messages[] = {
+	{Greeting, {Indifferent, Ave}, "\"Who is you? How you get there?\""},
+	{Greeting, {Indifferent, Low}, "\"Who is there? How you dig so deep?\""},
+	{Greeting, {Indifferent, Low}, "\"Whatta you doing here? And a who is you?\""},
+	{Greeting, {Indifferent, Low}, "\"What a ... Who is you?\""},
+	{Greeting, {Indifferent}, "%1 is glazing at you. But not attack, carefully watching."},
+	{Greeting, {Friendly, High}, "\"Welcome, my very best friends! I so glad to see you! What can I do for you?\""},
+	{Greeting, {Friendly, Ave}, "\"Welcome friends, I am at your service! What can I do for your?\""},
+	{Greeting, {Friendly, Low}, "\"Welcome strangers, me and my friends like you. Whata me can do for you?\""},
+	{Greeting, {Friendly}, "%1 is glazing at you. But not attack, carefully watching."},
+	{FailLie, {}, "\"You are liers! Prepare to die!!\""},
+	{TalkArtifact, {}, "\"I heard, that famous %1 lay in %2 part of this place. Find it as fast as possible.\""},
+	{TalkMagic, {}, "\"Wait a minute, one item from your equipment seems familiar to me. It's a %1 and it's magical.\""},
+	{TalkCursed, {}, "\"Oh, no. You have %1. Be careful with it.\""},
+	{TalkHistory, {}, "\"This place not always be like this. Long time ago it be absolutely different and has it own secrets.\""},
+	{TalkRumor, {}, "\"Our fate is doomed. Keep you mind open.\""},
+	{TalkRumor, {}, "\"In a few days an event will come that will change the whole world.\""},
+	{TalkRumor, {}, "\"Dark side is strong.\""},
+	{TalkRumor, {}, "\"Light side is weak.\""},
 };
 static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack};
 static cflags<action_s> friendly_actions = {Trade, Talk, Repair, Pet};

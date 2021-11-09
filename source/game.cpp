@@ -16,8 +16,9 @@ static const char place_sides[4][4] = {{1, 3, 0, 2},
 {2, 0, 3, 1},
 {3, 2, 1, 0},
 };
-static const char* name_direction[] = {"floor",
-"left", "forward", "right", "rear"};
+static const char* name_direction[] = {
+	"floor", "left", "forward", "right", "rear"
+};
 
 gamei						game;
 creaturea					party;

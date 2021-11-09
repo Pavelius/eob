@@ -6,26 +6,27 @@ static const int hd_experience[] = {
 	1400, 2000, 3000
 };
 
-monsteri bsdata<monsteri>::elements[] = {{"No monster"},
-{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {OfPoison}},
-{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}},
-{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
-{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 5, {AxeBattle}},
-{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}},
-{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {OfParalize}},
-{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}},
-{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}},
-{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}},
-{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {OfVampirism}},
-{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}},
-{"Shadow", SHADOW, {0}, Humanoid, Male, Medium, ChaoticEvil, Low, {Undead, ImmuneNormalWeapon}, {3, 3}, 7, {Bite1d41}, {OfStrenghtDrain}},
-{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}},
-{"Skeleton Warrior", SKELWAR, {0}, Human, Male, Medium, NeutralEvil, Exeptional, {Undead, ImmuneNormalWeapon}, {9, 10}, 2, {SwordTwoHanded}, {OfFear}, {{ResistMagic, 90}}},
-{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoisonStrong}},
-{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {OfEnergyDrain}},
-{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}},
-{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}},
-{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
+monsteri bsdata<monsteri>::elements[] = {
+	{"No monster"},
+	{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {OfPoison}},
+	{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}},
+	{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
+	{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 5, {AxeBattle}},
+	{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}},
+	{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {OfParalize}},
+	{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {0, 7}, 6, {Axe}},
+	{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}},
+	{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}},
+	{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {OfVampirism}},
+	{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}},
+	{"Shadow", SHADOW, {0}, Humanoid, Male, Medium, ChaoticEvil, Low, {Undead, ImmuneNormalWeapon}, {3, 3}, 7, {Bite1d41}, {OfStrenghtDrain}},
+	{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}},
+	{"Skeleton Warrior", SKELWAR, {0}, Human, Male, Medium, NeutralEvil, Exeptional, {Undead, ImmuneNormalWeapon}, {9, 10}, 2, {SwordTwoHanded}, {OfFear}, {{ResistMagic, 90}}},
+	{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoisonStrong}},
+	{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {OfEnergyDrain}},
+	{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}},
+	{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}},
+	{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
 };
 assert_enum(monster, StaticObject);
 INSTELEM(monsteri);

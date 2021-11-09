@@ -358,30 +358,36 @@ GENDGINF(spelli)
 GENDGINF(usabilityi)
 GENDGINF(weari)
 GENDGINF(varianti)
-DGINF(variant) = {{"Type", DGREQ(type), {getnm<varianti>}},
+DGINF(variant) = {
+	{"Type", DGREQ(type), {getnm<varianti>}},
 	{"Value", DGREQ(value)},
 	{}};
 static bool choose_conditions(const void* object, array& source, void* pointer) {
 	auto v = (conditiona*)pointer;
 	return true;
 }
-DGINF(point) = {{"x", DGREQ(x)},
+DGINF(point) = {
+	{"x", DGREQ(x)},
 	{"y", DGREQ(y)},
 	{}};
-DGINF(textable) = {{0, DGREQ(name), {getnm<textable>, 0, textable::edit}},
+DGINF(textable) = {
+	{0, DGREQ(name), {getnm<textable>, 0, textable::edit}},
 	{}};
-DGINF(dice) = {{"Count", DGREQ(c)},
+DGINF(dice) = {
+	{"Count", DGREQ(c)},
 	{"Dice", DGREQ(d)},
 	{"Modifier", DGREQ(b)},
 	{}};
-DGINF(item) = {{"Type", DGREQ(type), {getnm<itemi>, allow_item_type_no_natural}},
+DGINF(item) = {
+	{"Type", DGREQ(type), {getnm<itemi>, allow_item_type_no_natural}},
 	{"Power", DGGEN(subtype, enchantmenti, int, 0), {getnm<enchantmenti>, 0, item::choose_enchantment, 0, 0, item::getenchantptr}},
 	{"Charges", DGREQ(charges)},
 	{"Identified", DGCHK(flags, 1 << 1)},
 	{"Cursed", DGCHK(flags, 1 << 2)},
 	{"Broken", DGCHK(flags, 1 << 3)},
 	{}};
-DGINF(itemi) = {{"Name", DGREQ(name)},
+DGINF(itemi) = {
+	{"Name", DGREQ(name)},
 	{"Cost", DGREQ(cost)},
 	{"Wears", DGREQ(equipment), {getnm<weari>, allow_item_wears}},
 	{"Use ammo", DGREQ(ammo), {getnm<itemi>, allow_countable}},
@@ -390,7 +396,8 @@ DGINF(itemi) = {{"Name", DGREQ(name)},
 	{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 	{"#chk feats", DGREQ(feats), {getnm<itemfeati>}},
 	{}};
-DGINF(combati) = {{"Attack", DGREQ(attack), {getnm<attacki>}},
+DGINF(combati) = {
+	{"Attack", DGREQ(attack), {getnm<attacki>}},
 	{"Type", DGREQ(type), {getnm<damagei>}},
 	{"Speed", DGREQ(speed)},
 	{"Damage S-M", DGREQ(damage), {getnm<dice>}},
@@ -398,14 +405,17 @@ DGINF(combati) = {{"Attack", DGREQ(attack), {getnm<attacki>}},
 	{"Crit. mul", DGREQ(critical_multiplier)},
 	{"Crit. rng", DGREQ(critical_range)},
 	{}};
-DGINF(itemi::weaponi) = {{0, DGINH(combati, attack)},
+DGINF(itemi::weaponi) = {
+	{0, DGINH(combati, attack)},
 	{"Damage L+", DGREQ(damage_large), {getnm<dice>}},
 	{}};
-DGINF(itemi::armori) = {{"AC", DGREQ(ac)},
+DGINF(itemi::armori) = {
+	{"AC", DGREQ(ac)},
 	{"Crit. def", DGREQ(critical_deflect)},
 	{"Reduction", DGREQ(reduction)},
 	{}};
-DGINF(monsteri) = {{"Name", DGREQ(name)},
+DGINF(monsteri) = {
+	{"Name", DGREQ(name)},
 	{"Resource", DGREQ(rfile), {getnm<resourcei>, monster_resources, 0, resourcei::preview, 130}},
 	{"Race", DGREQ(race), {getnm<racei>}},
 	{"Gender", DGREQ(gender), {getnm<genderi>}},
@@ -430,7 +440,8 @@ DGINF(monsteri) = {{"Name", DGREQ(name)},
 	{"#chk feats", DGREQ(feats), {getnm<feati>}},
 	{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 	{}};
-DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, creature::update_race}},
+DGINF(creature) = {
+	{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, creature::update_race}},
 	{"Gender", DGREQ(gender), {getnm<genderi>, 0, 0, 0, 0, 0, update_name}},
 	{"Class", DGREQ(type), {getnm<classi>, allow_class, 0, 0, 0, 0, creature::update_class}},
 	{"Alignment", DGREQ(alignment), {getnm<alignmenti>, allow_alignment}},
@@ -462,7 +473,8 @@ DGINF(creature) = {{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, 
 	{"Belt 2", DGREQ(wears[SecondBelt]), {getnm<item>}},
 	{"Belt 3", DGREQ(wears[LastBelt]), {getnm<item>}},
 	{}};
-DGINF(classi) = {{"Name", DGREQ(name)},
+DGINF(classi) = {
+	{"Name", DGREQ(name)},
 	{"Playable", DGREQ(playable)},
 	{"Hit dice", DGREQ(hd)},
 	{"Main", DGREQ(ability), {getnm<abilityi>, ability_only}},
@@ -470,7 +482,8 @@ DGINF(classi) = {{"Name", DGREQ(name)},
 	{"#chk feats", DGREQ(feats), {getnm<feati>}},
 	{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 	{}};
-DGINF(racei) = {{"Name", DGREQ(name)},
+DGINF(racei) = {
+	{"Name", DGREQ(name)},
 	{"#tab minimum", DGREQ(minimum)},
 	{"#tab maximum", DGREQ(maximum)},
 	{"#tab adjustment", DGREQ(adjustment)},
@@ -478,7 +491,8 @@ DGINF(racei) = {{"Name", DGREQ(name)},
 	{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 	{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 	{}};
-DGINF(sitei) = {{"Resource", DGREQ(head.type), {getnm<resourcei>, dungeon_resources, 0, resourcei::preview, 130}},
+DGINF(sitei) = {
+	{"Resource", DGREQ(head.type), {getnm<resourcei>, dungeon_resources, 0, resourcei::preview, 130}},
 	{"Monster 1", DGREQ(head.habbits[0]), {getnm<monsteri>}},
 	{"Monster 2", DGREQ(head.habbits[1]), {getnm<monsteri>}},
 	{"Key 1", DGREQ(head.keys[0]), {getnm<itemi>, key_items}},
@@ -489,7 +503,8 @@ DGINF(sitei) = {{"Resource", DGREQ(head.type), {getnm<resourcei>, dungeon_resour
 	{"Levels", DGREQ(levels)},
 	{"Boss", DGREQ(crypt.boss), {getnm<monsteri>}},
 	{}};
-DGINF(historyi) = {{"Stage 1", DGREQ(history[0]), {getnm<textable>, 0, textable::edit}},
+DGINF(historyi) = {
+	{"Stage 1", DGREQ(history[0]), {getnm<textable>, 0, textable::edit}},
 	{"Stage 2", DGREQ(history[1]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
 	{"Stage 3", DGREQ(history[2]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
 	{"Stage 4", DGREQ(history[3]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
@@ -502,7 +517,8 @@ DGINF(historyi) = {{"Stage 1", DGREQ(history[0]), {getnm<textable>, 0, textable:
 	{"Stage 11", DGREQ(history[10]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
 	{"Stage 12", DGREQ(history[11]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
 	{}};
-DGINF(adventurei) = {{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
+DGINF(adventurei) = {
+	{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
 	{"Settlement", DGENM(settlement, settlementi), {getnm<settlementi>}},
 	{"Rumor", DGREQ(rumor_activate), {getnm<textable>, 0, textable::edit}},
 	{"Briefing", DGREQ(message_before), {getnm<textable>, 0, textable::editrich}},

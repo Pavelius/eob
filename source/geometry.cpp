@@ -1,9 +1,10 @@
 #include "main.h"
 
-static const direction_s rotate_direction[4][4] = {{Down, Left, Up, Right},
-{Left, Up, Right, Down},
-{Up, Right, Down, Left},
-{Right, Down, Left, Up},
+static const direction_s rotate_direction[4][4] = {
+	{Down, Left, Up, Right},
+	{Left, Up, Right, Down},
+	{Up, Right, Down, Left},
+	{Right, Down, Left, Up},
 };
 
 direction_s to(direction_s d, direction_s d1) {

@@ -55,36 +55,38 @@ static int wall_sizes[18] = {
 	128, 128, 128,
 	176, 176, 176
 };
-static short item_distances[][2] = {{1000, 0},
-{1000, 0},
-{100 * 1000 / 120, 0},
-{80 * 1000 / 120, 0},
-{64 * 1000 / 120, 64},
-{48 * 1000 / 120, 64},
-{40 * 1000 / 120, 128},
-{32 * 1000 / 120, 128},
+static short item_distances[][2] = {
+	{1000, 0},
+	{1000, 0},
+	{100 * 1000 / 120, 0},
+	{80 * 1000 / 120, 0},
+	{64 * 1000 / 120, 64},
+	{48 * 1000 / 120, 64},
+	{40 * 1000 / 120, 128},
+	{32 * 1000 / 120, 128},
 };
-static point item_position[18 * 4] = {{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
-{16, 56}, {32, 56}, {-2, 60}, {18, 60},
-{48, 56}, {64, 56}, {38, 60}, {58, 60},
-{80, 56}, {96, 56}, {78, 60}, {98, 60},
-{112, 56}, {128, 56}, {118, 60}, {138, 60},
-{144, 56}, {160, 56}, {158, 60}, {178, 60},
-{176, 56}, {192, 56}, {198, 60}, {218, 60},
-// Level 2
-{-29, 66}, {-3, 66}, {-65, 74}, {-31, 74},
-{23, 66}, {49, 66}, {3, 74}, {37, 74},
-{75, 66}, {101, 66}, {71, 74}, {105, 74},
-{127, 66}, {153, 66}, {139, 74}, {173, 74},
-{179, 66}, {205, 66}, {207, 74}, {241, 74},
-// Level 1
-{-27, 86}, {19, 86}, {-57, 98}, {1, 98},
-{65, 86}, {111, 86}, {59, 98}, {117, 98},
-{157, 86}, {203, 86}, {175, 98}, {233, 98},
-// Level 0
-{-107, 118}, {-29, 118}, {-152, 136}, {-56, 136},
-{49, 118}, {127, 118}, {40, 136}, {136, 136},
-{205, 118}, {283, 118}, {232, 136}, {328, 136},
+static point item_position[18 * 4] = {
+	{-16, 56}, {0, 56}, {-42, 60}, {-22, 60},
+	{16, 56}, {32, 56}, {-2, 60}, {18, 60},
+	{48, 56}, {64, 56}, {38, 60}, {58, 60},
+	{80, 56}, {96, 56}, {78, 60}, {98, 60},
+	{112, 56}, {128, 56}, {118, 60}, {138, 60},
+	{144, 56}, {160, 56}, {158, 60}, {178, 60},
+	{176, 56}, {192, 56}, {198, 60}, {218, 60},
+	// Level 2
+	{-29, 66}, {-3, 66}, {-65, 74}, {-31, 74},
+	{23, 66}, {49, 66}, {3, 74}, {37, 74},
+	{75, 66}, {101, 66}, {71, 74}, {105, 74},
+	{127, 66}, {153, 66}, {139, 74}, {173, 74},
+	{179, 66}, {205, 66}, {207, 74}, {241, 74},
+	// Level 1
+	{-27, 86}, {19, 86}, {-57, 98}, {1, 98},
+	{65, 86}, {111, 86}, {59, 98}, {117, 98},
+	{157, 86}, {203, 86}, {175, 98}, {233, 98},
+	// Level 0
+	{-107, 118}, {-29, 118}, {-152, 136}, {-56, 136},
+	{49, 118}, {127, 118}, {40, 136}, {136, 136},
+	{205, 118}, {283, 118}, {232, 136}, {328, 136},
 };
 
 static int get_tile(cell_s id, bool mirrored) {
@@ -284,9 +286,9 @@ void creature::view_portrait(int x, int y) const {
 		spell_s		v;
 		color		c;
 	} variants[] = {{Poison, colors::green},
-	{Disease, colors::green.mix(colors::red)},
-	{HoldPerson, colors::red},
-	{Sleep, colors::blue}
+		{Disease, colors::green.mix(colors::red)},
+		{HoldPerson, colors::red},
+		{Sleep, colors::blue}
 	};
 	if(isinvisible() || is(Blur))
 		image(x, y, gres(PORTM), getavatar(), 0, 128);
@@ -371,9 +373,9 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, void* current_item
 	sb.add("%1i of %2i", hp, mhp);
 	text({x + 2, y + 43, x + 2 + 61, y + 43 + draw::texth()}, temp, AlignCenterCenter);
 	//greenbar({x + 2, y + 42, x + 62 - 1, y + 43 + 5}, hp, mhp);
-	if(flags&Disabled)
+	if(flags & Disabled)
 		rectf({x, y, x + 64, y + 50}, colors::black, 128);
-	if(flags&Checked)
+	if(flags & Checked)
 		rectb({x, y, x + 62, y + 49}, colors::white.mix(colors::black, ciclic(63) * 4));
 }
 
@@ -498,7 +500,7 @@ static dungeoni::overlayi* add_wall_decor(renderi* p, indext index, direction_s 
 			frame += decor_frames;
 	}
 	p->frame[1] = frame + n;
-	if(use_flip && flip && (render_mirror1==tile || render_mirror2==tile))
+	if(use_flip && flip && (render_mirror1 == tile || render_mirror2 == tile))
 		p->flags[1] ^= ImageMirrorH;
 	return povr;
 }
@@ -546,26 +548,26 @@ static renderi* add_cellar_items(renderi* p, int i, dungeoni::overlayi* povr) {
 		const int dy2 = 16;
 		const int dy3 = 17;
 		static point positions[18] = {{scrx / 2 - 48 * 3, scry / 2},
-		{scrx / 2 - 48 * 2, scry / 2 - dy3},
-		{scrx / 2 - 48 * 1, scry / 2 - dy3},
-		{scrx / 2, scry / 2 - dy3},
-		{scrx / 2 + 48 * 1, scry / 2 - dy3},
-		{scrx / 2 + 48 * 2, scry / 2 - dy3},
-		{scrx / 2 + 48 * 3, scry / 2 - dy3},
+			{scrx / 2 - 48 * 2, scry / 2 - dy3},
+			{scrx / 2 - 48 * 1, scry / 2 - dy3},
+			{scrx / 2, scry / 2 - dy3},
+			{scrx / 2 + 48 * 1, scry / 2 - dy3},
+			{scrx / 2 + 48 * 2, scry / 2 - dy3},
+			{scrx / 2 + 48 * 3, scry / 2 - dy3},
 			// Level 2
-		{scrx / 2 - 80 * 2, scry / 2 - dy2},
-		{scrx / 2 - 80 * 1, scry / 2 - dy2},
-		{scrx / 2, scry / 2 - dy2},
-		{scrx / 2 + 80 * 1, scry / 2 - dy2},
-		{scrx / 2 + 80 * 2, scry / 2 - dy2},
+			{scrx / 2 - 80 * 2, scry / 2 - dy2},
+			{scrx / 2 - 80 * 1, scry / 2 - dy2},
+			{scrx / 2, scry / 2 - dy2},
+			{scrx / 2 + 80 * 1, scry / 2 - dy2},
+			{scrx / 2 + 80 * 2, scry / 2 - dy2},
 			// Level 1
-		{scrx / 2 - 128, scry / 2 - dy1},
-		{scrx / 2, scry / 2 - dy1},
-		{scrx / 2 + 128, scry / 2 - dy1},
+			{scrx / 2 - 128, scry / 2 - dy1},
+			{scrx / 2, scry / 2 - dy1},
+			{scrx / 2 + 128, scry / 2 - dy1},
 			// Level 0
-		{scrx / 2, scry / 2},
-		{scrx / 2, scry / 2},
-		{scrx / 2, scry / 2},
+			{scrx / 2, scry / 2},
+			{scrx / 2, scry / 2},
+			{scrx / 2, scry / 2},
 		};
 		item* result[4];
 		auto item_count = location.getitems(result, zendof(result), povr);
@@ -614,26 +616,26 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 		0, 0, 1,
 	};
 	static point wall_position[18] = {{scrx / 2 - 48 * 3, scry / 2},
-	{scrx / 2 - 48 * 2, scry / 2},
-	{scrx / 2 - 48 * 1, scry / 2},
-	{scrx / 2, scry / 2},
-	{scrx / 2 + 48 * 1, scry / 2},
-	{scrx / 2 + 48 * 2, scry / 2},
-	{scrx / 2 + 48 * 3, scry / 2},
+		{scrx / 2 - 48 * 2, scry / 2},
+		{scrx / 2 - 48 * 1, scry / 2},
+		{scrx / 2, scry / 2},
+		{scrx / 2 + 48 * 1, scry / 2},
+		{scrx / 2 + 48 * 2, scry / 2},
+		{scrx / 2 + 48 * 3, scry / 2},
 		// Level 2
-	{scrx / 2 - 80 * 2, scry / 2},
-	{scrx / 2 - 80 * 1, scry / 2},
-	{scrx / 2, scry / 2},
-	{scrx / 2 + 80 * 1, scry / 2},
-	{scrx / 2 + 80 * 2, scry / 2},
+		{scrx / 2 - 80 * 2, scry / 2},
+		{scrx / 2 - 80 * 1, scry / 2},
+		{scrx / 2, scry / 2},
+		{scrx / 2 + 80 * 1, scry / 2},
+		{scrx / 2 + 80 * 2, scry / 2},
 		// Level 1
-	{scrx / 2 - 128, scry / 2},
-	{scrx / 2, scry / 2},
-	{scrx / 2 + 128, scry / 2},
+		{scrx / 2 - 128, scry / 2},
+		{scrx / 2, scry / 2},
+		{scrx / 2 + 128, scry / 2},
 		// Level 0
-	{scrx / 2, scry / 2},
-	{scrx / 2, scry / 2},
-	{scrx / 2, scry / 2},
+		{scrx / 2, scry / 2},
+		{scrx / 2, scry / 2},
+		{scrx / 2, scry / 2},
 	};
 	// Decors render
 	// 9 7 3 7 9
@@ -844,7 +846,7 @@ static renderi* create_floor(renderi* p, int i, indext index, cell_s rec, bool f
 }
 
 static int get_x_from_line(int y, int x1, int y1, int x2, int y2) {
-	return ((y - y1)*(x2 - x1)) / (y2 - y1) + x1;
+	return ((y - y1) * (x2 - x1)) / (y2 - y1) + x1;
 }
 
 static renderi* create_thrown(renderi* p, int i, int ps, item_s rec, direction_s dr) {
@@ -960,24 +962,24 @@ static renderi* create_monsters(renderi* p, int i, indext index, direction_s dr,
 
 static void prepare_draw(indext index, direction_s dr) {
 	static char offset_north[18][2] = {{-3, -3}, {-2, -3}, {-1, -3}, {0, -3}, {1, -3}, {2, -3}, {3, -3},
-	{-2, -2}, {-1, -2}, {0, -2}, {1, -2}, {2, -2},
-	{-1, -1}, {0, -1}, {1, -1},
-	{-1, 0}, {0, 0}, {1, 0}
+		{-2, -2}, {-1, -2}, {0, -2}, {1, -2}, {2, -2},
+		{-1, -1}, {0, -1}, {1, -1},
+		{-1, 0}, {0, 0}, {1, 0}
 	};
 	static char offset_west[18][2] = {{-3, 3}, {-3, 2}, {-3, 1}, {-3, 0}, {-3, -1}, {-3, -2}, {-3, -3},
-	{-2, 2}, {-2, 1}, {-2, 0}, {-2, -1}, {-2, -2},
-	{-1, 1}, {-1, 0}, {-1, -1},
-	{0, 1}, {0, 0}, {0, -1}
+		{-2, 2}, {-2, 1}, {-2, 0}, {-2, -1}, {-2, -2},
+		{-1, 1}, {-1, 0}, {-1, -1},
+		{0, 1}, {0, 0}, {0, -1}
 	};
 	static char offset_south[18][2] = {{3, 3}, {2, 3}, {1, 3}, {0, 3}, {-1, 3}, {-2, 3}, {-3, 3},
-	{2, 2}, {1, 2}, {0, 2}, {-1, 2}, {-2, 2},
-	{1, 1}, {0, 1}, {-1, 1},
-	{1, 0}, {0, 0}, {-1, 0}
+		{2, 2}, {1, 2}, {0, 2}, {-1, 2}, {-2, 2},
+		{1, 1}, {0, 1}, {-1, 1},
+		{1, 0}, {0, 0}, {-1, 0}
 	};
 	static char offset_east[18][2] = {{3, -3}, {3, -2}, {3, -1}, {3, 0}, {3, 1}, {3, 2}, {3, 3},
-	{2, -2}, {2, -1}, {2, 0}, {2, 1}, {2, 2},
-	{1, -1}, {1, 0}, {1, 1},
-	{0, -1}, {0, 0}, {0, 1}
+		{2, -2}, {2, -1}, {2, 0}, {2, 1}, {2, 2},
+		{1, -1}, {1, 0}, {1, 1},
+		{0, -1}, {0, 0}, {0, 1}
 	};
 	int x = gx(index);
 	int y = gy(index);
@@ -1055,26 +1057,26 @@ static void imagex(int x, int y, const sprite* res, int id, unsigned flags, int 
 	const sprite::frame& f = res->get(id);
 	int sx = f.sx;
 	int sy = f.sy;
-	int ssx = f.sx*percent / 1000;
-	int ssy = f.sy*percent / 1000;
-	int sox = f.ox*percent / 1000;
-	int soy = f.oy*percent / 1000;
+	int ssx = f.sx * percent / 1000;
+	int ssy = f.sy * percent / 1000;
+	int sox = f.ox * percent / 1000;
+	int soy = f.oy * percent / 1000;
 	unsigned flags_addon = (flags & ImagePallette);
 	if(true) {
 		draw::state push;
 		draw::canvas = &scaler;
 		draw::fore.r = draw::fore.g = draw::fore.b = 0; draw::fore.a = 0xFF;
 		draw::rectf({0, 0, sx, sy});
-		if(flags&ImageMirrorH)
+		if(flags & ImageMirrorH)
 			draw::image(sx, 0, res, id, ImageMirrorH | ImageNoOffset | flags_addon);
 		else
 			draw::image(0, 0, res, id, ImageNoOffset | flags_addon);
 	}
 	blit(scaler2, 0, 0, ssx, ssy, 0, scaler, 0, 0, sx, sy);
 	fast_shadow(scaler2.bits, scaler2.scanline, ssx, ssy, shadow);
-	if(flags&ImageColor)
+	if(flags & ImageColor)
 		fast_fill_contour(scaler2.bits, scaler2.scanline, ssx, ssy, colors::white);
-	if(flags&ImageMirrorH)
+	if(flags & ImageMirrorH)
 		blit(*draw::canvas, x - ssx + sox, y - soy, ssx, ssy, ImageTransparent, scaler2, 0, 0);
 	else
 		blit(*draw::canvas, x - sox, y - soy, ssx, ssy, ImageTransparent, scaler2, 0, 0);

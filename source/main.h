@@ -630,7 +630,7 @@ struct sitei {
 		resource_s		type;
 		monster_s		habbits[2]; // Who dwelve here
 		item_s			keys[2]; // Two keys open all doors
-		item_s			wands; // Special find some where
+		item_s			wands; // Special find somewhere
 		race_s			language; // All messages in this language
 	};
 	struct crypti {
