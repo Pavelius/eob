@@ -282,6 +282,13 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 		} else
 			pc->say("Some kind of strange mechanism");
 		break;
+	case CellDecor1:
+		break;
+	case CellDecor2:
+		pc->say("This is drainage gate");
+		break;
+	case CellDecor3:
+		break;
 	default:
 		return false;
 	}

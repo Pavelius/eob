@@ -196,7 +196,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="markup.cpp" />
     <ClCompile Include="monster.cpp" />
-    <ClCompile Include="names.cpp" />
+    <ClCompile Include="nameable.cpp" />
     <ClCompile Include="settlement.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />

@@ -164,7 +164,7 @@ int	creature::get(ability_s id) const {
 		}
 		return r;
 	}
-	int result = bsdata<racei>::elements[race].skills[id];
+	int result = bsdata<racei>::elements[getrace()].skills[id];
 	if(id >= FirstSave && id <= LastSave) {
 		auto index = save_index[id];
 		auto con = get(Constitution);

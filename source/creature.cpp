@@ -163,26 +163,26 @@ bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus
 }
 
 int creature::gethd() const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].hd[0];
+	if(ismonster())
+		return getmonster().hd[0];
 	return levels[0];
 }
 
 int	creature::getawards() const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].getexperience();
+	if(ismonster())
+		return getmonster().getexperience();
 	return gethd() * 100;
 }
 
 size_s creature::getsize() const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].size;
+	if(ismonster())
+		return getmonster().size;
 	return Medium;
 }
 
 resource_s creature::getres() const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].rfile;
+	if(ismonster())
+		return getmonster().rfile;
 	return NONE;
 }
 
@@ -191,8 +191,8 @@ void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	auto hd = gethd();
 	auto t = getbestclass();
 	auto k = getstrex();
-	if(kind)
-		result.bonus += maptbl(monsters_thac0, (int)bsdata<monsteri>::elements[kind].hd[0]);
+	if(ismonster())
+		result.bonus += maptbl(monsters_thac0, hd);
 	else
 		result.bonus += getthac0(t, get(t));
 	result.bonus += maptbl(hit_probability, k);
@@ -312,7 +312,7 @@ void creature::update(bool interactive) {
 	if(is(AcidArrow))
 		damage(Magic, dice::roll(2, 4), 5);
 	remove(Moved);
-	if(!kind)
+	if(!ismonster())
 		update_levelup(interactive);
 }
 
@@ -369,8 +369,8 @@ void creature::equip(item it) {
 }
 
 int	creature::getbonus(variant id, wear_s slot) const {
-	if(kind) {
-		if(slot == RightHand && bsdata<monsteri>::elements[kind].is(id))
+	if(ismonster()) {
+		if(slot == RightHand && getmonster().is(id))
 			return 2;
 		return 0;
 	}
@@ -453,10 +453,10 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 	if(isinvisible())
 		wi.bonus += 4;
 	// RULE: Dwarf can hit goblinoid by 5% better that others
-	if(is(BonusToHitVsGoblinoid) && defender->race == Goblinoid)
+	if(is(BonusToHitVsGoblinoid) && defender->getrace() == Goblinoid)
 		wi.bonus += 1;
 	// RULE: Ranger add +4 THAC0 when fight humanoid and goblonoids
-	if(is(BonusDamageVsEnemy) && (defender->race == Humanoid || defender->race == Goblinoid))
+	if(is(BonusDamageVsEnemy) && (defender->getrace() == Humanoid || defender->getrace() == Goblinoid))
 		wi.bonus += 4;
 	auto magic_bonus = 0;
 	if(wi.weapon)
@@ -608,11 +608,11 @@ void creature::finish() {
 	memset(prepared, 0, sizeof(prepared));
 	known_spells.clear();
 	active_spells.clear();
-	feats.add(bsdata<racei>::elements[race].feats);
+	feats.add(bsdata<racei>::elements[getrace()].feats);
 	feats.add(bsdata<classi>::elements[type].feats);
-	usability.add(bsdata<racei>::elements[race].usability);
+	usability.add(bsdata<racei>::elements[getrace()].usability);
 	usability.add(bsdata<classi>::elements[type].usability);
-	if(kind)
+	if(ismonster())
 		hits_rolled = gethitdice().roll();
 	else {
 		for(int i = 0; i < 3; i++) {
@@ -719,7 +719,7 @@ int	creature::get(class_s type) const {
 }
 
 int creature::getside() const {
-	if(kind)
+	if(ismonster())
 		return side;
 	if(party[0] == this)
 		return 0;
@@ -731,8 +731,8 @@ int creature::getside() const {
 }
 
 short creature::gethitsmaximum() const {
-	if(kind)
-		return hits_rolled + bsdata<monsteri>::elements[type].hd[1];
+	if(ismonster())
+		return hits_rolled + getmonster().hd[1];
 	auto hd = gethd();
 	auto rl = (int)hits_rolled / getclasscount();
 	auto cs = get(Constitution);
@@ -770,8 +770,8 @@ int creature::getac() const {
 	r += wears[RightHand].getac();
 	r += wears[LeftHand].getac();
 	r += getbonus(OfProtection);
-	if(kind)
-		r += (10 - bsdata<monsteri>::elements[kind].ac);
+	if(ismonster())
+		r += (10 - getmonster().ac);
 	if(is(Haste))
 		r += 2;
 	if(is(MageArmor))
@@ -817,21 +817,6 @@ int	creature::getthac0(class_s cls, int level) const {
 	case Cleric: return maptbl(thac0_priest, level);
 	default: return maptbl(thac0_wizard, level);
 	}
-}
-
-void creature::random_name() {
-	if(kind)
-		return;
-	auto race = getrace();
-	auto gender = getgender();
-	if(race == HalfElf) {
-		// RULE: Half-elves get names mostly elvish than humans
-		if(d100() < 60)
-			race = Elf;
-		else
-			race = Human;
-	}
-	name = game.getrandom(race, gender);
 }
 
 int creature::get_base_save_throw(ability_s st) const {
@@ -916,7 +901,7 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 }
 
 int creature::getenchant(variant id, int bonus) const {
-	if(bsdata<monsteri>::elements[kind].is(id))
+	if(getmonster().is(id))
 		return bonus;
 	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
 	for(auto s : slots) {
@@ -934,7 +919,7 @@ int creature::getenchant(variant id, int bonus) const {
 
 int creature::getbonus(variant id) const {
 	if(id.type == Enchant) {
-		if(bsdata<monsteri>::elements[kind].is((enchant_s)id.value))
+		if(getmonster().is((enchant_s)id.value))
 			return 2; // All monsters have enchantment of 2
 	}
 	// All bonuses no stack each other
@@ -965,8 +950,8 @@ int creature::getspecialist(item_s type) const {
 }
 
 void creature::setframe(short* frames, short index) const {
-	if(kind) {
-		auto po = bsdata<monsteri>::elements[type].overlays;
+	if(ismonster()) {
+		auto po = getmonster().overlays;
 		frames[0] = po[0] * 6 + index;
 		frames[1] = po[1] ? po[1] * 6 + index : 0;
 		frames[2] = po[2] ? po[2] * 6 + index : 0;
@@ -978,13 +963,13 @@ void creature::setframe(short* frames, short index) const {
 }
 
 direction_s creature::getdirection() const {
-	if(kind)
+	if(ismonster())
 		return direction;
 	return game.getdirection();
 }
 
 short unsigned creature::getindex() const {
-	if(kind)
+	if(ismonster())
 		return index;
 	return game.getcamera();
 }
@@ -1010,14 +995,14 @@ bool creature::isuse(const item v) const {
 }
 
 void creature::set(direction_s v) {
-	if(kind)
+	if(ismonster())
 		direction = v;
 	else
 		game.setcamera(getindex(), v);
 }
 
 void creature::setside(int value) {
-	if(kind)
+	if(ismonster())
 		side = value;
 }
 
@@ -1130,7 +1115,7 @@ void creature::kill() {
 			location.dropitem(index, it, side);
 		}
 	}
-	game.add(kind);
+	nameable::kill();
 	clear();
 }
 
@@ -1306,19 +1291,19 @@ void creature::random_ability() {
 	}
 	// Check minimum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[race].minimum.data[j];
+		auto m = bsdata<racei>::elements[getrace()].minimum.data[j];
 		if(result[j] < m)
 			result[j] = m;
 	}
 	// Check maximum by race
 	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[race].maximum.data[j];
+		auto m = bsdata<racei>::elements[getrace()].maximum.data[j];
 		if(result[j] > m)
 			result[j] = m;
 	}
 	// Adjust ability
 	for(auto j = 0; j < 6; j++)
-		result[j] += bsdata<racei>::elements[race].adjustment.data[j];
+		result[j] += bsdata<racei>::elements[getrace()].adjustment.data[j];
 	// Расставим атрибуты по местам
 	for(auto j = 0; j < 6; j++)
 		ability[j] = result[j];
@@ -1828,12 +1813,6 @@ void creature::removeloot() {
 			continue;
 		e.clear();
 	}
-}
-
-const char* creature::getname() const {
-	if(kind)
-		return bsdata<monsteri>::elements[kind].name;
-	return bsdata<namei>::elements[name].name;
 }
 
 bool creature::is(morale_s v) const {

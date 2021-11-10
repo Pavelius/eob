@@ -232,3 +232,28 @@ int	gamei::getrandom(race_s race, gender_s gender) {
 		return 0;
 	return data[rand() % c];
 }
+
+const char* nameable::getname() const {
+	if(kind)
+		return bsdata<monsteri>::elements[kind].name;
+	return bsdata<namei>::elements[name].name;
+}
+
+void nameable::random_name() {
+	if(ismonster())
+		return;
+	auto race = getrace();
+	auto gender = getgender();
+	if(race == HalfElf) {
+		// RULE: Half-elves get names mostly elvish than humans
+		if(d100() < 60)
+			race = Elf;
+		else
+			race = Human;
+	}
+	name = game.getrandom(race, gender);
+}
+
+void nameable::kill() {
+	game.add(kind);
+}

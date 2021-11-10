@@ -298,8 +298,8 @@ static bool ability_only(const void* object, const void* pointer) {
 }
 void creature::update_race(void* object) {
 	auto p = (creature*)object;
-	if(!p->isallow(p->type, p->race))
-		p->type = chooseclass(false, p->race);
+	if(!p->isallow(p->type, p->getrace()))
+		p->type = chooseclass(false, p->getrace());
 	if(!p->isallow(p->alignment, p->type))
 		p->alignment = choosealignment(false, p->type);
 	p->random_name();
@@ -315,7 +315,7 @@ void creature::update_class(void* object) {
 	p->finish();
 }
 static void update_name(void* object) {
-	auto p = (creature*)object;
+	auto p = (nameable*)object;
 	p->random_name();
 }
 static bool allow_class(const void* object, const void* pointer) {
@@ -440,9 +440,11 @@ DGINF(monsteri) = {
 	{"#chk feats", DGREQ(feats), {getnm<feati>}},
 	{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 	{}};
-DGINF(creature) = {
+DGINF(nameable) = {
 	{"Race", DGREQ(race), {getnm<racei>, allow_race, 0, 0, 0, 0, creature::update_race}},
 	{"Gender", DGREQ(gender), {getnm<genderi>, 0, 0, 0, 0, 0, update_name}},
+	{}};
+DGINF(creature) = {
 	{"Class", DGREQ(type), {getnm<classi>, allow_class, 0, 0, 0, 0, creature::update_class}},
 	{"Alignment", DGREQ(alignment), {getnm<alignmenti>, allow_alignment}},
 	{"Level 1", DGREQ(levels[0]), {}, {visible_class1, getclass1}},

@@ -104,7 +104,7 @@
     <ClCompile Include="monster.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="names.cpp">
+    <ClCompile Include="nameable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="race.cpp">

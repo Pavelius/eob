@@ -2501,7 +2501,7 @@ int creature::render_combat(int x, int y, int width, unsigned flags) const {
 
 void creature::view_ability() {
 	adat<short unsigned, 256> source;
-	source.count = game.getavatar(source.data, race, gender, type);
+	source.count = game.getavatar(source.data, getrace(), getgender(), type);
 	const int width = 152;
 	char temp[64];
 	int x, y;
@@ -2525,7 +2525,7 @@ void creature::view_ability() {
 		y += buttonx(x, y, 0, KeyLeft, prev_portrait, 0);
 		y += buttonx(x, y, 0, KeyRight, next_portrait, 0);
 		x = 148; y = 104;
-		zprint(temp, "%1 %2", getstr(race), getstr(gender));
+		zprint(temp, "%1 %2", getstr(getrace()), getstr(getgender()));
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
 		zprint(temp, getstr(type));
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
@@ -2696,8 +2696,8 @@ void creature::view_party() {
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
-	set(gender);
-	set(race);
+	nameable::set(gender);
+	nameable::set(race);
 	set(type);
 	set(alignment);
 	random_ability();
@@ -2956,18 +2956,6 @@ void adventurei::play() {
 		}
 	}
 }
-
-//void gamei::rest(const imagei& im) {
-//	if(!party)
-//		return;
-//	setfocus(party[0]->getitem(RightHand));
-//	while(ismodal()) {
-//		draw::animation::render(0, false, getfocus(), &im);
-//		domodal();
-//		if(handle_shortcuts(getfocus(), false, true))
-//			game.endround();
-//	}
-//}
 
 static void main_new_game() {
 	setnext(game.newgame);

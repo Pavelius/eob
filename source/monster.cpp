@@ -76,8 +76,7 @@ dice creature::gethitdice() const {
 	dice hd = {};
 	hd.c = gethd();
 	hd.d = bsdata<classi>::elements[getclass(type, 0)].hd;
-	if(kind)
-		hd.b = bsdata<monsteri>::elements[kind].hd[1];
+	hd.b = getmonster().hd[1];
 	if(!hd.c) {
 		hd.c = 1;
 		hd.d = hd.b;
@@ -86,9 +85,9 @@ dice creature::gethitdice() const {
 	return hd;
 }
 
-void creature::set(monster_s value) {
-	kind = value;
-	auto& mi = bsdata<monsteri>::elements[kind];
+void creature::set(monster_s v_kind) {
+	nameable::set(v_kind);
+	auto& mi = getmonster();
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		ability[i] = 10;
 	if(bsdata<intellegencei>::elements[mi.ins].v2)
@@ -101,8 +100,8 @@ void creature::set(monster_s value) {
 	case Small: ability[Strenght] -= 1; ability[Dexterity] += 2; break;
 	}
 	alignment = mi.alignment;
-	race = mi.race;
-	gender = mi.gender;
+	nameable::set(mi.race);
+	nameable::set(mi.gender);
 	feats = mi.feats;
 	levels[0] = mi.hd[0];
 	if(mi.hd[1] >= 3)

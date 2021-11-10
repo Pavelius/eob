@@ -773,12 +773,28 @@ public:
 	void				select(adat<item>& source);
 	void				sort();
 };
-class creature {
-	alignment_s			alignment = LawfulGood;
+class nameable {
+	monster_s			kind = NoMonster;
 	race_s				race = Human;
 	gender_s			gender = Male;
+	unsigned short		name = 0;
+	friend dginf<nameable>;
+public:
+	constexpr gender_s	getgender() const { return gender; }
+	const monsteri&		getmonster() const { return bsdata<monsteri>::elements[kind]; }
+	const char*			getname() const;
+	constexpr race_s	getrace() const { return race; }
+	bool				is(monster_s v) const { return kind == v; }
+	constexpr bool		ismonster() const { return kind != NoMonster; }
+	void				kill();
+	void				random_name();
+	void				set(gender_s v) { gender = v; }
+	void				set(monster_s v) { kind = v; }
+	void				set(race_s v) { race = v; }
+};
+class creature : public nameable {
+	alignment_s			alignment = LawfulGood;
 	class_s				type = NoClass;
-	monster_s			kind = NoMonster;
 	indext				index = Blocked;
 	unsigned char		side = 0;
 	direction_s			direction = Up;
@@ -795,7 +811,6 @@ class creature {
 	spellf				active_spells;
 	char				avatar = 0;
 	unsigned			experience = 0;
-	unsigned short		name = 0;
 	char				str_exeptional = 0;
 	char				drain_energy = 0, drain_strenght = 0, disease_progress = 0;
 	char				pallette = 0;
@@ -868,16 +883,13 @@ public:
 	int					gethitpenalty(int bonus) const;
 	short				gethits() const { return hits + hits_aid; }
 	short				gethitsmaximum() const;
-	gender_s			getgender() const { return gender; }
 	short unsigned		getindex() const;
 	int					getinitiative() const { return initiative; }
 	item*				getitem(wear_s id) { return &wears[id - FirstInvertory]; }
 	static int			getlevel(spell_s id, class_s type);
-	const char*			getname() const;
 	int					getpallette() const { return pallette; }
 	int					getpartyindex() const;
 	int					getprepare(spell_s v) const { return prepared[v]; }
-	race_s				getrace() const { return race; }
 	reaction_s			getreaction() const { return reaction; }
 	resource_s			getres() const;
 	int					getside() const;
@@ -894,10 +906,10 @@ public:
 	bool				haveforsale() const;
 	bool				is(condition_s v) const;
 	bool				is(intellegence_s v) const;
+	bool				is(monster_s v) const { return nameable::is(v); }
 	bool				is(feat_s v) const { return feats.is(v); }
 	bool				is(morale_s v) const;
 	bool				is(spell_s v) const;
-	bool				is(monster_s v) const { return kind == v; }
 	bool				is(usability_s v) const { return usability.is(v); }
 	bool				isaffect(variant v) const;
 	static bool			isallow(class_s id, race_s r);
@@ -920,7 +932,6 @@ public:
 	void				preparespells();
 	static void			preparespells(class_s type);
 	void				random_equipment(int level);
-	void				random_name();
 	void				remove(spell_s v);
 	bool				remove(wear_s slot, bool interactive);
 	void				removeboost(variant v);
@@ -943,9 +954,7 @@ public:
 	void				set(ability_s id, int v) { ability[id] = v; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(class_s value) { type = value; }
-	void				set(gender_s value) { gender = value; }
 	void				set(monster_s type);
-	void				set(race_s value) { race = value; }
 	void				set(reaction_s v) { reaction = v; }
 	bool				set(ability_s skill, short unsigned index);
 	void				set(spell_s spell, char v) { spells[spell] = v; }
