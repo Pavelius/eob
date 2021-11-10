@@ -454,7 +454,7 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(variant index, char level) {
+void gamei::enter(variant index, char level, bool set_camera) {
 	location_index = index;
 	location_level = level;
 	location.clear();
@@ -469,7 +469,8 @@ void gamei::enter(variant index, char level) {
 		if(location_level > 1)
 			location_above.read(location_index.value, location_level - 1);
 		draw::settiles(location.head.type);
-		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+		if(set_camera)
+			setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 	} else if(location_index.type == Settlement)
 		camera_index = Blocked;
 	draw::setnext(play);
@@ -579,7 +580,7 @@ void gamei::write() {
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	enter(location_index, location_level);
+	enter(location_index, location_level, false);
 	return true;
 }
 

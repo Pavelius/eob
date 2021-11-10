@@ -1252,7 +1252,7 @@ public:
 	void				clear();
 	void				createdecks();
 	void				endround();
-	void				enter(variant index, char level);
+	void				enter(variant index, char level, bool set_camera = true);
 	void				equiping();
 	adventurei*			getadventure();
 	deck&				getevents() { return events_deck; }
