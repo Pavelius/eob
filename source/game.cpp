@@ -3,7 +3,6 @@
 
 // Dungeon can hold from 1 to 10 levels.
 
-const int save_subversion = 7;
 #ifdef _DEBUG
 const bool visialize_map = false;
 #else
@@ -493,7 +492,7 @@ bool creature::set(ability_s skill, short unsigned index) {
 static bool addstatical(archive& a) {
 	if(!a.signature("STD"))
 		return false;
-	if(!a.version(0, save_subversion))
+	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	a.set(textable::getstrings());
 	a.set(bsdata<adventurei>::source);
@@ -510,7 +509,7 @@ static bool serialize(bool writemode) {
 	archive a(file, writemode);
 	if(!a.signature("SAV"))
 		return false;
-	if(!a.version(0, save_subversion))
+	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	if(writemode)
 		game.preserial(true);
@@ -530,7 +529,7 @@ static bool serialize(dungeoni& e, short unsigned index, char level, bool write_
 	archive a(file, write_mode);
 	if(!a.signature("DNG"))
 		return false;
-	if(!a.version(0, save_subversion))
+	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	a.set(e);
 	return true;
@@ -545,7 +544,7 @@ static bool serialize(const char* name, companyi& e, bool write_mode) {
 	archive a(file, write_mode);
 	if(!a.signature("MOD"))
 		return false;
-	if(!a.version(0, 2))
+	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	a.set(e);
 	return addstatical(a);
@@ -859,4 +858,31 @@ void gamei::createdecks() {
 			events_deck.addbottom(&e);
 	}
 	events_deck.shuffle();
+}
+
+bool gamei::writemeta(const char* url) {
+	const unsigned size = 256 * 256 * 4;
+	auto ptemp = new char[size]; ptemp[0] = 0;
+	stringbuilder sb(ptemp, ptemp + size - 1);
+	varianti::getmetadata(sb);
+	io::file file(url, StreamWrite|StreamText);
+	if(file)
+		file << ptemp;
+	delete[] ptemp;
+	return true;
+}
+
+unsigned long long calculate_checksum(unsigned char* start, unsigned count);
+
+unsigned long long gamei::getchecksum() {
+	static unsigned long long result;
+	if(!result) {
+		const unsigned size = 256 * 256 * 4;
+		auto ptemp = new char[size]; ptemp[0] = 0;
+		stringbuilder sb(ptemp, ptemp + size - 1);
+		varianti::getmetadata(sb);
+		result = calculate_checksum((unsigned char*)ptemp, sb.size());
+		delete[] ptemp;
+	}
+	return result;
 }

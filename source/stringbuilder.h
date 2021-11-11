@@ -40,6 +40,7 @@ public:
 	static unsigned char lower(unsigned char sym);
 	static void			lower(char* s);
 	void				set(char* v) { p = v; p[0] = 0; }
+	constexpr unsigned	size() { return p - pb; }
 	static unsigned char upper(unsigned char sym);
 	static void			upper(char* s);
 };

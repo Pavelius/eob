@@ -5,8 +5,7 @@ static chati messages[] = {
 	{TalkAbout, {BRICK, CellDecor2}, "A drainage gate"},
 	{TalkAbout, {CellKeyHole1}, "This is a keyhole"},
 	{TalkAbout, {CellKeyHole2}, "This is a keyhole"},
-	{TalkAbout, {Uncommon}, "What?"},
-	{TalkAbout, {}, "What do you want?"},
+	{TalkAbout, {}, "I don't know what is this"},
 	{}
 };
 

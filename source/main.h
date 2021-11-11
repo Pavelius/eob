@@ -462,6 +462,7 @@ struct varianti {
 	static variant_s	find(const array* v);
 	static varianti*	find(const markup* v);
 	variant				find(const char* v) const;
+	static void			getmetadata(stringbuilder& sb);
 };
 struct combati {
 	attack_s			attack;
@@ -1283,6 +1284,7 @@ public:
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
+	static unsigned long long getchecksum();
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
 	int					getgold() const { return gold; }
@@ -1322,6 +1324,7 @@ public:
 	void				thrown(item* itm);
 	void				worldmap();
 	void				write();
+	static bool			writemeta(const char* url);
 	static bool			writetext(const char* url, std::initializer_list<variant_s> source);
 	static bool			writetext(const char* url, variant_s id) { return writetext(url, {id}); }
 };

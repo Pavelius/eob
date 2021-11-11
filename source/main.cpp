@@ -349,6 +349,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	util_main();
 #endif // _DEBUG
+	//gamei::writemeta("metadata.json");
 	draw::initialize();
 	fore = colors::white;
 	setbigfont();

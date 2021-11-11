@@ -287,6 +287,9 @@
     <ClCompile Include="chat.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="checksum.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\import\western_heartlands.json">

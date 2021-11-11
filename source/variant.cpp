@@ -163,3 +163,30 @@ variant varianti::find(const char* name) const {
 	sb.clear();
 	return variant();
 }
+
+void varianti::getmetadata(stringbuilder& sb) {
+	sb.addn("{");
+	auto result = 0;
+	for(auto& e : bsdata<varianti>()) {
+		if(result)
+			sb.add(",");
+		sb.addn("\t\"%1\" : {", e.name);
+		if(e.form) {
+			auto requisit_count = 0;
+			for(auto pm = e.form; *pm; pm++) {
+				if(!pm->title)
+					continue;
+				if(requisit_count)
+					sb.add(",");
+				if(pm->value.type)
+					sb.addn("\t\t\"%1\" : \"%2\"", pm->title, pm->value.type->title);
+				else
+					sb.addn("\t\t\"%1\" : \"complex\"", pm->title);
+				requisit_count++;
+			}
+		}
+		sb.addn("}");
+		result++;
+	}
+	sb.addn("}");
+}

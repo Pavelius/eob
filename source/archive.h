@@ -8,9 +8,10 @@ struct archive {
 	io::stream&		source;
 	bool			writemode;
 	archive(io::stream& source, bool writemode) : source(source), writemode(writemode) {}
+	bool			checksum(unsigned long long v);
 	bool			signature(const char* id);
-	bool			version(short major, short minor);
 	void			set(array& value);
+	bool			version(short major, short minor);
 	template<typename T> void set(T& value) {
 		if(writemode)
 			source.write(&value, sizeof(value));
