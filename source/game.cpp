@@ -264,10 +264,6 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 			return false;
 		location.setactive(po, !location.isactive(po));
 		break;
-	//case CellKeyHole1:
-	//case CellKeyHole2:
-	//	pc->say("This is key hole");
-	//	break;
 	case CellTrapLauncher:
 		if(pc->get(Theif)) {
 			if(po->is(Active))
