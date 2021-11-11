@@ -40,10 +40,6 @@ void gamei::setcamera(indext index, direction_s direction) {
 	location.set(location.getindex(x, y - 1), CellExplored);
 }
 
-bool creature::ishero() const {
-	return bsdata<creature>::source.indexof(this) != -1;
-}
-
 int	gamei::getindex(const creature* p) const {
 	if(!this)
 		return -1;
@@ -269,10 +265,10 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 			return false;
 		location.setactive(po, !location.isactive(po));
 		break;
-	case CellKeyHole1:
-	case CellKeyHole2:
-		pc->say("This is key hole");
-		break;
+	//case CellKeyHole1:
+	//case CellKeyHole2:
+	//	pc->say("This is key hole");
+	//	break;
 	case CellTrapLauncher:
 		if(pc->get(Theif)) {
 			if(po->is(Active))
@@ -282,15 +278,9 @@ bool gamei::manipulate(item* itm, direction_s dr) {
 		} else
 			pc->say("Some kind of strange mechanism");
 		break;
-	case CellDecor1:
-		break;
-	case CellDecor2:
-		pc->say("This is drainage gate");
-		break;
-	case CellDecor3:
-		break;
 	default:
-		return false;
+		location.examine(pc, po);
+		break;
 	}
 	return true;
 }

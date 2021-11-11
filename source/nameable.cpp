@@ -257,3 +257,29 @@ void nameable::random_name() {
 void nameable::kill() {
 	game.add(kind);
 }
+
+bool nameable::ishero() const {
+	return bsdata<creature>::source.indexof(this) != -1;
+}
+
+void nameable::say(const char* format, ...) const {
+	if(!ishero())
+		return;
+	sayv(format, xva_start(format));
+}
+
+void nameable::say(const item& it, const char* format) const {
+	char name[128]; stringbuilder sb(name);
+	it.getname(sb);
+	say(format, name);
+}
+
+void nameable::say(spell_s id) const {
+	mslog("%1 cast %2", getname(), getstr(id));
+}
+
+void nameable::sayv(const char* format, const char* vl) const {
+	char message[1024]; stringbuilder sb(message);
+	sb.addv(format, vl);
+	mslog("%1 \"%2\"", getname(), message);
+}

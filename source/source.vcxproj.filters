@@ -281,6 +281,12 @@
     <ClCompile Include="io_plugin_json.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+    <ClCompile Include="examine.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="chat.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\import\western_heartlands.json">

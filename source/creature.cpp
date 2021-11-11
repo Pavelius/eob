@@ -320,24 +320,6 @@ bool creature::isenemy(creature* target) const {
 	return ishero() != target->ishero();
 }
 
-void creature::say(const item& it, const char* format, ...) {
-	char name[128]; stringbuilder sb(name);
-	it.getname(sb);
-	say(format, name);
-}
-
-void creature::say(const char* format, ...) {
-	if(!ishero())
-		return;
-	sayv(format, xva_start(format));
-}
-
-void creature::sayv(const char* format, const char* vl) {
-	char message[1024]; stringbuilder sb(message);
-	sb.addv(format, vl);
-	mslog("%1 \"%2\"", getname(), message);
-}
-
 bool creature::canspeak(race_s language) const {
 	if(language == Human)
 		return true;

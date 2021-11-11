@@ -143,10 +143,6 @@ static bool cast_on_own_items(spell_s id, int level, creature* caster) {
 	return cast_on_items(id, level, caster, result);
 }
 
-void creature::say(spell_s id) const {
-	mslog("%1 cast %2", getname(), getstr(id));
-}
-
 bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) {
 	creature* targets[4];
 	auto& si = bsdata<spelli>::elements[id];

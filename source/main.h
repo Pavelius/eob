@@ -247,13 +247,13 @@ enum action_s : unsigned char {
 };
 enum talk_s : unsigned char {
 	Greeting,
-	FailLie, TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
+	FailLie, TalkAbout, TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Class,
+	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Cell, Class,
 	Cleveress, Company, Condition, Creature, Damage, Enchant, Event, Feat, Gender,
-	Item, Morale, Race, Reaction, Settlement, Spell,
+	Item, Morale, Race, Rarity, Reaction, Resource, Settlement, Spell,
 };
 enum case_s : unsigned char {
 	Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8, Case9,
@@ -305,6 +305,7 @@ struct variant {
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
+	constexpr variant(const cell_s v) : type(Cell), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
 	constexpr variant(const condition_s v) : type(Condition), value(v) {}
 	constexpr variant(const damage_s v) : type(Damage), value(v) {}
@@ -315,7 +316,9 @@ struct variant {
 	constexpr variant(const item_s v) : type(Item), value(v) {}
 	constexpr variant(const morale_s v) : type(Morale), value(v) {}
 	constexpr variant(const race_s v) : type(Race), value(v) {}
+	constexpr variant(const rarity_s v) : type(Rarity), value(v) {}
 	constexpr variant(const reaction_s v) : type(Reaction), value(v) {}
+	constexpr variant(const resource_s v) : type(Resource), value(v) {}
 	constexpr variant(const spell_s v) : type(Spell), value(v) {}
 	constexpr variant(const int v) : type(variant_s((v >> 8) & 0xFF)), value(v & 0xFF) {}
 	variant(variant_s v, const void* p);
@@ -785,9 +788,14 @@ public:
 	const char*			getname() const;
 	constexpr race_s	getrace() const { return race; }
 	bool				is(monster_s v) const { return kind == v; }
+	bool				ishero() const;
 	constexpr bool		ismonster() const { return kind != NoMonster; }
 	void				kill();
 	void				random_name();
+	void				say(const char* format, ...) const;
+	void				say(const item& it, const char* format) const;
+	void				say(spell_s id) const;
+	void				sayv(const char* format, const char* vl) const;
 	void				set(gender_s v) { gender = v; }
 	void				set(monster_s v) { kind = v; }
 	void				set(race_s v) { race = v; }
@@ -920,7 +928,6 @@ public:
 	bool				isenemy(creature* target) const;
 	bool				isinvisible() const;
 	bool				isknown(spell_s v) const { return known_spells.is(v); }
-	bool				ishero() const;
 	bool				ismatch(const variant v) const;
 	bool				ismatch(const conditiona& v) const;
 	bool				ismindless() const;
@@ -942,10 +949,6 @@ public:
 	bool				roll(ability_s id, int bonus = 0) const;
 	void				random_ability();
 	reaction_s			rollreaction(int bonus) const;
-	void				say(spell_s id) const;
-	void				say(const char* format, ...);
-	void				say(const item& it, const char* format, ...);
-	void				sayv(const char* format, const char* vl);
 	bool				save(int& value, ability_s skill, save_s type, int bonus);
 	void				satisfy();
 	void				scribe(item& it);
@@ -1095,6 +1098,7 @@ struct dungeoni {
 	void				dropitem(indext index, item rec, int side);
 	void				dropitem(item* pi, int side = -1);
 	void				explore(indext index, int r = 1);
+	void				examine(creature* pc, overlayi* po);
 	void				fill(indext index, int sx, int sy, cell_s value);
 	void				finish(cell_s t);
 	void				formation(indext index, direction_s dr);
@@ -1218,6 +1222,13 @@ struct companyi : textable {
 	int					pixels_per_day;
 	bool				read(const char* name);
 	void				write(const char* name);
+};
+struct chati {
+	talk_s				action;
+	conditiona			conditions;
+	const char*			text;
+	constexpr operator bool() const { return text[0] != 0; }
+	const char*			find(const aref<variant>& variants) const;
 };
 struct encounteri : public creaturea {
 	reaction_s			reaction;

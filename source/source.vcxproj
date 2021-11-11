@@ -156,6 +156,7 @@
     <ClCompile Include="building.cpp" />
     <ClCompile Include="case.cpp" />
     <ClCompile Include="cell.cpp" />
+    <ClCompile Include="chat.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="company.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="eob_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="examine.cpp" />
     <ClCompile Include="feat.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="form_serializer.cpp" />

@@ -1,13 +1,5 @@
 #include "main.h"
 
-namespace {
-struct chati {
-	talk_s		action;
-	conditiona	conditions;
-	const char*	text;
-};
-}
-
 static chati messages[] = {
 	{Greeting, {Indifferent, Ave}, "\"Who is you? How you get there?\""},
 	{Greeting, {Indifferent, Low}, "\"Who is there? How you dig so deep?\""},

@@ -13,6 +13,7 @@ BSDATA(varianti) = {
 	{"Alignment", "alignments", {Action}, FORM(alignmenti)},
 	{"Building", "buildings", {Action}, FORM(buildingi)},
 	{"Case", "cases", {Action}, FORM(casei)},
+	{"Cell", "cells"},
 	{"Class", "classes", {Action}, FORM(classi)},
 	{"Cleaveress", "cleveress"},
 	{"Company", "companies", {}, &game_source, getnm<companyi>, dginf<companyi>::meta},
@@ -26,7 +27,9 @@ BSDATA(varianti) = {
 	{"Item", "items", {Action}, FORM(itemi)},
 	{"Morale", "morals", {}, FORM(moralei)},
 	{"Race", "races", {Action}, FORM(racei)},
+	{"Rarity", "rarities"},
 	{"Reaction", "reactions", {Action}},
+	{"Resource", "resources"},
 	{"Settlement", "settlements", {}, FORM(settlementi)},
 	{"Spell", "spells", {}, FORM(spelli)},
 };
