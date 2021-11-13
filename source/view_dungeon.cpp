@@ -332,6 +332,48 @@ void draw::avatar(int x, int y, int party_index, unsigned flags, void* current_i
 	avatar(x, y, p, flags, current_item);
 }
 
+struct vcolors : adat<color, 16> {
+	void add(color v) {
+		if(indexof(v) != -1)
+			return;
+		adat::add(v);
+	}
+};
+
+static void view_effects(int x, int y, const creature* pc) {
+	// State show
+	rect rc = {x, y, x + 62, y + 49};
+	vcolors source;
+	for(auto id = Bless; id <= LastSpellAbility; id = (spell_s)(id + 1)) {
+		if(!pc->is(id))
+			continue;
+		switch(id) {
+		case Bless:
+			source.add(colors::yellow);
+			break;
+		case ProtectionFromEvil:
+			source.add(colors::red);
+			break;
+		case Shield: case MageArmor:
+			source.add(colors::green);
+			break;
+		}
+	}
+	auto mn = source.getcount();
+	if(!mn)
+		return;
+	color f = source[0];
+	if(mn > 1) {
+		int i0 = (frametick / 64) % mn;
+		int i1 = i0 + 1;
+		if(i1 >= mn)
+			i1 = 0;
+		auto n = frametick % 64;
+		f = source[i1].mix(source[i0], n*4);
+	}
+	rectb(rc, f);
+}
+
 void draw::avatar(int x, int y, creature* pc, unsigned flags, void* current_item) {
 	draw::state push;
 	fore = colors::black;
@@ -341,26 +383,9 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, void* current_item
 	image(x, y + 24, gres(INVENT), 2, 0);
 	text({x + 1, y + 2, x + 62, y + 2 + draw::texth()}, pn, AlignCenterCenter);
 	pc->view_portrait(x + 1, y + 9);
-	// State show
-	rect rc = {x, y, x + 62, y + 49};
-	for(auto id = Bless; id <= LastSpellAbility; id = (spell_s)(id + 1)) {
-		if(!pc->is(id))
-			continue;
-		switch(id) {
-		case HoldPerson:
-			draw::rectb(rc, colors::red);
-			break;
-		case Bless: case ProtectionFromEvil:
-			draw::rectb(rc, colors::yellow);
-			break;
-		case Shield: case MageArmor:
-			draw::rectb(rc, colors::green);
-			break;
-		}
-		break;
-	}
 	handicn(x + 32 + 16, y + 16, pc, RightHand, current_item);
 	handicn(x + 32 + 16, y + 16 + 16, pc, LeftHand, current_item);
+	view_effects(x, y, pc);
 	int hp = pc->gethits();
 	int mhp = pc->gethitsmaximum();
 	char temp[260]; stringbuilder sb(temp);

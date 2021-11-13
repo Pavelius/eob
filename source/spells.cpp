@@ -165,19 +165,20 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 	if(is(Deafness) && (d100() < 20)) {
 		if(ishero())
 			mslog("Spell failed due to deafness!");
+		return true;
 	}
 	auto save_skill = SaveVsMagic;
 	switch(range) {
 	case TargetSelf:
 		say(id);
-		apply(id, level, 0);
+		apply(id, level);
 		break;
 	case TargetAllAlly:
 		say(id);
 		for(auto p : party) {
 			if(!p)
 				continue;
-			p->apply(id, level, 0);
+			p->apply(id, level);
 		}
 		break;
 	case TargetAlly:
@@ -186,7 +187,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(!target)
 			return false;
 		say(id);
-		target->apply(id, level, 0);
+		target->apply(id, level);
 		break;
 	case TargetAllThrow:
 		index = get_enemy_distance(index, dir, si.throw_effect);
@@ -202,7 +203,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		for(auto p : targets) {
 			if(!p)
 				continue;
-			p->apply(id, level, 0);
+			p->apply(id, level);
 		}
 		break;
 	case TargetThrow:
@@ -223,7 +224,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 			if(rs < (th - target->getac()))
 				return false;
 		}
-		target->apply(id, level, 0);
+		target->apply(id, level);
 		break;
 	case TargetItems:
 		say(id);
@@ -278,7 +279,7 @@ void creature::turnundead(int level) {
 	}
 }
 
-void creature::apply(spell_s id, int level, unsigned duration) {
+void creature::apply(spell_s id, int level) {
 	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
 	case AcidArrow:
@@ -341,7 +342,6 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 }
 
 bool item::cast(spell_s id, int level, bool run) {
-	const enchantmenti* pe;
 	switch(id) {
 	case DetectMagic:
 		if(!ismagical())
@@ -352,10 +352,7 @@ bool item::cast(spell_s id, int level, bool run) {
 			return false;
 		break;
 	case Identify:
-		if(isidentified())
-			return false;
-		pe = getenchantment();
-		if(!pe || !pe->power || !pe->magic)
+		if(isidentified() || !ismagical())
 			return false;
 		if(run)
 			identified = true;

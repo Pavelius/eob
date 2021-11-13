@@ -5,6 +5,7 @@ BSDATAC(creature, 32)
 
 const char* get_name_part(short rec);
 
+static wear_s wear_slots[] = {Head, Neck, Body, Elbow, Legs};
 static const int monsters_thac0[] = {
 	0, 1, 1, 3, 3, 5, 5, 7, 7, 9,
 	9, 11, 11, 13, 13, 15, 15, 17, 17, 19
@@ -25,11 +26,6 @@ char reaction_adjustment[] = {
 	-7, -6, -4, -3, -2, -1, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 1, 2, 2, 3, 3,
 	4, 4, 4, 5, 5
-};
-static char defence_adjustment[] = {
-	-5, -5, -4, -3, -2, -1, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 2, 3, 4, 4,
-	4, 5, 5, 5, 6, 6
 };
 static char hit_points_adjustment[] = {-4,
 -3, -2, -2, -1, -1, -1, 0, 0, 0,
@@ -1161,12 +1157,9 @@ bool creature::setweapon(item_s v, int charges) {
 
 void creature::campcast(item& it) {
 	auto pe = it.getenchantment();
-	if(!pe)
-		return;
-	switch(pe->power.type) {
-	case Spell:
-		cast((spell_s)pe->power.value, getcaster(), 0, this);
-		break;
+	if(pe && pe->power.type==Spell) {
+		auto& ei = bsdata<spelli>::elements[pe->power.value];
+		apply((spell_s)pe->power.value, gethd() + it.getmagic());
 	}
 }
 
@@ -1183,11 +1176,10 @@ void creature::resting(int healed) {
 	// Prepare spells
 	preparespells();
 	// Some magic items activate
-	campcast(wears[Head]);
-	campcast(wears[Neck]);
-	campcast(wears[Body]);
-	campcast(wears[Elbow]);
-	campcast(wears[Legs]);
+	for(auto s : wear_slots)
+		campcast(wears[s]);
+	if(wears[LeftHand].getitem().usability.is(UseShield))
+		campcast(wears[LeftHand]);
 	// Recharge some items
 	for(auto& it : wears) {
 		if(!it)
@@ -1295,10 +1287,15 @@ bool creature::use(item* pi) {
 	case GreenPotion:
 	case RedPotion:
 		if(power.type == Ability) {
-			static int experience_amought[5 + 1] = {0, 100, 1000, 5000, 10000, 50000};
+			static int experience_amought[5 + 1] = {0, 500, 2000, 5000, 10000, 50000};
 			switch(power.value) {
-			case Strenght: case Dexterity: case Constitution:
-			case Wisdow: case Intellegence: case Charisma:
+			case BonusExperience:
+				if(magic > 0)
+					pc->addexp(maptbl(experience_amought, magic));
+				else
+					pc->addexp(-maptbl(experience_amought, -magic));
+				break;
+			default:
 				if(pi->iscursed()) {
 					if(pc->basic.ability[power.value] > 0)
 						pc->basic.ability[power.value]--;
@@ -1308,19 +1305,13 @@ bool creature::use(item* pi) {
 					pc->say("I feel greater power!");
 				}
 				break;
-			case BonusExperience:
-				if(magic > 0)
-					pc->addexp(maptbl(experience_amought, magic));
-				else
-					pc->addexp(-maptbl(experience_amought, -magic));
-				break;
 			}
 		} else if(pi->iscursed()) {
 			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
 			pc->poison(NoSave);
 			pc->say(maprnd(text));
 		} else if(power.type == Spell)
-			pc->apply((spell_s)power.value, 10, 2 * 60);
+			pc->apply((spell_s)power.value, 3 + magic * 3);
 		break;
 	case Ration:
 	case RationIron:
@@ -1498,8 +1489,7 @@ reaction_s creature::rollreaction(int bonus) const {
 		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
 		Hostile, Hostile, Hostile, Hostile, Hostile, Hostile,
 		Hostile, Hostile, Hostile, Hostile, Hostile};
-	auto cha = party.getaverage(Charisma);
-	bonus += maptbl(charisma_reaction_bonus, cha);
+	bonus += party.getaverage(ReactionBonus);
 	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));
 	auto result_table = indifferent;
@@ -1684,46 +1674,19 @@ creature* creature::get(void* focus) {
 }
 
 void creature::update_wears() {
-	static wear_s slots[] = {Head, Neck, Body, LeftHand, RightHand, RightRing, LeftRing, Elbow, Legs};
 	ability[Speed] += wears[RightHand].getitem().weapon.speed;
 	ability[Speed] += wears[LeftHand].getitem().weapon.speed;
 	if(ismonster())
 		ability[AC] += (10 - getmonster().ac);
-	for(auto s : slots) {
-		if(!wears[s])
-			continue;
+	for(auto s : wear_slots) {
 		ability[AC] += wears[s].getitem().armor.ac;
 		ability[CriticalDeflect] += wears[s].getitem().armor.deflect * 5;
-		auto pe = wears[s].getenchantment();
-		if(pe) {
-			auto v = pe->power;
-			auto m = wears[s].getmagic();
-			switch(v.type) {
-			case Ability:
-				m *= bsdata<abilityi>::elements[v.value].multiplier;
-				if(v.value >= Strenght && v.value <= Charisma) {
-					if(m > 0) {
-						auto a = 16 + m;
-						if(ability[v.value] < a)
-							ability[v.value] = a;
-					} else {
-						auto a = 7 + m;
-						if(ability[v.value] > a)
-							ability[v.value] = a;
-					}
-				} else if(v.value <= ExeptionalStrenght)
-					ability[v.value] += m;
-				break;
-			case Spell:
-				if(bsdata<spelli>::elements[v.value].effect.duration != Instant)
-					active_spells.set(v.value);
-				break;
-			case Feat:
-				feats.add((feat_s)v.value);
-				break;
-			}
-		}
+		statable::apply(wears[Head], false);
 	}
+	statable::apply(wears[RightRing], true);
+	statable::apply(wears[LeftRing], true);
+	if(wears[LeftHand].getitem().usability.is(UseShield))
+		statable::apply(wears[LeftHand], false);
 }
 
 static void copy_value(statable& p1, statable& p2) {

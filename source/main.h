@@ -131,7 +131,8 @@ enum ability_s : unsigned char {
 	DamageMelee, DamageRange, DamageAll,
 	Speed,
 	BonusExperience, BonusSave, ReactionBonus,
-	ExeptionalStrenght
+	ExeptionalStrenght,
+	Hits
 };
 enum wear_s : unsigned char {
 	Backpack, LastBackpack = Backpack + 13,
@@ -294,6 +295,7 @@ typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
 typedef cflags<fevent_s> eventf;
 typedef flagable<LastSpellAbility> spellf;
+typedef flagable<32> flagf;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 class creature;
@@ -384,9 +386,10 @@ struct actionseti {
 };
 struct abilityi {
 	const char*			name;
-	int					multiplier;
+	flagf				flags;
 	cflags<class_s>		match;
 	bool				allow(class_s v) const;
+	bool				getmultiplier() const;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -479,11 +482,15 @@ struct combati {
 	char				bonus, critical_multiplier, critical_range;
 	item*				weapon;
 };
+struct bonusi : variant {
+	char				bonus, random;
+	constexpr bonusi() : variant(), bonus(), random(0) {}
+	constexpr bonusi(const variant& v, char bonus, char random = 0) : variant(v), bonus(bonus), random(random) {}
+};
 struct enchantmenti {
 	rarity_s			rarity;
 	const char*			name;
-	variant				power;
-	char				magic;
+	bonusi				power;
 };
 struct itemi {
 	struct weaponi : combati {
@@ -680,6 +687,7 @@ public:
 	constexpr item(item_s type = NoItem) : type(type), flags(0), subtype(0), charges(0) {}
 	item(item_s type, rarity_s rarity);
 	item(item_s type, variant power);
+	item(item_s type, variant power, int magic);
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges == charges; }
 	bool				cast(spell_s id, int level, bool run);
@@ -704,7 +712,7 @@ public:
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
 	int					getportrait() const;
-	variant				getpower() const;
+	bonusi				getpower() const;
 	constexpr rarity_s	getrarity() const { return gete().rarity; }
 	static rarity_s		getrandomrarity(int level);
 	item_s				gettype() const { return type; }
@@ -737,6 +745,7 @@ public:
 	void				setidentified(int value) { identified = value; }
 	item&				setpower(rarity_s rarity);
 	void				setpower(variant power);
+	void				setpower(variant power, int magic);
 	bool				stack(item& v);
 	void				use() { setcount(getcount() - 1); }
 };
@@ -816,6 +825,8 @@ struct statable {
 	void				add(ability_s id, class_s type, const char* levels);
 	void				add(ability_s id, class_s type, int level);
 	void				add(ability_s id, class_s type);
+	void				apply(const item& it, bool use_spells);
+	void				apply(variant v, int magic, bool use_spells);
 	constexpr bool		is(spell_s v) const { return active_spells.is(v); }
 	constexpr bool		is(feat_s v) const { return feats.is(v); }
 	constexpr bool		is(usability_s v) const { return usability.is(v); }
@@ -862,7 +873,7 @@ public:
 	bool				add(spell_s type, unsigned duration = 0, save_s id = NoSave, char save_bonus = 0, ability_s save_type = SaveVsMagic);
 	void				addaid(int v) { hits_aid += v; }
 	void				addexp(int value);
-	void				apply(spell_s id, int level, unsigned duration);
+	void				apply(spell_s id, int level);
 	void				attack(indext index, direction_s d, int bonus, bool ranged, int multiplier);
 	void				attack(creature* defender, wear_s slot, int bonus, int multiplier);
 	void				autocast(creaturea& friends);

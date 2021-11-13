@@ -259,8 +259,8 @@ void random_heroes() {
 	p->set({Staff, BurningHands}, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add({GreenPotion, BonusExperience});
-	p->add({GreenPotion, BonusExperience});
+	p->add({GreenPotion, BonusExperience, 2});
+	p->add({GreenPotion, BonusExperience, 3});
 }
 
 void debug_dungeon2() {

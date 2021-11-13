@@ -56,6 +56,44 @@ static char save_index[] = {
 };
 static_assert(sizeof(save_index) / sizeof(save_index[0]) == (SaveVsMagic - FirstSave) + 1, "Invalid count of save index elements");
 
+void statable::apply(const item& it, bool use_spell) {
+	auto pe = it.getenchantment();
+	if(pe && pe->power)
+		apply(pe->power, it.iscursed() ? -pe->power.bonus : pe->power.bonus, use_spell);
+}
+
+void statable::apply(variant v, int m, bool use_spells) {
+	switch(v.type) {
+	case Ability:
+		if(v.value == Hits)
+			hits_rolled += m;
+		else if(v.value <= Charisma) {
+			if(m > 0) {
+				auto a = 16 + m;
+				if(ability[v.value] < a)
+					ability[v.value] = a;
+			} else {
+				auto a = 7 + m;
+				if(ability[v.value] > a)
+					ability[v.value] = a;
+			}
+		} else {
+			m *= bsdata<abilityi>::get(v.value).getmultiplier();
+			ability[v.value] += m;
+		}
+		break;
+	case Spell:
+		if(use_spells) {
+			if(bsdata<spelli>::get(v.value).effect.duration != Instant)
+				active_spells.set(v.value);
+		}
+		break;
+	case Feat:
+		feats.add((feat_s)v.value);
+		break;
+	}
+}
+
 void statable::update_stats() {
 	static char hit_probability[] = {
 		-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,

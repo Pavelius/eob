@@ -1,41 +1,45 @@
 #include "main.h"
 
+enum {
+	PercentMult, WeaponAbility
+};
+
 BSDATA(abilityi) = {
-	{"Str", 1},
-	{"Dex", 1},
-	{"Con", 1},
-	{"Int", 1},
-	{"Wis", 1},
-	{"Cha", 1},
-	{"Save vs Paralize", 5},
-	{"Save vs Poison", 5},
-	{"Save vs Traps", 5},
-	{"Save vs Magic", 5, {}},
-	{"Climb Walls", 5, {Theif}},
-	{"Hear Noise", 5, {Theif}},
-	{"Move Silently", 5, {Theif, Ranger}},
-	{"Open Locks", 5, {Theif}},
-	{"Remove Traps", 5, {Theif}},
-	{"Read Languages", 5, {Theif}},
-	{"Learn Spells", 5, {Mage}},
-	{"Resist Charm", 10},
-	{"Resist Cold", 10},
-	{"Resist Fire", 10},
-	{"Resist Magic", 10},
-	{"Deflect critical", 5},
-	{"Detect secrets", 5},
-	{"AC", 1},
-	{"To hit melee", 1},
-	{"To hit range", 1},
-	{"To hit", 1},
-	{"Damage melee", 1},
-	{"Damage range", 1},
-	{"Damage", 1},
-	{"Speed", 1},
-	{"Bonus Experience", 5},
-	{"Bonus Saves", 5},
-	{"Reaction bonus", 1},
-	{"Exeptional Strenght", 20},
+	{"Str"},
+	{"Dex"},
+	{"Con"},
+	{"Int"},
+	{"Wis"},
+	{"Cha"},
+	{"Save vs Paralize", {PercentMult}},
+	{"Save vs Poison", {PercentMult}},
+	{"Save vs Traps", {PercentMult}},
+	{"Save vs Magic", {PercentMult}},
+	{"Climb Walls", {PercentMult}, {Theif}},
+	{"Hear Noise", {PercentMult}, {Theif}},
+	{"Move Silently", {PercentMult}, {Theif, Ranger}},
+	{"Open Locks", {PercentMult}, {Theif}},
+	{"Remove Traps", {PercentMult}, {Theif}},
+	{"Read Languages", {PercentMult}, {Theif}},
+	{"Learn Spells", {PercentMult}, {Mage}},
+	{"Resist Charm", {PercentMult}},
+	{"Resist Cold", {PercentMult}},
+	{"Resist Fire", {PercentMult}},
+	{"Resist Magic", {PercentMult}},
+	{"Deflect critical", {PercentMult}},
+	{"Detect secrets", {PercentMult}},
+	{"AC"},
+	{"To hit melee", {WeaponAbility}},
+	{"To hit range", {WeaponAbility}},
+	{"To hit", {WeaponAbility}},
+	{"Damage melee", {WeaponAbility}},
+	{"Damage range", {WeaponAbility}},
+	{"Damage", {WeaponAbility}},
+	{"Speed", {WeaponAbility}},
+	{"Bonus Experience", {PercentMult}},
+	{"Bonus Saves", {PercentMult}},
+	{"Reaction bonus"},
+	{"Exeptional Strenght", {PercentMult}},
 };
 assert_enum(ability, ExeptionalStrenght)
 INSTELEM(abilityi)
@@ -49,4 +53,8 @@ bool abilityi::allow(class_s v) const {
 			return true;
 	}
 	return false;
+}
+
+bool abilityi::getmultiplier() const {
+	return flags.is(PercentMult) ? 5 : 1;
 }

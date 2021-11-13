@@ -9,7 +9,7 @@ template<typename T> const char* getnm(const void* object, stringbuilder& sb) {
 }
 template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb) {
 	auto p = (enchantmenti*)object;
-	if(!p->name && !p->magic && !p->power)
+	if(!p->name && !p->power && !p->power.bonus)
 		return "No special power";
 	auto n = p->name;
 	if(!n) {
@@ -18,7 +18,7 @@ template<> const char* getnm<enchantmenti>(const void* object, stringbuilder& sb
 		else
 			n = "magic+%1i";
 	}
-	sb.add(n, p->magic, p->power.getname());
+	sb.add(n, p->power.bonus, p->power.getname());
 	sb[0] = sb.upper(sb[0]);
 	return sb;
 }
