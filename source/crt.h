@@ -187,7 +187,7 @@ struct arem : aref<T> {
 // Abstract flag data bazed on enumerator
 template<typename T, typename DT = unsigned>
 class cflags {
-	DT						data;
+	DT						data = 0;
 public:
 	constexpr cflags() : data(0) {}
 	cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
@@ -222,7 +222,7 @@ template<unsigned last>
 class flagable {
 	static constexpr unsigned s = 8;
 	static constexpr unsigned c = 1 + last / s;
-	unsigned char			data[c];
+	unsigned char			data[c] = {};
 public:
 	constexpr flagable() : data{0} {}
 	template<class T> constexpr flagable(const std::initializer_list<T>& v) : data{0} { for(auto e : v) set(e); }

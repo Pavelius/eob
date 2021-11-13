@@ -801,8 +801,6 @@ void dungeoni::clearboost() {
 			continue;
 		if(p->ishero())
 			*pb++ = e;
-		else
-			p->update(e);
 	}
 	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
 }
@@ -828,14 +826,14 @@ bool dungeoni::move(direction_s direction) {
 			game.returntobase();
 			return false;
 		}
-		game.enter(variant(Adventure, overland_index), level - 1);
+		game.enter(overland_index, level - 1);
 		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
 		break;
 	case CellStairsDown:
 		mslog("Going down");
 		game.write();
 		clearboost();
-		game.enter(variant(Adventure, overland_index), level + 1);
+		game.enter(overland_index, level + 1);
 		game.setcamera(to(stat.up.index, stat.up.dir), stat.up.dir);
 		break;
 	case CellPit:
@@ -845,7 +843,7 @@ bool dungeoni::move(direction_s direction) {
 		game.setcamera(to(game.getcamera(), game.getdirection()));
 		draw::animation::update();
 		falling_damage();
-		game.enter(variant(Adventure, overland_index), level + 1);
+		game.enter(overland_index, level + 1);
 		falling_landing();
 		break;
 	default:

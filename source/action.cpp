@@ -81,10 +81,6 @@ int	actionseti::roll() const {
 	return count1;
 }
 
-settlementi* resultable::getsettlement() const {
-	return game.getsettlement();
-}
-
 bool resultable::have(variant v) const {
 	for(auto e : actions) {
 		if(!e)
@@ -120,13 +116,9 @@ void eventi::clear() {
 }
 
 void eventi::shufle() const {
-	auto& source = game.getevents();
-	source.addbottom(this);
 }
 
 void eventi::discard() const {
-	auto& source = game.getevents();
-	source.discard(this);
 }
 
 void eventi::apply(case_s v, bool interactive) const {

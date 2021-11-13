@@ -110,9 +110,6 @@
     <ClCompile Include="race.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="skill.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="spells.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -289,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="checksum.cpp">
       <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="statable.cpp">
+      <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

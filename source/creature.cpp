@@ -127,10 +127,11 @@ void creature::update_poison(bool interactive) {
 bool creature::add(spell_s type, unsigned duration, save_s save, char save_bonus, ability_s save_type) {
 	if(is(type))
 		return true;
+	if(roll(ResistMagic))
+		return false;
 	switch(type) {
 	case HoldPerson:
 	case Sleep:
-		// Elf has 90% immunity to paralization, sleep and charm
 		if(roll(ResistCharm))
 			return false;
 		break;
@@ -255,17 +256,13 @@ item creature::get(wear_s id) const {
 
 bool creature::roll(ability_s id, int bonus) const {
 	auto n = get(id);
-	if(id <= LastAbility)
+	if(id >= Strenght && id <= Charisma)
 		n *= 5;
 	n += bonus * 5;
 	if(n <= 0)
 		return false;
 	auto d = d100();
 	return d <= n;
-}
-
-bool creature::isinvisible() const {
-	return is(Invisibility);
 }
 
 bool creature::isready() const {
@@ -278,8 +275,6 @@ void creature::update_hour(bool interactive) {
 	if(is(Disease)) {
 		if(roll(SaveVsPoison))
 			disease_progress--;
-		else
-			disease_progress++;
 		if(disease_progress <= 0) {
 			disease_progress = 0;
 			remove(Disease);
@@ -291,29 +286,11 @@ void creature::update_turn(bool interactive) {
 	// Poison effect
 	update_poison(interactive);
 	// Regeneration effect
-	for(auto slot = Head; slot <= Legs; slot = (wear_s)(slot + 1)) {
-		auto pi = getitem(slot);
-		if(pi && *pi) {
-			auto power = pi->getpower();
-			if(power.type == Enchant) {
-				auto magic = pi->getmagic();
-				switch(power.value) {
-				case OfRegeneration: damage(Heal, magic); break;
-				}
-			}
-		}
-	}
-	// Every turn heroes use food
+	if(is(Regeneration))
+		damage(Heal, 1);
+	// Every turn heroes use energy
 	if(ishero())
 		subenergy();
-}
-
-void creature::update(bool interactive) {
-	if(is(AcidArrow))
-		damage(Magic, dice::roll(2, 4), 5);
-	remove(Moved);
-	if(!ismonster())
-		update_levelup(interactive);
 }
 
 bool creature::isenemy(creature* target) const {
@@ -431,9 +408,6 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 		}
 	}
 	auto ac = defender->getac();
-	// RULE: invisible characters hard to hit and more likely to hit
-	if(isinvisible())
-		wi.bonus += 4;
 	// RULE: Dwarf can hit goblinoid by 5% better that others
 	if(is(BonusToHitVsGoblinoid) && defender->getrace() == Goblinoid)
 		wi.bonus += 1;
@@ -568,14 +542,11 @@ void creature::attack(indext index, direction_s d, int bonus, bool ranged, int m
 }
 
 void creature::addexp(int value) {
-	// RULE: ring of Advise
-	auto b = getbonus(OfAdvise);
+	auto b = get(BonusExperience);
 	if(b)
-		value += value * b / 20;
-	// RULE: if class ability if hight enought you gain additional 10% experience
-	auto pa = bsdata<classi>::elements[type].ability;
-	if(get(pa) >= 16)
-		value += value / 10;
+		value += b * value / 20;
+	if(value <= 0)
+		value = 0;
 	experience += value;
 }
 
@@ -584,18 +555,20 @@ void creature::clear() {
 }
 
 void creature::finish() {
-	hits_rolled = 0;
+	basic.hits_rolled = 0;
 	memset(levels, 0, sizeof(levels));
 	memset(spells, 0, sizeof(spells));
 	memset(prepared, 0, sizeof(prepared));
 	known_spells.clear();
 	active_spells.clear();
-	feats.add(bsdata<racei>::elements[getrace()].feats);
-	feats.add(bsdata<classi>::elements[type].feats);
-	usability.add(bsdata<racei>::elements[getrace()].usability);
-	usability.add(bsdata<classi>::elements[type].usability);
+	basic.feats.add(bsdata<racei>::elements[getrace()].feats);
+	basic.feats.add(bsdata<classi>::elements[type].feats);
+	basic.usability.add(bsdata<racei>::elements[getrace()].usability);
+	basic.usability.add(bsdata<classi>::elements[type].usability);
+	update_start();
+	update_finish();
 	if(ismonster())
-		hits_rolled = gethitdice().roll();
+		basic.hits_rolled = gethitdice().roll();
 	else {
 		for(int i = 0; i < 3; i++) {
 			auto c = getclass(getclass(), i);
@@ -604,10 +577,10 @@ void creature::finish() {
 			raise_level(c);
 		}
 	}
+	update_start();
+	update_finish();
 	hits = gethitsmaximum();
 	food = getfoodmax();
-	if(is(NoExeptionalStrenght))
-		str_exeptional = 0;
 }
 
 int get_cleric_spell_level(const spellprogi* pr, int hd) {
@@ -654,7 +627,7 @@ void creature::raise_level(class_s type) {
 				random_spells(type, spell_level, 32);
 		}
 	}
-	hits_rolled += hp;
+	basic.hits_rolled += hp;
 }
 
 void creature::prepare_random_spells(class_s type, int level) {
@@ -713,61 +686,15 @@ int creature::getside() const {
 }
 
 short creature::gethitsmaximum() const {
-	if(ismonster())
-		return hits_rolled + getmonster().hd[1];
-	auto hd = gethd();
-	auto rl = (int)hits_rolled / getclasscount();
-	auto cs = get(Constitution);
-	auto md = maptbl(hit_points_adjustment, cs);
-	if(md > 2 && !is(BonusHP))
-		md = 2;
-	rl += md * hd;
-	if(rl < hd)
-		rl = hd;
-	return rl;
+	return hits_rolled + hits_aid;
 }
 
 int creature::getspeed() const {
-	auto r = 0;
-	auto k = get(Dexterity);
-	r += maptbl(reaction_adjustment, k);
-	r += wears[RightHand].getspeed();
-	r += wears[LeftHand].getspeed();
-	r += getbonus(OfSpeed) * 2;
-	if(is(Haste))
-		r += 2;
-	if(is(Blindness))
-		r -= 2;
-	if(is(Deafness))
-		r -= 1;
-	return r;
+	return get(Speed) + getbonus(OfSpeed) * 2;
 }
 
 int creature::getac() const {
-	auto r = 0;
-	auto k = get(Dexterity);
-	r += maptbl(defence_adjustment, k);
-	r += wears[Head].getac();
-	r += wears[Body].getac();
-	r += wears[RightHand].getac();
-	r += wears[LeftHand].getac();
-	r += getbonus(OfProtection);
-	if(ismonster())
-		r += (10 - getmonster().ac);
-	if(is(Haste))
-		r += 2;
-	if(is(MageArmor))
-		r += 4;
-	if(is(ShieldSpell))
-		r += 7;
-	if(is(Blindness))
-		r -= 4;
-	// One of this
-	if(isinvisible())
-		r += 4;
-	else if(is(Blur))
-		r += 3;
-	return r;
+	return ability[AC];
 }
 
 int creature::getclasscount() const {
@@ -799,46 +726,6 @@ int	creature::getthac0(class_s cls, int level) const {
 	case Cleric: return maptbl(thac0_priest, level);
 	default: return maptbl(thac0_wizard, level);
 	}
-}
-
-int creature::get_base_save_throw(ability_s st) const {
-	auto c = getclass();
-	auto rc = getrace();
-	auto b1 = getclass(c, 0);
-	auto b2 = getclass(c, 1);
-	auto b3 = getclass(c, 2);
-	auto con = get(Constitution);
-	auto n = gethd();
-	auto r = 16 - n;
-	if(r < 5)
-		r = 5;
-	if(b1 == Fighter || b2 == Fighter)
-		r -= 1;
-	if(b1 == Paladin)
-		r -= 3;
-	if(b1 == Cleric || b2 == Cleric) {
-		if(st == SaveVsPoison || st == SaveVsParalization)
-			r -= 2;
-	}
-	if(b1 == Mage || b2 == Mage) {
-		if(st == SaveVsMagic)
-			r -= 2;
-	}
-	if(b1 == Theif || b2 == Theif || b3 == Theif) {
-		if(st == SaveVsTraps)
-			r -= 2;
-	}
-	if(rc == Dwarf || rc == Halfling) {
-		switch(st) {
-		case SaveVsPoison:
-		case SaveVsMagic:
-			r -= maptbl(dwarven_constitution_bonuses, con);
-			break;
-		}
-	}
-	if(is(ProtectionFromEvil))
-		r--;
-	return (21 - r) * 5;
 }
 
 void creature::preparespells() {
@@ -1123,7 +1010,10 @@ bool creature::use(ability_s skill, indext index, int bonus, bool* firsttime, in
 }
 
 bool creature::swap(item* itm1, item* itm2) {
-	static const char* dontwear[2] = {"I don't wear this", "I do not use this"};
+	static const char* speech[2] = {
+		"I don't wear this",
+		"I do not use this"
+	};
 	auto p1 = itm1->getowner();
 	auto s1 = game.getwear(itm1);
 	auto p2 = itm2->getowner();
@@ -1135,12 +1025,12 @@ bool creature::swap(item* itm1, item* itm2) {
 		return false;
 	if(!p1->isallow(*itm2, s1)) {
 		if(interactive)
-			p1->say(dontwear[0]);
+			p1->say(maprnd(speech));
 		return false;
 	}
 	if(!p2->isallow(*itm1, s2)) {
 		if(interactive)
-			p2->say(dontwear[0]);
+			p2->say(maprnd(speech));
 		return false;
 	}
 	if(!itm2->stack(*itm1))
@@ -1238,62 +1128,9 @@ void read_message(dungeoni* pd, dungeoni::overlayi* po) {
 	}
 }
 
-static int compare_char(const void* p1, const void* p2) {
-	return *((char*)p2) - *((char*)p1);
-}
-
-void creature::random_ability() {
-	char result[8];
-	for(auto& e : result)
-		e = xrand(1, 6) + xrand(1, 6) + xrand(1, 6);
-	qsort(result, sizeof(result) / sizeof(result[0]), sizeof(result[0]), compare_char);
-	zshuffle(result, 6);
-	int max_position = -1;
-	int max_value = 0;
-	for(int i = 0; i < 6; i++) {
-		if(result[i] > max_value) {
-			max_position = i;
-			max_value = result[i];
-		}
-	}
-	auto bst_position = bsdata<classi>::elements[type].ability;
-	if(max_position != -1)
-		iswap(result[max_position], result[bst_position]);
-	// Womans more charismatic, Mans more intellegent
-	if(bst_position != Intellegence && bst_position != Charisma) {
-		if((getgender() == Male && result[Intellegence] < result[Charisma])
-			|| (getgender() == Female && result[Charisma] < result[Intellegence]))
-			iswap(result[Intellegence], result[Charisma]);
-	}
-	// Check maximum by class
-	for(int j = 0; j < 6; j++) {
-		int m = bsdata<classi>::elements[type].minimum.data[j];
-		if(result[j] < m)
-			result[j] = m;
-	}
-	// Check minimum by race
-	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[getrace()].minimum.data[j];
-		if(result[j] < m)
-			result[j] = m;
-	}
-	// Check maximum by race
-	for(auto j = 0; j < 6; j++) {
-		auto m = bsdata<racei>::elements[getrace()].maximum.data[j];
-		if(result[j] > m)
-			result[j] = m;
-	}
-	// Adjust ability
-	for(auto j = 0; j < 6; j++)
-		result[j] += bsdata<racei>::elements[getrace()].adjustment.data[j];
-	// Расставим атрибуты по местам
-	for(auto j = 0; j < 6; j++)
-		ability[j] = result[j];
-	str_exeptional = xrand(1, 100);
-}
-
 int creature::getstrex() const {
 	auto result = get(Strenght);
+	auto str_exeptional = get(ExeptionalStrenght);
 	if(result > 18)
 		result += 6;
 	else if(result == 18 && str_exeptional > 0) {
@@ -1458,13 +1295,25 @@ bool creature::use(item* pi) {
 	case GreenPotion:
 	case RedPotion:
 		if(power.type == Ability) {
-			if(pi->iscursed()) {
-				if(pc->ability[power.value] > 0)
-					pc->ability[power.value]--;
-				pc->say("I feel really bad!");
-			} else {
-				pc->ability[power.value]++;
-				pc->say("I feel greater power!");
+			static int experience_amought[5 + 1] = {0, 100, 1000, 5000, 10000, 50000};
+			switch(power.value) {
+			case Strenght: case Dexterity: case Constitution:
+			case Wisdow: case Intellegence: case Charisma:
+				if(pi->iscursed()) {
+					if(pc->basic.ability[power.value] > 0)
+						pc->basic.ability[power.value]--;
+					pc->say("I feel really bad!");
+				} else {
+					pc->basic.ability[power.value]++;
+					pc->say("I feel greater power!");
+				}
+				break;
+			case BonusExperience:
+				if(magic > 0)
+					pc->addexp(maptbl(experience_amought, magic));
+				else
+					pc->addexp(-maptbl(experience_amought, -magic));
+				break;
 			}
 		} else if(pi->iscursed()) {
 			static const char* text[] = {"Shit!", "It's poisoned!", "I feel bad."};
@@ -1472,19 +1321,6 @@ bool creature::use(item* pi) {
 			pc->say(maprnd(text));
 		} else if(power.type == Spell)
 			pc->apply((spell_s)power.value, 10, 2 * 60);
-		else if(power.type == Enchant) {
-			switch(power.value) {
-			case OfAdvise:
-				if(pi->isartifact())
-					pc->addexp(50000);
-				else
-					pc->addexp(5000);
-				break;
-			}
-		} else if(power.type == Ability) {
-			pc->ability[power.value]++;
-			pc->say("I feel greater power!");
-		}
 		break;
 	case Ration:
 	case RationIron:
@@ -1706,18 +1542,6 @@ int creature::getpartyindex() const {
 	return game.getindex(this);
 }
 
-void creature::remove(spell_s v) {
-	if(active_spells.is(v)) {
-		active_spells.remove(v);
-		removeboost(v);
-		switch(v) {
-		case Disease:
-			disease_progress = 0;
-			break;
-		}
-	}
-}
-
 void creature::select(itema& result) {
 	for(auto& e : wears) {
 		if(!e)
@@ -1775,16 +1599,6 @@ class_s	creature::getcaster() const {
 	if(get(Mage) || get(Ranger))
 		return Mage;
 	return NoClass;
-}
-
-bool creature::is(spell_s v) const {
-	if(active_spells.is(v))
-		return true;
-	if(wears[LeftRing].ispower(v))
-		return true;
-	if(wears[RightRing].ispower(v))
-		return true;
-	return false;
 }
 
 void creature::removeloot() {
@@ -1867,4 +1681,113 @@ creature* creature::get(void* focus) {
 	if(i == -1)
 		return 0;
 	return (creature*)bsdata<creature>::source.ptr(i);
+}
+
+void creature::update_wears() {
+	static wear_s slots[] = {Head, Neck, Body, LeftHand, RightHand, RightRing, LeftRing, Elbow, Legs};
+	ability[Speed] += wears[RightHand].getitem().weapon.speed;
+	ability[Speed] += wears[LeftHand].getitem().weapon.speed;
+	if(ismonster())
+		ability[AC] += (10 - getmonster().ac);
+	for(auto s : slots) {
+		if(!wears[s])
+			continue;
+		ability[AC] += wears[s].getitem().armor.ac;
+		ability[CriticalDeflect] += wears[s].getitem().armor.deflect * 5;
+		auto pe = wears[s].getenchantment();
+		if(pe) {
+			auto v = pe->power;
+			auto m = wears[s].getmagic();
+			switch(v.type) {
+			case Ability:
+				m *= bsdata<abilityi>::elements[v.value].multiplier;
+				if(v.value >= Strenght && v.value <= Charisma) {
+					if(m > 0) {
+						auto a = 16 + m;
+						if(ability[v.value] < a)
+							ability[v.value] = a;
+					} else {
+						auto a = 7 + m;
+						if(ability[v.value] > a)
+							ability[v.value] = a;
+					}
+				} else if(v.value <= ExeptionalStrenght)
+					ability[v.value] += m;
+				break;
+			case Spell:
+				if(bsdata<spelli>::elements[v.value].effect.duration != Instant)
+					active_spells.set(v.value);
+				break;
+			case Feat:
+				feats.add((feat_s)v.value);
+				break;
+			}
+		}
+	}
+}
+
+static void copy_value(statable& p1, statable& p2) {
+	p1 = p2;
+}
+
+void creature::update_start() {
+	copy_value(*this, basic);
+	if(ismonster())
+		hits_rolled += getmonster().hd[1];
+	else {
+		auto hd = gethd();
+		auto rl = (int)hits_rolled / getclasscount();
+		auto md = maptbl(hit_points_adjustment, ability[Constitution]);
+		if(md > 2 && !is(BonusHP))
+			md = 2;
+		rl += md * hd;
+		if(rl < hd)
+			rl = hd;
+		hits_rolled = rl;
+	}
+	update_wears();
+	// Ability drain
+	ability[Strenght] -= drain_strenght + disease_progress / 3;
+	ability[Constitution] -= disease_progress / 2;
+}
+
+void creature::update_boost_effects() {
+	// Remove unused boost
+	auto rounds = game.getrounds();
+	auto pb = bsdata<boosti>::begin();
+	for(auto& e : bsdata<boosti>()) {
+		if(e.round >= rounds)
+			*pb++ = e;
+	}
+	// Update boost effects
+	bsdata<boosti>::source.setcount(pb - bsdata<boosti>::begin());
+	for(auto& e : bsdata<boosti>()) {
+		auto p = e.owner.getcreature();
+		if(!p)
+			continue;
+		p->active_spells.set(e.id);
+	}
+}
+
+void creature::update_finish() {
+	static char bonus_ability[] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 1, 2, 2, 3
+	};
+	for(auto i = SaveVsParalization; i <= SaveVsMagic; i = (ability_s)(i + 1))
+		statable::add(i, type, levels);
+	auto theif_class = get(Ranger) ? Ranger : Theif;
+	auto theif_level = get(theif_class);
+	for(auto i = ClimbWalls; i <= ReadLanguages; i = (ability_s)(i + 1))
+		statable::add(i, theif_class, theif_level);
+	statable::add(LearnSpell, type);
+	auto main_ability = bsdata<classi>::elements[type].ability;
+	auto ability_value = get(main_ability);
+	ability[BonusExperience] += maptbl(bonus_ability, ability_value);
+	update_stats();
+	if(!is(Disease))
+		disease_progress = 0;
+	if(is(AcidArrow))
+		damage(Magic, dice::roll(2, 4), 5);
+	remove(Moved);
 }

@@ -389,17 +389,31 @@ void gamei::passround() {
 		} else
 			location.stop(monster_index);
 	}
+	// Try level up
+	for(auto p : party) {
+		if(p)
+			p->update_levelup(true);
+	}
 	// Regular monster and heroes update
 	for(auto& e : location.monsters) {
 		if(e)
-			e.update(false);
+			e.update_start();
 	}
 	for(auto p : party) {
 		if(p)
-			p->update(true);
+			p->update_start();
 	}
-	// Every round update
-	creature::update_boost();
+	creature::update_boost_effects();
+	// Regular monster and heroes update
+	for(auto& e : location.monsters) {
+		if(e)
+			e.update_finish();
+	}
+	for(auto p : party) {
+		if(p)
+			p->update_finish();
+	}
+	//creature::update_boost();
 	// Slow update
 	while(rounds_turn < rounds) {
 		for(auto& e : location.monsters) {
@@ -446,25 +460,22 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(variant index, char level, bool set_camera) {
+void gamei::enter(unsigned char index, char level, bool set_camera) {
 	location_index = index;
 	location_level = level;
 	location.clear();
 	location_above.clear();
-	if(location_index.type == Adventure) {
-		auto pa = getadventure();
-		if(!location.read(location_index.value, location_level)) {
-			pa->create(visialize_map);
-			if(!location.read(location_index.value, location_level))
-				return;
-		}
-		if(location_level > 1)
-			location_above.read(location_index.value, location_level - 1);
-		draw::settiles(location.head.type);
-		if(set_camera)
-			setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
-	} else if(location_index.type == Settlement)
-		camera_index = Blocked;
+	auto pa = getadventure();
+	if(!location.read(location_index, location_level)) {
+		pa->create(visialize_map);
+		if(!location.read(location_index, location_level))
+			return;
+	}
+	if(location_level > 1)
+		location_above.read(location_index, location_level - 1);
+	draw::settiles(location.head.type);
+	if(set_camera)
+		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 	draw::setnext(play);
 }
 
@@ -594,42 +605,40 @@ void gamei::returntobase() {
 	}
 	// Return to settlement
 	auto pa = getadventure();
-	if(pa) {
-		rideto(variant(Settlement, pa->settlement));
+	if(pa)
 		draw::setnext(play);
-	}
 	location.clear();
 	location_above.clear();
 }
 
-void gamei::render_worldmap(void* object) {
-	auto pg = (gamei*)object;
-	point origin;
-	draw::fullimage(pg->location_index.getposition(), &origin);
-	point pt = pg->location_index.getposition() - origin;
-	draw::redmarker(pt.x - 4, pt.y - 4);
-	auto pn = pg->location_index.getname();
-	if(pn)
-		draw::textbc(pt.x, pt.y + 8, pn);
-}
+//void gamei::render_worldmap(void* object) {
+//	auto pg = (gamei*)object;
+//	point origin;
+//	draw::fullimage(pg->location_index.getposition(), &origin);
+//	point pt = pg->location_index.getposition() - origin;
+//	draw::redmarker(pt.x - 4, pt.y - 4);
+//	auto pn = pg->location_index.getname();
+//	if(pn)
+//		draw::textbc(pt.x, pt.y + 8, pn);
+//}
+//
+//void gamei::worldmap() {
+//	render_worldmap(this);
+//	draw::pause();
+//}
 
-void gamei::worldmap() {
-	render_worldmap(this);
-	draw::pause();
-}
-
-void gamei::rideto(variant v) {
-	if(location_index == v)
-		return;
-	// TODO: calculate ride time
-	draw::fullimage(location_index.getposition(), v.getposition(), 0);
-	location_index = v;
-	draw::appear(render_worldmap, this, 1000);
-	auto pa = location_index.getadventure();
-	if(pa && pa->message_entering)
-		answers::message(pa->message_entering);
-	enter(location_index, 1);
-}
+//void gamei::rideto(variant v) {
+//	if(location_index == v)
+//		return;
+//	// TODO: calculate ride time
+//	draw::fullimage(location_index.getposition(), v.getposition(), 0);
+//	location_index = v;
+//	draw::appear(render_worldmap, this, 1000);
+//	auto pa = location_index.getadventure();
+//	if(pa && pa->message_entering)
+//		answers::message(pa->message_entering);
+//	enter(location_index, 1);
+//}
 
 bool gamei::is(variant id) const {
 	for(auto p : party) {
@@ -695,6 +704,15 @@ void gamei::clear() {
 	camera_index = Blocked;
 }
 
+void gamei::clearfiles() {
+	for(auto e = io::file::find("maps"); e; e.next()) {
+		char temp[260]; auto p = e.fullname(temp);
+		if(e.name()[0] == '.')
+			continue;
+		io::file::remove(temp);
+	}
+}
+
 void gamei::preserial(bool writemode) {
 	if(writemode) {
 		memset(players, 0, sizeof(players));
@@ -722,16 +740,8 @@ void gamei::startgame() {
 		party.add(&bsdata<creature>::elements[i]);
 }
 
-settlementi* gamei::getsettlement() const {
-	return location_index.getsettlement();
-}
-
-void gamei::jumpto(variant v) {
-	location_index = v;
-}
-
 adventurei* gamei::getadventure() {
-	return location_index.getadventure();
+	return (adventurei*)bsdata<adventurei>::source.ptr(location_index);
 }
 
 static const char* get_power_name(const void* object, stringbuilder& sb) {
@@ -827,33 +837,12 @@ bool gamei::isnight() const {
 void gamei::play() {
 	if(!game.isalive())
 		draw::setnext(draw::mainmenu);
-	else if(game.location_index.type == Adventure)
+	else
 		game.getadventure()->play();
-	else if(game.location_index.type == Settlement)
-		game.getsettlement()->play();
-	else // Error
-		draw::setnext(draw::mainmenu);
 }
 
 int	gamei::get(action_s id) const {
-	switch(id) {
-	case Gold: return gold;
-	case Reputation: return reputation;
-	case Prosperty:
-		if(getsettlement())
-			return getsettlement()->prosperty;
-		return 0;
-	default: return 0;
-	}
-}
-
-void gamei::createdecks() {
-	events_deck.create(Event);
-	for(auto& e : bsdata<eventi>()) {
-		if(e.is(eventi::Start))
-			events_deck.addbottom(&e);
-	}
-	events_deck.shuffle();
+	return 0;
 }
 
 bool gamei::writemeta(const char* url) {

@@ -89,11 +89,11 @@ void creature::set(monster_s v_kind) {
 	nameable::set(v_kind);
 	auto& mi = getmonster();
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		ability[i] = 10;
+		basic.ability[i] = 10;
 	if(bsdata<intellegencei>::elements[mi.ins].v2)
-		ability[Intellegence] = xrand(bsdata<intellegencei>::elements[mi.ins].v1, bsdata<intellegencei>::elements[mi.ins].v2);
+		basic.ability[Intellegence] = xrand(bsdata<intellegencei>::elements[mi.ins].v1, bsdata<intellegencei>::elements[mi.ins].v2);
 	else
-		ability[Intellegence] = 0;
+		basic.ability[Intellegence] = 0;
 	switch(getsize()) {
 	case Large: ability[Strenght] += 5; break;
 	case Tall: ability[Strenght] += 1; break;
@@ -102,7 +102,7 @@ void creature::set(monster_s v_kind) {
 	alignment = mi.alignment;
 	nameable::set(mi.race);
 	nameable::set(mi.gender);
-	feats = mi.feats;
+	basic.feats = mi.feats;
 	levels[0] = mi.hd[0];
 	if(mi.hd[1] >= 3)
 		levels[0]++;

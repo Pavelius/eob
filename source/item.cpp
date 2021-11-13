@@ -4,13 +4,13 @@ static enchantmenti magic_swords[] = {
 	{Common},
 	{Uncommon, 0, {}, 1},
 	{Rare, 0, {}, 2},
-	{Rare, "luck+1", OfLuck, 1},
+	{Rare, "luck+1", BonusSave, 1},
 	{Rare, "sharpness+1", OfSharpness, 1},
 	{Rare, "accuracy+1", OfAccuracy, 1},
-	{Rare, "defence+1", OfProtection, 1},
+	{Rare, "defence+1", AC, 1},
 	{Rare, 0, {}, 3},
 	{Rare, "fear+2", MageFear, 2},
-	{Rare, "luck+2", OfLuck, 2},
+	{Rare, "luck+2", AC, 2},
 	{Rare, "fire+2", Fire, 2},
 	{Rare, "frost+2", Cold, 2},
 	{Rare, "strenght drain+2", OfStrenghtDrain, 2},
@@ -31,12 +31,12 @@ static enchantmenti magic_weapon[] = {
 	{Common},
 	{Uncommon, 0, {}, 1},
 	{Rare, 0, {}, 2},
-	{Rare, "luck+1", OfLuck, 1},
+	{Rare, "luck+1", BonusSave, 1},
 	{Rare, "sharpness+1", OfSharpness, 1},
 	{Rare, "smashing+1", OfSmashing, 1},
 	{Rare, "accuracy+1", OfAccuracy, 1},
 	{Rare, 0, {}, 3},
-	{Rare, "luck+2", OfLuck, 2},
+	{Rare, "luck+2", BonusSave, 2},
 	{Rare, "strenght drain+2", OfStrenghtDrain, 2},
 	{Rare, "holiness+2", OfHolyness, 2},
 	{VeryRare, 0, {}, 4},
@@ -51,7 +51,7 @@ static enchantmenti magic_bludgeon[] = {
 	{Rare, 0, {}, 2},
 	{Rare, "smashing+2", OfSmashing, 2},
 	{Rare, 0, {}, 3},
-	{Rare, "luck+2", OfLuck, 2},
+	{Rare, "luck+2", BonusSave, 2},
 	{Rare, "strenght drain+2", OfStrenghtDrain, 2},
 	{Rare, "holyness+2", OfHolyness, 2},
 	{VeryRare, 0, {}, 4},
@@ -61,32 +61,35 @@ static enchantmenti magic_potions[] = {
 	{Common, "healing", CureLightWounds, 1},
 	{Common, "climbing", FeatherFall, 1},
 	{Common, "six sense", DetectMagic, 1},
+	{Common, "insight", BonusExperience, 1},
 	{Uncommon, "extra-healing", CureLightWounds, 2},
 	{Uncommon, "cure disease", CureDisease, 2},
 	{Uncommon, "invisibility", Invisibility, 2},
 	{Uncommon, "knowledge", Identify, 2},
 	{Uncommon, "poison", Poison, 2},
+	{Uncommon, "insight", BonusExperience, 2},
+	{Rare, "insight", BonusExperience, 3},
 	{Rare, "speed", Haste, 3},
-	{VeryRare, "advice", OfAdvise, 4},
+	{VeryRare, "advice", BonusExperience, 4},
 	{Artifact, "strenght", Strenght, 5},
 	{Artifact, "dexterity", Dexterity, 5},
 	{Artifact, "intellegence", Intellegence, 5},
-	{Artifact, "god insight", OfAdvise, 5},
+	{Artifact, "god insight", BonusExperience, 5},
 };
 static enchantmenti magic_bracers[] = {
 	{Common},
 	{Common, "bulgary+1", OpenLocks, 1},
 	{Uncommon, "sustenance", CureLightWounds, 1},
-	{Uncommon, "protection+1", OfProtection, 1},
+	{Uncommon, "protection+1", AC, 1},
 	{Uncommon, "bulgery+2", OpenLocks, 2},
-	{Rare, "protection+2", OfProtection, 2},
+	{Rare, "protection+2", AC, 2},
 	{Rare, "orge strenght", Strenght, 1},
 	{Rare, "archery", Dexterity, 1},
-	{VeryRare, "protection+3", OfProtection, 3},
+	{VeryRare, "protection+3", AC, 3},
 	{VeryRare, "giant strenght", Strenght, 2},
 	{VeryRare, "cloud giant strenght", Strenght, 3},
 	{VeryRare, "cat's grace", Dexterity, 2},
-	{Artifact, "protection+5", OfProtection, 5},
+	{Artifact, "protection+5", AC, 5},
 	{Artifact, "titan strenght", Strenght, 5},
 };
 static enchantmenti magic_boots[] = {
@@ -98,55 +101,55 @@ static enchantmenti magic_boots[] = {
 };
 static enchantmenti magic_amulets[] = {
 	{Common},
-	{Uncommon, "protection+1", OfProtection, 1},
+	{Uncommon, "protection+1", AC, 1},
 	{Uncommon, "magic sense", DetectMagic, 1},
 	{Rare, "speed", Haste},
 	{Rare, "knowledge", Identify},
-	{Rare, "protection+2", OfProtection, 2},
+	{Rare, "protection+2", AC, 2},
 	{VeryRare, "health", Constitution},
-	{VeryRare, "protection+3", OfProtection, 3},
-	{Artifact, "protection+4", OfProtection, 4},
+	{VeryRare, "protection+3", AC, 3},
+	{Artifact, "protection+4", AC, 4},
 };
 static enchantmenti magic_rings[] = {
 	{Common},
-	{Uncommon, "protection+1", OfProtection, 1},
-	{Uncommon, "resist fire", ResistFire, 5},
-	{Uncommon, "resist cold", ResistCold, 5},
+	{Uncommon, "protection+1", AC, 1},
+	{Uncommon, "resist fire", ResistFire, 2},
+	{Uncommon, "resist cold", ResistCold, 2},
 	{Uncommon, "resist poison", SaveVsPoison, 2},
-	{Uncommon, "luck+1", OfLuck, 1},
+	{Uncommon, "luck+1", BonusSave, 1},
 	{Uncommon, "feather falling", ClimbWalls, 5},
-	{Uncommon, "protection+2", OfProtection, 2},
-	{Rare, "advise", OfAdvise, 1},
-	{Rare, "luck+2", OfLuck, 2},
+	{Uncommon, "protection+2", AC, 2},
+	{Uncommon, "holyness", Bless},
+	{Rare, "insight", BonusExperience, 1},
+	{Rare, "luck+2", BonusSave, 2},
 	{Rare, "resist magic", ResistMagic, 2},
 	{Rare, "wizardy I", OfWizardy, 1},
-	{Rare, "protection+3", OfProtection, 3},
+	{Rare, "protection+3", AC, 3},
 	{Rare, "invisibility", Invisibility, 1},
 	{Rare, "warrior", Haste, 1},
-	{VeryRare, "holyness", Bless, 1},
-	{VeryRare, "luck+3", OfLuck, 3},
-	{VeryRare, "regeneration", OfRegeneration, 1},
-	{VeryRare, "protection+4", OfProtection, 4},
+	{VeryRare, "advise", BonusExperience, 2},
+	{VeryRare, "luck+3", BonusSave, 3},
+	{VeryRare, "regeneration", Regeneration},
+	{VeryRare, "protection+4", AC, 4},
 	{VeryRare, "wizardy II", OfWizardy, 2},
-	{Artifact, "protection+5", OfProtection, 5},
+	{Artifact, "protection+5", AC, 5},
 	{Artifact, "wizardy III", OfWizardy, 3},
 };
 static enchantmenti magic_shield[] = {
 	{Common},
 	{Uncommon, 0, {}, 1},
 	{Uncommon, 0, {}, 2},
-	{Rare, "resist magic", {}, 3},
 	{Rare, 0, {}, 3},
+	{Rare, "resist magic", ResistMagic, 3},
 	{VeryRare, 0, {}, 4},
 	{Artifact, 0, {}, 5},
 };
 static enchantmenti magic_helmet[] = {
 	{Common},
-	{Uncommon, 0, {}, 1},
-	{Uncommon, 0, {}, 2},
-	{Rare, 0, {}, 3},
-	{Rare, "resist magic", {}, 2},
-	{Rare, "intellegence", {}, 2},
+	{Uncommon, "resist+1", ResistMagic, 1},
+	{Rare, "intellegence", Intellegence, 2},
+	{Rare, "leadership", Charisma, 3},
+	{Rare, "resist+2", ResistMagic, 2},
 	{VeryRare, 0, {}, 4},
 	{Artifact, 0, {}, 5},
 };
@@ -161,11 +164,14 @@ static enchantmenti magic_armor[] = {
 };
 static enchantmenti magic_robe[] = {
 	{Common},
-	{Uncommon, "protection+1", {}, 1},
-	{Rare, "protection+2", {}, 2},
-	{Rare, "protection+3", {}, 3},
-	{VeryRare, "protection+4", {}, 4},
-	{Artifact, "protection+5", {}, 5},
+	{Uncommon, "unpoison", SaveVsPoison, 4},
+	{Uncommon, "resist fire", ResistFire, 1},
+	{Uncommon, "resist cold", ResistCold, 1},
+	{Uncommon, "protection+1", BonusSave, 1},
+	{Rare, "protection+2", BonusSave, 2},
+	{Rare, "protection+3", BonusSave, 3},
+	{VeryRare, "protection+4", BonusSave, 4},
+	{Artifact, "protection+5", BonusSave, 5},
 };
 static enchantmenti magic_wand[] = {
 	{Common, "magic missile", MagicMissile},
@@ -174,8 +180,9 @@ static enchantmenti magic_wand[] = {
 	{Common, "sleep", Sleep},
 	{Common, "mending", Mending},
 	{Uncommon, "acid", AcidArrow},
-	{Rare, "acid", AcidArrow},
-	{VeryRare, "acid", AcidArrow},
+	{Rare, "paralize", HoldPerson},
+	{Rare, "fear", Fear},
+	{VeryRare, "knowledge", Identify},
 	{Artifact, "acid", AcidArrow},
 };
 static enchantmenti magic_staff[] = {
@@ -243,7 +250,6 @@ BSDATA(itemi) = {
 	{"Longsword", VeryRare, {1, 0, 1}, 15 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_swords},
 	{"Short sword", VeryRare, {2, 0, 1}, 10 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
 	{"Two-handed sword", Artifact, {42, 0, 1}, 50 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
-
 	{"Bow", VeryRare, {10, 6, 1, Arrow}, 75 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
 	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
 
@@ -429,18 +435,6 @@ bool item::ismagical() const {
 	return pe->rarity > Common;
 }
 
-int	item::getac() const {
-	return bsdata<itemi>::elements[type].armor.ac;
-}
-
-int	item::getdeflect() const {
-	return bsdata<itemi>::elements[type].armor.critical_deflect;
-}
-
-int	item::getspeed() const {
-	return bsdata<itemi>::elements[type].weapon.speed;
-}
-
 int item::getportrait() const {
 	return bsdata<itemi>::elements[type].image.avatar;
 }
@@ -498,9 +492,10 @@ void item::getname(stringbuilder& sc) const {
 				sc.adds("of %1", pe->name);
 			else if(pe->power)
 				sc.adds("of %1", pe->power.getname());
-			else if(pe->magic) {
+			else {
 				auto magic = getmagic();
-				sc.add("%+1i", magic);
+				if(magic)
+					sc.add("%+1i", magic);
 			}
 		}
 	}

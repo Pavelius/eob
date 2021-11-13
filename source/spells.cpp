@@ -58,6 +58,7 @@ BSDATA(spelli) = {
 	{"Haste", {3, 0}, TargetAlly, {Haste, Duration5PerLevel}},
 	{"Fear", {3, 0}, TargetAllClose, {Fear, Duration1d4P1PerLevel, NoSave}},
 	{"Protected negative", {0, 3}, TargetAlly, {NegativePlanProtection, Duration4Hours}},
+	{"Regeneration", {3, 0}, TargetAlly, {Regeneration, Duration2Hours}},
 	{"Remove curse", {0, 3}, TargetAlly, {RemoveCurse}, {}, {"%1 cramble to dust", "%1 is uncursed", "%1 turn to ashe"}},
 	{"Remove paralizes", {0, 3}, TargetAllAlly, {RemoveParalizes}},
 
@@ -340,6 +341,7 @@ void creature::apply(spell_s id, int level, unsigned duration) {
 }
 
 bool item::cast(spell_s id, int level, bool run) {
+	const enchantmenti* pe;
 	switch(id) {
 	case DetectMagic:
 		if(!ismagical())
@@ -350,7 +352,10 @@ bool item::cast(spell_s id, int level, bool run) {
 			return false;
 		break;
 	case Identify:
-		if(isidentified() || !ismagical())
+		if(isidentified())
+			return false;
+		pe = getenchantment();
+		if(!pe || !pe->power || !pe->magic)
 			return false;
 		if(run)
 			identified = true;

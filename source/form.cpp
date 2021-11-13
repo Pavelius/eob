@@ -303,7 +303,7 @@ void creature::update_race(void* object) {
 	if(!p->isallow(p->alignment, p->type))
 		p->alignment = choosealignment(false, p->type);
 	p->random_name();
-	p->random_ability();
+	p->random_ability(p->getrace(), p->getgender(), p->getclass());
 	p->finish();
 }
 void creature::update_class(void* object) {
@@ -311,7 +311,7 @@ void creature::update_class(void* object) {
 	if(!p->isallow(p->alignment, p->type))
 		p->alignment = choosealignment(false, p->type);
 	p->random_name();
-	p->random_ability();
+	p->random_ability(p->getrace(), p->getgender(), p->getclass());
 	p->finish();
 }
 static void update_name(void* object) {
@@ -411,7 +411,7 @@ DGINF(itemi::weaponi) = {
 	{}};
 DGINF(itemi::armori) = {
 	{"AC", DGREQ(ac)},
-	{"Crit. def", DGREQ(critical_deflect)},
+	{"Crit. def", DGREQ(deflect)},
 	{"Reduction", DGREQ(reduction)},
 	{}};
 DGINF(monsteri) = {
@@ -457,7 +457,7 @@ DGINF(creature) = {
 	{"Intellect", DGREQ(ability[3])},
 	{"Wisdow", DGREQ(ability[4])},
 	{"Charisma", DGREQ(ability[5])},
-	{"Strenght %", DGREQ(str_exeptional)},
+	{"Strenght %", DGREQ(ability[ExeptionalStrenght])},
 	{"Hits", DGREQ(hits)},
 	{"Hits roll", DGREQ(hits_rolled)},
 	{"#div equipment"},

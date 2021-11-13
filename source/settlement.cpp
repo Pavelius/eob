@@ -345,7 +345,6 @@ static bool journey(settlementi& e, building_s b, bool run) {
 		variant r = aw.choosebg(sb);
 		if(!r)
 			return false;
-		game.rideto(r);
 	}
 	return true;
 }
@@ -390,7 +389,7 @@ static bool explore(settlementi& e, bool run) {
 		game.equiping();
 		if(pa->message_agree)
 			answers::message(pa->message_agree);
-		game.rideto(r);
+		//game.rideto(r);
 	}
 	return true;
 }
@@ -446,7 +445,7 @@ bool talk(const char* prompt, const char* text, char& mood) {
 	auto chance_heard_true = 25 + mood * 5;
 	adventurei* rumor_quest = 0;
 	settlementi* rumor_settlement = 0;
-	settlementi* settlement = game.getsettlement();
+	settlementi* settlement = 0;
 	if(mood <= -4) {
 		sb.add("There is no one who want to talk with you. Try talk another day.");
 		showmessage();
@@ -687,16 +686,16 @@ void settlementi::play() {
 			apply(Tavern, (action_s)v.value, true);
 		break;
 	case Building:
-		while(game.getsettlement() == this) {
-			auto b = (building_s)v.value;
-			auto a = enter(b);
-			if(a == Leave) {
-				draw::setnext(game.play);
-				break;
-			}
-			apply(b, a, true);
-			game.passtime(60);
-		}
+		//while(game.getsettlement() == this) {
+		//	auto b = (building_s)v.value;
+		//	auto a = enter(b);
+		//	if(a == Leave) {
+		//		draw::setnext(game.play);
+		//		break;
+		//	}
+		//	apply(b, a, true);
+		//	game.passtime(60);
+		//}
 		break;
 	}
 }

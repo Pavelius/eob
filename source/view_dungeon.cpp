@@ -285,12 +285,13 @@ void creature::view_portrait(int x, int y) const {
 	static struct elementi {
 		spell_s		v;
 		color		c;
-	} variants[] = {{Poison, colors::green},
+	} variants[] = {
+		{Poison, colors::green},
 		{Disease, colors::green.mix(colors::red)},
 		{HoldPerson, colors::red},
 		{Sleep, colors::blue}
 	};
-	if(isinvisible() || is(Blur))
+	if(is(Invisibility) || is(Blur))
 		image(x, y, gres(PORTM), getavatar(), 0, 128);
 	else
 		image(x, y, gres(PORTM), getavatar(), 0);
@@ -346,20 +347,13 @@ void draw::avatar(int x, int y, creature* pc, unsigned flags, void* current_item
 		if(!pc->is(id))
 			continue;
 		switch(id) {
-		case DetectEvil:
-		case DetectMagic:
-		case Invisibility:
-		case Blur:
-		case ReadLanguagesSpell:
-			continue;
 		case HoldPerson:
 			draw::rectb(rc, colors::red);
 			break;
-		case Bless:
-		case ProtectionFromEvil:
+		case Bless: case ProtectionFromEvil:
 			draw::rectb(rc, colors::yellow);
 			break;
-		default:
+		case Shield: case MageArmor:
 			draw::rectb(rc, colors::green);
 			break;
 		}

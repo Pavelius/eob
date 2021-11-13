@@ -1,33 +1,52 @@
 #include "main.h"
 
-static const char* num = "%1i";
-static const char* per = "%1i%%";
-
-BSDATA(abilityi) = {{"Str", num},
-{"Dex", num},
-{"Con", num},
-{"Int", num},
-{"Wis", num},
-{"Cha", num},
-{"Save vs Paralize", per},
-{"Save vs Poison", per},
-{"Save vs Traps", per},
-{"Save vs Magic", per, {}},
-{"Climb Walls", per, {Theif}},
-{"Hear Noise", per, {Theif}},
-{"Move Silently", per, {Theif, Ranger}},
-{"Open Locks", per, {Theif}},
-{"Remove Traps", per, {Theif}},
-{"Read Languages", per, {Theif}},
-{"Learn Spells", per, {Mage}},
-//
-{"Resist Charm", per},
-{"Resist Cold", per},
-{"Resist Fire", per},
-{"Resist Magic", per},
-//
-{"Deflect critical", per},
-{"Detect secrets", per},
+BSDATA(abilityi) = {
+	{"Str", 1},
+	{"Dex", 1},
+	{"Con", 1},
+	{"Int", 1},
+	{"Wis", 1},
+	{"Cha", 1},
+	{"Save vs Paralize", 5},
+	{"Save vs Poison", 5},
+	{"Save vs Traps", 5},
+	{"Save vs Magic", 5, {}},
+	{"Climb Walls", 5, {Theif}},
+	{"Hear Noise", 5, {Theif}},
+	{"Move Silently", 5, {Theif, Ranger}},
+	{"Open Locks", 5, {Theif}},
+	{"Remove Traps", 5, {Theif}},
+	{"Read Languages", 5, {Theif}},
+	{"Learn Spells", 5, {Mage}},
+	{"Resist Charm", 10},
+	{"Resist Cold", 10},
+	{"Resist Fire", 10},
+	{"Resist Magic", 10},
+	{"Deflect critical", 5},
+	{"Detect secrets", 5},
+	{"AC", 1},
+	{"To hit melee", 1},
+	{"To hit range", 1},
+	{"To hit", 1},
+	{"Damage melee", 1},
+	{"Damage range", 1},
+	{"Damage", 1},
+	{"Speed", 1},
+	{"Bonus Experience", 5},
+	{"Bonus Saves", 5},
+	{"Reaction bonus", 1},
+	{"Exeptional Strenght", 20},
 };
-assert_enum(ability, LastSkill)
+assert_enum(ability, ExeptionalStrenght)
 INSTELEM(abilityi)
+
+bool abilityi::allow(class_s v) const {
+	for(auto i = 0; i < 3; i++) {
+		auto v1 = creature::getclass(v, i);
+		if(v1 == NoClass)
+			break;
+		if(match.is(v1))
+			return true;
+	}
+	return false;
+}

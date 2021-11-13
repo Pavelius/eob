@@ -2331,7 +2331,7 @@ static void skills(int x, int y, creature* pc) {
 	int x1 = x + 4;
 	int y1 = y + 54;
 	header(x1, y + 42, "Skills");
-	for(auto i = SaveVsParalization; i <= LastSkill; i = (ability_s)(i + 1)) {
+	for(auto i = SaveVsParalization; i <= DetectSecrets; i = (ability_s)(i + 1)) {
 		int value = pc->get(i);
 		if(value <= 0)
 			continue;
@@ -2351,8 +2351,8 @@ static void next_portrait() {
 	current_portrait++;
 }
 
-static void roll_character() {
-	current_player->random_ability();
+void creature::roll_character() {
+	current_player->basic.random_ability(current_player->getrace(), current_player->getgender(), current_player->getclass());
 	current_player->finish();
 }
 
@@ -2478,11 +2478,11 @@ int creature::render_ability(int x, int y, int width, unsigned flags) const {
 	auto y0 = y;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto v = get(i);
-		if(i == Strenght && v == 18 && str_exeptional > 0) {
-			if(str_exeptional == 100)
+		if(i == Strenght && v == 18 && ability[ExeptionalStrenght] > 0) {
+			if(ability[ExeptionalStrenght] == 100)
 				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", flags);
 			else
-				y += number(x, y, width, getstr(i), 18, str_exeptional, "%1i/%2.2i", flags);
+				y += number(x, y, width, getstr(i), 18, ability[ExeptionalStrenght], "%1i/%2.2i", flags);
 		} else
 			y += number(x, y, width, getstr(i), get(i), flags);
 	}
@@ -2700,7 +2700,7 @@ void creature::create(gender_s gender, race_s race, class_s type, alignment_s al
 	nameable::set(race);
 	set(type);
 	set(alignment);
-	random_ability();
+	basic.random_ability(race, gender, type);
 	setavatar(game.getavatar(race, gender, getclass(type, 0)));
 	if(interactive)
 		view_ability();
@@ -2918,9 +2918,6 @@ static bool handle_shortcuts(bool allow_move) {
 	case 'V':
 		if(allow_move)
 			location.automap(true);
-		break;
-	case Ctrl + 'V':
-		game.worldmap();
 		break;
 	case 'F':
 		draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);

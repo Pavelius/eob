@@ -239,7 +239,7 @@ void random_heroes() {
 	//
 	p = add_hero(0, Male, Human, Paladin, LawfulGood);
 	p->set({SwordLong, Fire}, RightHand);
-	p->equip({GreenRing, OfRegeneration});
+	p->equip({GreenRing, Regeneration});
 	p->equip({Bracers, Strenght});
 	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
@@ -259,8 +259,8 @@ void random_heroes() {
 	p->set({Staff, BurningHands}, RightHand);
 	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add({GreenPotion, OfAdvise});
-	p->add({GreenPotion, OfAdvise});
+	p->add({GreenPotion, BonusExperience});
+	p->add({GreenPotion, BonusExperience});
 }
 
 void debug_dungeon2() {
@@ -283,22 +283,11 @@ void test_orientation();
 
 void editor() {
 #ifdef _DEBUG
-	if(false) {
-		random_heroes();
-		for(auto i = 0; i < 4; i++)
-			party.add(bsdata<creature>::elements + i);
-		game.addgold(100);
-		game.jumpto(bsdata<settlementi>::elements);
-		game.passtime(3 * 24 * 60 + xrand(8 * 60, 13 * 60));
-		bsdata<eventi>::elements[6].play();
-		//game.play();
-	} else if(true) {
-		random_heroes();
-		game.readtext("import/western_heartlands.json");
-		edit("Company", &game, dginf<companyi>::meta, false);
-		game.companyi::write("default");
-		setnext(mainmenu);
-	} else
+	random_heroes();
+	game.readtext("import/western_heartlands.json");
+	edit("Company", &game, dginf<companyi>::meta, false);
+	game.companyi::write("default");
+	setnext(mainmenu);
 #endif
 	{
 		game.companyi::read("default");
@@ -309,10 +298,13 @@ void editor() {
 }
 
 void gamei::newgame() {
+	srand(clock());
 	location.clear();
 	location_above.clear();
 	game.clear();
-	game.companyi::read("default");
+	game.clearfiles();
+	game.readtext("import/western_heartlands.json");
+	game.clearfiles();
 	party.clear();
 	for(unsigned i = 0; i < 4; i++)
 		bsdata<creature>::elements[i].clear();
@@ -331,12 +323,12 @@ void gamei::newgame() {
 		party.add(p);
 	}
 	game.addgold(game.start_gold);
-	game.createdecks();
-	game.passtime(12 * 60);
-	if(game.intro)
-		answers::message(game.intro.getname());
+	//if(game.intro)
+	//	answers::message(game.intro.getname());
 	draw::resetres();
-	game.enter(variant(Settlement, game.start), 1);
+	game.equiping();
+	game.passtime(12 * 60);
+	game.enter(0, 1);
 	game.write();
 }
 
