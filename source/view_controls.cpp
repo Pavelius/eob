@@ -2696,6 +2696,7 @@ void creature::view_party() {
 }
 
 void creature::create(gender_s gender, race_s race, class_s type, alignment_s alignment, bool interactive) {
+	clear();
 	nameable::set(gender);
 	nameable::set(race);
 	set(type);

@@ -834,10 +834,13 @@ struct statable {
 	void				add(ability_s id, class_s type);
 	void				apply(const item& it, bool use_spells);
 	void				apply(variant v, int magic, bool use_spells);
+	int					getstrex() const;
+	static int			getthac0(class_s type, int level);
 	constexpr bool		is(spell_s v) const { return active_spells.is(v); }
 	constexpr bool		is(feat_s v) const { return feats.is(v); }
 	constexpr bool		is(usability_s v) const { return usability.is(v); }
 	void				random_ability(race_s race, gender_s gender, class_s type);
+	void				update_attacks(class_s type, int level);
 	void				update_stats();
 };
 class creature : public statable, public nameable {
@@ -916,7 +919,6 @@ public:
 	static class_s		getclass(class_s id, int index);
 	int					getclasscount() const;
 	direction_s			getdirection() const;
-	int					getenchant(variant id, int bonus) const;
 	int					getexperience() const { return experience; }
 	int					getfood() const { return food; }
 	int					getfoodmax() const;
@@ -937,11 +939,9 @@ public:
 	int					getside() const;
 	size_s				getsize() const;
 	wear_s				getslot(const item* p) const;
-	int					getspecialist(item_s weapon) const;
 	int					getspeed() const;
 	int					getspellsperlevel(class_s type, int spell_level) const;
 	int					getstrex() const;
-	int					getthac0(class_s cls, int level) const;
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethitsmaximum()); }
@@ -965,6 +965,7 @@ public:
 	bool				ismindless() const;
 	bool				ismoved() const { return is(Moved); }
 	bool				isready() const;
+	bool				isspecialize(item_s weapon) const;
 	bool				isuse(const item v) const;
 	void				kill();
 	void				poison(save_s save, char save_bonus = 0);

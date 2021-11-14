@@ -6,22 +6,6 @@ BSDATAC(creature, 32)
 const char* get_name_part(short rec);
 
 static wear_s wear_slots[] = {Head, Neck, Body, Elbow, Legs};
-static const int monsters_thac0[] = {
-	0, 1, 1, 3, 3, 5, 5, 7, 7, 9,
-	9, 11, 11, 13, 13, 15, 15, 17, 17, 19
-};
-static char hit_probability[] = {
-	-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 1, 1,
-	1, 2, 2, 2, 3,
-	3, 4, 4, 5, 6, 7
-};
-static char damage_adjustment[] = {
-	-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,
-	0, 0, 0, 0, 0, 0, 1, 1, 2,
-	3, 3, 4, 5, 6,
-	7, 8, 9, 10, 11, 12, 14
-};
 char reaction_adjustment[] = {
 	-7, -6, -4, -3, -2, -1, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 1, 2, 2, 3, 3,
@@ -50,25 +34,6 @@ static char charisma_reaction_bonus[] = {-8,
 -7, -6, -5, -4, -3, -2, -1, 0, 0, 0,
 0, 0, 1, 2, 3, 5, 6, 7, 8, 9,
 10, 11, 12, 13, 14
-};
-static char thac0_monster[] = {
-	0, 1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17
-};
-static char thac0_warrior[] = {
-	0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
-	9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-};
-static char thac0_priest[] = {
-	0, 0, 0, 0, 2, 2, 2, 4, 4, 4,
-	6, 6, 6, 8, 8, 8, 10, 10, 10, 12, 12
-};
-static char thac0_rogue[] = {
-	0, 0, 0, 1, 1, 2, 2, 3, 3, 4,
-	4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9
-};
-static char thac0_wizard[] = {
-	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
-	3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6
 };
 static char dwarven_constitution_bonuses[] = {
 	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
@@ -189,42 +154,24 @@ bool combati::is(enchant_s v) const {
 
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.attack = OneAttack;
-	auto hd = gethd();
-	auto t = getbestclass();
-	if(ismonster())
-		result.bonus += maptbl(monsters_thac0, hd);
-	else
-		result.bonus += getthac0(t, get(t));
-	auto k = getstrex();
-	result.bonus += maptbl(hit_probability, k);
+	result.bonus += get(AttackMelee);
 	if(wears[weapon]) {
 		auto& wi = bsdata<itemi>::elements[wears[weapon].gettype()].weapon;
 		wears[weapon].get(result, enemy);
-		auto pe = wears[weapon].getenchantment();
 		result.weapon = const_cast<item*>(&wears[weapon]);
 		if(result.weapon->is(Natural))
-			result.damage.b += wi.damage_large.b * hd;
+			result.damage.b += gethd() / 3;
 	} else
 		result.damage = {1, 2};
-	auto race = getrace();
 	if(is(BonusVsElfWeapon) && wears[weapon].is(UseTheifWeapon))
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
-	if(getspecialist(wears[weapon].gettype())) {
+	if(weapon == RightHand && isspecialize(wears[weapon].gettype())) {
 		result.attack = OneAndTwoAttacks;
 		result.bonus++;
+		result.damage.b += 2;
 	}
-	if(is(Haste))
-		result.bonus += 2;
-	if(is(Bless))
-		result.bonus += 1;
-	if(is(Fear))
-		result.bonus -= 4;
-	if(is(Blindness))
-		result.bonus -= 4;
-	result.bonus -= drain_energy;
-	result.damage.b += maptbl(damage_adjustment, k);
-	result.damage.b -= drain_energy;
+	result.damage.b += get(DamageMelee);
 }
 
 bool creature::add(item value) {
@@ -699,18 +646,6 @@ void creature::update_levelup(bool interactive) {
 	}
 }
 
-int	creature::getthac0(class_s cls, int level) const {
-	switch(cls) {
-	case NoClass: return maptbl(thac0_monster, level);
-	case Fighter:
-	case Paladin:
-	case Ranger: return maptbl(thac0_warrior, level);
-	case Theif: return maptbl(thac0_rogue, level);
-	case Cleric: return maptbl(thac0_priest, level);
-	default: return maptbl(thac0_wizard, level);
-	}
-}
-
 void creature::preparespells() {
 	for(auto i = spell_s(1); i <= LastSpellAbility; i = (spell_s)(i + 1)) {
 		auto level = getlevel(i, Mage);
@@ -752,36 +687,19 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 	return b;
 }
 
-int creature::getenchant(variant id, int bonus) const {
-	if(getmonster().is(id))
-		return bonus;
-	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
-	for(auto s : slots) {
-		if(!wears[s])
-			continue;
-		auto pe = wears[s].getenchantment();
-		if(pe->power == id) {
-			if(wears[s].iscursed())
-				return -bonus;
-			return bonus;
-		}
-	}
-	return 0;
-}
-
 char creature::racial_bonus(char* data) const {
 	return data[getrace()];
 }
 
-int creature::getspecialist(item_s type) const {
+bool creature::isspecialize(item_s type) const {
 	auto cls = getclass();
 	if(cls != Fighter)
 		return 0;
 	switch(getrace()) {
-	case Dwarf: return (type == AxeBattle || type == Mace || type == HammerWar) ? 1 : 0;
-	case HalfElf: case Elf: return (type == SwordLong || type == SwordShort || type == Bow) ? 1 : 0;
-	case Halfling: return (type == SwordShort) ? 1 : 0;
-	default: return (type == SwordLong || type == SwordBastard || type == SwordTwoHanded) ? 1 : 0;
+	case Dwarf: return type == AxeBattle || type == Mace || type == HammerWar;
+	case HalfElf: case Elf: return type == SwordLong || type == SwordShort || type == Bow;
+	case Halfling: return type == SwordShort;
+	default: return type == SwordLong || type == SwordBastard || type == SwordTwoHanded;
 	}
 }
 
@@ -1095,26 +1013,6 @@ void read_message(dungeoni* pd, dungeoni::overlayi* po) {
 	}
 }
 
-int creature::getstrex() const {
-	auto result = get(Strenght);
-	auto str_exeptional = get(ExeptionalStrenght);
-	if(result > 18)
-		result += 6;
-	else if(result == 18 && str_exeptional > 0) {
-		if(str_exeptional <= 50)
-			result += 1;
-		else if(str_exeptional <= 75)
-			result += 2;
-		else if(str_exeptional <= 90)
-			result += 3;
-		else if(str_exeptional <= 99)
-			result += 4;
-		else
-			result += 5;
-	}
-	return result;
-}
-
 bool creature::setweapon(item_s v, int charges) {
 	if(wears[RightHand]) {
 		say("No, my hand is busy!");
@@ -1135,7 +1033,6 @@ void creature::campcast(item& it) {
 }
 
 void creature::resting(int healed) {
-	healed += getenchant(CureLightWounds, 10);
 	satisfy();
 	// Remove additional hit points
 	hits_aid = 0;
@@ -1651,7 +1548,7 @@ void creature::update_wears() {
 	for(auto s : wear_slots) {
 		ability[AC] += wears[s].getitem().armor.ac;
 		ability[CriticalDeflect] += wears[s].getitem().armor.deflect * 5;
-		statable::apply(wears[Head], false);
+		statable::apply(wears[s], false);
 	}
 	statable::apply(wears[RightRing], true);
 	statable::apply(wears[LeftRing], true);
@@ -1717,6 +1614,7 @@ void creature::update_finish() {
 	auto main_ability = bsdata<classi>::elements[type].ability;
 	auto ability_value = get(main_ability);
 	ability[BonusExperience] += maptbl(bonus_ability, ability_value);
+	update_attacks(getbestclass(), gethd());
 	update_stats();
 	if(!is(Disease))
 		disease_progress = 0;

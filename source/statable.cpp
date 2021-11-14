@@ -94,6 +94,60 @@ void statable::apply(variant v, int m, bool use_spells) {
 	}
 }
 
+int statable::getthac0(class_s type, int level) {
+	static char thac0_monster[] = {
+		0, 1, 1, 3, 3, 5, 5, 7, 7, 9,
+		9, 11, 11, 13, 13, 15, 15, 17, 17
+	};
+	static char thac0_warrior[] = {
+		0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+		9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+	};
+	static char thac0_priest[] = {
+		0, 0, 0, 0, 2, 2, 2, 4, 4, 4,
+		6, 6, 6, 8, 8, 8, 10, 10, 10, 12, 12
+	};
+	static char thac0_rogue[] = {
+		0, 0, 0, 1, 1, 2, 2, 3, 3, 4,
+		4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9
+	};
+	static char thac0_wizard[] = {
+		0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
+		3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6
+	};
+	switch(type) {
+	case NoClass: return maptbl(thac0_monster, level);
+	case Fighter: case Paladin: case Ranger: return maptbl(thac0_warrior, level);
+	case Theif: return maptbl(thac0_rogue, level);
+	case Cleric: return maptbl(thac0_priest, level);
+	default: return maptbl(thac0_wizard, level);
+	}
+}
+
+int statable::getstrex() const {
+	auto result = ability[Strenght];
+	auto str_exeptional = ability[ExeptionalStrenght];
+	if(result > 18)
+		result += 6;
+	else if(result == 18 && str_exeptional > 0) {
+		if(str_exeptional <= 50)
+			result += 1;
+		else if(str_exeptional <= 75)
+			result += 2;
+		else if(str_exeptional <= 90)
+			result += 3;
+		else if(str_exeptional <= 99)
+			result += 4;
+		else
+			result += 5;
+	}
+	return result;
+}
+
+void statable::update_attacks(class_s type, int level) {
+	ability[AttackAll] += getthac0(type, level);
+}
+
 void statable::update_stats() {
 	static char hit_probability[] = {
 		-5, -5, -3, -3, -2, -2, -1, -1, 0, 0,
@@ -141,9 +195,10 @@ void statable::update_stats() {
 	if(is(NoExeptionalStrenght))
 		ability[ExeptionalStrenght] = 0;
 	// Ability adjustments
-	ability[AttackMelee] += maptbl(hit_probability, ability[Strenght]);
+	auto k = getstrex();
+	ability[AttackMelee] += maptbl(hit_probability, k);
 	ability[AttackRange] += maptbl(reaction_adjustment, ability[Dexterity]);
-	ability[DamageMelee] += maptbl(damage_adjustment, ability[Strenght]);
+	ability[DamageMelee] += maptbl(damage_adjustment, k);
 	ability[AC] += maptbl(defence_adjustment, ability[Dexterity]);
 	ability[ReactionBonus] += maptbl(charisma_reaction_bonus, ability[Charisma]);
 	ability[SaveVsParalization] += maptbl(reaction_adjustment, ability[Dexterity]) * 5;
@@ -154,15 +209,19 @@ void statable::update_stats() {
 	// Spells
 	if(is(ProtectionFromEvil))
 		ability[BonusSave] += 1;
-	if(is(Bless))
-		ability[Attack] += 1;
-	if(is(Haste)) {
-		ability[Speed] += 2;
-		ability[AC] += 2;
-	}
 	if(is(Blindness)) {
+		ability[AttackAll] -= 4;
 		ability[Speed] -= 2;
 		ability[AC] -= 4;
+	}
+	if(is(Bless))
+		ability[AttackAll] += 1;
+	if(is(Fear))
+		ability[AttackAll] -= 4;
+	if(is(Haste)) {
+		ability[AttackAll] += 2;
+		ability[Speed] += 2;
+		ability[AC] += 2;
 	}
 	if(is(Deafness))
 		ability[Speed] -= 1;
@@ -171,7 +230,7 @@ void statable::update_stats() {
 	if(is(ShieldSpell))
 		ability[AC] += 7;
 	if(is(Invisibility))
-		ability[Attack] += 2;
+		ability[AttackAll] += 2;
 	// One of this
 	if(is(Invisibility))
 		ability[AC] += 4;
@@ -189,10 +248,10 @@ void statable::update_stats() {
 	ability[SaveVsPoison] += ability[BonusSave];
 	ability[SaveVsTraps] += ability[BonusSave];
 	ability[SaveVsMagic] += ability[BonusSave];
-	ability[AttackMelee] += ability[Attack];
-	ability[AttackRange] += ability[Attack];
-	ability[DamageMelee] += ability[Damage];
-	ability[DamageRange] += ability[Damage];
+	ability[AttackMelee] += ability[AttackAll];
+	ability[AttackRange] += ability[AttackAll];
+	ability[DamageMelee] += ability[DamageAll];
+	ability[DamageRange] += ability[DamageAll];
 	// Total and partial immunitites
 	if(is(Undead)) {
 		ability[ResistCharm] = 100;
