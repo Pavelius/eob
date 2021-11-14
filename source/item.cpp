@@ -238,22 +238,22 @@ static enchantmenti old_tome[] = {{Common},
 
 BSDATA(itemi) = {
 	{"No item"},
-	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {OneAttack, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
-	{"Axe", Common, {7, 4, 1}, 2 * GP, 0, Weapons, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {OneAttack, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
-	{"Club", Common, {76, 1}, 0, 0, Weapons, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
-	{"Dagger", Common, {15, 3}, 1 * GP, 0, Weapons, RightHand, {}, {Quick, UseInHand}, {OneAttack, Pierce, -2, {1, 4}, {1, 3}}, {}, magic_weapon},
-	{"Flail", Uncommon, {5, 2, 1}, 15 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -7, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
-	{"Halberd", Rare, {3, 5, 1}, 10 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, TwoHanded, Deadly, Quick}, {OneAttack, Slashing, -9, {1, 10}, {2, 6}}, {}, magic_weapon},
-	{"Warhammer", Rare, {99, 10, 1}, 2 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
-	{"Mace", Uncommon, {4, 1, 1}, 8 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {OneAttack, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
-	{"Spear", Common, {6, 3, 1}, 1 * GP, 0, Weapons, RightHand, {UseLargeWeapon}, {UseInHand, Versatile}, {OneAttack, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
-	{"Staff", Uncommon, {8, 3, 1}, 0, 0, Weapons, RightHand, {}, {TwoHanded, UseInHand}, {OneAttack, Bludgeon, -8, {1, 6}, {1, 4}}, {}, magic_staff},
-	{"Bastard sword", VeryRare, {45, 0, 1}, 25 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, UseInHand}, {OneAttack, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_swords},
-	{"Longsword", VeryRare, {1, 0, 1}, 15 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_swords},
-	{"Short sword", VeryRare, {2, 0, 1}, 10 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {OneAttack, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
-	{"Two-handed sword", Artifact, {42, 0, 1}, 50 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {OneAttack, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
-	{"Bow", VeryRare, {10, 6, 1, Arrow}, 75 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {TwoAttacks, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
-	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {OneAttack, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
+	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {2, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
+	{"Axe", Common, {7, 4, 1}, 2 * GP, 0, Weapons, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {2, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
+	{"Club", Common, {76, 1}, 0, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
+	{"Dagger", Common, {15, 3}, 1 * GP, 0, Weapons, RightHand, {}, {Quick, UseInHand}, {2, Pierce, -2, {1, 4}, {1, 3}}, {}, magic_weapon},
+	{"Flail", Uncommon, {5, 2, 1}, 15 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -7, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
+	{"Halberd", Rare, {3, 5, 1}, 10 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, TwoHanded, Deadly, Quick}, {2, Slashing, -9, {1, 10}, {2, 6}}, {}, magic_weapon},
+	{"Warhammer", Rare, {99, 10, 1}, 2 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -4, {1, 4, 1}, {1, 4}}, {}, magic_bludgeon},
+	{"Mace", Uncommon, {4, 1, 1}, 8 * GP, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -6, {1, 6, 1}, {1, 6}}, {}, magic_bludgeon},
+	{"Spear", Common, {6, 3, 1}, 1 * GP, 0, Weapons, RightHand, {UseLargeWeapon}, {UseInHand, Versatile}, {2, Pierce, -6, {1, 6}, {1, 8}}, {}, magic_weapon},
+	{"Staff", Uncommon, {8, 3, 1}, 0, 0, Weapons, RightHand, {}, {TwoHanded, UseInHand}, {2, Bludgeon, -8, {1, 6}, {1, 4}}, {}, magic_staff},
+	{"Bastard sword", VeryRare, {45, 0, 1}, 25 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, UseInHand}, {2, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_swords},
+	{"Longsword", VeryRare, {1, 0, 1}, 15 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, UseInHand}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_swords},
+	{"Short sword", VeryRare, {2, 0, 1}, 10 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {2, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
+	{"Two-handed sword", Artifact, {42, 0, 1}, 50 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {2, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
+	{"Bow", VeryRare, {10, 6, 1, Arrow}, 75 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {4, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
+	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {2, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
 
 	{"Robe", Rare, {32, 8, 1}, 3 * GP, 0, Clothes, Body, {UseArcane}, {}, {}, {}, magic_robe},
 	{"Leather armor", Common, {31, 8, 1}, 5 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
@@ -316,23 +316,23 @@ BSDATA(itemi) = {
 	{"Dust of Ages", Artifact, {97, 25}, 0, 0, Tools, {}, {UseArcane}, {Unique}},
 	{"Horn", Artifact, {59, 23}, 0, 0, Tools, {}, {}, {Unique, Famed}},
 	{"Mantist Head", Artifact, {51, 18}, 0, 0, Tools, {}, {}, {Unique}},
-	{"Scepeter", Artifact, {66, 17}, 0, 0, Weapons, RightHand, {}, {Unique, Famed}, {OneAttack, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
-	{"Silver sword", Artifact, {65, 0}, 0, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, Famed, SevereDamageUndead}, {OneAttack, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
+	{"Scepeter", Artifact, {66, 17}, 0, 0, Weapons, RightHand, {}, {Unique, Famed}, {2, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
+	{"Silver sword", Artifact, {65, 0}, 0, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, Famed, SevereDamageUndead}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 	{"Stone amulet", Artifact, {64, 13}, 0, 0, Tools, Neck, {}, {Unique}},
 	{"Stone dagger", Artifact, {60, 3}, 0, 0, Weapons, {}, {}, {Unique}},
 	{"Stone gem", Artifact, {57, 22}, 0, 0, Jewelry, {}, {}, {Unique}},
 	{"Stone holy symbol", Artifact, {63, 20}, 0, 0, Tools, {}, {UseDivine}, {Unique}},
 	{"Stone orb", Artifact, {61, 18}, 0, 0, Devices, {}, {}, {Unique}},
 
-	{"Slam", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 8}, {}}},
-	{"Slam", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {OneAttack, Bludgeon, -2, {1, 4}, {}}},
-	{"Claws", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {TwoAttacks, Slashing, -3, {1, 4}, {}}},
-	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 6}, {}}},
-	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {1, 4, 1}, {}}},
-	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {OneAttack, Pierce, -4, {2, 6}, {}}},
-	{"Shoking hand", Common, {80}, 0, 0, Weapons, RightHand, {}, {Natural, Charged}, {OneAttack, Electricity, -4, {1, 8}, {}}},
-	{"Flame blade", Common, {82}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {OneAttack, Fire, -5, {1, 4, 4}, {}}},
-	{"Flame hand", Common, {81}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, Ranged}, {OneAttack, Fire, -1, {1, 4, 1}, {}}},
+	{"Slam", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {2, Bludgeon, -2, {1, 8}, {}}},
+	{"Slam", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {2, Bludgeon, -2, {1, 4}, {}}},
+	{"Claws", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {4, Slashing, -3, {1, 4}, {}}},
+	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {2, Pierce, -4, {1, 6}, {}}},
+	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {2, Pierce, -4, {1, 4, 1}, {}}},
+	{"Bite", Common, {}, 0, 0, Weapons, RightHand, {}, {Natural}, {2, Pierce, -4, {2, 6}, {}}},
+	{"Shoking hand", Common, {80}, 0, 0, Weapons, RightHand, {}, {Natural, Charged}, {2, Electricity, -4, {1, 8}, {}}},
+	{"Flame blade", Common, {82}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {2, Fire, -5, {1, 4, 4}, {}}},
+	{"Flame hand", Common, {81}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, Ranged}, {2, Fire, -1, {1, 4, 1}, {}}},
 };
 assert_enum(item, LastItem)
 INSTELEM(itemi);
@@ -483,7 +483,7 @@ void item::get(combati& result, size_s enemy_size) const {
 		result.damage = wi.damage;
 	auto magic_bonus = getmagic();
 	result.type = wi.type;
-	result.attack = wi.attack;
+	result.number_attacks_p2r = wi.number_attacks_p2r;
 	result.bonus += wi.bonus + magic_bonus + getenchant(OfAccuracy);
 	result.damage.b += magic_bonus;
 	if(is(Deadly))

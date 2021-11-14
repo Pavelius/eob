@@ -152,9 +152,6 @@
     <ClCompile Include="geometry.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="attack.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="site.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

@@ -235,11 +235,6 @@ enum item_feat_s : unsigned char {
 	Valuable, Famed,
 	NotForSale, Expandable, Unique
 };
-enum attack_s : unsigned char {
-	AutoHit,
-	OneAttack, OneAndTwoAttacks, TwoAttacks,
-	OnHit, OnAllHit, OnCriticalHit,
-};
 enum reaction_s : unsigned char {
 	Indifferent, Friendly, Hostile,
 };
@@ -403,11 +398,6 @@ struct alignmenti {
 	morale_s			morale;
 	adat<class_s, 8>	restricted;
 };
-struct attacki {
-	const char*			name;
-	char				attacks_p2r;
-	const char*			prefix;
-};
 struct classi {
 	const char*			name;
 	char				playable;
@@ -475,7 +465,7 @@ struct varianti {
 	static void			getmetadata(stringbuilder& sb);
 };
 struct combati {
-	attack_s			attack;
+	char				number_attacks_p2r;
 	damage_s			type;
 	char				speed;
 	dice				damage;
@@ -500,8 +490,8 @@ struct itemi {
 		dice			damage_large;
 		const weaponi*	next;
 		constexpr weaponi() : damage_large(), combati(), next(0) {}
-		constexpr weaponi(attack_s attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0, const weaponi* next = 0) :
-			combati{attack, type, speed, damage, bonus}, damage_large(damage_large), next(next) {}
+		constexpr weaponi(char number_attack, damage_s type, char speed, dice damage, dice damage_large, char bonus = 0, const weaponi* next = 0) :
+			combati{number_attack, type, speed, damage, bonus}, damage_large(damage_large), next(next) {}
 	};
 	struct armori {
 		char			ac;
@@ -1493,7 +1483,6 @@ NOBSDATA(textable)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)
-MNLNK(attack_s, attacki)
 MNLNK(building_s, buildingi)
 MNLNK(class_s, classi)
 MNLNK(action_s, actioni)

@@ -153,7 +153,6 @@
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
     <ClCompile Include="archive.cpp" />
-    <ClCompile Include="attack.cpp" />
     <ClCompile Include="building.cpp" />
     <ClCompile Include="case.cpp" />
     <ClCompile Include="cell.cpp" />

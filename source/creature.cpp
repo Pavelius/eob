@@ -153,7 +153,7 @@ bool combati::is(enchant_s v) const {
 }
 
 void creature::get(combati& result, wear_s weapon, size_s enemy_size) const {
-	result.attack = OneAttack;
+	result.number_attacks_p2r = 1 * 2;
 	result.bonus += get(AttackMelee);
 	if(wears[weapon]) {
 		auto& wi = bsdata<itemi>::elements[wears[weapon].gettype()].weapon;
@@ -167,7 +167,7 @@ void creature::get(combati& result, wear_s weapon, size_s enemy_size) const {
 		result.bonus++;
 	// Weapon secialist get bonus to hit (only to main hand?)
 	if(weapon == RightHand && isspecialize(wears[weapon].gettype())) {
-		result.attack = OneAndTwoAttacks;
+		result.number_attacks_p2r++;
 		result.bonus++;
 		result.damage.b += 2;
 	}
@@ -339,10 +339,10 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 		}
 	}
 	auto ac = defender->get(AC);
-	// RULE: Dwarf can hit goblinoid by 5% better that others
+	if(defender->is(BonusACVsLargeEnemy) && getsize() >= Large)
+		ac += 4;
 	if(is(BonusToHitVsGoblinoid) && defender->getrace() == Goblinoid)
 		wi.bonus += 1;
-	// RULE: Ranger add +4 THAC0 when fight humanoid and goblonoids
 	if(is(BonusDamageVsEnemy) && (defender->getrace() == Humanoid || defender->getrace() == Goblinoid))
 		wi.bonus += 4;
 	auto magic_bonus = 0;
@@ -358,7 +358,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 	}
 	if(ishero())
 		subenergy();
-	for(auto atn = (bsdata<attacki>::elements[wi.attack].attacks_p2r + (game.getrounds() % 2)) / 2; atn > 0; atn--) {
+	for(auto atn = (wi.number_attacks_p2r + (game.getrounds() % 2)) / 2; atn > 0; atn--) {
 		if(!useammo(ammo, slot, true))
 			return;
 		auto tohit = 20 - (wi.bonus + bonus) - (10 - ac);
@@ -499,10 +499,14 @@ void creature::finish() {
 	memset(prepared, 0, sizeof(prepared));
 	known_spells.clear();
 	active_spells.clear();
-	basic.feats.add(bsdata<racei>::elements[getrace()].feats);
-	basic.feats.add(bsdata<classi>::elements[type].feats);
-	basic.usability.add(bsdata<racei>::elements[getrace()].usability);
-	basic.usability.add(bsdata<classi>::elements[type].usability);
+	auto& ri = bsdata<racei>::elements[getrace()];
+	basic.usability.add(ri.usability);
+	basic.feats.add(ri.feats);
+	for(auto i = SaveVsParalization; i <= DetectSecrets; i = (ability_s)(i + 1))
+		basic.ability[i] += ri.skills[i];
+	auto& ci = bsdata<classi>::elements[type];
+	basic.usability.add(ci.usability);
+	basic.feats.add(ci.feats);
 	update_start();
 	update_finish();
 	if(ismonster())
@@ -1618,6 +1622,7 @@ void creature::update_finish() {
 	auto main_ability = bsdata<classi>::elements[type].ability;
 	auto ability_value = get(main_ability);
 	ability[BonusExperience] += maptbl(bonus_ability, ability_value);
+	ability[AttackAll] -= drain_energy;
 	update_attacks(getbestclass(), gethd());
 	update_stats();
 	if(!is(Disease))

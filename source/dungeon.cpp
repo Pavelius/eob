@@ -620,7 +620,7 @@ void dungeoni::passround() {
 					switch(po->type) {
 					case CellTrapLauncher:
 						if(!po->is(Active)) {
-							static combati fire = {AutoHit, Fire, 0, {1, 6}};
+							static combati fire = {1, Fire, 0, {1, 6}};
 							location.traplaunch(po->index, to(po->dir, Down), FireThrown, fire);
 						}
 						break;

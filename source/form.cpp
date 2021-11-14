@@ -91,9 +91,6 @@ template<> const char* getnm<historyi>(const void* object, stringbuilder& sb) {
 template<> const char* getnm<itemi>(const void* object, stringbuilder& sb) {
 	auto p = (itemi*)object;
 	if(p->feats.is(Natural)) {
-		auto& e = bsdata<attacki>::elements[p->weapon.attack];
-		if(e.prefix)
-			sb.adds(e.prefix);
 		sb.adds(p->name);
 		p->weapon.damage.print(sb);
 	} else
@@ -340,7 +337,6 @@ static bool allow_race(const void* object, const void* pointer) {
 GENDGINF(abilityi)
 GENDGINF(actioni)
 GENDGINF(alignmenti)
-GENDGINF(attacki)
 GENDGINF(buildingi)
 GENDGINF(casei)
 GENDGINF(damagei)
@@ -397,7 +393,6 @@ DGINF(itemi) = {
 	{"#chk feats", DGREQ(feats), {getnm<itemfeati>}},
 	{}};
 DGINF(combati) = {
-	{"Attack", DGREQ(attack), {getnm<attacki>}},
 	{"Type", DGREQ(type), {getnm<damagei>}},
 	{"Speed", DGREQ(speed)},
 	{"Damage S-M", DGREQ(damage), {getnm<dice>}},
@@ -406,7 +401,6 @@ DGINF(combati) = {
 	{"Crit. rng", DGREQ(critical_range)},
 	{}};
 DGINF(itemi::weaponi) = {
-	{0, DGINH(combati, attack)},
 	{"Damage L+", DGREQ(damage_large), {getnm<dice>}},
 	{}};
 DGINF(itemi::armori) = {
