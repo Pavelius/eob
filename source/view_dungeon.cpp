@@ -351,11 +351,14 @@ static void view_effects(int x, int y, const creature* pc) {
 		case Bless:
 			source.add(colors::yellow);
 			break;
-		case ProtectionFromEvil:
+		case Deafness:
 			source.add(colors::red);
 			break;
 		case Shield: case MageArmor:
 			source.add(colors::green);
+			break;
+		case FeatherFall: case ProtectionFromEvil:
+			source.add(colors::blue);
 			break;
 		}
 	}

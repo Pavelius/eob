@@ -1,6 +1,7 @@
-﻿#include "dice.h"
-#include "color.h"
+﻿#include "color.h"
 #include "crt.h"
+#include "dice.h"
+#include "flagable.h"
 #include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
@@ -141,9 +142,9 @@ enum wear_s : unsigned char {
 	FirstInvertory = Backpack, LastInvertory = LastBelt
 };
 enum enchant_s : unsigned char {
-	OfAccuracy,
+	OfAccuracy, OfCold,
 	OfEnergyDrain,
-	OfFear, OfHolyness,
+	OfFear, OfFire, OfHolyness,
 	OfParalize, OfPoison, OfPoisonStrong,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
@@ -294,8 +295,8 @@ typedef cflags<good_s> goodf;
 typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
 typedef cflags<fevent_s> eventf;
-typedef flagable<LastSpellAbility> spellf;
-typedef flagable<32> flagf;
+typedef flagable<1 + LastSpellAbility / 8> spellf;
+typedef flagable<4> flagf;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
 typedef cflags<usability_s> usabilitya;
 class creature;
@@ -386,10 +387,9 @@ struct actionseti {
 };
 struct abilityi {
 	const char*			name;
-	flagf				flags;
 	cflags<class_s>		match;
 	bool				allow(class_s v) const;
-	bool				getmultiplier() const;
+	int					getmultiplier() const;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -481,6 +481,9 @@ struct combati {
 	dice				damage;
 	char				bonus, critical_multiplier, critical_range;
 	item*				weapon;
+	enchant_s			enchant;
+	bool				have_enchant;
+	bool				is(enchant_s v) const;
 };
 struct bonusi : variant {
 	char				bonus, random;
@@ -674,9 +677,10 @@ class item {
 	union {
 		unsigned char	flags;
 		struct {
-			unsigned char identified : 1;
-			unsigned char cursed : 1; // -1 to quality and not remove
+			unsigned char identified : 1; // All properties of item will be known
+			unsigned char cursed : 1; // Negative effect
 			unsigned char broken : 1; // Next breaking destroy item
+			unsigned char started : 1; // Item is generated from start
 		};
 	};
 	unsigned char		subtype; // spell scroll or spell of wand
@@ -695,7 +699,6 @@ public:
 	static bool			choose_enchantment(void* object, const array& source, void* pointer);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	void				finish();
-	int					get(variant value) const;
 	void				get(combati& result, const creature* enemy) const;
 	item_s				getammo() const { return gete().ammo; }
 	int					getarmorpenalty(ability_s skill) const;
@@ -704,6 +707,7 @@ public:
 	int					getcount() const;
 	int					getcharges() const { return charges; }
 	constexpr const itemi& gete() const { return bsdata<itemi>::elements[type]; }
+	int					getenchant(enchant_s v) const;
 	const enchantmenti* getenchantment() const;
 	static void*		getenchantptr(const void* object, int index);
 	wear_s				getequiped() const;
@@ -717,6 +721,7 @@ public:
 	static rarity_s		getrandomrarity(int level);
 	item_s				gettype() const { return type; }
 	wear_s				getwear() const { return gete().equipment; }
+	int					get(enchant_s value) const;
 	constexpr bool		is(good_s v) const { return gete().goods == v; }
 	constexpr bool		is(usability_s v) const { return gete().usability.is(v); }
 	constexpr bool		is(item_feat_s v) const { return gete().feats.is(v); }
@@ -734,6 +739,7 @@ public:
 	bool				ispower(variant v) const;
 	constexpr bool		isranged() const { return is(Ranged); }
 	bool				issmall() const;
+	bool				isstarted() const { return started != 0; }
 	bool				istwohanded() const { return is(TwoHanded); }
 	bool				match(const typea& v) const { for(auto e : v) if(e == type) return true; return false; }
 	static void			select(adat<item>& result, good_s good, rarity_s rarity);
@@ -746,6 +752,7 @@ public:
 	item&				setpower(rarity_s rarity);
 	void				setpower(variant power);
 	void				setpower(variant power, int magic);
+	void				setstarted(int v) { started = v; }
 	bool				stack(item& v);
 	void				use() { setcount(getcount() - 1); }
 };
@@ -903,8 +910,6 @@ public:
 	int					getac() const;
 	int					getavatar() const { return avatar; }
 	int					getawards() const;
-	int					getbonus(variant id) const;
-	int					getbonus(variant id, wear_s slot) const;
 	class_s				getcaster() const;
 	int					getcasterlevel(class_s id) const;
 	class_s				getclass() const { return type; }
@@ -1205,7 +1210,6 @@ struct historyi {
 	unsigned			gethistorymax() const;
 };
 struct adventurei : textable, historyi {
-	unsigned char		settlement;
 	unsigned char		stage; // 0 - non active
 	textable			message_before;
 	textable			message_agree;
@@ -1219,7 +1223,6 @@ struct adventurei : textable, historyi {
 	void				create(bool interactive) const;
 	bool				isactive() const { return stage > 0; }
 	bool				isrumor() const { return rumor_activate && (stage == 0); }
-	bool				match(variant v) const;
 	static void			play();
 };
 struct settlementi : textable {
@@ -1295,6 +1298,7 @@ public:
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
+	static void			chooseadventure();
 	void				clear();
 	void				clearfiles();
 	void				endround();

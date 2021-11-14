@@ -68,12 +68,6 @@ void variantc::match(point start, int radius, bool keep) {
 void variantc::match(variant v, bool keep) {
 	auto p = data;
 	for(auto& e : *this) {
-		if(e.type == Adventure) {
-			auto r = e.getadventure()->match(v);
-			if(r != keep)
-				continue;
-		} else
-			continue;
 		*p++ = e;
 	}
 	count = p - data;

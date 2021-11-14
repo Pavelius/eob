@@ -521,7 +521,6 @@ DGINF(historyi) = {
 	{}};
 DGINF(adventurei) = {
 	{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
-	{"Settlement", DGENM(settlement, settlementi), {getnm<settlementi>}},
 	{"Rumor", DGREQ(rumor_activate), {getnm<textable>, 0, textable::edit}},
 	{"Briefing", DGREQ(message_before), {getnm<textable>, 0, textable::editrich}},
 	{"Accepted", DGREQ(message_agree), {getnm<textable>, 0, textable::editrich}},

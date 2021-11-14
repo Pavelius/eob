@@ -136,6 +136,7 @@
     <ClInclude Include="crt.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
+    <ClInclude Include="flagable.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="io_plugin.h" />
     <ClInclude Include="main.h" />
@@ -238,7 +239,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties _1_1_4import_4western_3heartlands_1json__JsonSchema="https://appsemble.app/api.json" />
+      <UserProperties />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

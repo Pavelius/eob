@@ -60,6 +60,9 @@
     <ClInclude Include="io_plugin.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="flagable.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

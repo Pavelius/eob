@@ -19,10 +19,10 @@ static const char* name_direction[] = {
 	"floor", "left", "forward", "right", "rear"
 };
 
-gamei						game;
-creaturea					party;
-dungeoni					location_above;
-dungeoni					location;
+gamei		game;
+creaturea	party;
+dungeoni	location_above;
+dungeoni	location;
 
 void gamei::setcamera(indext index, direction_s direction) {
 	camera_index = index;
@@ -599,13 +599,14 @@ void gamei::equiping() {
 void gamei::returntobase() {
 	// Clear all items
 	for(auto p : party) {
-		if(!p)
-			continue;
-		p->removeloot();
+		if(p)
+			p->removeloot();
 	}
 	// Return to settlement
 	auto pa = getadventure();
 	if(pa)
+		draw::setnext(play);
+	else
 		draw::setnext(play);
 	location.clear();
 	location_above.clear();
@@ -741,7 +742,9 @@ void gamei::startgame() {
 }
 
 adventurei* gamei::getadventure() {
-	return (adventurei*)bsdata<adventurei>::source.ptr(location_index);
+	if(location_index!=0xFF)
+		return (adventurei*)bsdata<adventurei>::source.ptr(location_index);
+	return 0;
 }
 
 static const char* get_power_name(const void* object, stringbuilder& sb) {
@@ -870,4 +873,14 @@ unsigned long long gamei::getchecksum() {
 		delete[] ptemp;
 	}
 	return result;
+}
+
+void gamei::chooseadventure() {
+	answers an;
+	for(auto& e : bsdata<adventurei>()) {
+		if(!e)
+			continue;
+		an.add(1, e.getname());
+	}
+	an.choosebg("Test", false);
 }

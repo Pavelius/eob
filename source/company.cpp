@@ -10,10 +10,3 @@ unsigned historyi::gethistorymax() const {
 			return i;
 	return history_max;
 }
-
-bool adventurei::match(variant v) const {
-	switch(v.type) {
-	case Settlement: return settlement == v.value;
-	default: return false;
-	}
-}

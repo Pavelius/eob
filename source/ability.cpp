@@ -1,9 +1,5 @@
 #include "main.h"
 
-enum {
-	PercentMult, WeaponAbility
-};
-
 BSDATA(abilityi) = {
 	{"Str"},
 	{"Dex"},
@@ -11,35 +7,35 @@ BSDATA(abilityi) = {
 	{"Int"},
 	{"Wis"},
 	{"Cha"},
-	{"Save vs Paralize", {PercentMult}},
-	{"Save vs Poison", {PercentMult}},
-	{"Save vs Traps", {PercentMult}},
-	{"Save vs Magic", {PercentMult}},
-	{"Climb Walls", {PercentMult}, {Theif}},
-	{"Hear Noise", {PercentMult}, {Theif}},
-	{"Move Silently", {PercentMult}, {Theif, Ranger}},
-	{"Open Locks", {PercentMult}, {Theif}},
-	{"Remove Traps", {PercentMult}, {Theif}},
-	{"Read Languages", {PercentMult}, {Theif}},
-	{"Learn Spells", {PercentMult}, {Mage}},
-	{"Resist Charm", {PercentMult}},
-	{"Resist Cold", {PercentMult}},
-	{"Resist Fire", {PercentMult}},
-	{"Resist Magic", {PercentMult}},
-	{"Deflect critical", {PercentMult}},
-	{"Detect secrets", {PercentMult}},
+	{"Save vs Paralize"},
+	{"Save vs Poison"},
+	{"Save vs Traps"},
+	{"Save vs Magic"},
+	{"Climb Walls", {Theif}},
+	{"Hear Noise", {Theif}},
+	{"Move Silently", {Theif, Ranger}},
+	{"Open Locks", {Theif}},
+	{"Remove Traps", {Theif}},
+	{"Read Languages", {Theif}},
+	{"Learn Spells", {Mage}},
+	{"Resist Charm"},
+	{"Resist Cold"},
+	{"Resist Fire"},
+	{"Resist Magic"},
+	{"Deflect critical"},
+	{"Detect secrets"},
 	{"AC"},
-	{"To hit melee", {WeaponAbility}},
-	{"To hit range", {WeaponAbility}},
-	{"To hit", {WeaponAbility}},
-	{"Damage melee", {WeaponAbility}},
-	{"Damage range", {WeaponAbility}},
-	{"Damage", {WeaponAbility}},
-	{"Speed", {WeaponAbility}},
-	{"Bonus Experience", {PercentMult}},
-	{"Bonus Saves", {PercentMult}},
+	{"To hit melee"},
+	{"To hit range"},
+	{"To hit"},
+	{"Damage melee"},
+	{"Damage range"},
+	{"Damage"},
+	{"Speed"},
+	{"Bonus Experience"},
+	{"Bonus Saves"},
 	{"Reaction bonus"},
-	{"Exeptional Strenght", {PercentMult}},
+	{"Exeptional Strenght"},
 };
 assert_enum(ability, ExeptionalStrenght)
 INSTELEM(abilityi)
@@ -55,6 +51,25 @@ bool abilityi::allow(class_s v) const {
 	return false;
 }
 
-bool abilityi::getmultiplier() const {
-	return flags.is(PercentMult) ? 5 : 1;
+int abilityi::getmultiplier() const {
+	switch(this - bsdata<abilityi>::elements) {
+	case SaveVsParalization:
+	case SaveVsPoison:
+	case SaveVsTraps:
+	case SaveVsMagic:
+		return 5;
+	case ClimbWalls:
+	case HearNoise:
+	case MoveSilently:
+	case OpenLocks:
+	case RemoveTraps:
+	case ReadLanguages:
+		return 5;
+	case ResistCharm:
+	case ResistCold:
+	case ResistFire:
+		return 10;
+	default:
+		return 1;
+	}
 }

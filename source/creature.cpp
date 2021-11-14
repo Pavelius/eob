@@ -183,27 +183,24 @@ resource_s creature::getres() const {
 	return NONE;
 }
 
+bool combati::is(enchant_s v) const {
+	return weapon && weapon->getenchant(v) != 0;
+}
+
 void creature::get(combati& result, wear_s weapon, creature* enemy) const {
 	result.attack = OneAttack;
 	auto hd = gethd();
 	auto t = getbestclass();
-	auto k = getstrex();
 	if(ismonster())
 		result.bonus += maptbl(monsters_thac0, hd);
 	else
 		result.bonus += getthac0(t, get(t));
+	auto k = getstrex();
 	result.bonus += maptbl(hit_probability, k);
 	if(wears[weapon]) {
 		auto& wi = bsdata<itemi>::elements[wears[weapon].gettype()].weapon;
 		wears[weapon].get(result, enemy);
-		if(enemy) {
-			// RULE: holy weapon do more damage to undead
-			if(enemy->is(Undead)) {
-				auto b = wears[weapon].get(OfHolyness);
-				result.bonus += b;
-				result.damage.b += b * 2;
-			}
-		}
+		auto pe = wears[weapon].getenchantment();
 		result.weapon = const_cast<item*>(&wears[weapon]);
 		if(result.weapon->is(Natural))
 			result.damage.b += wi.damage_large.b * hd;
@@ -323,15 +320,6 @@ void creature::equip(item it) {
 	add(it);
 }
 
-int	creature::getbonus(variant id, wear_s slot) const {
-	if(ismonster()) {
-		if(slot == RightHand && getmonster().is(id))
-			return 2;
-		return 0;
-	}
-	return wears[slot].get(id);
-}
-
 int creature::gethitpenalty(int bonus) const {
 	if(is(Ambidextrity))
 		return 0;
@@ -428,13 +416,13 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 			auto damage = wi.damage;
 			hits = damage.roll();
 			hits = hits * multiplier;
-			if(getbonus(Fire, slot)) {
+			if(wi.is(OfFire)) {
 				damage_type = Fire;
 				hits += xrand(1, 6);
 			}
-			if(getbonus(Cold, slot)) {
+			if(wi.is(OfCold)) {
 				damage_type = Cold;
-				hits += xrand(1, 4) + 1;
+				hits += xrand(2, 5);
 			}
 			// RULE: crtitical hit can deflected
 			if(rolls >= chance_critical) {
@@ -454,16 +442,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 				}
 			}
 			// RULE: vampiric ability allow user to drain blood and regain own HP
-			auto vampirism = getbonus(OfVampirism, slot);
-			if(vampirism) {
-				auto hits_healed = xrand(1, 3) + vampirism;
+			if(wi.is(OfVampirism)) {
+				auto hits_healed = xrand(2, 5);
 				if(hits_healed > hits)
 					hits_healed = hits;
 				this->damage(Heal, hits_healed);
 			}
 		}
 		// Fear attack (Not depend on attack result)
-		if(getbonus(OfFear, slot))
+		if(wi.is(OfFear))
 			defender->add(Fear, xrand(1, 3) * 10, SaveNegate);
 		// When attacking sleeping creature she wake up!
 		defender->remove(Sleep);
@@ -471,15 +458,15 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 		draw::animation::attack(this, slot, hits);
 		if(hits != -1) {
 			// Poison attack
-			if(getbonus(OfPoison, slot))
+			if(wi.is(OfPoison))
 				defender->add(Poison, Instant, SaveNegate);
 			// Paralize attack
-			if(getbonus(OfParalize, slot))
+			if(wi.is(OfParalize))
 				defender->add(HoldPerson, xrand(1, 3), SaveNegate);
 			// Drain ability
-			if(getbonus(OfEnergyDrain, slot))
+			if(wi.is(OfEnergyDrain))
 				attack_drain(defender, defender->drain_energy, hits);
-			if(getbonus(OfStrenghtDrain, slot))
+			if(wi.is(OfStrenghtDrain))
 				attack_drain(defender, defender->drain_strenght, hits);
 			defender->damage(damage_type, hits, magic_bonus);
 			// If weapon have charges waste it
@@ -493,11 +480,11 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 		draw::animation::clear();
 		// Weapon can be broken
 		if(rolls == 1 && wi.weapon) {
-			if(d100() < 40) {
+			if(d100() < 30) {
 				if(wi.weapon->damage(0, 0))
 					usequick();
 			} else
-				damage(Bludgeon, 1, 5);
+				damage(Bludgeon, 1, 3);
 			return;
 		}
 	}
@@ -686,7 +673,7 @@ short creature::gethitsmaximum() const {
 }
 
 int creature::getspeed() const {
-	return get(Speed) + getbonus(OfSpeed) * 2;
+	return get(Speed);
 }
 
 int creature::getac() const {
@@ -780,22 +767,6 @@ int creature::getenchant(variant id, int bonus) const {
 		}
 	}
 	return 0;
-}
-
-int creature::getbonus(variant id) const {
-	if(id.type == Enchant) {
-		if(getmonster().is((enchant_s)id.value))
-			return 2; // All monsters have enchantment of 2
-	}
-	// All bonuses no stack each other
-	static wear_s slots[] = {Head, Neck, Body, RightRing, LeftRing, Elbow, Legs};
-	auto r = 0;
-	for(auto s : slots) {
-		auto v = wears[s].get(id);
-		if(v > r)
-			r = v;
-	}
-	return r;
 }
 
 char creature::racial_bonus(char* data) const {
@@ -1157,7 +1128,7 @@ bool creature::setweapon(item_s v, int charges) {
 
 void creature::campcast(item& it) {
 	auto pe = it.getenchantment();
-	if(pe && pe->power.type==Spell) {
+	if(pe && pe->power.type == Spell) {
 		auto& ei = bsdata<spelli>::elements[pe->power.value];
 		apply((spell_s)pe->power.value, gethd() + it.getmagic());
 	}
@@ -1595,9 +1566,8 @@ void creature::removeloot() {
 	for(auto& e : wears) {
 		if(!e)
 			continue;
-		if(!e.is(Expandable))
-			continue;
-		e.clear();
+		if(e.isstarted())
+			e.clear();
 	}
 }
 
@@ -1674,8 +1644,8 @@ creature* creature::get(void* focus) {
 }
 
 void creature::update_wears() {
-	ability[Speed] += wears[RightHand].getitem().weapon.speed;
-	ability[Speed] += wears[LeftHand].getitem().weapon.speed;
+	ability[Speed] += wears[RightHand].getitem().weapon.speed + wears[RightHand].getenchant(OfSpeed);
+	ability[Speed] += wears[LeftHand].getitem().weapon.speed + wears[LeftHand].getenchant(OfSpeed);
 	if(ismonster())
 		ability[AC] += (10 - getmonster().ac);
 	for(auto s : wear_slots) {
@@ -1685,8 +1655,8 @@ void creature::update_wears() {
 	}
 	statable::apply(wears[RightRing], true);
 	statable::apply(wears[LeftRing], true);
-	if(wears[LeftHand].getitem().usability.is(UseShield))
-		statable::apply(wears[LeftHand], false);
+	statable::apply(wears[RightHand], false);
+	statable::apply(wears[LeftHand], false);
 }
 
 static void copy_value(statable& p1, statable& p2) {

@@ -328,8 +328,9 @@ void gamei::newgame() {
 	draw::resetres();
 	game.equiping();
 	game.passtime(12 * 60);
-	game.enter(0, 1);
 	game.write();
+	game.enter(0, 1);
+	//game.chooseadventure();
 }
 
 int main(int argc, char* argv[]) {

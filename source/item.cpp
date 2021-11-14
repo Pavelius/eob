@@ -462,11 +462,11 @@ int item::getportrait() const {
 	return bsdata<itemi>::elements[type].image.avatar;
 }
 
-int	item::get(variant value) const {
+int item::get(enchant_s v) const {
 	auto pe = getenchantment();
 	if(!pe)
 		return 0;
-	if(pe->power == value) {
+	if(pe->power.type == Enchant && pe->power.value == v) {
 		if(iscursed())
 			return -pe->power.bonus;
 		return pe->power.bonus;
@@ -484,13 +484,16 @@ void item::get(combati& result, const creature* enemy) const {
 	auto magic_bonus = getmagic();
 	result.type = wi.type;
 	result.attack = wi.attack;
-	result.bonus += wi.bonus + get(OfAccuracy) + magic_bonus;
-	result.damage.b += get(Bludgeon) + magic_bonus;
+	result.bonus += wi.bonus + magic_bonus + getenchant(OfAccuracy);
+	result.damage.b += magic_bonus;
 	if(is(Deadly))
 		result.critical_multiplier++;
 	if(is(Quick))
 		result.critical_range++;
-	if(enemy) {
+	if(enemy && enemy->is(Undead)) {
+		auto holyness = getenchant(OfHolyness);
+		result.bonus += holyness;
+		result.damage.b += holyness * 2;
 		if(is(SevereDamageUndead))
 			result.damage.b += 2;
 	}
@@ -597,6 +600,13 @@ const enchantmenti* item::getenchantment() const {
 	if(!ei)
 		return 0;
 	return ei.data + subtype;
+}
+
+int	item::getenchant(enchant_s v) const {
+	auto pe = getenchantment();
+	if(pe && pe->power.type == Enchant && pe->power.value == v)
+		return iscursed() ? -3 : 3;
+	return 0;
 }
 
 int	item::getcost() const {
