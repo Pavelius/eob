@@ -699,7 +699,7 @@ public:
 	static bool			choose_enchantment(void* object, const array& source, void* pointer);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	void				finish();
-	void				get(combati& result, const creature* enemy) const;
+	void				get(combati& result, size_s enemy_size) const;
 	item_s				getammo() const { return gete().ammo; }
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcost() const;
@@ -906,11 +906,10 @@ public:
 	int					get(ability_s id) const { return ability[id]; }
 	int					get(class_s id) const;
 	int					get(spell_s spell) const { return spells[spell]; }
-	void				get(combati& e, wear_s slot = RightHand, creature* enemy = 0) const;
+	void				get(combati& e, wear_s slot, size_s enemy_size) const;
 	item				get(wear_s id) const;
 	const spellprogi*	getprogress(class_s v) const;
 	alignment_s			getalignment() const { return alignment; }
-	int					getac() const;
 	int					getavatar() const { return avatar; }
 	int					getawards() const;
 	class_s				getcaster() const;

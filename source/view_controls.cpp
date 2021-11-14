@@ -2293,9 +2293,9 @@ static void abilities(int x, int y, creature* pc) {
 	text(x1, y1, getstr(pc->getalignment())); y1 += draw::texth();
 	text(x1, y1, get_race(pc, sb)); y1 += draw::texth() * 2;
 	pc->render_ability(x1, y1, 24, false);
-	combati e = {}; pc->get(e);
+	combati e = {}; pc->get(e, RightHand, Medium);
 	x1 = x + 7 * 10 + 4;
-	y1 += number(x1, y1, "AC", 10 - pc->getac());
+	y1 += number(x1, y1, "AC", 10 - pc->get(AC));
 	y1 += number(x1, y1, "ATT", 20 - e.bonus);
 	y1 += number(x1, y1, "DAM", e);
 	y1 += number(x1, y1, "SPD", pc->getspeed());
@@ -2491,8 +2491,8 @@ int creature::render_ability(int x, int y, int width, unsigned flags) const {
 
 int creature::render_combat(int x, int y, int width, unsigned flags) const {
 	auto y0 = y;
-	combati ai = {}; get(ai);
-	y += number(x, y, width, "AC", 10 - getac(), flags);
+	combati ai = {}; get(ai, RightHand, Medium);
+	y += number(x, y, width, "AC", 10 - get(AC), flags);
 	y += number(x, y, width, "ATT", 20 - ai.bonus, flags);
 	y += number(x, y, width, "DAM", ai.damage, flags);
 	y += number(x, y, width, "HP", gethits(), gethitsmaximum(), "%1i/%2i", flags);

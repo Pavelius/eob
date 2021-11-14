@@ -633,7 +633,7 @@ void dungeoni::passround() {
 }
 
 void dungeoni::attack(const combati& wi, creature* defender) const {
-	auto ac = defender->getac();
+	auto ac = defender->get(AC);
 	auto tohit = 20 - wi.bonus - (10 - ac);
 	auto rolls = xrand(1, 20);
 	auto hits = -1;

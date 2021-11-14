@@ -475,10 +475,9 @@ int item::get(enchant_s v) const {
 		return 0;
 }
 
-void item::get(combati& result, const creature* enemy) const {
+void item::get(combati& result, size_s enemy_size) const {
 	auto& wi = bsdata<itemi>::elements[type].weapon;
-	auto size = enemy ? enemy->getsize() : Medium;
-	if(size == Large && !is(Natural))
+	if(enemy_size == Large && !is(Natural))
 		result.damage = wi.damage_large;
 	else
 		result.damage = wi.damage;
@@ -491,13 +490,6 @@ void item::get(combati& result, const creature* enemy) const {
 		result.critical_multiplier++;
 	if(is(Quick))
 		result.critical_range++;
-	if(enemy && enemy->is(Undead)) {
-		auto holyness = getenchant(OfHolyness);
-		result.bonus += holyness;
-		result.damage.b += holyness * 2;
-		if(is(SevereDamageUndead))
-			result.damage.b += 2;
-	}
 	result.critical_range += get(OfSharpness);
 	result.critical_multiplier += get(OfSmashing);
 }

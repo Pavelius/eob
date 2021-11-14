@@ -152,12 +152,12 @@ bool combati::is(enchant_s v) const {
 	return weapon && weapon->getenchant(v) != 0;
 }
 
-void creature::get(combati& result, wear_s weapon, creature* enemy) const {
+void creature::get(combati& result, wear_s weapon, size_s enemy_size) const {
 	result.attack = OneAttack;
 	result.bonus += get(AttackMelee);
 	if(wears[weapon]) {
 		auto& wi = bsdata<itemi>::elements[wears[weapon].gettype()].weapon;
-		wears[weapon].get(result, enemy);
+		wears[weapon].get(result, enemy_size);
 		result.weapon = const_cast<item*>(&wears[weapon]);
 		if(result.weapon->is(Natural))
 			result.damage.b += gethd() / 3;
@@ -324,7 +324,7 @@ bool creature::useammo(item_s ammo, wear_s slot, bool use_item) {
 }
 
 void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier) {
-	combati wi = {}; get(wi, slot, defender);
+	combati wi = {}; get(wi, slot, defender->getsize());
 	item_s ammo = NoItem;
 	if(wi.weapon)
 		ammo = wi.weapon->getammo();
@@ -338,7 +338,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 			wi.critical_range += awi.critical_range;
 		}
 	}
-	auto ac = defender->getac();
+	auto ac = defender->get(AC);
 	// RULE: Dwarf can hit goblinoid by 5% better that others
 	if(is(BonusToHitVsGoblinoid) && defender->getrace() == Goblinoid)
 		wi.bonus += 1;
@@ -346,8 +346,16 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 	if(is(BonusDamageVsEnemy) && (defender->getrace() == Humanoid || defender->getrace() == Goblinoid))
 		wi.bonus += 4;
 	auto magic_bonus = 0;
-	if(wi.weapon)
+	if(wi.weapon) {
 		magic_bonus = wi.weapon->getmagic();
+		if(defender->is(Undead)) {
+			auto holyness = wi.weapon->getenchant(OfHolyness);
+			wi.bonus += holyness;
+			wi.damage.b += holyness * 2;
+			if(wi.weapon->is(SevereDamageUndead))
+				wi.damage.b += 2;
+		}
+	}
 	if(ishero())
 		subenergy();
 	for(auto atn = (bsdata<attacki>::elements[wi.attack].attacks_p2r + (game.getrounds() % 2)) / 2; atn > 0; atn--) {
@@ -621,10 +629,6 @@ short creature::gethitsmaximum() const {
 
 int creature::getspeed() const {
 	return get(Speed);
-}
-
-int creature::getac() const {
-	return ability[AC];
 }
 
 int creature::getclasscount() const {

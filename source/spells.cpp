@@ -221,7 +221,7 @@ bool creature::cast(spell_s id, class_s type, int wand_magic, creature* target) 
 		if(range == TargetThrowHitFighter) {
 			auto th = getthac0(Fighter, level);
 			auto rs = rand() % 20 + 1;
-			if(rs < (th - target->getac()))
+			if(rs < (th - target->get(AC)))
 				return false;
 		}
 		target->apply(id, level);
