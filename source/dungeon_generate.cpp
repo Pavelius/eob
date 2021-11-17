@@ -885,9 +885,11 @@ static void create_lair(dungeoni& e, direction_s dir, const sitei* p, indext* in
 	e.stat.lair.index = indecies[0];
 	e.stat.lair.dir = dir;
 	e.set(e.stat.lair.index, CellDoor);
-	e.add(e.stat.lair.index, CellDoorButton, dir);
-	for(auto i = 0; i < 9; i++)
-		e.stat.monsters += e.addmonster(p->head.habbits[0], indecies[2]);
+	e.add(to(e.stat.lair.index, dir), CellDoorButton, to(dir, Down));
+	indexa positions;
+	positions.select(e, indecies[2], CellPassable, 2);
+	for(auto i : positions)
+		e.stat.monsters += e.addmonster(p->head.habbits[0], i);
 	putroom(&e, e.stat.lair.index, e.stat.lair.dir, EmpthyStartIndex, false);
 }
 

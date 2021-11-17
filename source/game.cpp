@@ -2,7 +2,6 @@
 #include "main.h"
 
 // Dungeon can hold from 1 to 10 levels.
-
 #ifdef _DEBUG
 const bool visialize_map = false;
 #else
@@ -460,19 +459,19 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(unsigned char index, char level, bool set_camera) {
-	location_index = index;
+void gamei::enter(unsigned short index, char level, bool set_camera) {
+	adventure_index = index;
 	location_level = level;
 	location.clear();
 	location_above.clear();
 	auto pa = getadventure();
-	if(!location.read(location_index, location_level)) {
+	if(!location.read(adventure_index, location_level)) {
 		pa->create(visialize_map);
-		if(!location.read(location_index, location_level))
+		if(!location.read(adventure_index, location_level))
 			return;
 	}
 	if(location_level > 1)
-		location_above.read(location_index, location_level - 1);
+		location_above.read(adventure_index, location_level - 1);
 	draw::settiles(location.head.type);
 	if(set_camera)
 		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
@@ -583,7 +582,7 @@ void gamei::write() {
 bool gamei::read() {
 	if(!serialize(false))
 		return false;
-	enter(location_index, location_level, false);
+	enter(adventure_index, location_level, false);
 	return true;
 }
 
@@ -742,8 +741,8 @@ void gamei::startgame() {
 }
 
 adventurei* gamei::getadventure() {
-	if(location_index!=0xFF)
-		return (adventurei*)bsdata<adventurei>::source.ptr(location_index);
+	if(adventure_index!=0xFFFF)
+		return (adventurei*)bsdata<adventurei>::source.ptr(adventure_index);
 	return 0;
 }
 

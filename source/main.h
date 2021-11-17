@@ -1194,6 +1194,9 @@ struct dungeoni {
 	void				turnto(indext index, direction_s dr, bool* surprise = 0);
 	void				write();
 };
+struct indexa : adat<indext, 8 * 8> {
+	void				select(const dungeoni& e, indext i, cell_s id, int r);
+};
 struct historyi {
 	static constexpr unsigned history_max = 12;
 	textable			history[history_max];
@@ -1266,7 +1269,7 @@ class gamei : public companyi {
 	indext				camera_index;
 	direction_s			camera_direction;
 	char				location_level;
-	unsigned char		location_index;
+	unsigned short		adventure_index;
 	unsigned			rounds;
 	unsigned			rounds_turn;
 	unsigned			rounds_hour;
@@ -1293,7 +1296,7 @@ public:
 	void				clear();
 	void				clearfiles();
 	void				endround();
-	void				enter(unsigned char index, char level, bool set_camera = true);
+	void				enter(unsigned short index, char level, bool set_camera = true);
 	void				equiping();
 	adventurei*			getadventure();
 	int					getprosperty() const { return prosperty; }

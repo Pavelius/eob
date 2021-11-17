@@ -290,6 +290,9 @@
     <ClCompile Include="statable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="indexa.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\import\western_heartlands.json">
