@@ -1043,7 +1043,7 @@ struct shapei {
 	point				size;
 	const char*			data;
 	const char*			getvertical() const;
-	const char*			getdata(direction_s d) const;
+	const char*			get(direction_s d, point& result_size) const;
 };
 struct dungeoni {
 	struct overlayi {
@@ -1071,7 +1071,7 @@ struct dungeoni {
 		overlayi		up; // where is stairs up
 		overlayi		down; // where is stairs down
 		overlayi		portal; // where is portal
-		overlayi		crypt; // where is crypt located
+		overlayi		crypt, lair; // where is crypt and lair located
 		overlayi		crypt_button; // where is crypt located
 		overlayi		wands; // where is crypt located
 		indext			spawn[2]; // new monster appera here
@@ -1185,7 +1185,7 @@ struct dungeoni {
 	void				set(indext index, cell_flag_s value);
 	void				set(indext index, direction_s dir, cell_s type);
 	void				set(indext index, reaction_s v);
-	void				set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run = true, bool mirror = false, bool place_from_zero_point = false);
+	void				set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run = true);
 	void				setactive(overlayi* po, bool active);
 	void				setactive(indext index, bool value);
 	void				setactive(indext index, bool value, int radius);

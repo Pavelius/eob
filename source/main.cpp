@@ -334,7 +334,8 @@ void gamei::newgame() {
 }
 
 int main(int argc, char* argv[]) {
-	srand(clock());
+	//srand(clock());
+	srand(100);
 #ifdef _DEBUG
 	if(!test_variant())
 		return -1;

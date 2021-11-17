@@ -1130,70 +1130,25 @@ void dungeoni::explore(indext index, int r) {
 	}
 }
 
-void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run, bool mirror, bool place_from_zero_point) {
-	int dx, dy;
-	const char* p;
+void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, indext* indecies, bool run) {
 	for(auto i = 0; i < 10; i++)
 		indecies[i] = Blocked;
 	if(index == Blocked)
 		return;
 	short x = gx(index), y = gy(index);
-	auto& e = bsdata<shapei>::elements[type];
-	if(place_from_zero_point) {
-		set(0, dir, type, size, indecies, false, mirror, false);
-		if(indecies[0] != Blocked) {
-			x -= gx(indecies[0]);
-			y -= gy(indecies[0]);
-		}
-	}
-	size = e.size;
-	switch(dir) {
-	case Left:
-		iswap(size.x, size.y);
-		p = e.getvertical();
-		dx = 1;
-		if(mirror) {
-			p += size.x * (size.y - 1);
-			dy = -size.x;
-		} else
-			dy = size.x;
-		break;
-	case Right:
-		iswap(size.x, size.y);
-		p = e.getvertical() + (size.x - 1);
-		dx = -1;
-		if(mirror) {
-			p += size.x * (size.y - 1);
-			dy = -size.x;
-		} else
-			dy = size.x;
-		break;
-	case Up:
-		p = e.data;
-		dy = size.x;
-		if(mirror) {
-			p += size.x - 1;
-			dx = -1;
-		} else
-			dx = 1;
-		break;
-	case Down:
-		p = e.data + e.size.x * (size.y - 1);
-		dy = -size.x;
-		if(mirror) {
-			p += size.x - 1;
-			dx = -1;
-		} else
-			dx = 1;
-		break;
-	default:
-		return;
-	}
+	//if(place_from_zero_point) {
+	//	set(0, dir, type, size, indecies, false, mirror, false);
+	//	if(indecies[0] != Blocked) {
+	//		x -= gx(indecies[0]);
+	//		y -= gy(indecies[0]);
+	//	}
+	//}
+	auto p = bsdata<shapei>::elements[type].get(dir, size);
 	for(auto h = 0; h < size.y; h++) {
 		auto p1 = p;
 		for(auto w = 0; w < size.x; w++) {
 			auto index = getindex(x + w, y + h);
-			auto symbol = *p1;
+			auto symbol = *p1++;
 			switch(symbol) {
 			case 'X':
 				if(run)
@@ -1212,9 +1167,8 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 			case 'U':
 				break;
 			}
-			p1 += dx;
 		}
-		p += dy;
+		p += size.x;
 	}
 }
 

@@ -60,14 +60,6 @@ static void putroom(dungeoni* pd, indext index, direction_s dir, unsigned flags,
 	e.flags = flags;
 }
 
-static const roomi& getroom() {
-	return rooms[stack_get++];
-}
-
-static bool hasrooms() {
-	return stack_get != stack_put;
-}
-
 void dungeoni::set(indext index, direction_s dir, cell_s type) {
 	set(to(index, to(dir, Left)), CellWall);
 	set(to(index, to(dir, Right)), CellWall);
@@ -622,10 +614,10 @@ static void set(dungeoni* pd, indext index, int w, int h, cell_s v) {
 			pd->set(pd->get(x1, y1), v);
 }
 
-static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
+static bool corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto chance = 0;
 	if(index == Blocked)
-		return;
+		return false;
 	direction_s rnd[] = {Right, Left};
 	if(d100() < 50)
 		iswap(rnd[0], rnd[1]);
@@ -645,7 +637,7 @@ static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags
 		if(d100() < chance || to(index, dir) == Blocked) {
 			if(d100() < 20 && pd->stat.elements > 10) {
 				if(room(pd, index, dir, flags))
-					return;
+					return true;
 			}
 			break;
 		}
@@ -679,7 +671,7 @@ static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags
 		chance += 13;
 	}
 	if(start == Blocked)
-		return;
+		return false;
 	auto passes = 0;
 	if(ispassable(pd, to(index, to(dir, rnd[0])))) {
 		passes++;
@@ -693,6 +685,17 @@ static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags
 		if(passes < 1)
 			putroom(pd, index, dir, 0, false);
 	}
+	return true;
+}
+
+static bool random_corridor(dungeoni* pd, indext index, unsigned flags) {
+	direction_s dir[] = {Up, Down, Left, Right};
+	zshuffle(dir, sizeof(dir) / sizeof(dir[0]));
+	for(auto d : dir) {
+		if(corridor(pd, index, d, flags))
+			return true;
+	}
+	return false;
 }
 
 static bool is_valid_dungeon(dungeoni* pd) {
@@ -877,8 +880,19 @@ static void stairs_down(dungeoni& e, direction_s dir, const sitei* p, indext* in
 static void empthy_room(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
 }
 
+static void create_lair(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
+	e.stat.lair.clear();
+	e.stat.lair.index = indecies[0];
+	e.stat.lair.dir = dir;
+	e.set(e.stat.lair.index, CellDoor);
+	e.add(e.stat.lair.index, CellDoorButton, dir);
+	for(auto i = 0; i < 9; i++)
+		e.stat.monsters += e.addmonster(p->head.habbits[0], indecies[2]);
+	putroom(&e, e.stat.lair.index, e.stat.lair.dir, EmpthyStartIndex, false);
+}
+
 static void create_crypt(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
-	e.stat.crypt;
+	e.stat.crypt.clear();
 	e.stat.crypt.index = indecies[0];
 	e.stat.crypt.dir = dir;
 	e.set(e.stat.crypt.index, CellDoor);
@@ -886,28 +900,29 @@ static void create_crypt(dungeoni& e, direction_s dir, const sitei* p, indext* i
 	putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 }
 
-static void create_room(dungeoni& e, indext index, shape_s place, direction_s dir, bool mirror, const sitei* site, fnroom proc, bool place_in_zero_index) {
+static void create_room(dungeoni& e, indext index, shape_s place, direction_s dir, const sitei* site, fnroom proc) {
 	if(index == Blocked)
 		return;
 	indext indecies[10];
 	point size;
-	e.set(index, dir, place, size, indecies, true, d100() < 50, place_in_zero_index);
+	e.set(index, dir, place, size, indecies, true);
 	proc(e, dir, site, indecies);
 	putroom(&e, indecies[0], dir, EmpthyStartIndex, false);
 }
 
 static void create_room(dungeoni& e, shape_s place, const sitei* site, fnroom proc) {
 	indext indecies[10]; point size;
-	auto mirror = d100() < 50;
 	auto dir = maprnd(all_around);
-	e.set(0, dir, place, size, indecies, false, mirror);
-	short x = xrand(3, mpx - 3 - size.x), y = xrand(3, mpy - 3 - size.y);
+	e.set(0, dir, place, size, indecies, false);
+	//auto m = imax(size.x, size.y) + 2;
+	auto m = 3;
+	short x = xrand(m, mpx - m - 1), y = xrand(m, mpy - m - 1);
+	//if(indecies[0] != Blocked) {
+	//	x -= gx(indecies[0]);
+	//	y -= gy(indecies[0]);
+	//}
 	auto i = e.getvalid(e.getindex(x, y), size.x, size.y, CellUnknown);
-	create_room(e, i, place, dir, mirror, site, proc, false);
-}
-
-static shape_s random(shape_s v1, shape_s v2) {
-	return (d100() < 50) ? v1 : v2;
+	create_room(e, i, place, dir, site, proc);
 }
 
 void adventurei::create(bool interactive) const {
@@ -941,14 +956,18 @@ void adventurei::create(bool interactive) const {
 				if(start == Blocked)
 					create_room(e, ShapeDeadEnd, p, stairs_up);
 				else
-					create_room(e, start, ShapeDeadEnd, maprnd(all_around), false, 0, stairs_up, true);
+					create_room(e, start, ShapeDeadEnd, maprnd(all_around), 0, stairs_up);
 				if(!last_level)
 					create_room(e, ShapeDeadEnd, p, stairs_down);
 				if(p->crypt.boss)
 					create_room(e, ShapeRoom, p, create_crypt);
-				while(hasrooms()) {
-					auto ev = getroom();
-					corridor(&e, ev.index, ev.dir, ev.flags);
+				else
+					create_room(e, ShapeRoomLarge, p, create_lair);
+				while(stack_get != stack_put) {
+					auto& ev = rooms[stack_get++];
+					auto result = corridor(&e, ev.index, ev.dir, ev.flags);
+					if(!result)
+						random_corridor(&e, ev.index, ev.flags);
 					e.stat.elements++;
 					if(interactive)
 						e.automap(false);

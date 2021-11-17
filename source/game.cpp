@@ -4,7 +4,7 @@
 // Dungeon can hold from 1 to 10 levels.
 
 #ifdef _DEBUG
-const bool visialize_map = true;
+const bool visialize_map = false;
 #else
 const bool visialize_map = false;
 #endif // _DEBUG

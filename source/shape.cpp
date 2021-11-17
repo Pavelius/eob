@@ -10,16 +10,16 @@ BSDATA(shapei) = {
 	"UUUUU"
 	"XX0XX"
 	"X...X"
+	"X...X"
 	"X.1.X"
-	"X.2.X"
 	"XXXXX"},
 	{"ShapeRoomLarge", {5, 7},
 	"UUUUU"
 	"XX0XX"
 	"X...X"
+	"X.2.X"
 	"X...X"
 	"X.1.X"
-	"X.2.X"
 	"XXXXX"},
 	{"ShapeDeadEnd", {3, 3},
 	"UUU"
@@ -42,6 +42,35 @@ const char* shapei::getvertical() const {
 	for(auto y = 0; y < size.y; y++) {
 		for(auto x = 0; x < size.x; x++)
 			temp_data[x * sc + y] = data[y * sc + x];
+	}
+	return temp_data;
+}
+
+const char* shapei::get(direction_s d, point& result_size) const {
+	static char temp_data[16 * 16];
+	result_size = size;
+	switch(d) {
+	default: return data;
+	case Down:
+		for(auto y = 0; y < size.y; y++) {
+			for(auto x = 0; x < size.x; x++)
+				temp_data[(size.y - y - 1) * size.x + x] = data[y * size.x + x];
+		}
+		break;
+	case Right:
+		iswap(result_size.x, result_size.y);
+		for(auto y = 0; y < size.y; y++) {
+			for(auto x = 0; x < size.x; x++)
+				temp_data[x * result_size.x + (result_size.x - 1 - y)] = data[y * size.x + x];
+		}
+		break;
+	case Left:
+		iswap(result_size.x, result_size.y);
+		for(auto y = 0; y < size.y; y++) {
+			for(auto x = 0; x < size.x; x++)
+				temp_data[x * result_size.x + y] = data[y * size.x + x];
+		}
+		break;
 	}
 	return temp_data;
 }
