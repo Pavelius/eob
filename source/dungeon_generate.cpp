@@ -191,11 +191,12 @@ static item_s random_subtype(item_s type) {
 
 static item_s random_type(bool small_size = false) {
 	static item_s standart_item_types[] = {RedPotion, RedPotion, RedPotion,
-		SwordLong, SwordLong, SwordLong, SwordLong, SwordLong,
+		SwordLong, SwordLong, SwordLong, SwordLong,
 		Helm, Helm,
 		Shield,
 		ArmorLeather, ArmorLeather, ArmorLeather,
 		RedRing,
+		RedGem,
 		Boots, Boots,
 		Bracers,
 		Necklage,
@@ -225,7 +226,7 @@ static item_s random_type(bool small_size = false) {
 	return random_subtype(t);
 }
 
-static item create_item(dungeoni* pd, item_s type, int bonus_chance_magic) {
+static item create_item(dungeoni* pd, item_s type, int bonus_level) {
 	if(type == KeyCooper) {
 		if(d100() < 60)
 			type = pd->head.keys[0];
@@ -237,7 +238,7 @@ static item create_item(dungeoni* pd, item_s type, int bonus_chance_magic) {
 			type = RationIron;
 	}
 	item it(type);
-	auto rarity = item::getrandomrarity(pd->level);
+	auto rarity = item::getrandomrarity(pd->level + bonus_level);
 	it.setpower(rarity);
 	it.setidentified(0);
 	if(pd->chance.curse && (d100() < pd->chance.curse))
@@ -278,13 +279,13 @@ static item create_item(dungeoni* pd, item_s type, int bonus_chance_magic) {
 	return it;
 }
 
-static void items(dungeoni* pd, indext index, item_s type, int bonus_chance_magic) {
-	pd->dropitem(index, create_item(pd, type, bonus_chance_magic), xrand(0, 3));
+static void items(dungeoni* pd, indext index, item_s type, int bonus_level) {
+	pd->dropitem(index, create_item(pd, type, bonus_level), xrand(0, 3));
 	pd->stat.items++;
 }
 
-static void items(dungeoni* pd, indext index, int bonus_chance_magic) {
-	items(pd, index, random_type(), bonus_chance_magic);
+static void items(dungeoni* pd, indext index, int bonus_level) {
+	items(pd, index, random_type(), bonus_level);
 }
 
 static void crypt_button(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
@@ -323,7 +324,7 @@ static void secret(dungeoni* pd, indext index, direction_s dir, unsigned flags) 
 	if(d100() < 25)
 		count = 2;
 	for(int i = 0; i < count; i++)
-		items(pd, i2, 5);
+		items(pd, i2, 3);
 	pd->set(to(i2, to(dir, Left)), CellWall);
 	pd->set(to(i2, to(dir, Right)), CellWall);
 	pd->set(to(i2, to(dir, Up)), CellWall);
@@ -333,6 +334,17 @@ static void secret(dungeoni* pd, indext index, direction_s dir, unsigned flags) 
 static void monster(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
 	auto n = (d100() < 30) ? 1 : 0;
 	pd->stat.monsters += pd->addmonster(pd->head.habbits[n], index);
+}
+
+static int random_prison_count() {
+	auto r = d100();
+	if(r < 50)
+		return 0;
+	else if(r < 75)
+		return 1;
+	else if(r < 90)
+		return 2;
+	return 3;
 }
 
 static void prison(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
@@ -355,7 +367,7 @@ static void prison(dungeoni* pd, indext index, direction_s dir, unsigned flags) 
 	pd->set(to(i1, to(dir, Left)), CellWall);
 	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
-	for(int i = xrand(1, 3); i > 0; i--)
+	for(int i = random_prison_count(); i > 0; i--)
 		items(pd, i2, 0);
 	monster(pd, i2, Down, 0);
 	pd->set(to(i2, to(dir, Left)), CellWall);
@@ -558,7 +570,7 @@ static void cellar(dungeoni* pd, indext index, direction_s dir, unsigned flags) 
 	auto po = pd->add(index, CellCellar, dir);
 	auto count = random_cellar_count();
 	while(count > 0) {
-		auto i1 = create_item(pd, random_type(true), 10);
+		auto i1 = create_item(pd, random_type(true), 2);
 		// Items in cellar can be identified
 		if(d100() < 60)
 			i1.setidentified(1);
@@ -625,7 +637,7 @@ static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags
 		bool random_content = true;
 		if(start == Blocked) {
 			start = index;
-			if(flags&EmpthyStartIndex)
+			if(flags & EmpthyStartIndex)
 				random_content = false;
 		}
 		index = new_index;
@@ -684,7 +696,7 @@ static void corridor(dungeoni* pd, indext index, direction_s dir, unsigned flags
 }
 
 static bool is_valid_dungeon(dungeoni* pd) {
-	unsigned short pathmap[mpy*mpx];
+	unsigned short pathmap[mpy * mpx];
 	if(pd->stat.down.index == Blocked || pd->stat.up.index == Blocked)
 		return true;
 	pd->getblocked(pathmap, true);
@@ -757,7 +769,7 @@ static void validate_special_items(dungeoni& location) {
 }
 
 static void remove_dead_door(dungeoni* pd) {
-	for(short unsigned i = 0; i < mpx*mpy; i++) {
+	for(short unsigned i = 0; i < mpx * mpy; i++) {
 		auto t = pd->get(i);
 		if(t != CellDoor)
 			continue;
@@ -771,16 +783,16 @@ static void remove_dead_door(dungeoni* pd) {
 }
 
 static void link_dungeon(dungeoni& location, dungeoni& below) {
-	unsigned short pm1[mpy*mpx];
-	unsigned short pm2[mpy*mpx];
-	unsigned short pme[mpx*mpy];
+	unsigned short pm1[mpy * mpx];
+	unsigned short pm2[mpy * mpx];
+	unsigned short pme[mpx * mpy];
 	// 1) Get idicies of two linked dungeons
 	location.getblocked(pm1, true);
 	location.makewave(to(location.stat.down.index, location.stat.down.dir), pm1);
 	below.getblocked(pm2, true);
 	below.makewave(to(below.stat.down.index, below.stat.down.dir), pm2);
 	// 2) Get valid indicies
-	for(int i = 1; i < mpx*mpy; i++) {
+	for(int i = 1; i < mpx * mpy; i++) {
 		// Second dungeon must be passable
 		if(!pm2[i] || pm2[i] == Blocked)
 			pm1[i] = Blocked;
@@ -796,7 +808,7 @@ static void link_dungeon(dungeoni& location, dungeoni& below) {
 	}
 	// 3) Get possible pits indicies
 	auto p = pme;
-	for(int i = 1; i < mpx*mpy; i++) {
+	for(int i = 1; i < mpx * mpy; i++) {
 		if(pm1[i] && pm1[i] != Blocked)
 			*p++ = i;
 	}
@@ -840,7 +852,7 @@ static unsigned find_rooms(indext* source, const indext* pe, const dungeoni& loc
 }
 
 static void add_spawn_points(dungeoni& location) {
-	adat<short unsigned> source;
+	adat<indext> source;
 	source.count = find_rooms(source.data, source.endof(), location);
 	if(!source.count)
 		return;
@@ -879,7 +891,7 @@ static void create_room(dungeoni& e, indext index, shape_s place, direction_s di
 		return;
 	indext indecies[10];
 	point size;
-	e.set(index, dir, place, size, indecies, true, d100()<50, place_in_zero_index);
+	e.set(index, dir, place, size, indecies, true, d100() < 50, place_in_zero_index);
 	proc(e, dir, site, indecies);
 	putroom(&e, indecies[0], dir, EmpthyStartIndex, false);
 }
@@ -946,7 +958,7 @@ void adventurei::create(bool interactive) const {
 					break;
 			}
 			remove_dead_door(&e);
-			if(j==special_item_level)
+			if(j == special_item_level)
 				validate_special_items(e);
 			add_spawn_points(e);
 			e.overland_index = bsdata<adventurei>::source.indexof(this);

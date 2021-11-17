@@ -1,60 +1,47 @@
 #include "main.h"
 
 BSDATA(shapei) = {
-	{"ShapeCorner", {4, 4}, {3, 4},
+	{"ShapeCorner", {4, 4},
 	"UUUU"
 	"X0XX"
 	"X12X"
-	"XXXX",
-	"XXX"
-	"X2X"
-	"01X"
-	"XXX"},
-	{"ShapeRoom", {5, 6}, {6, 5},
+	"XXXX"},
+	{"ShapeRoom", {5, 6},
 	"UUUUU"
 	"XX0XX"
 	"X...X"
 	"X.1.X"
 	"X.2.X"
-	"XXXXX",
-	"UXXXXX"
-	"UX...X"
-	"U0.12X"
-	"UX...X"
-	"UXXXXX"},
-	{"ShapeRoomLarge", {5, 7}, {7, 5},
+	"XXXXX"},
+	{"ShapeRoomLarge", {5, 7},
 	"UUUUU"
 	"XX0XX"
 	"X...X"
 	"X...X"
 	"X.1.X"
 	"X.2.X"
-	"XXXXX",
-	"UXXXXXX"
-	"UX....X"
-	"U0..12X"
-	"UX....X"
-	"UXXXXXX"},
-	{"ShapeDeadEnd", {3, 3}, {3, 3},
+	"XXXXX"},
+	{"ShapeDeadEnd", {3, 3},
 	"UUU"
 	"X0X"
-	"XXX",
-	"UXX"
-	"U0X"
-	"UXX"},
-	{"ShapeHall", {9, 7}, {10, 9},
+	"XXX"},
+	{"ShapeHall", {9, 7},
 	"UUUUUUUUU"
 	"XXXX0XXXX"
 	"X.......X"
 	"X.......X"
 	"X.......X"
 	"X.......X"
-	"XXXXXXXXX",
-	"XXXXXXXXXU"
-	"X.......XU"
-	"X.......0U"
-	"X.......XU"
-	"X.......XU"
-	"XXXXXXXXXU"},
+	"XXXXXXXXX"},
 };
 assert_enum(shape, ShapeHall)
+
+const char* shapei::getvertical() const {
+	static char temp_data[8 * 8];
+	auto sc = size.x;
+	for(auto y = 0; y < size.y; y++) {
+		for(auto x = 0; x < size.x; x++)
+			temp_data[x * sc + y] = data[y * sc + x];
+	}
+	return temp_data;
+}

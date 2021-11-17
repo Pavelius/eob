@@ -303,7 +303,7 @@ void dungeoni::clear() {
 }
 
 void dungeoni::finish(cell_s t) {
-	for(int i = 1; i < mpx*mpy; i++)
+	for(int i = 1; i < mpx * mpy; i++)
 		if(data[i] == CellUnknown)
 			data[i] = t;
 }
@@ -468,7 +468,7 @@ int dungeoni::getfreeside(indext index) {
 }
 
 void dungeoni::getblocked(indext* pathmap, bool treat_door_as_passable) {
-	for(indext index = 0; index < mpx*mpy; index++) {
+	for(indext index = 0; index < mpx * mpy; index++) {
 		switch(get(index)) {
 		case CellWall:
 		case CellPortal:
@@ -585,7 +585,7 @@ void dungeoni::overlayi::clear() {
 }
 
 void dungeoni::passround() {
-	unsigned char map[mpx*mpy] = {0};
+	unsigned char map[mpx * mpy] = {0};
 	for(auto& e : monsters) {
 		if(!e)
 			continue;
@@ -609,7 +609,7 @@ void dungeoni::passround() {
 			continue;
 		map[e.index]++;
 	}
-	for(short unsigned i = 0; i < mpx*mpy; i++) {
+	for(short unsigned i = 0; i < mpx * mpy; i++) {
 		auto t = get(i);
 		if(t == CellButton) {
 			auto new_active = map[i] > 0;
@@ -1146,10 +1146,11 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 			y -= gy(indecies[0]);
 		}
 	}
+	size = e.size;
 	switch(dir) {
 	case Left:
-		size = e.size_left;
-		p = e.data_left;
+		iswap(size.x, size.y);
+		p = e.getvertical();
 		dx = 1;
 		if(mirror) {
 			p += size.x * (size.y - 1);
@@ -1158,8 +1159,8 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 			dy = size.x;
 		break;
 	case Right:
-		size = e.size_left;
-		p = e.data_left + (size.x - 1);
+		iswap(size.x, size.y);
+		p = e.getvertical() + (size.x - 1);
 		dx = -1;
 		if(mirror) {
 			p += size.x * (size.y - 1);
@@ -1168,8 +1169,7 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 			dy = size.x;
 		break;
 	case Up:
-		size = e.size_up;
-		p = e.data_up;
+		p = e.data;
 		dy = size.x;
 		if(mirror) {
 			p += size.x - 1;
@@ -1178,8 +1178,7 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 			dx = 1;
 		break;
 	case Down:
-		size = e.size_up;
-		p = e.data_up + e.size_up.x * (size.y - 1);
+		p = e.data + e.size.x * (size.y - 1);
 		dy = -size.x;
 		if(mirror) {
 			p += size.x - 1;
@@ -1232,17 +1231,17 @@ const char* dungeoni::getnavigation(indext index) const {
 }
 
 indext dungeoni::getretreat(indext from, int minimal_radius) const {
-	short unsigned pathmap[mpx*mpy];
-	for(indext index = 0; index < mpx*mpy; index++)
+	short unsigned pathmap[mpx * mpy];
+	for(indext index = 0; index < mpx * mpy; index++)
 		pathmap[index] = isblocked(index) ? Blocked : 0;
 	makewave(from, pathmap);
 	for(auto& e : monsters) {
-		if(e && e.getindex()!=Blocked)
+		if(e && e.getindex() != Blocked)
 			pathmap[e.getindex()] = Blocked;
 	}
 	indext result = Blocked;
 	short unsigned result_cost = 0;
-	for(indext index = 0; index < mpx*mpy; index++) {
+	for(indext index = 0; index < mpx * mpy; index++) {
 		if(pathmap[index] == Blocked)
 			continue;
 		if(pathmap[index] < minimal_radius)

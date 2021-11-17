@@ -1040,9 +1040,10 @@ public:
 };
 struct shapei {
 	const char*			id;
-	point				size_up, size_left;
-	const char*			data_up;
-	const char*			data_left;
+	point				size;
+	const char*			data;
+	const char*			getvertical() const;
+	const char*			getdata(direction_s d) const;
 };
 struct dungeoni {
 	struct overlayi {
