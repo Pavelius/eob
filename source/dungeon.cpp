@@ -584,11 +584,45 @@ void dungeoni::overlayi::clear() {
 	index = index_link = Blocked;
 }
 
+void dungeoni::update_goals() {
+	if(!is(KillBoss) && stat.boss && !stat.boss_alive) {
+		set(KillBoss);
+		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 2);
+		game.addexp(Lawful, 50); game.addexp(Good, 50);
+	}
+	if(!is(ExploreMostDungeon)) {
+		const auto explored_maximum = mpx * mpy;
+		auto explored = 0;
+		for(auto i = 0; i < explored_maximum; i++) {
+			if(is(i, CellExplored))
+				explored++;
+		}
+		auto percent = 100 * explored / explored_maximum;
+		if(percent > 80) {
+			set(ExploreMostDungeon);
+			game.addexpc(500, 0);
+		}
+	}
+	if(!is(KillAlmostAllMonsters) && stat.monsters) {
+		auto percent = 100 * stat.monsters_killed / stat.monsters;
+		if(percent > 80) {
+			set(KillAlmostAllMonsters);
+			game.addexpc(800, 0);
+			game.addexp(Evil, 100);
+		}
+	}
+}
+
 void dungeoni::passround() {
+	stat.boss_alive = false;
+	stat.monsters_alive = 0;
 	unsigned char map[mpx * mpy] = {0};
 	for(auto& e : monsters) {
 		if(!e)
 			continue;
+		stat.monsters_alive++;
+		if(e.is(stat.boss))
+			stat.boss_alive = true;
 		auto i = e.getindex();
 		if(i == Blocked || map[i] > 0)
 			continue;
@@ -630,6 +664,7 @@ void dungeoni::passround() {
 			setactive(i, new_active);
 		}
 	}
+	update_goals();
 }
 
 void dungeoni::attack(const combati& wi, creature* defender) const {

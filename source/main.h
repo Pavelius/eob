@@ -285,7 +285,7 @@ enum actionf_s : unsigned char {
 	CheckCondition, MayLoseReputation, DependOnReputation,
 };
 enum goal_s : unsigned char {
-	KillBoss, ExploreMostDungeon,
+	KillBoss, KillAlmostAllMonsters, ExploreMostDungeon,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;
@@ -1089,6 +1089,8 @@ struct dungeoni {
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
+		short unsigned	monsters_alive; // total alive monsters
+		short unsigned	monsters_killed; // total killed monsters
 		flagf			goals;
 		bool			boss_alive;
 		void			clear();

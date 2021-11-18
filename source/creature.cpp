@@ -877,6 +877,7 @@ void creature::kill() {
 			location.dropitem(index, it, side);
 		}
 	}
+	location.stat.monsters_killed++;
 	nameable::kill();
 	clear();
 }
