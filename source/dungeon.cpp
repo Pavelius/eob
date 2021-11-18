@@ -288,8 +288,8 @@ void dungeoni::statei::clear() {
 	down.index = Blocked;
 	up.index = Blocked;
 	portal.index = Blocked;
-	crypt.index = Blocked;
-	crypt_button.index = Blocked;
+	lair.index = Blocked;
+	lair_button.index = Blocked;
 	wands.index = Blocked;
 	for(auto& e : spawn)
 		e = Blocked;

@@ -286,12 +286,14 @@ static void crypt_button(dungeoni* pd, indext index, direction_s dir, unsigned f
 		return;
 	pd->set(i1, CellWall);
 	auto po = pd->add(index, CellPuller, dir);
-	po->index_link = pd->stat.crypt.index;
-	pd->stat.crypt_button = *po;
+	po->index_link = pd->stat.lair.index;
+	pd->stat.lair_button = *po;
 }
 
 static bool need_crypt_button(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
-	if(pd->stat.crypt_button.index == Blocked && pd->stat.crypt.index != Blocked) {
+	if(pd->stat.lair_button.index == Blocked
+		&& pd->stat.boss
+		&& pd->stat.lair.index != Blocked) {
 		crypt_button(pd, index, dir, flags);
 		return true;
 	}
@@ -885,21 +887,19 @@ static void create_lair(dungeoni& e, direction_s dir, const sitei* p, indext* in
 	e.stat.lair.index = indecies[0];
 	e.stat.lair.dir = dir;
 	e.set(e.stat.lair.index, CellDoor);
-	e.add(to(e.stat.lair.index, dir), CellDoorButton, to(dir, Down));
+	if(!p->crypt.boss)
+		e.add(to(e.stat.lair.index, dir), CellDoorButton, to(dir, Down));
+	auto count = 0;
 	indexa positions;
-	positions.select(e, indecies[2], CellPassable, 2);
-	for(auto i : positions)
-		e.stat.monsters += e.addmonster(p->head.habbits[0], i);
+	positions.select(e, indecies[1], CellPassable, 5);
+	for(auto i : positions) {
+		if(!count && p->crypt.boss) {
+			e.stat.monsters += e.addmonster(p->crypt.boss, i);
+			e.stat.boss = p->crypt.boss;
+		} else
+			e.stat.monsters += e.addmonster(p->head.habbits[0], i);
+	}
 	putroom(&e, e.stat.lair.index, e.stat.lair.dir, EmpthyStartIndex, false);
-}
-
-static void create_crypt(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
-	e.stat.crypt.clear();
-	e.stat.crypt.index = indecies[0];
-	e.stat.crypt.dir = dir;
-	e.set(e.stat.crypt.index, CellDoor);
-	e.stat.monsters += e.addmonster(p->crypt.boss, indecies[1]);
-	putroom(&e, e.stat.crypt.index, e.stat.crypt.dir, EmpthyStartIndex, false);
 }
 
 static void create_room(dungeoni& e, indext index, shape_s place, direction_s dir, const sitei* site, fnroom proc) {
@@ -916,8 +916,7 @@ static void create_room(dungeoni& e, shape_s place, const sitei* site, fnroom pr
 	indext indecies[10]; point size;
 	auto dir = maprnd(all_around);
 	e.set(0, dir, place, size, indecies, false);
-	//auto m = imax(size.x, size.y) + 2;
-	auto m = 3;
+	auto m = imax(size.x, size.y) + 2;
 	short x = xrand(m, mpx - m - 1), y = xrand(m, mpy - m - 1);
 	//if(indecies[0] != Blocked) {
 	//	x -= gx(indecies[0]);
@@ -961,10 +960,8 @@ void adventurei::create(bool interactive) const {
 					create_room(e, start, ShapeDeadEnd, maprnd(all_around), 0, stairs_up);
 				if(!last_level)
 					create_room(e, ShapeDeadEnd, p, stairs_down);
-				if(p->crypt.boss)
-					create_room(e, ShapeRoom, p, create_crypt);
-				else
-					create_room(e, ShapeRoomLarge, p, create_lair);
+				// Every dungeon have one lair
+				create_room(e, ShapeRoom, p, create_lair);
 				while(stack_get != stack_put) {
 					auto& ev = rooms[stack_get++];
 					auto result = corridor(&e, ev.index, ev.dir, ev.flags);

@@ -10,9 +10,9 @@ const bool visialize_map = false;
 
 
 static const char place_sides[4][4] = {{1, 3, 0, 2},
-{0, 1, 2, 3},
-{2, 0, 3, 1},
-{3, 2, 1, 0},
+	{0, 1, 2, 3},
+	{2, 0, 3, 1},
+	{3, 2, 1, 0},
 };
 static const char* name_direction[] = {
 	"floor", "left", "forward", "right", "rear"
@@ -316,9 +316,9 @@ void gamei::findsecrets() {
 
 void gamei::thrown(item* itm) {
 	static char place_sides[4][2] = {{3, 1},
-	{2, 3},
-	{0, 2},
-	{1, 0},
+		{2, 3},
+		{0, 2},
+		{1, 0},
 	};
 	if(!itm || !*itm)
 		return;
@@ -363,9 +363,33 @@ wear_s gamei::getwear(const item* itm) const {
 	return Head;
 }
 
+void dungeoni::update_goals() {
+	if(!is(KillBoss) && stat.boss && !stat.boss_alive) {
+		set(KillBoss);
+		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 2);
+		game.addexp(Lawful, 50); game.addexp(Good, 50);
+	}
+	if(!is(ExploreMostDungeon)) {
+		const auto explored_maximum = mpx * mpy;
+		auto explored = 0;
+		for(auto i = 0; i < explored_maximum; i++) {
+			if(is(i, CellExplored))
+				explored++;
+		}
+		auto percent = 100 * explored / explored_maximum;
+		if(percent > 80) {
+			set(ExploreMostDungeon);
+			game.addexpc(500, 0);
+		}
+	}
+}
+
 void gamei::passround() {
-	// Походим за монстров
+	location.stat.boss_alive = false;
+	// Monster moves
 	for(auto& e : location.monsters) {
+		if(e.is(location.stat.boss))
+			location.stat.boss_alive = true;
 		if(!e || !e.isready() || e.ismoved())
 			continue;
 		auto party_index = game.getcamera();
@@ -388,6 +412,7 @@ void gamei::passround() {
 		} else
 			location.stop(monster_index);
 	}
+	location.update_goals();
 	// Try level up
 	for(auto p : party) {
 		if(p)
@@ -741,7 +766,7 @@ void gamei::startgame() {
 }
 
 adventurei* gamei::getadventure() {
-	if(adventure_index!=0xFFFF)
+	if(adventure_index != 0xFFFF)
 		return (adventurei*)bsdata<adventurei>::source.ptr(adventure_index);
 	return 0;
 }
@@ -852,7 +877,7 @@ bool gamei::writemeta(const char* url) {
 	auto ptemp = new char[size]; ptemp[0] = 0;
 	stringbuilder sb(ptemp, ptemp + size - 1);
 	varianti::getmetadata(sb);
-	io::file file(url, StreamWrite|StreamText);
+	io::file file(url, StreamWrite | StreamText);
 	if(file)
 		file << ptemp;
 	delete[] ptemp;

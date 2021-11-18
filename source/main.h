@@ -284,6 +284,9 @@ enum condition_s : unsigned char {
 enum actionf_s : unsigned char {
 	CheckCondition, MayLoseReputation, DependOnReputation,
 };
+enum goal_s : unsigned char {
+	KillBoss, ExploreMostDungeon,
+};
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
@@ -1068,13 +1071,12 @@ struct dungeoni {
 		indext			storage_index;
 	};
 	struct statei {
-		overlayi		up; // where is stairs up
-		overlayi		down; // where is stairs down
+		overlayi		up, down; // where is stairs located
 		overlayi		portal; // where is portal
-		overlayi		crypt, lair; // where is crypt and lair located
-		overlayi		crypt_button; // where is crypt located
+		overlayi		lair, lair_button; // where is lair and opening button located
 		overlayi		wands; // where is crypt located
 		indext			spawn[2]; // new monster appera here
+		monster_s		boss; // Type of boss;
 		unsigned char	messages; // count of messages
 		unsigned char	secrets; // count of secret rooms
 		unsigned char	artifacts; // count of artifact items
@@ -1087,6 +1089,8 @@ struct dungeoni {
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
+		flagf			goals;
+		bool			boss_alive;
 		void			clear();
 	};
 	struct eventi {
@@ -1153,6 +1157,7 @@ struct dungeoni {
 	cell_s				gettype(overlayi* po);
 	indext				getvalid(indext index, int width, int height, cell_s v) const;
 	void				hearnoises();
+	constexpr bool		is(goal_s v) const { return stat.goals.is(v); }
 	bool				is(indext index, cell_flag_s value) const;
 	bool				is(indext index, int width, int height, cell_s v) const;
 	bool				is(const rect& rc, cell_s id) const;
@@ -1181,6 +1186,7 @@ struct dungeoni {
 	void				remove(overlayi* po, item it);
 	void				remove(overlayi* po);
 	void				rotate(direction_s direction);
+	void				set(goal_s v) { stat.goals.set(v); }
 	void				set(indext index, cell_s value);
 	void				set(indext index, cell_flag_s value);
 	void				set(indext index, direction_s dir, cell_s type);
@@ -1193,6 +1199,7 @@ struct dungeoni {
 	void				traplaunch(indext index, direction_s dir, item_s show, const combati& e);
 	void				turnto(indext index, direction_s dr, bool* surprise = 0);
 	void				write();
+	void				update_goals();
 };
 struct indexa : adat<indext, 8 * 8> {
 	void				select(const dungeoni& e, indext i, cell_s id, int r);
