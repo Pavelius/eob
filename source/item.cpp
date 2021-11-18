@@ -256,8 +256,8 @@ BSDATA(itemi) = {
 	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {2, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
 
 	{"Robe", Rare, {32, 8, 1}, 3 * GP, 0, Clothes, Body, {UseArcane}, {}, {}, {}, magic_robe},
-	{"Leather armor", Common, {31, 8, 1}, 5 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
-	{"Studded leather armor", Uncommon, {31, 8, 1}, 20 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
+	{"Leather armor", Common, {31, 11, 1}, 5 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
+	{"Studded leather armor", Uncommon, {31, 11, 1}, 20 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
 	{"Scale mail", VeryRare, {30, 9, 1}, 120 * GP, 0, Armors, Body, {UseMetalArmor}, {}, {}, {4, 2}, magic_armor},
 	{"Chain mail", Rare, {29, 9, 1}, 75 * GP, 0, Armors, Body, {UseMetalArmor}, {}, {}, {5}, magic_armor},
 	{"Banded mail", VeryRare, {28, 9, 1}, 200 * GP, 0, Armors, Body, {UseMetalArmor}, {}, {}, {7, 3}, magic_armor},
