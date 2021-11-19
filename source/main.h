@@ -286,7 +286,7 @@ enum actionf_s : unsigned char {
 };
 enum goal_s : unsigned char {
 	KillBoss, KillAlmostAllMonsters, ExploreMostDungeon,
-	GrabAllGems, GrabAllSpecialItems,
+	GrabAlmostAllGems, GrabAllSpecialItems,
 };
 typedef short unsigned indext;
 typedef cflags<action_s> actionf;

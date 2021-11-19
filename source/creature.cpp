@@ -1188,7 +1188,7 @@ bool creature::use(item* pi) {
 			pc->poison(NoSave);
 			pc->say(maprnd(text));
 		} else if(power.type == Spell)
-			pc->apply((spell_s)power.value, 3 + magic * 3);
+			pc->apply((spell_s)power.value, 5 + magic * 3);
 		break;
 	case Ration:
 	case RationIron:
