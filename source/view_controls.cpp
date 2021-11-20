@@ -1073,7 +1073,7 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 	setsmallfont();
 	openform();
 	while(ismodal()) {
-		draw::animation::render(0, false, 0, 0, false);
+		draw::animation::render(0, true, 0, 0);
 		rect rc = {0, 121, 319, 199};
 		fore = colors::white;
 		if(ei)
@@ -1822,20 +1822,6 @@ bool draw::edit(const char* title, void* object, const markup* pm, bool cancel_b
 }
 
 void random_heroes();
-
-static void paintparty(point camera, point party) {
-	auto p = party - camera;
-	setblink(colors::white);
-	pixel(p.x, p.y);
-	pixel(p.x, p.y + 1);
-	pixel(p.x, p.y + 2);
-	pixel(p.x, p.y - 1);
-	pixel(p.x, p.y - 2);
-	pixel(p.x + 2, p.y);
-	pixel(p.x + 1, p.y);
-	pixel(p.x - 1, p.y);
-	pixel(p.x - 2, p.y);
-}
 
 point draw::choosepoint(point camera) {
 	state push;

@@ -1,5 +1,6 @@
 ﻿#include "color.h"
 #include "crt.h"
+#include "dataset.h"
 #include "dice.h"
 #include "flagable.h"
 #include "point.h"
@@ -241,12 +242,15 @@ enum reaction_s : unsigned char {
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
+enum city_ability_s : unsigned char {
+	Criminals, Donations, Gold, Prosperty, Reputation,
+};
 enum action_s : unsigned char {
 	Reshufle,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
 	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell,
 	Talk, Take, Trade, Travel, Pet, Work,
-	Experience, Gold, Prosperty, Reputation,
+	Experience,
 };
 enum talk_s : unsigned char {
 	Greeting,
@@ -298,6 +302,7 @@ typedef flagable<1 + LastSpellAbility / 8> spellf;
 typedef flagable<4> flagf;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
 typedef cflags<usability_s> usabilitya;
+typedef dataset<Reputation, int> citya;
 class creature;
 class creaturea;
 class item;
@@ -1275,7 +1280,7 @@ struct encounteri : public creaturea {
 	void				dialog();
 	void				set(reaction_s v);
 };
-class gamei : public companyi {
+class gamei : public companyi, citya {
 	indext				camera_index;
 	direction_s			camera_direction;
 	char				location_level;
@@ -1285,31 +1290,25 @@ class gamei : public companyi {
 	unsigned			rounds_hour;
 	unsigned			rounds_daypart;
 	unsigned			killed[LastMonster + 1];
-	unsigned			found_secrets, sacrifice, gold_donated;
-	char				reputation, luck, prosperty;
-	int					gold;
+	unsigned			found_secrets, gold_donated;
 	variant				players[6];
 public:
+	void				add(city_ability_s i, int v) { citya::add(i, v); }
 	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
 	void				addgold(int coins);
-	void				adddonation(unsigned v) { gold_donated += v; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
-	void				addluck() { luck++; }
-	void				addprosperty(int v) { prosperty += v; }
-	void				addsacrifice(int v) { sacrifice += v; }
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
-	static void			chooseadventure();
+	static adventurei*	chooseadventure();
 	void				clear();
 	void				clearfiles();
 	void				endround();
 	void				enter(unsigned short index, char level, bool set_camera = true);
 	void				equiping();
 	adventurei*			getadventure();
-	int					getprosperty() const { return prosperty; }
 	void				findsecrets();
 	int					get(action_s id) const;
 	int					getaverage(ability_s v) const;
@@ -1319,7 +1318,7 @@ public:
 	static unsigned long long getchecksum();
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
-	int					getgold() const { return gold; }
+	int					getgold() const { return citya::get(Gold); }
 	void				getheroes(creature** result, direction_s dir);
 	static int			getmapheight();
 	static int			getmapwidth();
@@ -1414,7 +1413,7 @@ namespace animation {
 void					attack(creature* attacker, wear_s slot, int hits);
 void					clear();
 void					damage(creature* target, int hits);
-void					render(int pause = 300, bool show_screen = true, void* focus = 0, const imagei* pi = 0, bool show_back = true);
+void					render(int pause = 300, bool show_screen = true, void* focus = 0, const imagei* pi = 0);
 int						thrown(indext index, direction_s dr, item_s rec, direction_s sdr = Center, int wait = 100, bool block_monsters = false);
 int						thrownstep(indext index, direction_s dr, item_s itype, direction_s sdr = Center, int wait = 100);
 void					update();

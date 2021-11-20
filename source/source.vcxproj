@@ -134,6 +134,7 @@
     <ClInclude Include="archive.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
+    <ClInclude Include="dataset.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="flagable.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="markup.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
+    <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>

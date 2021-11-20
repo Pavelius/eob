@@ -17,7 +17,7 @@ BSDATA(shapei) = {
 	"UUUUU"
 	"XX0XX"
 	"X...X"
-	"X.2.X"
+	"X...X"
 	"X...X"
 	"X.1.X"
 	"XXXXX"},

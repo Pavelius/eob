@@ -25,11 +25,8 @@ BSDATA(actioni) = {
 	{"Pet"},
 	{"Work"},
 	{"Experience"},
-	{"Gold"},
-	{"Prosperty"},
-	{"Reputation"},
 };
-assert_enum(action, Reputation)
+assert_enum(action, Experience)
 INSTELEM(actioni)
 
 BSDATA(talki) = {
@@ -52,22 +49,8 @@ BSDATA(actionseti) = {
 	{"Attack 2-12", Attack, 2, 6},
 	{"Attack 3-18", Attack, 3, 6},
 	{"Exhause party", Work},
-	{"Gain 5 gold coins", Gold, 5},
-	{"Gain 10 gold coins", Gold, 10},
-	{"Gain 20 gold coins", Gold, 20},
-	{"Gain 20 gold if Reputation < -4", Gold, 20, 0, {DependOnReputation}, -4},
-	{"Gain 50 experiences", Experience, 50},
-	{"Gain 100 experiences", Experience, 100},
 	{"Gain Rare Armor", Take, Armors, Rare},
 	{"Gain Rare Weapon", Take, Weapons, Rare},
-	{"Gain Prosperty", Prosperty, 1},
-	{"Gain Reputation", Reputation, 1},
-	{"Lose 5 gold coins", Gold, -5},
-	{"Lose 10 gold coins", Gold, -10},
-	{"Lose 20 gold coins", Gold, -20},
-	{"Lose 20 gold coins or reputation", Gold, -20, 0, {MayLoseReputation}},
-	{"Lose Prosperty", Prosperty, 1},
-	{"Loose Reputation", Reputation, 1},
 	{"Pay 1 gold coin", Pay, 1, 0, {CheckCondition}},
 	{"Pay 2 gold coins", Pay, 2, 0, {CheckCondition}},
 	{"Pay 5 gold coins", Pay, 5, 0, {CheckCondition}},
@@ -160,35 +143,4 @@ static item random(good_s good, rarity_s rarity) {
 }
 
 void gamei::apply(variant v) {
-	int i;
-	if(v.type == ActionSet) {
-		auto& ei = bsdata<actionseti>::elements[v.value];
-		switch(ei.action) {
-		case Attack:
-			for(auto p : party)
-				p->damage(Magic, ei.roll(), 5);
-			break;
-		case Take:
-			party.additem(random((good_s)ei.count1, (rarity_s)ei.count2));
-			break;
-		case Gold:
-			i = ei.roll();
-			if(ei.is(MayLoseReputation) && getgold() < i) {
-				reputation--;
-				break;
-			}
-			if(ei.is(DependOnReputation)) {
-				auto cap = ei.count3;
-				if(cap < 0 && reputation >= cap)
-					break;
-				if(cap > 0 && reputation <= cap)
-					break;
-			}
-			game.addgold(ei.roll());
-			break;
-		case Prosperty: game.addprosperty(ei.roll()); break;
-		case Reputation: reputation += ei.roll(); break;
-		case Work: party.exhause(); break;
-		}
-	}
 }

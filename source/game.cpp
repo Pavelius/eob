@@ -729,9 +729,7 @@ void gamei::preserial(bool writemode) {
 }
 
 void gamei::addgold(int coins) {
-	gold += coins;
-	if(gold < 0)
-		gold = 0;
+	add(Gold, coins);
 }
 
 void gamei::startgame() {
@@ -873,12 +871,12 @@ unsigned long long gamei::getchecksum() {
 	return result;
 }
 
-void gamei::chooseadventure() {
+adventurei* gamei::chooseadventure() {
 	answers an;
 	for(auto& e : bsdata<adventurei>()) {
 		if(!e)
 			continue;
-		an.add(1, e.getname());
+		an.add((int)&e, e.getname());
 	}
-	an.choosebg("Test", false);
+	return (adventurei*)an.choosemn("Go adventure to", true);
 }

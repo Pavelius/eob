@@ -325,6 +325,7 @@ void gamei::newgame() {
 	game.addgold(game.start_gold);
 	//if(game.intro)
 	//	answers::message(game.intro.getname());
+	//game.chooseadventure();
 	draw::resetres();
 	game.equiping();
 	game.passtime(12 * 60);

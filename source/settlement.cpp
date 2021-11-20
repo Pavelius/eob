@@ -62,7 +62,6 @@ static unsigned char getorientation(point s, point d) {
 }
 
 static int getlevel(int v) {
-	v += game.getprosperty();
 	if(v < 0)
 		v = 0;
 	auto r = 0;
@@ -514,7 +513,7 @@ static bool sacrifice(bool run) {
 			exp += 100;
 			sacrifice_score++;
 		}
-		game.addsacrifice(sacrifice_score);
+		//game.add(Sacrifice, sacrifice_score);
 		game.addexpc(exp, 0);
 	}
 	return true;
@@ -558,7 +557,7 @@ static bool donate(bool run) {
 		if(i == -1)
 			return false;
 		game.pay(level[i][0]);
-		game.adddonation(level[i][0]);
+		//game.adddonation(level[i][0]);
 		auto chance_increase_luck = level[i][1];
 		sb.clear();
 		if(d100() < chance_increase_luck) {
@@ -568,7 +567,7 @@ static bool donate(bool run) {
 				"Oh, holy god! I feel a the power! Your donation is accept!"
 			};
 			sb.add("\"%1\"", maprnd(t));
-			game.addluck();
+			//game.addluck();
 		} else {
 			static const char* t[] = {
 				"Your donation is not enought. You must donate more.",
