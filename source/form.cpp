@@ -1,6 +1,6 @@
 #include "main.h"
 #include "draw.h"
-#include "io.h"
+#include "io_stream.h"
 
 #define GENDGINF(T) DGINF(T) = {{"Name", DGREQ(name)}, {}};
 

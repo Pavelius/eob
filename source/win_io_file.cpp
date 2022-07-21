@@ -1,5 +1,5 @@
 #include "crt.h"
-#include "io.h"
+#include "io_stream.h"
 #include "win.h"
 
 io::file::file() : handle(0) {}

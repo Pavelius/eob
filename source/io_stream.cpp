@@ -1,5 +1,5 @@
 #include "crt.h"
-#include "io.h"
+#include "io_stream.h"
 
 io::stream& io::stream::operator<<(const int n) {
 	char temp[32]; sznum(temp, n);

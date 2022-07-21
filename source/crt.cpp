@@ -1,5 +1,5 @@
 #include "crt.h"
-#include "io.h"
+#include "io_stream.h"
 
 extern "C" void* malloc(unsigned size);
 extern "C" void* realloc(void *ptr, unsigned size);

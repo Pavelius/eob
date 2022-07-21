@@ -69,6 +69,7 @@ namespace draw {
 typedef void(*callback)();
 extern rect				clipping;
 extern color			fore;
+extern point			caret;
 struct pma {
 	char				name[4]; // Identifier of current block
 	int					size; // Size of all block

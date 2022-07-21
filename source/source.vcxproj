@@ -138,7 +138,7 @@
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="flagable.h" />
-    <ClInclude Include="io.h" />
+    <ClInclude Include="io_stream.h" />
     <ClInclude Include="io_plugin.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="markup.h" />
@@ -193,7 +193,7 @@
     <ClCompile Include="checksum.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
-    <ClCompile Include="io.cpp" />
+    <ClCompile Include="io_stream.cpp" />
     <ClCompile Include="io_plugin.cpp" />
     <ClCompile Include="io_plugin_json.cpp" />
     <ClCompile Include="item.cpp" />

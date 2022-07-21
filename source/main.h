@@ -1310,6 +1310,7 @@ public:
 	void				equiping();
 	adventurei*			getadventure();
 	void				findsecrets();
+	constexpr int		get(city_ability_s id) const { return citya::get(id); }
 	int					get(action_s id) const;
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
@@ -1347,6 +1348,7 @@ public:
 	void				returntobase();
 	static bool			roll(int value);
 	static void			scriblescrolls();
+	void				set(city_ability_s i, int v) { citya::set(i, v); }
 	void				setcamera(indext index, direction_s direction = Center);
 	void				startgame();
 	void				thrown(item* itm);

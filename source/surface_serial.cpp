@@ -1,6 +1,6 @@
 ﻿#include "crt.h"
 #include "draw.h"
-#include "io.h"
+#include "io_stream.h"
 
 #pragma pack(push)
 #pragma pack(1)

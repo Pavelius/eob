@@ -30,7 +30,7 @@
     <ClInclude Include="dice.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="io.h">
+    <ClInclude Include="io_stream.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="point.h">
@@ -137,7 +137,7 @@
     <ClCompile Include="dice.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="io.cpp">
+    <ClCompile Include="io_stream.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="point.cpp">

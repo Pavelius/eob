@@ -1,4 +1,3 @@
-//#include "command.h"
 #include "crt.h"
 #include "draw.h"
 
@@ -13,6 +12,7 @@ rect					draw::clipping;
 color					draw::fore;
 const sprite*			draw::font;
 color*					draw::palt;
+point					draw::caret;
 static unsigned char	forc;
 // Hot keys and menus
 int						hot::animate; // Каждый такт таймера это значение увеличивается на единицу.
@@ -869,8 +869,6 @@ char* key2str(char* result, int key) {
 	}
 	return result;
 }
-
-//command* command_hot_clear;
 
 const pma* pma::getheader(const char* id) const {
 	auto p = this;

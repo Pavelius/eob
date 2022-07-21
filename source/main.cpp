@@ -323,8 +323,8 @@ void gamei::newgame() {
 		party.add(p);
 	}
 	game.addgold(game.start_gold);
-	//if(game.intro)
-	//	answers::message(game.intro.getname());
+	if(game.intro)
+		answers::message(game.intro.getname());
 	//game.chooseadventure();
 	draw::resetres();
 	game.equiping();
@@ -335,8 +335,6 @@ void gamei::newgame() {
 }
 
 int main(int argc, char* argv[]) {
-	//srand(clock());
-	srand(100);
 #ifdef _DEBUG
 	if(!test_variant())
 		return -1;
