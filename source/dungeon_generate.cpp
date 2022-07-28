@@ -238,7 +238,6 @@ static item create_item(dungeoni* pd, item_s type, int bonus_level) {
 	switch(type) {
 	case Ration:
 	case RationIron:
-		// RULE: In dungeon 60% of all cases food will be rotten
 		if(d100() < 40)
 			it.setbroken(1);
 		break;
@@ -262,6 +261,11 @@ static item create_item(dungeoni* pd, item_s type, int bonus_level) {
 		break;
 	case Bones:
 		pd->stat.bones++;
+		break;
+	case HolySymbol:
+	case HolySymbolEvil:
+	case MagicBook:
+		pd->stat.relicts++;
 		break;
 	default:
 		if(it.isartifact())

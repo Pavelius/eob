@@ -1092,6 +1092,7 @@ struct dungeoni {
 		unsigned char	traps; // count of traps
 		unsigned char	bones; // count of bones
 		unsigned char	gems; // count of gems
+		unsigned char	relicts; // count of books and holy symbols
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
