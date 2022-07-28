@@ -1145,6 +1145,7 @@ struct dungeoni {
 	void				getblocked(indext* pathmap, bool treat_door_as_passable);
 	int					getfreeside(creature** sides);
 	int					getfreeside(indext index);
+	unsigned			getitemcount(item_s type) const;
 	unsigned			getitems(item** result, item** result_maximum, indext index, int side = -1);
 	unsigned			getitems(item** result, item** result_maximum, overlayi* povr);
 	int					getitemside(item* pi);

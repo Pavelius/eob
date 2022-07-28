@@ -110,6 +110,7 @@ static void test_dungeon2(resource_s type) {
 	location.stat.up.index = location.getindex(x, y + 1);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
+	draw::setnext(game.play);
 }
 
 static creature* add_hero(int n, gender_s gender, race_s race, class_s type, alignment_s alignment) {
@@ -212,28 +213,6 @@ static void show_monsters() {
 	//test_monster(BLDRAGON, 0);
 }
 
-static bool test_variant() {
-	answers aw;
-	variant v1 = LawfulEvil;
-	aw.add((int)v1, "Test alignment");
-	variant v2 = aw.elements[0].id;
-	return v1 == v2;
-}
-
-static bool test_richtexti() {
-	richtexti ei;
-	auto p = "#NPC 12\nWhen you arrive to the bank, test this.\nAnd then test this.\n#NPC 11\nFinally try to understand.";
-	ei.load(p);
-	if(ei.images[0].frame != 12)
-		return false;
-	if(ei.images[2].frame != 11)
-		return false;
-	textable ta;
-	ei.save(ta);
-	auto p1 = ta.getname();
-	return strcmp(p, p1) == 0;
-}
-
 void random_heroes() {
 	creature* p;
 	//
@@ -271,13 +250,13 @@ void debug_dungeon2() {
 	test_dungeon2(BRICK);
 	draw::settiles(location.head.type);
 	game.setcamera(location.getindex(16, 16), Up);
+	for(unsigned i = 0; i < 4; i++) {
+		auto p = (creature*)bsdata<creature>::source.ptr(i);
+		p->random_equipment(0);
+		party.add(p);
+	}
+	setnext(game.play);
 }
-
-void test_map() {
-	bsdata<eventi>::elements[6].play();
-}
-
-void test_orientation();
 
 #endif // DEBUG
 
@@ -299,6 +278,8 @@ void editor() {
 
 void gamei::newgame() {
 	srand(clock());
+	//debug_dungeon2();
+	//return;
 	location.clear();
 	location_above.clear();
 	game.clear();
@@ -312,7 +293,7 @@ void gamei::newgame() {
 	random_heroes();
 #else
 	creature::view_party();
-#endif // _DEBUG
+#endif
 	if(bsdata<creature>::source.getcount() < 4) {
 		for(unsigned i = 0; i < 4; i++)
 			bsdata<creature>::source.add();
@@ -322,27 +303,19 @@ void gamei::newgame() {
 		p->random_equipment(0);
 		party.add(p);
 	}
-	game.addgold(game.start_gold);
 	if(game.intro)
 		answers::message(game.intro.getname());
-	//game.chooseadventure();
 	draw::resetres();
 	game.equiping();
 	game.passtime(12 * 60);
 	game.write();
 	game.enter(0, 1);
-	//game.chooseadventure();
 }
 
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
-	if(!test_variant())
-		return -1;
-	if(!test_richtexti())
-		return -1;
 	util_main();
-#endif // _DEBUG
-	//gamei::writemeta("metadata.json");
+#endif
 	draw::initialize();
 	fore = colors::white;
 	setbigfont();

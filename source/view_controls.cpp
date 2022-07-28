@@ -2800,10 +2800,6 @@ static void show_skills(void* current_item) {
 	skills(178, 0, creature::get(current_item));
 }
 
-#ifdef _DEBUG
-void test_map();
-#endif // _DEBUG
-
 static bool handle_shortcuts(bool allow_move) {
 	auto pc = creature::get(current_focus);
 	item* current_item = (item*)current_focus;
@@ -2909,11 +2905,6 @@ static bool handle_shortcuts(bool allow_move) {
 	case 'F':
 		draw::animation::thrown(game.getcamera(), game.getdirection(), Arrow, Left, 50);
 		break;
-#ifdef _DEBUG
-	case 'H':
-		test_map();
-		break;
-#endif // _DEBUG
 	case '1': case '2': case '3': case '4': case '5': case '6':
 		pc = party[hot::key - '1'];
 		if(!pc)

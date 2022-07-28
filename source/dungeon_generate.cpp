@@ -732,6 +732,10 @@ static void drop_special_ground(item& it, indext index) {
 	it.clear();
 }
 
+static int get_item_count_total() {
+
+}
+
 static void validate_special_items(dungeoni& location) {
 	if(!location.head.wands)
 		return;

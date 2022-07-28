@@ -50,7 +50,6 @@ const char* shapei::get(direction_s d, point& result_size) const {
 	static char temp_data[16 * 16];
 	result_size = size;
 	switch(d) {
-	default: return data;
 	case Down:
 		for(auto y = 0; y < size.y; y++) {
 			for(auto x = 0; x < size.x; x++)
@@ -71,6 +70,7 @@ const char* shapei::get(direction_s d, point& result_size) const {
 				temp_data[x * result_size.x + y] = data[y * size.x + x];
 		}
 		break;
+	default: return data;
 	}
 	return temp_data;
 }

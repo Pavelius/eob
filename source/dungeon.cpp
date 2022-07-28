@@ -27,6 +27,21 @@ int dungeoni::getitemside(item* pi) {
 	return ((groundi*)pi)->side;
 }
 
+unsigned dungeoni::getitemcount(item_s type) const {
+	unsigned result = 0;
+	for(auto& e : items) {
+		if(!e || e.gettype()!=type)
+			continue;
+		result += e.getcount();
+	}
+	for(auto& e : cellar_items) {
+		if(!e)
+			continue;
+		result += e.getcount();
+	}
+	return result;
+}
+
 unsigned dungeoni::getitems(item** result, item** result_maximum, indext index, int side) {
 	auto p = result;
 	for(auto& e : items) {
