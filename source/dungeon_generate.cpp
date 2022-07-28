@@ -183,17 +183,17 @@ static item_s random_subtype(item_s type) {
 
 static item_s random_type(bool small_size = false) {
 	static item_s standart_item_types[] = {RedPotion, RedPotion, RedPotion,
-		SwordLong, SwordLong, SwordLong, SwordLong,
-		Helm, Helm,
+		SwordLong,
+		Helm,
 		Shield,
-		ArmorLeather, ArmorLeather, ArmorLeather,
+		ArmorLeather,
 		RedRing,
 		RedGem,
 		Boots, Boots,
 		Bracers,
 		Necklage,
 		KeyCooper,
-		TheifTools,
+		TheifTools, TheifTools, TheifTools,
 		Arrow,
 		Bones,
 		DungeonMap,
@@ -334,11 +334,10 @@ static int random_prison_count() {
 	auto r = d100();
 	if(r < 50)
 		return 0;
-	else if(r < 75)
+	else if(r < 85)
 		return 1;
-	else if(r < 90)
+	else
 		return 2;
-	return 3;
 }
 
 static void prison(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
@@ -397,7 +396,7 @@ static void treasure(dungeoni* pd, indext index, direction_s dir, unsigned flags
 	pd->set(to(i1, to(dir, Left)), CellWall);
 	pd->set(to(i1, to(dir, Right)), CellWall);
 	pd->set(i2, CellPassable);
-	for(auto i = xrand(1, 3); i > 0; i--)
+	for(auto i = 1 + random_prison_count(); i > 0; i--)
 		items(pd, i2, magic_bonus);
 	pd->set(to(i2, to(dir, Left)), CellWall);
 	pd->set(to(i2, to(dir, Right)), CellWall);
@@ -918,10 +917,6 @@ static void create_room(dungeoni& e, shape_s place, const sitei* site, fnroom pr
 	e.set(0, dir, place, size, indecies, false);
 	auto m = imax(size.x, size.y) + 2;
 	short x = xrand(m, mpx - m - 1), y = xrand(m, mpy - m - 1);
-	//if(indecies[0] != Blocked) {
-	//	x -= gx(indecies[0]);
-	//	y -= gy(indecies[0]);
-	//}
 	auto i = e.getvalid(e.getindex(x, y), size.x, size.y, CellUnknown);
 	create_room(e, i, place, dir, site, proc);
 }

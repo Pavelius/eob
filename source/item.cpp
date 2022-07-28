@@ -1,7 +1,7 @@
 #include "main.h"
 
 static enchantmenti magic_swords[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Rare, 0, {{}, 2}},
 	{Rare, "luck+1", {BonusSave, 1}},
@@ -28,7 +28,7 @@ static enchantmenti magic_swords[] = {
 	{Artifact, "holiness+5", {OfHolyness, 5}},
 };
 static enchantmenti magic_weapon[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Rare, 0, {{}, 2}},
 	{Rare, "luck+1", {BonusSave, 1}},
@@ -46,7 +46,7 @@ static enchantmenti magic_weapon[] = {
 	{Artifact, 0, {{}, 5}},
 };
 static enchantmenti magic_bludgeon[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Rare, 0, {{}, 2}},
 	{Rare, "smashing+2", {OfSmashing, 2}},
@@ -62,7 +62,7 @@ static enchantmenti magic_potions[] = {
 	{Common, "climbing", {FeatherFall, 1}},
 	{Common, "six sense", {DetectMagic, 1}},
 	{Common, "insight", {BonusExperience, 1}},
-	{Uncommon, "extra-healing", {CureLightWounds, 1}},
+	{Uncommon, "extra-healing", {CureSeriousWounds, 1}},
 	{Uncommon, "cure disease", {CureDisease, 1}},
 	{Uncommon, "invisibility", {Invisibility, 1}},
 	{Uncommon, "knowledge", {Identify, 1}},
@@ -77,7 +77,7 @@ static enchantmenti magic_potions[] = {
 	{Artifact, "god insight", {BonusExperience, 5}},
 };
 static enchantmenti magic_bracers[] = {
-	{Common},
+	{},
 	{Uncommon, "bulgary+2", {OpenLocks, 2}},
 	{Uncommon, "protection+1", {AC, 1}},
 	{Uncommon, "bulgary+3", {OpenLocks, 3}},
@@ -93,7 +93,7 @@ static enchantmenti magic_bracers[] = {
 	{Artifact, "titan strenght", {Strenght, 5}},
 };
 static enchantmenti magic_boots[] = {
-	{Common},
+	{},
 	{Uncommon, "jumping", {ClimbWalls, 4}},
 	{Uncommon, "dodge", {AC, 1}},
 	{Rare, "elvenind", {MoveSilently, 5}},
@@ -101,7 +101,7 @@ static enchantmenti magic_boots[] = {
 	{Artifact, "elvenind", {MoveSilently, 5}},
 };
 static enchantmenti magic_amulets[] = {
-	{Common},
+	{},
 	{Uncommon, "protection+1", {AC, 1}},
 	{Uncommon, "magic sense", {DetectMagic, 1}},
 	{Rare, "speed", {Haste, 1}},
@@ -112,7 +112,7 @@ static enchantmenti magic_amulets[] = {
 	{Artifact, "protection+4", {AC, 4}},
 };
 static enchantmenti magic_rings[] = {
-	{Common},
+	{},
 	{Uncommon, "protection+1", {AC, 1}},
 	{Uncommon, "sustenance", {CureLightWounds, 1}},
 	{Uncommon, "resist fire", {ResistFire, 2}},
@@ -138,7 +138,7 @@ static enchantmenti magic_rings[] = {
 	{Artifact, "wizardy III", {OfWizardy, 3}},
 };
 static enchantmenti magic_shield[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Uncommon, 0, {{}, 2}},
 	{Rare, 0, {{}, 3}},
@@ -147,7 +147,7 @@ static enchantmenti magic_shield[] = {
 	{Artifact, 0, {{}, 5}},
 };
 static enchantmenti magic_helmet[] = {
-	{Common},
+	{},
 	{Uncommon, "resist+1", {ResistMagic, 1}},
 	{Rare, "intellegence", {Intellegence, 2}},
 	{Rare, "leadership", {Charisma, 3}},
@@ -156,7 +156,7 @@ static enchantmenti magic_helmet[] = {
 	{Artifact, 0, {{}, 5}},
 };
 static enchantmenti magic_armor[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Rare, 0, {{}, 2}},
 	{Rare, "red dragon", {ResistFireSpell, 2}},
@@ -165,7 +165,7 @@ static enchantmenti magic_armor[] = {
 	{Artifact, 0, {{}, 5}},
 };
 static enchantmenti magic_robe[] = {
-	{Common},
+	{},
 	{Uncommon, "detoxication", {SaveVsPoison, 4}},
 	{Uncommon, "resist fire", {ResistFire, 1}},
 	{Uncommon, "resist cold", {ResistCold, 1}},
@@ -188,7 +188,7 @@ static enchantmenti magic_wand[] = {
 	{Artifact, "acid", {AcidArrow, 1}},
 };
 static enchantmenti magic_staff[] = {
-	{Common},
+	{},
 	{Uncommon, 0, {{}, 1}},
 	{Uncommon, "curing+1", {CureLightWounds, 1}},
 	{Uncommon, "insight+1", {DetectMagic, 1}},
@@ -229,7 +229,8 @@ static enchantmenti priest_scrolls[] = {
 	{Rare, 0, {NegativePlanProtection, 1}},
 	{Rare, 0, {RemoveCurse, 1}},
 };
-static enchantmenti old_tome[] = {{Common},
+static enchantmenti old_tome[] = {
+	{Common},
 	{Uncommon},
 	{Rare},
 	{VeryRare},
