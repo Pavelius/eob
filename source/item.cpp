@@ -255,7 +255,7 @@ BSDATA(itemi) = {
 	{"Two-handed sword", Artifact, {42, 0, 1}, 50 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {2, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
 	{"Bow", VeryRare, {10, 6, 1, Arrow}, 75 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {4, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
 	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {2, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
-
+	
 	{"Robe", Rare, {32, 8, 1}, 3 * GP, 0, Clothes, Body, {UseArcane}, {}, {}, {}, magic_robe},
 	{"Leather armor", Common, {31, 11, 1}, 5 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {2}, magic_armor},
 	{"Studded leather armor", Uncommon, {31, 11, 1}, 20 * GP, 0, Armors, Body, {UseLeatherArmor}, {}, {}, {3}, magic_armor},
@@ -306,10 +306,10 @@ BSDATA(itemi) = {
 	{"Potion", Rare, {40, 19}, 60 * GP, 0, Potions, Backpack, {}, {Expandable}, {}, {}, magic_potions},
 	{"Potion", Rare, {41, 19}, 70 * GP, 0, Potions, Backpack, {}, {}, {}, {}, magic_potions},
 
-	{"Red gem", VeryRare, {93, 22}, 200 * GP, 5, Jewelry},
-	{"Blue gem", VeryRare, {94, 22}, 400 * GP, 6, Jewelry},
-	{"Green gem", VeryRare, {95, 22}, 500 * GP, 8, Jewelry},
-	{"Purple gem", VeryRare, {96, 22}, 1000 * GP, 10, Jewelry},
+	{"Red gem", VeryRare, {93, 22}, 200 * GP, 5, Jewelry, {}, {}, {Valuable}},
+	{"Blue gem", VeryRare, {94, 22}, 400 * GP, 6, Jewelry, {}, {}, {Valuable}},
+	{"Green gem", VeryRare, {95, 22}, 500 * GP, 8, Jewelry, {}, {}, {Valuable}},
+	{"Purple gem", VeryRare, {96, 22}, 1000 * GP, 10, Jewelry, {}, {}, {Valuable}},
 
 	{"Ration", Common, {38, 14}, 1 * GP, 0, Food, Backpack, {}, {Expandable}},
 	{"Iron ration", Uncommon, {37, 14}, 2 * GP, 0, Food, Backpack, {}, {Expandable}},

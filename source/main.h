@@ -1343,6 +1343,7 @@ public:
 	void				passtime(int minutes);
 	void				pay(int coins) { addgold(-coins); }
 	static void			play();
+	static void			playcity();
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();

@@ -1469,11 +1469,17 @@ class_s	creature::getcaster() const {
 }
 
 void creature::removeloot() {
+	auto total_experience = 0;
 	for(auto& e : wears) {
 		if(!e)
 			continue;
 		if(e.isstarted())
 			e.clear();
+		else if(e.is(Valuable)) {
+			// Valuable items get experience
+			total_experience += e.getcost();
+			e.clear();
+		}
 	}
 }
 

@@ -320,6 +320,7 @@ int main(int argc, char* argv[]) {
 	fore = colors::white;
 	setbigfont();
 	setnext(mainmenu);
+	//setnext(game.playcity);
 	application();
 }
 

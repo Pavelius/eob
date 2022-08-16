@@ -159,6 +159,7 @@
     <ClCompile Include="case.cpp" />
     <ClCompile Include="cell.cpp" />
     <ClCompile Include="chat.cpp" />
+    <ClCompile Include="city.cpp" />
     <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="company.cpp" />

@@ -41,6 +41,7 @@ enum codepages { CPNONE, CP1251, CPUTF8, CPU16BE, CPU16LE };
 namespace metrics {
 const codepages						code = CP1251;
 }
+typedef void(*fnevent)();
 typedef int(*fnint)(const void* object);
 typedef const char* (*fnstring)(const void* object);
 bool								equal(const char* p, const char* s);
