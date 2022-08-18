@@ -876,13 +876,3 @@ unsigned long long gamei::getchecksum() {
 	}
 	return result;
 }
-
-adventurei* gamei::chooseadventure() {
-	answers an;
-	for(auto& e : bsdata<adventurei>()) {
-		if(!e)
-			continue;
-		an.add((int)&e, e.getname());
-	}
-	return (adventurei*)an.choosemn("Go adventure to", true);
-}

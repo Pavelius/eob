@@ -974,7 +974,7 @@ static bool labelxm(int x, int& y, int width, const char* title, unsigned key) {
 	return labelxm(rc, title, key);
 }
 
-static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key, int height = -1) {
+static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsigned key, int height = -1, unsigned flags = TextBold) {
 	draw::state push;
 	auto vertical = true;
 	if(width == -1) {
@@ -999,7 +999,7 @@ static bool buttonx(int& x, int& y, int width, const char* title, void* ev, unsi
 	if(isfocused)
 		fore = colors::focus;
 	draw::setclip(rc);
-	text(rc.x1 + 4, rc.y1 + 2, title, -1, TextBold);
+	text(rc.x1 + 4, rc.y1 + 2, title, -1, flags);
 	if(vertical)
 		y += height + 3;
 	else
@@ -1065,10 +1065,6 @@ bool draw::dlgask(const char* text) {
 	}
 	closeform();
 	return getresult() != 0;
-}
-
-void answers::clearimage() {
-	last_image = {};
 }
 
 int answers::choosehz(const char* title) const {
@@ -2119,9 +2115,41 @@ item* itema::choose(const char* format, bool* cancel_button, const creature* cur
 	return (item*)getresult();
 }
 
-int answers::choosemn(const char* title, bool allow_cancel) const {
+int answers::choosemb(const char* title, bool allow_cancel) const {
 	draw::state push;
 	setbigfont();
+	openform();
+	while(ismodal()) {
+		draw::animation::render(0, false);
+		form({0, 0, menu_width + 10, 174}, 2);
+		auto x = 6, y = 6;
+		if(title) {
+			fore = colors::title;
+			text(x + 2, y, title, -1, TextBold);
+			y += texth() + 2;
+		}
+		fore = colors::white;
+		for(auto& e : elements) {
+			if(buttonx(x, y, menu_width, e.text, (void*)e.text, 0))
+				execute(buttonparam, e.id);
+			y += 2;
+		}
+		y = 174 - texth() - 7;
+		if(allow_cancel) {
+			if(buttonx(x, y, -1, "Cancel", (void*)"Cancel", 0))
+				execute(buttoncancel);
+			y += 2;
+		}
+		domodal();
+		navigate(true);
+	}
+	closeform();
+	return getresult();
+}
+
+int answers::choosems(const char* title, bool allow_cancel) const {
+	draw::state push;
+	setsmallfont();
 	openform();
 	while(ismodal()) {
 		draw::animation::render(0, false);
@@ -2973,7 +3001,7 @@ void draw::options(bool camp_mode) {
 	aw.add((int)option_save_game, "Save game");
 	aw.add((int)settings, "Settings");
 	aw.add((int)quit_game, "Quit game");
-	auto p = (callback)aw.choosemn(on);
+	auto p = (callback)aw.choosemb(on);
 	if(p)
 		p();
 }

@@ -100,7 +100,6 @@ bool encounteri::match(const conditiona& source) const {
 }
 
 void encounteri::dialog() {
-	answers::clearimage();
 	chatting(*this, messages);
 }
 

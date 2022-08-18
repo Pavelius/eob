@@ -1307,7 +1307,6 @@ public:
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
-	static adventurei*	chooseadventure();
 	void				clear();
 	void				clearfiles();
 	void				endround();
@@ -1406,10 +1405,10 @@ public:
 	int					choosehz(const char* title) const;
 	int					choosebg(const char* title) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
-	int					choosemn(const char* title, bool allow_cancel = true) const;
+	int					choosems(const char* title, bool allow_cancel = true) const;
+	int					choosemb(const char* title, bool allow_cancel = true) const;
 	int					choosemn(int x, int y, int width, resource_s id) const;
 	static int			compare(const void* v1, const void* v2);
-	static void			clearimage();
 	static void			message(const char* format);
 	int					random() const;
 	static void			set(const imagei& v) { last_image = v; }
