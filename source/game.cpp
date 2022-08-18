@@ -477,6 +477,12 @@ void gamei::enter(unsigned short index, char level, bool set_camera) {
 	draw::setnext(play);
 }
 
+void adventurei::enter() {
+	game.passtime(xrand(60 * 3, 60 * 18));
+	game.equiping();
+	game.enter(getindex(), 1);
+}
+
 bool creature::set(ability_s skill, short unsigned index) {
 	variant owner = this;
 	for(auto& e : location.events) {

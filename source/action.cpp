@@ -132,7 +132,7 @@ void eventi::play() const {
 	answers aw;
 	aw.add(Case1, ask[0]);
 	aw.add(Case2, ask[1]);
-	auto i = (case_s)aw.choosebg(*this, false);
+	auto i = (case_s)aw.choosebg(*this);
 	apply(i, true);
 }
 

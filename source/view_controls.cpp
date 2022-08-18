@@ -101,6 +101,10 @@ const int				menu_width = 168;
 static callback			next_proc;
 extern sprite*			gres(resource_s id);
 
+bool draw::isallowmodal() {
+	return next_proc == 0;
+}
+
 void draw::application() {
 	while(next_proc) {
 		auto p = next_proc;
@@ -1067,7 +1071,7 @@ void answers::clearimage() {
 	last_image = {};
 }
 
-int answers::choosebg(const char* title, const imagei& ei, bool horizontal_buttons) const {
+int answers::choosehz(const char* title) const {
 	draw::animation::render(0);
 	draw::state push;
 	setsmallfont();
@@ -1076,8 +1080,6 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		draw::animation::render(0, true, 0, 0);
 		rect rc = {0, 121, 319, 199};
 		fore = colors::white;
-		if(ei)
-			last_image = ei;
 		if(last_image) {
 			image(0, 0, gres(BORDER), 0, 0);
 			image(8, 8, gres(last_image.res), last_image.frame, 0);
@@ -1086,23 +1088,15 @@ int answers::choosebg(const char* title, const imagei& ei, bool horizontal_butto
 		rc.offset(6, 4);
 		rc.y1 += text(rc, title, AlignLeft) + 2;
 		auto x = rc.x1, y = rc.y1;
-		if(horizontal_buttons)
-			y = getheight() - texth() - 6;
-		else
-			y += 2;
+		y = getheight() - texth() - 6;
 		for(unsigned i = 0; i < elements.count; i++) {
-			if(horizontal_buttons) {
-				auto pn = elements.data[i].text;
-				auto wd = getbuttonwidth(pn);
-				if(x + wd >= rc.x2) {
-					y -= texth() + 6;
-					x = rc.x1;
-				}
-				x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
-			} else {
-				if(labelxm(x, y, 320 - 10, elements.data[i].text, '1' + i))
-					execute(buttonparam, (int)&elements.data[i]);
+			auto pn = elements.data[i].text;
+			auto wd = getbuttonwidth(pn);
+			if(x + wd >= rc.x2) {
+				y -= texth() + 6;
+				x = rc.x1;
 			}
+			x += buttonw(x, y, elements.data[i].text, (void*)&elements.data[i], '1' + i, 0, (int)&elements.data[i]);
 		}
 		domodal();
 		navigate();
@@ -2193,8 +2187,8 @@ static void texth3(int x, int y, const char* name) {
 
 static const char* get_race(creature* p, stringbuilder& sb) {
 	sb.clear();
-	sb.add(getstr(p->getrace()));
-	sb.adds(getstr(p->getgender()));
+	sb.add(bsdata<racei>::elements[p->getrace()].name);
+	sb.adds(bsdata<genderi>::elements[p->getgender()].name);
 	return sb;
 }
 
@@ -2275,8 +2269,8 @@ static void abilities(int x, int y, creature* pc) {
 	int x1 = x + 4;
 	int y1 = y + 54;
 	header(x1, y + 42, "Character info");
-	text(x1, y1, getstr(pc->getclass())); y1 += draw::texth();
-	text(x1, y1, getstr(pc->getalignment())); y1 += draw::texth();
+	text(x1, y1, bsdata<classi>::elements[pc->getclass()].name); y1 += draw::texth();
+	text(x1, y1, bsdata<alignmenti>::elements[pc->getalignment()].name); y1 += draw::texth();
 	text(x1, y1, get_race(pc, sb)); y1 += draw::texth() * 2;
 	pc->render_ability(x1, y1, 24, false);
 	combati e = {}; pc->get(e, RightHand, Medium);
@@ -2299,7 +2293,7 @@ static void abilities(int x, int y, creature* pc) {
 		auto m = pc->getclass(cls, i);
 		if(!m)
 			continue;
-		text(x1, y1, getstr(m));
+		text(x1, y1, bsdata<classi>::elements[m].name);
 		sznum(temp, pc->get(m));
 		text(x1 + 6 * 8, y1, temp);
 		sznum(temp, (int)exp);
@@ -2322,7 +2316,7 @@ static void skills(int x, int y, creature* pc) {
 		if(value <= 0)
 			continue;
 		char temp[16]; stringbuilder sb(temp);
-		texth3(x1, y1, getstr(i));
+		texth3(x1, y1, bsdata<abilityi>::elements[i].name);
 		sb.add("%1i%%", value);
 		text(x1 + 6 * 19, y1, temp);
 		y1 += 7;
@@ -2464,13 +2458,14 @@ int creature::render_ability(int x, int y, int width, unsigned flags) const {
 	auto y0 = y;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto v = get(i);
+		auto emn = bsdata<abilityi>::elements[i].name;
 		if(i == Strenght && v == 18 && ability[ExeptionalStrenght] > 0) {
 			if(ability[ExeptionalStrenght] == 100)
-				y += number(x, y, width, getstr(i), 18, 0, "%1i/00", flags);
+				y += number(x, y, width, emn, 18, 0, "%1i/00", flags);
 			else
-				y += number(x, y, width, getstr(i), 18, ability[ExeptionalStrenght], "%1i/%2.2i", flags);
+				y += number(x, y, width, emn, 18, ability[ExeptionalStrenght], "%1i/%2.2i", flags);
 		} else
-			y += number(x, y, width, getstr(i), get(i), flags);
+			y += number(x, y, width, emn, get(i), flags);
 	}
 	return y - y0;
 }
@@ -2511,9 +2506,9 @@ void creature::view_ability() {
 		y += buttonx(x, y, 0, KeyLeft, prev_portrait, 0);
 		y += buttonx(x, y, 0, KeyRight, next_portrait, 0);
 		x = 148; y = 104;
-		zprint(temp, "%1 %2", getstr(getrace()), getstr(getgender()));
+		zprint(temp, "%1 %2", bsdata<racei>::elements[getrace()].name, bsdata<genderi>::elements[getgender()].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
-		zprint(temp, getstr(type));
+		zprint(temp, bsdata<classi>::elements[type].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
 		render_ability(148, 128, 32, TextBold);
 		render_combat(224, 128, 32, TextBold);
@@ -2528,7 +2523,7 @@ static gender_s choosegender(bool interactive) {
 	if(interactive) {
 		answers source;
 		for(auto i = Male; i <= Female; i = (gender_s)(i + 1))
-			source.add(i, getstr(i));
+			source.add(i, bsdata<genderi>::elements[i].name);
 		return (gender_s)source.choose("Select Gender:");
 	} else {
 		// RULE: Male are most common as adventurers
@@ -2544,7 +2539,7 @@ alignment_s creature::choosealignment(bool interactive, class_s depend) {
 	for(auto i = FirstAlignment; i <= LastAlignment; i = (alignment_s)(i + 1)) {
 		if(!creature::isallow(i, depend))
 			continue;
-		source.add(i, getstr(i));
+		source.add(i, bsdata<alignmenti>::elements[i].name);
 	}
 	return (alignment_s)source.choose("Select Alignment:", interactive);
 }
@@ -2553,7 +2548,7 @@ race_s creature::chooserace(bool interactive) {
 	if(interactive) {
 		answers source;
 		for(auto i = Dwarf; i <= Human; i = (race_s)(i + 1))
-			source.add(i, getstr(i));
+			source.add(i, bsdata<racei>::elements[i].name);
 		source.sort();
 		return (race_s)source.choose("Select Race:");
 	} else {
@@ -2570,7 +2565,7 @@ class_s creature::chooseclass(bool interactive, race_s race) {
 	for(auto i = Cleric; i <= MageTheif; i = (class_s)(i + 1)) {
 		if(!creature::isallow(i, race))
 			continue;
-		source.add(i, getstr(i));
+		source.add(i, bsdata<classi>::elements[i].name);
 	}
 	source.sort();
 	return (class_s)source.choose("Select Class:", interactive);
@@ -2605,9 +2600,9 @@ static void apply_change_character() {
 		current_player->view_portrait(205, 66);
 		auto pn = current_player->getname();
 		text(x + (width - draw::textw(pn)) / 2, y, pn, -1, TextBold); y += draw::texth() + 1;
-		sb.clear(); sb.add("%1 %2", getstr(race), getstr(gender));
+		sb.clear(); sb.add("%1 %2", bsdata<racei>::elements[race].name, bsdata<genderi>::elements[gender].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 1;
-		sb.clear(); sb.add(getstr(type));
+		sb.clear(); sb.add(bsdata<classi>::elements[type].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 1;
 		current_player->render_ability(148, 128, 32, TextBold);
 		current_player->render_combat(224, 128, 32, TextBold);
@@ -2707,7 +2702,7 @@ void creature::preparespells(class_s type) {
 	}
 	if(!source) {
 		sb.clear();
-		sb.add("You don't have any %1 in party.", getstr(type));
+		sb.add("You don't have any %1 in party.", bsdata<classi>::elements[type].name);
 		dlgmsg(temp);
 		return;
 	}
@@ -2747,7 +2742,7 @@ void creature::preparespells(class_s type) {
 		for(auto& e : result) {
 			sznum(temp, pc->getprepare(e));
 			text(aligned(x, menu_width, AlignRight, textw(temp)), y, temp, -1, TextBold);
-			labelt(x, y, menu_width - 8 * 2, getstr(e), &e, 0);
+			labelt(x, y, menu_width - 8 * 2, bsdata<spelli>::elements[e].name, &e, 0);
 			if(y >= ym)
 				break;
 		}

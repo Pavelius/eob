@@ -610,6 +610,7 @@ struct imagei {
 	unsigned short		frame;
 	constexpr explicit operator bool() const { return res != NONE; }
 	void				add(stringbuilder& sb) const;
+	void				clear() { memset(this, 0, sizeof(*this)); }
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
 };
@@ -1232,6 +1233,8 @@ struct adventurei : textable, historyi {
 	sitei				levels[8];
 	void				activate() { if(!stage) stage++; }
 	void				create(bool interactive) const;
+	void				enter();
+	int					getindex() const { return this - bsdata<adventurei>::elements; }
 	bool				isactive() const { return stage > 0; }
 	bool				isrumor() const { return rumor_activate && (stage == 0); }
 	static void			play();
@@ -1390,24 +1393,24 @@ class answers {
 		int				id;
 		const char*		text;
 	};
-	static imagei		last_image;
 public:
 	answers();
 	adat<element, 32>	elements;
+	static imagei		last_image;
 	void				add(int id, const char* name, ...) { addv(id, name, xva_start(name)); }
 	void				addv(int id, const char* name, const char* format);
+	void				clear() { elements.clear(); sc.clear(); }
 	int					choose(const char* title) const;
 	int					choose(const char* title, bool interactive) const;
 	int					choose(const char* format, const char* header, int* current_level, creature** current_creature, const creaturea* allowed, fnint getnumber) const;
-	int					choosebg(const char* title, const imagei& ei, bool herizontal_buttons) const;
-	int					choosebg(const char* title, bool herizontal_buttons = true) const;
+	int					choosehz(const char* title) const;
+	int					choosebg(const char* title) const;
 	int					choosesm(const char* title, bool allow_cancel = true) const;
 	int					choosemn(const char* title, bool allow_cancel = true) const;
 	int					choosemn(int x, int y, int width, resource_s id) const;
 	static int			compare(const void* v1, const void* v2);
 	static void			clearimage();
 	static void			message(const char* format);
-	static void			message(const char* format, const imagei& im);
 	int					random() const;
 	static void			set(const imagei& v) { last_image = v; }
 	void				sort();
@@ -1433,6 +1436,7 @@ void*					getfocus();
 void					greenbar(rect rc, int vc, int vm);
 int						header(int x, int y, const char* text);
 void					initialize();
+bool					isallowmodal();
 bool					isfocus(void* ev, unsigned param = 0);
 void					itemicn(int x, int y, item itm, unsigned char alpha = 0xFF, int spell = 0);
 void					itemicn(int x, int y, item* pitm, bool invlist = false, unsigned flags = 0, void* current_item = 0);

@@ -155,7 +155,8 @@ static item_s random_subtype(item_s type) {
 	static item_s gems[] = {GreenGem, GreenGem, GreenGem, GreenGem, BlueGem, BlueGem, BlueGem, RedGem, RedGem, PurpleGem};
 	static item_s weapons[] = {AxeBattle, Club, Flail, Halberd, HammerWar, Mace, Spear, Staff, Bow, Sling};
 	static item_s swords[] = {Dagger, SwordBastard, SwordLong, SwordShort, SwordTwoHanded};
-	static item_s armors[] = {Robe,
+	static item_s armors[] = {
+		Robe,
 		ArmorLeather, ArmorLeather, ArmorLeather, ArmorLeather,
 		ArmorStuddedLeather, ArmorStuddedLeather,
 		ArmorScale, ArmorScale,

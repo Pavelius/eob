@@ -41,7 +41,7 @@ static const chati* find(talk_s id, encounteri& scene, const aref<chati>& source
 static void prompt(const char* title) {
 	answers aw;
 	aw.add(1, "Next");
-	aw.choosebg(title, {}, true);
+	aw.choosehz(title);
 }
 
 static void prompt(encounteri& scene, const char* title, const cflags<action_s>& actions) {
@@ -53,7 +53,7 @@ static void prompt(encounteri& scene, const char* title, const cflags<action_s>&
 			continue;
 		aw.add(i, bsdata<actioni>::elements[i].name);
 	}
-	auto i = (action_s)aw.choosebg(title, {}, true);
+	auto i = (action_s)aw.choosehz(title);
 	scene.apply(i, true);
 }
 

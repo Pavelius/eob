@@ -1,6 +1,6 @@
 #include "main.h"
 
-imagei	answers::last_image;
+imagei answers::last_image;
 
 int answers::compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
@@ -30,26 +30,29 @@ int answers::choose(const char* title, bool interactive) const {
 	return random();
 }
 
-int	answers::choosebg(const char* title, bool horizontal_buttons) const {
-	char temp[400]; auto p = title;
-	imagei im = {};
+static void pause(const char* format) {
+	answers aw;
+	aw.add(1, "Continue");
+	aw.choosehz(format);
+}
+
+int	answers::choosebg(const char* title) const {
+	auto push_image = last_image;
+	char temp[512]; auto p = title;
+	last_image.clear();
 	temp[0] = 0;
 	while(p && *p) {
 		if(temp[0])
-			message(temp, im);
-		p = richtexti::parse(p, im, temp, temp + sizeof(temp));
+			pause(temp);
+		p = richtexti::parse(p, last_image, temp, temp + sizeof(temp));
 	}
-	return choosebg(temp, im, horizontal_buttons);
+	auto result = choosehz(temp);
+	last_image = push_image;
+	return result;
 }
 
 void answers::message(const char* format) {
 	answers aw;
 	aw.add(1, "Continue");
 	aw.choosebg(format);
-}
-
-void answers::message(const char* format, const imagei& im) {
-	answers aw;
-	aw.add(1, "Continue");
-	aw.choosebg(format, im, true);
 }

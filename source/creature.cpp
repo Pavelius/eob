@@ -963,7 +963,8 @@ static bool read_message(creature* pc, dungeoni* pd, dungeoni::overlayi* po) {
 	switch(po->subtype) {
 	case MessageHabbits:
 		pc->say("%1 and %2 dwelve this halls",
-			getstr(pd->head.habbits[0]), getstr(pd->head.habbits[1]));
+			bsdata<monsteri>::elements[pd->head.habbits[0]].name,
+			bsdata<monsteri>::elements[pd->head.habbits[1]].name);
 		break;
 	case MessageMagicWeapons:
 		if(!pd->stat.weapons)
@@ -996,7 +997,8 @@ static bool read_message(creature* pc, dungeoni* pd, dungeoni::overlayi* po) {
 			pc->say("There is %1i mighty artifacts nearby", pd->stat.artifacts);
 		break;
 	default:
-		pc->say("%1 eat his friends", getstr(pd->head.habbits[0]));
+		pc->say("%1 eat his friends",
+			bsdata<monsteri>::elements[pd->head.habbits[0]].name);
 		break;
 	}
 	return true;
@@ -1517,12 +1519,13 @@ void creature::scribe(item& it) {
 		return;
 	}
 	auto sp = (spell_s)sv.value;
+	auto spn = bsdata<spelli>::elements[sp].name;
 	if(roll(LearnSpell)) {
 		setknown(sp);
-		mslog("%1 learn %2 spell", getname(), getstr(sp));
+		mslog("%1 learn %2 spell", getname(), spn);
 		addexp(100);
 	} else
-		mslog("%1 don't learn %2 spell", getname(), getstr(sp));
+		mslog("%1 don't learn %2 spell", getname(), spn);
 	it.clear();
 }
 

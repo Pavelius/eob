@@ -275,7 +275,8 @@ void nameable::say(const item& it, const char* format) const {
 }
 
 void nameable::say(spell_s id) const {
-	mslog("%1 cast %2", getname(), getstr(id));
+	auto spn = bsdata<spelli>::elements[id].name;
+	mslog("%1 cast %2", getname(), spn);
 }
 
 void nameable::sayv(const char* format, const char* vl) const {

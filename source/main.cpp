@@ -306,10 +306,9 @@ void gamei::newgame() {
 	if(game.intro)
 		answers::message(game.intro.getname());
 	draw::resetres();
-	game.equiping();
 	game.passtime(12 * 60);
 	game.write();
-	game.enter(0, 1);
+	setnext(game.playcity);
 }
 
 int main(int argc, char* argv[]) {
@@ -320,7 +319,6 @@ int main(int argc, char* argv[]) {
 	fore = colors::white;
 	setbigfont();
 	setnext(mainmenu);
-	//setnext(game.playcity);
 	application();
 }
 

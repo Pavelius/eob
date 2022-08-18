@@ -91,7 +91,6 @@ template<class T> inline T			imin(T a, T b) { return a < b ? a : b; }
 template<class T> inline T			iabs(T a) { return a > 0 ? a : -a; }
 template<class T> inline void		iswap(T& a, T& b) { T i = a; a = b; b = i; }
 // Inline sequence functions
-template<class T> inline void		seqclear(T* p) { auto z = p->next; while(z) { auto n = z->next; z->next = 0; delete z; z = n; } p->next = 0; } // Use to clean up sequenced resources if destructor. Use it like 'clear(this)'.
 template<class T> inline T*			seqlast(T* p) { while(p->next) p = p->next; return p; } // Return last element in sequence.
 template<class T> inline void		seqlink(T* p) { p->next = 0; if(!T::first) T::first = p; else seqlast(T::first)->next = p; }
 // Inline strings functions
@@ -283,16 +282,6 @@ struct serializer {
 	virtual void				set(const char* id, const char* v, type_s type = Text) = 0;
 	virtual void				close(const char* id, type_s type = Text) = 0;
 };
-// Get object presentation
-template<class T> const char* getstr(const T e) { return bsdata<T>::elements[e].name; }
-// Untility structures
-template<typename T, T v> struct static_value { static constexpr T value = v; };
-template<int v> struct static_int : static_value<int, v> {};
-// Get array elments
-template<class T> struct meta_count : static_int<1> {};
-template<class T, unsigned N> struct meta_count<T[N]> : static_int<N> {};
-template<class T> struct meta_count<T[]> : static_int<0> {};
-template<class T, unsigned N> struct meta_count<adat<T, N>> : static_int<N> {};
 // Get base type
 template<class T> struct meta_decoy { typedef T value; };
 template<> struct meta_decoy<const char*> { typedef const char* value; };
