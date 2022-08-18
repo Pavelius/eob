@@ -22,4 +22,4 @@ BSDATA(racei) = {
 	{0, "Animal", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}},
 };
 assert_enum(race, Animal)
-INSTELEM(racei)
+BSDATAF(racei)

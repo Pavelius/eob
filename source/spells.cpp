@@ -69,7 +69,7 @@ BSDATA(spelli) = {
 	{"Turn Undead", {0, 1}, TargetAllClose, {TurnUndead}, MagicThrown},
 };
 assert_enum(spell, TurnUndead)
-INSTELEM(spelli)
+BSDATAF(spelli)
 
 int	creature::getlevel(spell_s id, class_s type) {
 	switch(type) {

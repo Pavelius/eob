@@ -19,7 +19,7 @@
 #define BSDATAC(e, c) e bsdata<e>::elements[c]; array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define BSLNK(R, S) template<> struct bsdata<R> : bsdata<S> {};
 #define NOBSDATA(e) template<> struct bsdata<e> : bsdata<int> {};
-#define INSTELEM(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
+#define BSDATAF(e) template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 #define FO(c, f) (unsigned)(&((c*)0)->f)
 
 extern "C" int						atexit(void(*func)(void));

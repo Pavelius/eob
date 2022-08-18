@@ -18,4 +18,4 @@ BSDATA(enchanti) = {
 	{"Wizardy"},
 };
 assert_enum(enchant, OfWizardy)
-INSTELEM(enchanti)
+BSDATAF(enchanti)

@@ -93,4 +93,4 @@ classi bsdata<classi>::elements[] = {{"Monster", 0, 8, Strenght, {}, {UseLeather
 {NoExeptionalStrenght}, {0, 9, 0, 9, 0, 0}, {Elf, HalfElf}, {&wizard_spells}},
 };
 assert_enum(class, MageTheif)
-INSTELEM(classi)
+BSDATAF(classi)

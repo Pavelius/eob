@@ -32,4 +32,4 @@ BSDATA(celli) = {{"Unknown", NONE, -1, {Passable}},
 {"Door button", NONE, -1, {LookOverlay}},
 };
 assert_enum(cell, CellDoorButton)
-INSTELEM(celli)
+BSDATAF(celli)

@@ -38,7 +38,7 @@ BSDATA(abilityi) = {
 	{"Exeptional Strenght"},
 };
 assert_enum(ability, ExeptionalStrenght)
-INSTELEM(abilityi)
+BSDATAF(abilityi)
 
 bool abilityi::allow(class_s v) const {
 	for(auto i = 0; i < 3; i++) {

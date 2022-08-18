@@ -389,7 +389,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 					auto power = wi.weapon->getpower();
 					if(power.type == Spell) {
 						auto spell = (spell_s)power.value;
-						if(bsdata<spelli>::elements[spell].effect.type.type = Damage)
+						if(bsdata<spelli>::elements[spell].effect.type.type == Damage)
 							cast(spell, Mage, wi.weapon->getmagic(), defender);
 						else
 							cast(spell, Mage, wi.weapon->getmagic(), this);
@@ -1362,14 +1362,13 @@ void creature::setmoved(bool value) {
 }
 
 reaction_s creature::rollreaction(int bonus) const {
-	static reaction_s indifferent[19] = {Friendly, Friendly,
+	static reaction_s result_table[19] = {Friendly, Friendly,
 		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
 		Hostile, Hostile, Hostile, Hostile, Hostile, Hostile,
 		Hostile, Hostile, Hostile, Hostile, Hostile};
 	bonus += party.getaverage(ReactionBonus);
 	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));
-	auto result_table = indifferent;
 	return result_table[result - 2];
 }
 

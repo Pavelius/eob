@@ -27,7 +27,7 @@ BSDATA(equipmenti) = {
 	{1, {Theif}, TheifTools},
 	{1, {Cleric}, {BluePotion, CureLightWounds}},
 };
-INSTELEM(equipmenti);
+BSDATAF(equipmenti);
 
 void creature::random_equipment(int level) {
 	for(auto& e : bsdata<equipmenti>()) {

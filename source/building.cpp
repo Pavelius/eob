@@ -14,5 +14,5 @@ BSDATA(buildingi) = {{"Arena"},
 {"Temple", "#BUILDNGS 8\nSilent temple of good god. You can heal here and keep you soul in safe.", {HealAction, Sacrifice, Donate}},
 {"Tower", "#BUILDNGS 3\nIn this shop you can buy or sell weird magical devices and can identify weird items.", {Buy, Sell}, {Devices}},
 };
-INSTELEM(buildingi)
+BSDATAF(buildingi)
 assert_enum(building, WizardTower)

@@ -30,4 +30,4 @@ BSDATA(weari) = {
 	{"Belt+2", 0},
 };
 assert_enum(wear, LastBelt)
-INSTELEM(weari)
+BSDATAF(weari)

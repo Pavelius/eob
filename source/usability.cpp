@@ -12,4 +12,4 @@ BSDATA(usabilityi) = {
 	{"Use arcane items"},
 	{"Use theif items"},
 };
-INSTELEM(usabilityi);
+BSDATAF(usabilityi);

@@ -83,7 +83,7 @@ BSDATA(resourcei) = {
 	{"ZOMBIE", PackMonster},
 };
 assert_enum(resource, ZOMBIE)
-INSTELEM(resourcei)
+BSDATAF(resourcei)
 
 void view_dungeon_reset();
 

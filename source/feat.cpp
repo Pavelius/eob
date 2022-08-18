@@ -19,4 +19,4 @@ BSDATA(feati) = {
 	{"Bonus hit points"},
 };
 assert_enum(feat, BonusHP)
-INSTELEM(feati)
+BSDATAF(feati)

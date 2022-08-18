@@ -8,4 +8,4 @@ BSDATA(sizei) = {
 	{"Large"},
 };
 assert_enum(size, Large)
-INSTELEM(sizei)
+BSDATAF(sizei)

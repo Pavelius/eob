@@ -27,7 +27,7 @@ BSDATA(actioni) = {
 	{"Experience"},
 };
 assert_enum(action, Experience)
-INSTELEM(actioni)
+BSDATAF(actioni)
 
 BSDATA(talki) = {
 	{"Greeting"},
@@ -40,7 +40,7 @@ BSDATA(talki) = {
 	{"Talk about history this place", {Friendly}},
 	{"Rumor", {Friendly}},
 };
-INSTELEM(talki)
+BSDATAF(talki)
 
 BSDATA(actionseti) = {
 	{"Attack 1-3", Attack, 1, 3},
@@ -56,7 +56,7 @@ BSDATA(actionseti) = {
 	{"Pay 5 gold coins", Pay, 5, 0, {CheckCondition}},
 	{"Pay 10 gold coins", Pay, 10, 0, {CheckCondition}},
 };
-INSTELEM(actionseti)
+BSDATAF(actionseti)
 
 int	actionseti::roll() const {
 	if(count2)

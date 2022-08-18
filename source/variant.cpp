@@ -34,7 +34,7 @@ BSDATA(varianti) = {
 	{"Spell", "spells", {}, FORM(spelli)},
 };
 assert_enum(variant, Spell)
-INSTELEM(varianti)
+BSDATAF(varianti)
 
 const unsigned creature_players_base = 240;
 

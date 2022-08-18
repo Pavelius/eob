@@ -29,7 +29,7 @@ monsteri bsdata<monsteri>::elements[] = {
 	{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
 };
 assert_enum(monster, StaticObject);
-INSTELEM(monsteri);
+BSDATAF(monsteri);
 
 bool monsteri::is(variant id) const {
 	return enchantments[0] == id

@@ -336,7 +336,7 @@ BSDATA(itemi) = {
 	{"Flame hand", Common, {81}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, Ranged}, {2, Fire, -1, {1, 4, 1}, {}}},
 };
 assert_enum(item, LastItem)
-INSTELEM(itemi);
+BSDATAF(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
 
 static unsigned char find_power(const aref<enchantmenti>& source, variant v) {

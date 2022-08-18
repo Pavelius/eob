@@ -14,4 +14,4 @@ BSDATA(damagei) = {
 	{"Petrification"},
 };
 assert_enum(damage, Petrification)
-INSTELEM(damagei)
+BSDATAF(damagei)

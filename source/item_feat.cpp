@@ -19,4 +19,4 @@ BSDATA(itemfeati) = {
 	{"Unique"},
 };
 assert_enum(itemfeat, Unique)
-INSTELEM(itemfeati)
+BSDATAF(itemfeati)
