@@ -69,6 +69,9 @@
     <ClInclude Include="dataset.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -301,6 +304,9 @@
     </ClCompile>
     <ClCompile Include="city.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Поддержка</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

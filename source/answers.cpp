@@ -52,6 +52,8 @@ int	answers::choosebg(const char* title) const {
 }
 
 void answers::message(const char* format) {
+	if(!format || !format[0])
+		return;
 	answers aw;
 	aw.add(1, "Continue");
 	aw.choosebg(format);

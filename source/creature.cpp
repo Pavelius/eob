@@ -966,6 +966,13 @@ static bool read_message(creature* pc, dungeoni* pd, dungeoni::overlayi* po) {
 			bsdata<monsteri>::elements[pd->head.habbits[0]].name,
 			bsdata<monsteri>::elements[pd->head.habbits[1]].name);
 		break;
+	case MessageSpecialItem:
+		if(pd->head.wands) {
+			pc->say("Find %1 somewhere on this level",
+				bsdata<itemi>::elements[pd->head.wands].name);
+		} else
+			pc->say("Treat wounds and rest when in need");
+		break;
 	case MessageMagicWeapons:
 		if(!pd->stat.weapons)
 			pc->say("You don't find any magic weapon here");

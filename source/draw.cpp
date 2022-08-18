@@ -1401,7 +1401,7 @@ int draw::textf(int x0, int y0, int width, const char** string, color c1, int* m
 		// Отметим перевод строки и окончание строки
 		if(p[0] == 0 || p[0] == 10 || p[0] == 13) {
 			y += texth();
-			p = szskipcr(p);
+			p = skipcr(p);
 			break;
 		}
 	}

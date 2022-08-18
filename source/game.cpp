@@ -479,6 +479,7 @@ void gamei::enter(unsigned short index, char level, bool set_camera) {
 
 void adventurei::enter() {
 	game.passtime(xrand(60 * 3, 60 * 18));
+	answers::message(message_entering.getname());
 	game.equiping();
 	game.enter(getindex(), 1);
 }
@@ -606,14 +607,9 @@ void gamei::returntobase() {
 		if(p)
 			p->removeloot();
 	}
-	// Return to settlement
-	auto pa = getadventure();
-	if(pa)
-		draw::setnext(play);
-	else
-		draw::setnext(play);
 	location.clear();
 	location_above.clear();
+	draw::setnext(game.playcity);
 }
 
 //void gamei::render_worldmap(void* object) {

@@ -77,7 +77,7 @@ char*								szprint(char* result, const char* result_maximum, const char* forma
 char*								szprintv(char* result, const char* result_maximum, const char* format, const char* format_param);
 void								szput(char** output, unsigned u, codepages page = metrics::code);
 char*								szput(char* output, unsigned u, codepages page = metrics::code); // Fast symbol put function. Return 'output'.
-const char*							szskipcr(const char* p);
+const char*							skipcr(const char* p);
 const char*							szskipcrr(const char* p0, const char* p);
 unsigned							szupper(unsigned u);
 char*								szupper(char* p, int count = 1); // to upper reg

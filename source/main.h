@@ -81,7 +81,8 @@ enum target_s : unsigned char {
 };
 enum message_s : unsigned char {
 	MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
-	MessageAtifacts, MessageHabbits,
+	MessageAtifacts, MessageSpecialItem,
+	MessageHabbits
 };
 enum spell_s : unsigned char {
 	Moved,
