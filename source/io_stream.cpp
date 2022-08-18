@@ -84,7 +84,7 @@ char* szurlc(char* result) {
 			*p = '/';
 		p++;
 	}
-	return zskipspcr(result);
+	return (char*)skipspcr(result);
 }
 
 char* szurl(char* p, const char* path, const char* name, const char* ext, const char* suffix) {

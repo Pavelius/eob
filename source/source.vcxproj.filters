@@ -16,8 +16,8 @@
     <Filter Include="Логика">
       <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ресурсы">
-      <UniqueIdentifier>{c435d3ae-b52e-4ec7-9224-3bdb377b9bfa}</UniqueIdentifier>
+    <Filter Include="Данные">
+      <UniqueIdentifier>{9d5c7a29-5697-48ba-96b5-c3b82d207b00}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +70,9 @@
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="variable.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
   </ItemGroup>
@@ -257,9 +260,6 @@
     <ClCompile Include="avatar.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="textable.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="building.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -267,9 +267,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="cell.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="deck.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="form.cpp">
@@ -308,13 +305,33 @@
     <ClCompile Include="log.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+    <ClCompile Include="quest.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="variable.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="szdup.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\import\western_heartlands.json">
-      <Filter>Ресурсы</Filter>
+      <Filter>Данные</Filter>
     </None>
     <None Include="cpp.hint">
-      <Filter>Ресурсы</Filter>
+      <Filter>Данные</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\company\Rogue.txt">
+      <Filter>Данные</Filter>
+    </Text>
+    <Text Include="..\errors.txt">
+      <Filter>Данные</Filter>
+    </Text>
   </ItemGroup>
 </Project>

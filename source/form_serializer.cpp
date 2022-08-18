@@ -29,8 +29,7 @@ static const char* getheader(const char* title, int index) {
 }
 
 static bool expand_group(const markup* p) {
-	return p == dginf<point>::meta
-		|| p == dginf<historyi>::meta;
+	return p == dginf<point>::meta;
 }
 
 static bool emphty_value(const char* value) {
@@ -181,10 +180,7 @@ bool gamei::readtext(const char* url) {
 				if(!f)
 					return;
 				auto pv = f->value.ptr(object);
-				if(f->list.getname == getnm<textable> && !f->value.source) {
-					textable v; v.setname(value);
-					f->set(pv, f->value.size, v.name);
-				} else if(f->list.getname == getnm<variant>) {
+				if(f->list.getname == getnm<variant>) {
 					variant v = variant::find(value);
 					f->set(pv, f->value.size, *((short unsigned*)&v));
 				} else if(e.type == serializer::Number) {

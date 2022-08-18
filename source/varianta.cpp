@@ -50,21 +50,6 @@ void variantc::match(fnadventure proc, bool keep) {
 	count = p - data;
 }
 
-void variantc::match(point start, int radius, bool keep) {
-	auto p = data;
-	for(auto& e : *this) {
-		if(e.type == Settlement) {
-			auto& ei = bsdata<settlementi>::elements[e.value];
-			auto v = ei.position.range(start) <= radius;
-			if(v != keep)
-				continue;
-		} else
-			continue;
-		*p++ = e;
-	}
-	count = p - data;
-}
-
 void variantc::match(variant v, bool keep) {
 	auto p = data;
 	for(auto& e : *this) {

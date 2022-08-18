@@ -42,7 +42,7 @@ template<> const char* getnm<casei>(const void* object, stringbuilder& sb) {
 	return ((casei*)object)->name;
 }
 template<> const char* getnm<companyi>(const void* object, stringbuilder& sb) {
-	return ((companyi*)object)->getname();
+	return ((companyi*)object)->name;
 }
 template<> const char* getnm<actionseti>(const void* object, stringbuilder& sb) {
 	return ((actionseti*)object)->name;
@@ -50,20 +50,14 @@ template<> const char* getnm<actionseti>(const void* object, stringbuilder& sb) 
 template<> const char* getnm<enchanti>(const void* object, stringbuilder& sb) {
 	return ((enchanti*)object)->name;
 }
-template<> const char* getnm<eventi>(const void* object, stringbuilder& sb) {
-	return ((eventi*)object)->id.getname();
-}
 template<> const char* getnm<moralei>(const void* object, stringbuilder& sb) {
 	return ((moralei*)object)->name;
 }
 template<> const char* getnm<spelli>(const void* object, stringbuilder& sb) {
 	return ((spelli*)object)->name;
 }
-template<> const char* getnm<textable>(const void* object, stringbuilder& sb) {
-	return ((textable*)object)->getname();
-}
 template<> const char* getnm<settlementi>(const void* object, stringbuilder& sb) {
-	return ((settlementi*)object)->getname();
+	return ((settlementi*)object)->name;
 }
 template<> const char* getnm<item>(const void* object, stringbuilder& sb) {
 	auto p = (item*)object;
@@ -366,9 +360,6 @@ DGINF(point) = {
 	{"x", DGREQ(x)},
 	{"y", DGREQ(y)},
 	{}};
-DGINF(textable) = {
-	{0, DGREQ(name), {getnm<textable>, 0, textable::edit}},
-	{}};
 DGINF(dice) = {
 	{"Count", DGREQ(c)},
 	{"Dice", DGREQ(d)},
@@ -487,51 +478,6 @@ DGINF(racei) = {
 	{"#chk usabilities", DGREQ(usability), {getnm<usabilityi>}},
 	{"#adc skills", DGREQ(skills), {getnm<abilityi>}},
 	{}};
-DGINF(sitei) = {
-	{"Resource", DGREQ(head.type), {getnm<resourcei>, dungeon_resources, 0, resourcei::preview, 130}},
-	{"Monster 1", DGREQ(head.habbits[0]), {getnm<monsteri>}},
-	{"Monster 2", DGREQ(head.habbits[1]), {getnm<monsteri>}},
-	{"Key 1", DGREQ(head.keys[0]), {getnm<itemi>, key_items}},
-	{"Key 2", DGREQ(head.keys[1]), {getnm<itemi>, key_items}},
-	{"Special", DGREQ(head.wands), {getnm<itemi>, unique_items}},
-	{"Language", DGREQ(head.language), {getnm<racei>}},
-	{"Curse item", DGREQ(chance.curse)},
-	{"Levels", DGREQ(levels)},
-	{"Boss", DGREQ(crypt.boss), {getnm<monsteri>}},
-	{}};
-DGINF(historyi) = {
-	{"Stage 1", DGREQ(history[0]), {getnm<textable>, 0, textable::edit}},
-	{"Stage 2", DGREQ(history[1]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 3", DGREQ(history[2]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 4", DGREQ(history[3]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 5", DGREQ(history[4]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 6", DGREQ(history[5]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 7", DGREQ(history[6]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 8", DGREQ(history[7]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 9", DGREQ(history[8]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 10", DGREQ(history[9]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 11", DGREQ(history[10]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{"Stage 12", DGREQ(history[11]), {getnm<textable>, 0, textable::edit}, {0, 0, visible_history}},
-	{}};
-DGINF(adventurei) = {
-	{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
-	{"Rumor", DGREQ(rumor_activate), {getnm<textable>, 0, textable::edit}},
-	{"Briefing", DGREQ(message_before), {getnm<textable>, 0, textable::editrich}},
-	{"Accepted", DGREQ(message_agree), {getnm<textable>, 0, textable::editrich}},
-	{"Entering", DGREQ(message_entering), {getnm<textable>, 0, textable::editrich}},
-	{"Done", DGREQ(message_done), {getnm<textable>, 0, textable::editrich}},
-	{"Fail", DGREQ(message_fail), {getnm<textable>, 0, textable::editrich}},
-	{"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
-	{"History", DGINH(historyi, history), {getnm<historyi>, 0, choose_history}},
-	{"#tab Part 1", DGREQ(levels[0])},
-	{"#tab Part 2", DGREQ(levels[1]), {}, {0, 0, visible_level}},
-	{"#tab Part 3", DGREQ(levels[2]), {}, {0, 0, visible_level}},
-	{"#tab Part 4", DGREQ(levels[3]), {}, {0, 0, visible_level}},
-	{"#tab Part 5", DGREQ(levels[4]), {}, {0, 0, visible_level}},
-	{"#tab Part 6", DGREQ(levels[5]), {}, {0, 0, visible_level}},
-	{"#tab Part 7", DGREQ(levels[6]), {}, {0, 0, visible_level}},
-	{"#tab Part 8", DGREQ(levels[7]), {}, {0, 0, visible_level}},
-	{}};
 DGINF(abilitya) = {
 	{"Strenght", DGREQ(data[0])},
 	{"Dexterity", DGREQ(data[1])},
@@ -540,67 +486,6 @@ DGINF(abilitya) = {
 	{"Wisdow", DGREQ(data[4])},
 	{"Charisma", DGREQ(data[5])},
 	{}};
-DGINF(companyi) = {
-	{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
-	{"Introducion", DGREQ(intro), {getnm<textable>, 0, textable::editrich}},
-	{"Start", DGENM(start, settlementi), {getnm<settlementi>}},
-	{"Start gold", DGREQ(start_gold)},
-	{"Pixels/day", DGREQ(pixels_per_day)},
-	{"#div Modules"},
-	{"Adventures", DGLST(adventurei), {getnm<adventurei>}},
-	{"Characters", DGLST(creature), {getnm<creature>}},
-	{"Events", DGLST(eventi), {getnm<eventi>}},
-	{"Settlements", DGLST(settlementi), {getnm<settlementi>}},
-	{}};
 DGINF(imagei) = {
 	{0, DGREQ(res), {getnm<resourcei>, 0, 0, resourcei::preview, 130}},
-	{}};
-DGINF(settlementi) = {
-	{"Name", DGREQ(name), {getnm<textable>, 0, textable::edit}},
-	{"Image", DGREQ(image), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Position", DGREQ(position), {getnm<point>, 0, choose_wordmap_point}},
-	{"Description", DGREQ(description), {getnm<textable>, 0, textable::edit}},
-	{"Prosperty", DGREQ(prosperty)},
-	{"#chk Buildings", DGREQ(buildings), {getnm<buildingi>}},
-	{}};
-DGINF(richtexti) = {
-	{"", DGREQ(images[0]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 1", DGREQ(data[0])},
-	{"", DGREQ(images[1]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 2", DGREQ(data[1])},
-	{"", DGREQ(images[2]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 3", DGREQ(data[2])},
-	{"#div"},
-	{"", DGREQ(images[3]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 4", DGREQ(data[3])},
-	{"", DGREQ(images[4]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 5", DGREQ(data[4])},
-	{"", DGREQ(images[5]), {getnm<imagei>, scene_resources, imagei::choose}},
-	{"Enter text 6", DGREQ(data[5])},
-	{}};
-DGINF(eventi) = {
-	{"ID", DGREQ(id), {getnm<textable>, 0, textable::edit}},
-	{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
-	{"1)", DGREQ(ask[0]), {getnm<textable>, 0, textable::edit}},
-	{"2)", DGREQ(ask[1]), {getnm<textable>, 0, textable::edit}},
-	{"Starting", DGCHK(flags, 1 << eventi::Start)},
-	{"Wilderness event", DGCHK(flags, 1 << eventi::Wilderness)},
-	{"#tab Result 1", DGREQ(results[0])},
-	{"#tab Result 2", DGREQ(results[1])},
-	{"#tab Result 3", DGREQ(results[2])},
-	{"#tab Result 4", DGREQ(results[3])},
-	{}};
-DGINF(resultable) = {
-	{"Text", DGREQ(name), {getnm<textable>, 0, textable::editrich}},
-	{"Action 1", DGREQ(actions[0]), {getnm<variant>, 0, choose_action_variant}},
-	{"Action 2", DGREQ(actions[1]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
-	{"Action 3", DGREQ(actions[2]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
-	{"Action 4", DGREQ(actions[3]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
-	{"Action 5", DGREQ(actions[4]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
-	{"Action 6", DGREQ(actions[5]), {getnm<variant>, 0, choose_action_variant}, {0, 0, visible_condition}},
-	{}};
-DGINF(actionseti) = {
-	{"Action", DGREQ(action), {getnm<actioni>}},
-	{"Count 1", DGREQ(count1)},
-	{"Count 2", DGREQ(count2)},
 	{}};

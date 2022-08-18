@@ -8,7 +8,6 @@ const bool visialize_map = false;
 const bool visialize_map = false;
 #endif // _DEBUG
 
-
 static const char place_sides[4][4] = {{1, 3, 0, 2},
 	{0, 1, 2, 3},
 	{2, 0, 3, 1},
@@ -440,8 +439,6 @@ void gamei::passround() {
 	// Every 4 hours update
 	while(rounds_daypart < rounds) {
 		rounds_daypart += 4 * 60;
-		for(auto& e : bsdata<settlementi>())
-			e.update();
 	}
 	if(location)
 		location.passround();
@@ -479,7 +476,7 @@ void gamei::enter(unsigned short index, char level, bool set_camera) {
 
 void adventurei::enter() {
 	game.passtime(xrand(60 * 3, 60 * 18));
-	answers::message(message_entering.getname());
+	answers::message(entering);
 	game.equiping();
 	game.enter(getindex(), 1);
 }
@@ -506,11 +503,7 @@ static bool addstatical(archive& a) {
 		return false;
 	if(!a.checksum(gamei::getchecksum()))
 		return false;
-	a.set(textable::getstrings());
-	a.set(bsdata<adventurei>::source);
 	a.set(bsdata<creature>::source);
-	a.set(bsdata<settlementi>::source);
-	a.set(bsdata<eventi>::source);
 	return true;
 }
 

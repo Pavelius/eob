@@ -147,6 +147,7 @@
     <ClInclude Include="rect.h" />
     <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="stringbuilder.h" />
+    <ClInclude Include="variable.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
   <ItemGroup>
@@ -169,7 +170,6 @@
     <ClCompile Include="creature_equipment.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="damage.cpp" />
-    <ClCompile Include="deck.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -204,8 +204,10 @@
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="markup.cpp" />
+    <ClCompile Include="metadata.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="nameable.cpp" />
+    <ClCompile Include="quest.cpp" />
     <ClCompile Include="settlement.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />
@@ -216,7 +218,8 @@
     <ClCompile Include="site.cpp" />
     <ClCompile Include="size.cpp" />
     <ClCompile Include="statable.cpp" />
-    <ClCompile Include="textable.cpp" />
+    <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="variable.cpp" />
     <ClCompile Include="varianta.cpp" />
     <ClCompile Include="spells.cpp" />
     <ClCompile Include="sprite_util.cpp">
@@ -238,6 +241,10 @@
   <ItemGroup>
     <None Include="..\import\western_heartlands.json" />
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\company\Rogue.txt" />
+    <Text Include="..\errors.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

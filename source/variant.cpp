@@ -7,21 +7,17 @@ static array game_source(&game, sizeof(companyi), 1);
 BSDATA(varianti) = {
 	{"None"},
 	{"Ability", "abilities", {Action}, FORM(abilityi)},
-	{"Action", "actions", {Action}, FORM(actioni)},
-	{"Action set", "action sets", {Action}, FORM(actionseti)},
-	{"Adventure", "adventures", {}, FORM(adventurei)},
+	{"Action", "actions", {Action}},
+	{"Adventure", "adventures", {}},
 	{"Alignment", "alignments", {Action}, FORM(alignmenti)},
-	{"Building", "buildings", {Action}, FORM(buildingi)},
 	{"Case", "cases", {Action}, FORM(casei)},
 	{"Cell", "cells"},
 	{"Class", "classes", {Action}, FORM(classi)},
 	{"Cleaveress", "cleveress"},
-	{"Company", "companies", {}, &game_source, getnm<companyi>, dginf<companyi>::meta},
 	{"Condition", "conditions", {Action}},
 	{"Creature", "creatures", {}, FORM(creature)},
 	{"Damage", "damages", {}, FORM(damagei)},
 	{"Enchant", "enchants", {}, FORM(enchanti)},
-	{"Event", "events", {}, FORM(eventi)},
 	{"Feat", "feats", {Action}, FORM(feati)},
 	{"Gender", "genders", {Action}, FORM(genderi)},
 	{"Item", "items", {Action}, FORM(itemi)},
@@ -30,7 +26,6 @@ BSDATA(varianti) = {
 	{"Rarity", "rarities"},
 	{"Reaction", "reactions", {Action}},
 	{"Resource", "resources"},
-	{"Settlement", "settlements", {}, FORM(settlementi)},
 	{"Spell", "spells", {}, FORM(spelli)},
 };
 assert_enum(variant, Spell)
@@ -101,11 +96,7 @@ const char* variant::getname() const {
 }
 
 point variant::getposition() const {
-	switch(type) {
-	case Settlement: return getsettlement()->position;
-	case Adventure: return getadventure()->position;
-	default: return {0, 0};
-	}
+	return {0, 0};
 }
 
 varianti* varianti::find(const markup* v) {

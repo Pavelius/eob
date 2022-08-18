@@ -7,6 +7,7 @@
 #include "rect.h"
 #include "stringbuilder.h"
 #include "markup.h"
+#include "variable.h"
 
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
 #define MNLNK(T1, T2) BSLNK(T1, T2) DGLNK(T1, T2)
@@ -81,7 +82,7 @@ enum target_s : unsigned char {
 };
 enum message_s : unsigned char {
 	MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
-	MessageAtifacts, MessageSpecialItem,
+	MessageAtifacts, MessageSpecialItem, MessageBoss,
 	MessageHabbits
 };
 enum spell_s : unsigned char {
@@ -259,9 +260,9 @@ enum talk_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Action, ActionSet, Adventure, Alignment, Building, Case, Cell, Class,
-	Cleveress, Company, Condition, Creature, Damage, Enchant, Event, Feat, Gender,
-	Item, Morale, Race, Rarity, Reaction, Resource, Settlement, Spell,
+	Ability, Action, Adventure, Alignment, Case, Cell, Class,
+	Cleveress, Condition, Creature, Damage, Enchant, Feat, Gender,
+	Item, Morale, Race, Rarity, Reaction, Resource, Spell,
 };
 enum case_s : unsigned char {
 	Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8, Case9,
@@ -317,7 +318,7 @@ struct variant {
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
-	constexpr variant(const building_s v) : type(Building), value(v) {}
+	//constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const cell_s v) : type(Cell), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
@@ -346,22 +347,10 @@ struct variant {
 	creature*			getcreature() const;
 	void*				getpointer(variant_s t) const;
 	point				getposition() const;
-	auto				getsettlement() const { return (settlementi*)getpointer(Settlement); }
 	const char*			getname() const;
 };
 typedef variant conditiona[6];
 struct varianta : adat<variant, 12> {
-};
-struct textable {
-	unsigned			name;
-	constexpr textable() : name(0) {}
-	constexpr explicit operator bool() const { return name != 0; }
-	operator const char*() const { return getname(); }
-	static bool			edit(void* object, const array& source, void* pointer);
-	static bool			editrich(void* object, const array& source, void* pointer);
-	const char*			getname() const;
-	void				setname(const char* name);
-	static array&		getstrings();
 };
 struct celli {
 	const char*			name;
@@ -572,7 +561,7 @@ struct packi {
 	bool				choose_frame;
 };
 struct resourcei {
-	char				name[16];
+	const char*			name;
 	pack_s				pack;
 	void*				data;
 	const packi&		gete() const { return bsdata<packi>::elements[pack]; }
@@ -614,38 +603,6 @@ struct imagei {
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
 	static bool			choose(void* object, const array& source, void* pointer);
-};
-struct resultable : public textable {
-	conditiona			actions;
-	bool				isallow() const;
-	settlementi*		getsettlement() const;
-	bool				have(variant v) const;
-};
-struct eventi : textable {
-	enum flag_s : unsigned char {
-		Start, Wilderness,
-	};
-	textable			id;
-	textable			ask[2];
-	resultable			results[4];
-	unsigned char		flags;
-	void				apply(case_s v, bool interactive) const;
-	void				clear();
-	void				discard() const;
-	bool				is(flag_s v) const { return (flags & (1 << v)) != 0; }
-	void				play() const;
-	void				set(flag_s v) { flags |= 1 << v; }
-	void				shufle() const;
-};
-class deck : adat<unsigned char, 256> {
-	variant_s			type;
-public:
-	void				addbottom(variant v);
-	void				create(variant_s v);
-	void				discard(variant v);
-	void				shuffle();
-	variant				getbottom();
-	variant				gettop();
 };
 struct sitei {
 	struct headi {
@@ -1218,32 +1175,31 @@ struct indexa : adat<indext, 8 * 8> {
 };
 struct historyi {
 	static constexpr unsigned history_max = 12;
-	textable			history[history_max];
+	const char*			history[history_max];
 	unsigned char		history_progress;
 	unsigned			gethistorymax() const;
 };
-struct adventurei : textable, historyi {
-	unsigned char		stage; // 0 - non active
-	textable			message_before;
-	textable			message_agree;
-	textable			message_entering;
-	textable			rumor_activate;
-	textable			message_done;
-	textable			message_fail;
-	point				position;
+struct adventurei : historyi {
+	const char*			name;
+	const char*			summary;
+	const char*			agree;
+	const char*			entering;
+	const char*			reward;
 	sitei				levels[8];
+	unsigned char		stage; // 0 - non active
 	void				activate() { if(!stage) stage++; }
+	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				create(bool interactive) const;
 	void				enter();
 	int					getindex() const { return this - bsdata<adventurei>::elements; }
-	bool				isactive() const { return stage > 0; }
-	bool				isrumor() const { return rumor_activate && (stage == 0); }
+	const char*			getname() const { return name; }
 	static void			play();
 };
-struct settlementi : textable {
+struct settlementi {
+	const char*			name;
 	imagei				image;
 	point				position;
-	textable			description;
+	const char*			description;
 	cflags<building_s>	buildings;
 	spellf				spells;
 	unsigned char		prosperty;
@@ -1261,13 +1217,15 @@ struct settlementi : textable {
 	void				play();
 	void				update();
 };
-struct companyi : textable {
+struct companyi {
+	const char*			name;
 	unsigned char		start; // starting settlement
-	textable			intro; // When start new game
+	const char*			intro; // When start new game
 	int					start_gold;
 	int					pixels_per_day;
 	bool				read(const char* name);
 	void				write(const char* name);
+	static void			readn(const char* url);
 };
 struct chati {
 	talk_s				action;
@@ -1363,14 +1321,14 @@ public:
 	static bool			writetext(const char* url, std::initializer_list<variant_s> source);
 	static bool			writetext(const char* url, variant_s id) { return writetext(url, {id}); }
 };
-struct richtexti {
-	static constexpr int maximum = 6;
-	imagei				images[maximum];
-	char				data[maximum][260];
-	bool				load(const char* source);
-	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
-	void				save(textable& result) const;
-};
+//struct richtexti {
+//	static constexpr int maximum = 6;
+//	imagei				images[maximum];
+//	char				data[maximum][260];
+//	bool				load(const char* source);
+//	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
+//	void				save(textable& result) const;
+//};
 class variantc : public adat<variant> {
 	typedef bool(adventurei::*fnadventure)() const;
 	void				match(fnadventure p, bool keep);
@@ -1380,8 +1338,6 @@ public:
 	void				exclude(variant v);
 	void				match(variant v, bool keep);
 	void				match(point start, int radius, bool keep);
-	void				matchrm(bool keep) { match(&adventurei::isrumor, keep); }
-	void				matchac(bool keep) { match(&adventurei::isactive, keep); }
 	void				matchsl(class_s type, int level);
 	void				select(variant_s type);
 	void				sort();
@@ -1499,9 +1455,7 @@ NOBSDATA(itemi::weaponi)
 NOBSDATA(itemi::armori)
 NOBSDATA(historyi)
 NOBSDATA(point)
-NOBSDATA(resultable)
 NOBSDATA(sitei)
-NOBSDATA(textable)
 NOBSDATA(variant)
 MNLNK(ability_s, abilityi)
 MNLNK(alignment_s, alignmenti)

@@ -59,6 +59,7 @@ unsigned							rmoptimal(unsigned need_count);
 void								rmremove(void* data, unsigned size, unsigned index, unsigned& count, int elements_count);
 void*								rmreserve(void* data, unsigned new_size);
 void								rmreserve(void** data, unsigned count, unsigned& count_maximum, unsigned size);
+inline const char*					skipspcr(const char* p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }
 float								sqrt(const float x); // Return aquare root of 'x'
 int									sz2num(const char* p1, const char** pp1 = 0);
 void								szencode(char* output, int output_count, codepages output_code, const char* input, int input_count, codepages input_code);
@@ -104,7 +105,6 @@ template<class T> inline int		zlen(T* p) { return zend(p) - p; }
 template<unsigned N> inline char*	zprint(char(&result)[N], const char* format, ...) { return szprintv(result, result + N - 1, format, (const char*)&format + sizeof(format)); }
 template<class T> inline void		zshuffle(T* p, int count) { for(int i = 0; i < count; i++) iswap(p[i], p[rand() % count]); }
 template<class T> inline T*			zskipsp(T* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
-template<class T> inline T*			zskipspcr(T* p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }
 // Storge like vector
 template<class T, int count_max = 128>
 struct adat {
@@ -217,6 +217,7 @@ public:
 	char*					begin() const { return (char*)data; }
 	void					clear();
 	char*					end() const { return (char*)data + size * count; }
+	void*					find(const char* value) const;
 	int						find(const char* value, unsigned offset) const;
 	int						find(void* value, unsigned offset, unsigned size) const;
 	unsigned				getmaximum() const { return count_maximum; }
@@ -244,6 +245,7 @@ template<typename T> struct bsdata {
 	static T*				add() { return (T*)source.add(); }
 	static constexpr T*		begin() { return elements; }
 	static constexpr T*		end() { return elements + source.getcount(); }
+	static T*				find(const char* id) { return (T*)source.find(id); }
 	static constexpr const T& get(int v) { return bsdata<T>::elements[v]; }
 };
 template<> struct bsdata<int> { static constexpr array*	source_ptr = 0; };

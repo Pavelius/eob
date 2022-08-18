@@ -329,6 +329,13 @@ int array::find(const char* value, unsigned offset) const {
 	return -1;
 }
 
+void* array::find(const char* value) const {
+	auto i = find(value, 0);
+	if(i == -1)
+		return 0;
+	return ptr(i);
+}
+
 int array::find(void* value, unsigned offset, unsigned size) const {
 	auto m = getcount();
 	for(unsigned i = 0; i < m; i++) {

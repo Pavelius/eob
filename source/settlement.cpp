@@ -114,7 +114,7 @@ variant settlementi::enter() {
 	}
 	sb.add("You reach a");
 	getdescriptor(sb);
-	sb.adds("named %1.", getname());
+	sb.adds("named %1.", name);
 	if(game.isnight())
 		sb.adds("There is night on street. Most buildings here were closed.");
 	answers aw;
@@ -326,25 +326,6 @@ static int getmaximumdistance(building_s b) {
 }
 
 static bool journey(settlementi& e, building_s b, bool run) {
-	variantc locations;
-	locations.clear();
-	locations.select(Settlement);
-	locations.exclude(&e);
-	locations.match(e.position, getmaximumdistance(b), true);
-	if(!locations)
-		return false;
-	if(run) {
-		sb.clear();
-		sb.adds("You can make journay to another settlement. Choose settlement you want to travel.");
-		answers aw;
-		aw.add(0, "Cancel");
-		locations.sort();
-		for(auto v : locations)
-			aw.add((int)v, v.getname());
-		variant r = aw.choosebg(sb);
-		if(!r)
-			return false;
-	}
 	return true;
 }
 
@@ -354,7 +335,6 @@ static bool explore(settlementi& e, bool run) {
 	locations.clear();
 	locations.select(Adventure);
 	locations.match(&e, true);
-	locations.matchac(true);
 	if(!locations)
 		return false;
 	if(run) {
@@ -370,14 +350,14 @@ static bool explore(settlementi& e, bool run) {
 		auto pa = r.getadventure();
 		if(!pa)
 			return false;
-		if(pa->message_before) {
-			answers aw;
-			aw.add(1, "Accept");
-			aw.add(0, "Decline");
-			auto i = aw.choosebg(pa->message_before);
-			if(!i)
-				return false;
-		}
+		//if(pa->message_before) {
+		//	answers aw;
+		//	aw.add(1, "Accept");
+		//	aw.add(0, "Decline");
+		//	auto i = aw.choosebg(pa->message_before);
+		//	if(!i)
+		//		return false;
+		//}
 		auto cost = e.getequipmentcost(*pa);
 		sb.clear();
 		im.add(sb);
@@ -386,8 +366,8 @@ static bool explore(settlementi& e, bool run) {
 			return false;
 		game.pay(cost);
 		game.equiping();
-		if(pa->message_agree)
-			answers::message(pa->message_agree);
+		//if(pa->message_agree)
+		//	answers::message(pa->message_agree);
 		//game.rideto(r);
 	}
 	return true;
@@ -415,26 +395,11 @@ static const char* talk_rumor(building_s b) {
 }
 
 static settlementi* random_nearest_settlement(settlementi* pb, int distance_days) {
-	variantc var;
-	var.select(Settlement);
-	var.exclude(pb);
-	var.match(pb->position, distance_days * game.pixels_per_day, true);
-	if(!var)
-		return 0;
-	return var.random().getsettlement();
+	return 0;
 }
 
 static const char* random_opponent() {
 	return maprnd(talk_opponent);
-}
-
-adventurei* allowed_rumor() {
-	variantc var;
-	var.select(Adventure);
-	var.matchrm(true);
-	if(!var)
-		return 0;
-	return var.random().getadventure();
 }
 
 bool talk(const char* prompt, const char* text, char& mood) {
@@ -451,8 +416,6 @@ bool talk(const char* prompt, const char* text, char& mood) {
 		return false;
 	} else if(mood <= 0)
 		text = talk_boring();
-	else if(d100() < chance_heard_true)
-		rumor_quest = allowed_rumor();
 	else if(settlement && d100() < chance_heard_true / 2)
 		rumor_settlement = random_nearest_settlement(settlement, 10);
 	if(!game.roll(party.getaverage(Charisma)))
@@ -460,16 +423,12 @@ bool talk(const char* prompt, const char* text, char& mood) {
 	im.add(sb);
 	sb.add(prompt, po);
 	sb.adds("\"");
-	if(rumor_quest) {
-		sb.add(maprnd(local_rumor));
-		sb.adds(rumor_quest->rumor_activate.getname());
-		rumor_quest->activate();
-	} else if(rumor_settlement) {
+	if(rumor_settlement) {
 		sb.add("%+1", distance_days[settlement->position.range(rumor_settlement->position) / game.pixels_per_day]);
 		sb.adds("to the %1 from here", direction_names[getorientation(settlement->position, rumor_settlement->position)]);
 		sb.adds("lies a");
 		rumor_settlement->getdescriptor(sb);
-		sb.adds("named %1.", rumor_settlement->getname());
+		sb.adds("named %1.", rumor_settlement->name);
 		if(rumor_settlement->description)
 			sb.adds(rumor_settlement->description);
 	} else
@@ -657,9 +616,7 @@ int	settlementi::gethealingcost() const {
 }
 
 int	settlementi::getequipmentcost(adventurei& e) const {
-	if(!game.pixels_per_day)
-		return 2;
-	return 2 + position.range(e.position) / game.pixels_per_day;
+	return 2;
 }
 
 static void correct_talk(char& v, int maximum) {
@@ -675,45 +632,9 @@ void settlementi::update() {
 }
 
 void settlementi::play() {
-	auto v = enter();
-	switch(v.type) {
-	case Action:
-		if(v.value == Rest)
-			resting("You can rest right here. But you can't sleep comfortable, so you can't restore spells and have a healing sleep.",
-				0, false, false);
-		else
-			apply(Tavern, (action_s)v.value, true);
-		break;
-	case Building:
-		//while(game.getsettlement() == this) {
-		//	auto b = (building_s)v.value;
-		//	auto a = enter(b);
-		//	if(a == Leave) {
-		//		draw::setnext(game.play);
-		//		break;
-		//	}
-		//	apply(b, a, true);
-		//	game.passtime(60);
-		//}
-		break;
-	}
 }
 
 int	settlementi::getrestcost(building_s b) const {
 	auto cost = party.getcount();
 	return cost;
-}
-
-void test_orientation() {
-	char temp[512];
-	auto start = bsdata<adventurei>::elements[0].position;
-	while(true) {
-		auto destination = draw::choosepoint(start);
-		if(!destination)
-			return;
-		auto direction = getorientation(start, destination);
-		stringbuilder sb(temp);
-		sb.add("Site located to %1 of Baldurs gate.", direction_names[direction]);
-		draw::dlgmsg(temp);
-	}
 }

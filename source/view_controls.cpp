@@ -1355,29 +1355,6 @@ bool draw::choose(array& source, const char* title, void* object, void* field, u
 DGINF(textedit) = {{"Enter text", DGREQ(data)},
 {}};
 
-bool textable::edit(void* object, const array& source, void* pointer) {
-	auto v = (textable*)pointer;
-	memset(&current_text, 0, sizeof(current_text));
-	stringbuilder sb(current_text.data);
-	sb.add(v->getname());
-	if(!draw::edit("Text", &current_text, dginf<meta_decoy<decltype(current_text)>::value>::meta, true))
-		return false;
-	v->setname(current_text.data);
-	return true;
-}
-
-bool textable::editrich(void* object, const array& source, void* pointer) {
-	auto p = (textable*)pointer;
-	if(!p)
-		return false;
-	richtexti tr;
-	tr.load(p->getname());
-	if(!draw::edit(current_markup->title, &tr, dginf<richtexti>::meta, true))
-		return false;
-	tr.save(*p);
-	return true;
-}
-
 static void delete_symbol() {
 	auto p = (char*)current_markup->value.ptr(current_object);
 	auto s = current_markup->value.size;
@@ -3006,13 +2983,10 @@ void draw::options(bool camp_mode) {
 		p();
 }
 
-void editor();
-
 void draw::mainmenu() {
 	answers aw;
 	aw.add((int)main_new_game, "Create New Game");
 	aw.add((int)load_game, "Load Saved game");
-	aw.add((int)editor, "Game editor");
 	aw.add((int)quit_game, "Exit game");
 	auto p = (callback)aw.choosemn(80, 110, 170, MENU);
 	if(p)

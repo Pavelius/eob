@@ -1,5 +1,6 @@
 #include "main.h"
 #include "draw.h"
+#include "log.h"
 
 using namespace draw;
 
@@ -260,22 +261,6 @@ void debug_dungeon2() {
 
 #endif // DEBUG
 
-void editor() {
-#ifdef _DEBUG
-	random_heroes();
-	game.readtext("import/western_heartlands.json");
-	edit("Company", &game, dginf<companyi>::meta, false);
-	game.companyi::write("default");
-	setnext(mainmenu);
-#endif
-	{
-		game.companyi::read("default");
-		edit("Company", &game, dginf<companyi>::meta, false);
-		game.companyi::write("default");
-		setnext(mainmenu);
-	}
-}
-
 void gamei::newgame() {
 	srand(clock());
 	//debug_dungeon2();
@@ -283,8 +268,6 @@ void gamei::newgame() {
 	location.clear();
 	location_above.clear();
 	game.clear();
-	game.clearfiles();
-	game.readtext("import/western_heartlands.json");
 	game.clearfiles();
 	party.clear();
 	for(unsigned i = 0; i < 4; i++)
@@ -304,17 +287,24 @@ void gamei::newgame() {
 		party.add(p);
 	}
 	if(game.intro)
-		answers::message(game.intro.getname());
+		answers::message(game.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
 	game.write();
 	setnext(game.playcity);
 }
 
+static bool reading() {
+	companyi::readn("company/Rogue.txt");
+	return log::geterrors() == 0;
+}
+
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
 	util_main();
 #endif
+	if(!reading())
+		return -1;
 	draw::initialize();
 	fore = colors::white;
 	setbigfont();

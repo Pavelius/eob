@@ -15,12 +15,6 @@
 #include "main.h"
 #include "io_plugin.h"
 
-static const char* skipspcr(const char* p) {
-	while(*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t')
-		p++;
-	return p;
-}
-
 static const char* psidn(const char* p, char* ps, const char* pe) {
 	while(*p && (ischa(*p) || isnum(*p) || *p == '_')) {
 		if(ps < pe)

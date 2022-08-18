@@ -10,7 +10,7 @@ monsteri bsdata<monsteri>::elements[] = {
 	{"No monster"},
 	{"Ant", ANT, {0}, Insectoid, Male, Large, TrueNeutral, NoInt, {}, {3}, 3, {Bite}, {OfPoison}},
 	{"Bugbear", BUGBEAR, {0}, Humanoid, Male, Large, ChaoticEvil, Low, {}, {3, 1}, 5, {AxeBattle}},
-	{"Old cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
+	{"Cleric", CLERIC2, {0, 1, 3}, Human, Male, Medium, LawfulEvil, High, {}, {5}, 7, {Mace}},
 	{"Dwarf", DWARF, {0}, Dwarf, Male, Medium, LawfulGood, Ave, {}, {1, 1}, 5, {AxeBattle}},
 	{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}},
 	{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {OfParalize}},

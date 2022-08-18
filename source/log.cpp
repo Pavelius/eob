@@ -76,3 +76,7 @@ void log::error(const char* position, const char* format, ...) {
 int log::geterrors() {
 	return error_count;
 }
+
+const char* log::getfilestart() {
+	return current_file;
+}

@@ -36,6 +36,38 @@ static void pause(const char* format) {
 	aw.choosehz(format);
 }
 
+static const char* nextword(const char* p) {
+	while(*p && *p != ' ' && *p != 13)
+		p++;
+	return p;
+}
+
+static const char* parse_rich(const char* p, imagei& im, char* ps, const char* pe) {
+	while(*p == '#') {
+		auto p1 = p + 1; p = nextword(p1);
+		auto pr = resourcei::find(p1, p - p1);
+		if(!pr)
+			return 0;
+		im.res = (resource_s)(pr - bsdata<resourcei>::elements);
+		if(*p != ' ')
+			return 0;
+		p++;
+		im.frame = sz2num(p, &p);
+		if(*p != 10)
+			return 0;
+		p++;
+	}
+	while(*p && *p != 10) {
+		if(ps < pe)
+			*ps++ = *p;
+		p++;
+	}
+	while(*p == 10)
+		p++;
+	*ps = 0;
+	return p;
+}
+
 int	answers::choosebg(const char* title) const {
 	auto push_image = last_image;
 	char temp[512]; auto p = title;
@@ -44,7 +76,7 @@ int	answers::choosebg(const char* title) const {
 	while(p && *p) {
 		if(temp[0])
 			pause(temp);
-		p = richtexti::parse(p, last_image, temp, temp + sizeof(temp));
+		p = parse_rich(p, last_image, temp, zendof(temp));
 	}
 	auto result = choosehz(temp);
 	last_image = push_image;

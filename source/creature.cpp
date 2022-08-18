@@ -966,6 +966,13 @@ static bool read_message(creature* pc, dungeoni* pd, dungeoni::overlayi* po) {
 			bsdata<monsteri>::elements[pd->head.habbits[0]].name,
 			bsdata<monsteri>::elements[pd->head.habbits[1]].name);
 		break;
+	case MessageBoss:
+		if(pd->stat.boss) {
+			pc->say("%1 hunt you down in locked room",
+				bsdata<monsteri>::elements[pd->stat.boss].name);
+		} else
+			pc->say("Keep your weapons in good shape");
+		break;
 	case MessageSpecialItem:
 		if(pd->head.wands) {
 			pc->say("Find %1 somewhere on this level",
