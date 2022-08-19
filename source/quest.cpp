@@ -139,6 +139,11 @@ void readval(char& v) {
 	v = value.number;
 }
 
+void readval(const char*& v) {
+	readtext();
+	v = value.text;
+}
+
 static void read_site(adventurei& e) {
 	auto pv = e.addsite();
 	if(!pv) {
@@ -173,19 +178,19 @@ static void read_adventure() {
 	auto pq = bsdata<adventurei>::add();
 	readname(); pq->name = value.text;
 	skipwscr();
+	int history_current = pq->gethistorymax();
 	while(*p && need_continue) {
-		if(isheader("Summary")) {
-			readtext();
-			pq->summary = value.text;
-		} else if(isheader("Agree")) {
-			readtext();
-			pq->agree = value.text;
-		} else if(isheader("Entering")) {
-			readtext();
-			pq->entering = value.text;
-		} else if(isheader("Site")) {
+		if(isheader("Summary"))
+			readval(pq->summary);
+		else if(isheader("Agree"))
+			readval(pq->agree);
+		else if(isheader("Entering"))
+			readval(pq->entering);
+		else if(isheader("History"))
+			readval(pq->history[history_current++]);
+		else if(isheader("Site"))
 			read_site(*pq);
-		} else
+		else
 			break;
 		skipwscr();
 	}
