@@ -1321,14 +1321,6 @@ public:
 	static bool			writetext(const char* url, std::initializer_list<variant_s> source);
 	static bool			writetext(const char* url, variant_s id) { return writetext(url, {id}); }
 };
-//struct richtexti {
-//	static constexpr int maximum = 6;
-//	imagei				images[maximum];
-//	char				data[maximum][260];
-//	bool				load(const char* source);
-//	static const char*	parse(const char* p, imagei& ei, char* ps, const char* pe);
-//	void				save(textable& result) const;
-//};
 class variantc : public adat<variant> {
 	typedef bool(adventurei::*fnadventure)() const;
 	void				match(fnadventure p, bool keep);
@@ -1366,6 +1358,7 @@ public:
 	int					choosemb(const char* title, bool allow_cancel = true) const;
 	int					choosemn(int x, int y, int width, resource_s id) const;
 	static int			compare(const void* v1, const void* v2);
+	static bool			confirm(const char* title, const char* positive = "Accept", const char* negative = "Decline");
 	static void			message(const char* format);
 	int					random() const;
 	static void			set(const imagei& v) { last_image = v; }
@@ -1408,15 +1401,9 @@ void					application();
 void					avatar(int x, int y, int party_index, unsigned flags, void* current_item);
 void					avatar(int x, int y, creature* pc, unsigned flags, void* current_item);
 void					background(int rid);
-void*					choose(array& source, const char* title, void* object, const void* current, fntext pgetname, fnallow pallow, fndraw preview, int view_width, const markup* type = 0);
-bool					choose(array& source, const char* title, void* object, void* field, unsigned field_size, const fnlist& list);
-point					choosepoint(point camera);
 void					closeform();
 bool					dlgask(const char* text);
 void					dlgmsg(const char* text);
-bool					edit(const char* title, void* object, const markup* form, bool cancel_button);
-void					fullimage(point camera, point* origin);
-void					fullimage(point from, point to, point* origin);
 void					mainmenu();
 void					openform();
 void					options(bool camp_mode);

@@ -70,9 +70,8 @@ static const char* parse_rich(const char* p, imagei& im, char* ps, const char* p
 
 int	answers::choosebg(const char* title) const {
 	auto push_image = last_image;
-	char temp[512]; auto p = title;
 	last_image.clear();
-	temp[0] = 0;
+	char temp[512]; temp[0] = 0; auto p = title;
 	while(p && *p) {
 		if(temp[0])
 			pause(temp);
@@ -89,4 +88,13 @@ void answers::message(const char* format) {
 	answers aw;
 	aw.add(1, "Continue");
 	aw.choosebg(format);
+}
+
+bool answers::confirm(const char* format, const char* positive, const char* negative) {
+	if(!format || !format[0])
+		return false;
+	answers aw;
+	aw.add(1, positive);
+	aw.add(0, negative);
+	return aw.choosebg(format) != 0;
 }

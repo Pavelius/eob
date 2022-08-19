@@ -269,17 +269,11 @@
     <ClCompile Include="cell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="form.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="case.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="io_plugin.cpp">
       <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="form_serializer.cpp">
-      <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="io_plugin_json.cpp">
       <Filter>Поддержка</Filter>

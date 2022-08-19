@@ -1,32 +1,30 @@
 #include "main.h"
 
-#define FORM(T) &bsdata<T>::source, getnm<T>, dginf<T>::meta
-
 static array game_source(&game, sizeof(companyi), 1);
 
 BSDATA(varianti) = {
 	{"None"},
-	{"Ability", "abilities", {Action}, FORM(abilityi)},
+	{"Ability", "abilities", {Action}},
 	{"Action", "actions", {Action}},
 	{"Adventure", "adventures", {}},
-	{"Alignment", "alignments", {Action}, FORM(alignmenti)},
-	{"Case", "cases", {Action}, FORM(casei)},
+	{"Alignment", "alignments", {Action}},
+	{"Case", "cases", {Action}},
 	{"Cell", "cells"},
-	{"Class", "classes", {Action}, FORM(classi)},
+	{"Class", "classes", {Action}},
 	{"Cleaveress", "cleveress"},
 	{"Condition", "conditions", {Action}},
-	{"Creature", "creatures", {}, FORM(creature)},
-	{"Damage", "damages", {}, FORM(damagei)},
-	{"Enchant", "enchants", {}, FORM(enchanti)},
-	{"Feat", "feats", {Action}, FORM(feati)},
-	{"Gender", "genders", {Action}, FORM(genderi)},
-	{"Item", "items", {Action}, FORM(itemi)},
-	{"Morale", "morals", {}, FORM(moralei)},
-	{"Race", "races", {Action}, FORM(racei)},
+	{"Creature", "creatures", {}},
+	{"Damage", "damages", {}},
+	{"Enchant", "enchants", {}},
+	{"Feat", "feats", {Action}},
+	{"Gender", "genders", {Action}},
+	{"Item", "items", {Action}},
+	{"Morale", "morals", {}},
+	{"Race", "races", {Action}},
 	{"Rarity", "rarities"},
 	{"Reaction", "reactions", {Action}},
 	{"Resource", "resources"},
-	{"Spell", "spells", {}, FORM(spelli)},
+	{"Spell", "spells", {}},
 };
 assert_enum(variant, Spell)
 BSDATAF(varianti)

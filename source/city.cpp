@@ -11,11 +11,12 @@ static void choose_quest() {
 
 static void enter_quest() {
 	choose_quest();
-	if(last_quest) {
-		answers::message(last_quest->summary);
-		answers::message(last_quest->agree);
-		last_quest->enter();
-	}
+	if(!last_quest)
+		return;
+	if(!answers::confirm(last_quest->summary))
+		return;
+	answers::message(last_quest->agree);
+	last_quest->enter();
 }
 
 void gamei::playcity() {
