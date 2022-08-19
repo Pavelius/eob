@@ -32,18 +32,6 @@ struct fxt {
 	unsigned char		width;				// the width of a character in pixel
 	unsigned char		data[1];			// the pixel data, one byte per line 
 };
-struct contexti {
-	void*				object;
-	const contexti*		parent;
-	int					title;
-	const char*			header;
-	const char*	getheader(const markup& e) const {
-		if(e.title)
-			return e.title;
-		return header;
-	}
-	constexpr contexti(void* object) : object(object), parent(0), title(84), header(0) {}
-};
 struct parami {
 	int					origin;
 	int					maximum;
@@ -73,7 +61,6 @@ static unsigned			current_focus_param;
 static void*			current_object;
 static unsigned			current_size;
 static int				current_param;
-static const markup*	current_markup;
 static int				current_level;
 static creature*		current_hero;
 static item*			drag_item;
@@ -1003,7 +990,7 @@ static void prevpage() {
 		setfocus(0, 0);
 }
 
-item* itema::choose(const char* title, bool cancel_button, fntext panel) {
+item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
 	parami param = {};
 	param.maximum = getcount();
 	char temp[260]; stringbuilder sb(temp);
@@ -1078,7 +1065,7 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 	return 11;
 }
 
-static fntext compare_callback;
+static fngetname compare_callback;
 
 static int qsort_compare(const void* v1, const void* v2) {
 	auto p1 = (void**)v1;
@@ -1094,7 +1081,7 @@ static int qsort_compare(const void* v1, const void* v2) {
 	return strcmp(s1, s2);
 }
 
-static void sort(void** storage, unsigned maximum, fntext getname) {
+static void sort(void** storage, unsigned maximum, fngetname getname) {
 	compare_callback = getname;
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
 }
@@ -1270,7 +1257,7 @@ static void avatars(int x, int y, const creature* pc, const creaturea* allowed, 
 	avatar(x + 72, y + 52, 3, pc, allowed, change, proc);
 }
 
-item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname) const {
+item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fngetname getname) const {
 	if(cancel_button)
 		*cancel_button = false;
 	openform();

@@ -241,7 +241,7 @@ bool encounteri::apply(action_s id, bool run) {
 		if(!items)
 			return false;
 		if(run) {
-			auto pi = items.choose("Gift which item?", false);
+			auto pi = items.choose("Gift which item?", false, 0);
 			if(!pi)
 				return false;
 			if(interactive) {
@@ -260,7 +260,7 @@ bool encounteri::apply(action_s id, bool run) {
 		if(!items)
 			return false;
 		if(run) {
-			auto pi = items.choose("Sell which item?", false);
+			auto pi = items.choose("Sell which item?", false, 0);
 			if(!pi)
 				return false;
 			auto cost = pi->getcost();

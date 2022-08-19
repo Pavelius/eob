@@ -54,12 +54,6 @@
     <ClInclude Include="stringbuilder.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="markup.h">
-      <Filter>Поддержка</Filter>
-    </ClInclude>
-    <ClInclude Include="io_plugin.h">
-      <Filter>Поддержка</Filter>
-    </ClInclude>
     <ClInclude Include="flagable.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
@@ -212,9 +206,6 @@
     <ClCompile Include="effect.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="markup.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
     <ClCompile Include="wear.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -263,20 +254,11 @@
     <ClCompile Include="building.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="settlement.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="cell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="case.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="io_plugin.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
-    <ClCompile Include="io_plugin_json.cpp">
-      <Filter>Поддержка</Filter>
     </ClCompile>
     <ClCompile Include="examine.cpp">
       <Filter>Логика</Filter>

@@ -501,8 +501,6 @@ bool creature::set(ability_s skill, short unsigned index) {
 static bool addstatical(archive& a) {
 	if(!a.signature("STD"))
 		return false;
-	if(!a.checksum(gamei::getchecksum()))
-		return false;
 	a.set(bsdata<creature>::source);
 	return true;
 }
@@ -513,8 +511,6 @@ static bool serialize(bool writemode) {
 		return false;
 	archive a(file, writemode);
 	if(!a.signature("SAV"))
-		return false;
-	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	if(writemode)
 		game.preserial(true);
@@ -534,8 +530,6 @@ static bool serialize(dungeoni& e, short unsigned index, char level, bool write_
 	archive a(file, write_mode);
 	if(!a.signature("DNG"))
 		return false;
-	if(!a.checksum(gamei::getchecksum()))
-		return false;
 	a.set(e);
 	return true;
 }
@@ -548,8 +542,6 @@ static bool serialize(const char* name, companyi& e, bool write_mode) {
 		return false;
 	archive a(file, write_mode);
 	if(!a.signature("MOD"))
-		return false;
-	if(!a.checksum(gamei::getchecksum()))
 		return false;
 	a.set(e);
 	return addstatical(a);
@@ -837,31 +829,4 @@ void gamei::play() {
 
 int	gamei::get(action_s id) const {
 	return 0;
-}
-
-bool gamei::writemeta(const char* url) {
-	const unsigned size = 256 * 256 * 4;
-	auto ptemp = new char[size]; ptemp[0] = 0;
-	stringbuilder sb(ptemp, ptemp + size - 1);
-	varianti::getmetadata(sb);
-	io::file file(url, StreamWrite | StreamText);
-	if(file)
-		file << ptemp;
-	delete[] ptemp;
-	return true;
-}
-
-unsigned long long calculate_checksum(unsigned char* start, unsigned count);
-
-unsigned long long gamei::getchecksum() {
-	static unsigned long long result;
-	if(!result) {
-		const unsigned size = 256 * 256 * 4;
-		auto ptemp = new char[size]; ptemp[0] = 0;
-		stringbuilder sb(ptemp, ptemp + size - 1);
-		varianti::getmetadata(sb);
-		result = calculate_checksum((unsigned char*)ptemp, sb.size());
-		delete[] ptemp;
-	}
-	return result;
 }

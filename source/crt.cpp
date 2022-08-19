@@ -408,13 +408,6 @@ void array::shift(int i1, int i2, unsigned c1, unsigned c2) {
 	}
 }
 
-int	serializer::node::getlevel() const {
-	auto result = 0;
-	for(auto p = parent; p; p = p->parent)
-		result++;
-	return result;
-}
-
 bool equal(const char* p, const char* s) {
 	while(*s && *p)
 		if(szupper(szget(&s)) != szupper(szget(&p)))

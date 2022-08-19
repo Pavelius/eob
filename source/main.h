@@ -6,7 +6,6 @@
 #include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
-#include "markup.h"
 #include "variable.h"
 
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
@@ -318,7 +317,6 @@ struct variant {
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const action_s v) : type(Action), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
-	//constexpr variant(const building_s v) : type(Building), value(v) {}
 	constexpr variant(const case_s v) : type(Case), value(v) {}
 	constexpr variant(const cell_s v) : type(Cell), value(v) {}
 	constexpr variant(const class_s v) : type(Class), value(v) {}
@@ -342,12 +340,10 @@ struct variant {
 	constexpr explicit operator int() const { return (type << 8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
-	static variant		find(const char* name);
 	auto				getadventure() const { return (adventurei*)getpointer(Adventure); }
 	creature*			getcreature() const;
-	void*				getpointer(variant_s t) const;
-	point				getposition() const;
 	const char*			getname() const;
+	void*				getpointer(variant_s t) const;
 };
 typedef variant conditiona[6];
 struct varianta : adat<variant, 12> {
@@ -456,12 +452,7 @@ struct varianti {
 	const char*			namepl;
 	variantf			allowed;
 	array*				source;
-	fntext				pgetname;
-	const markup*		form;
 	static variant_s	find(const array* v);
-	static varianti*	find(const markup* v);
-	variant				find(const char* v) const;
-	static void			getmetadata(stringbuilder& sb);
 };
 struct combati {
 	char				number_attacks_p2r;
@@ -643,7 +634,6 @@ class item {
 	};
 	unsigned char		subtype; // spell scroll or spell of wand
 	unsigned char		charges; // uses of item
-	friend dginf<item>;
 public:
 	typedef std::initializer_list<item_s> typea;
 	constexpr item(item_s type = NoItem) : type(type), flags(0), subtype(0), charges(0) {}
@@ -737,8 +727,8 @@ class itema : public adat<item*, 48> {
 	void				select(pitem proc, bool keep);
 public:
 	void				broken(bool keep) { select(&item::isbroken, keep); }
-	item*				choose(const char* format, bool cancel_button, fntext panel = 0);
-	item*				choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname = 0) const;
+	item*				choose(const char* format, bool cancel_button, fngetname panel);
+	item*				choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fngetname getname = 0) const;
 	void				cost(bool keep) { select(&item::iscost, keep); }
 	void				costgp(bool keep) { select(&item::iscostgp, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }
@@ -761,7 +751,6 @@ class nameable {
 	race_s				race = Human;
 	gender_s			gender = Male;
 	unsigned short		name = 0;
-	friend dginf<nameable>;
 public:
 	constexpr gender_s	getgender() const { return gender; }
 	const monsteri&		getmonster() const { return bsdata<monsteri>::elements[kind]; }
@@ -833,7 +822,6 @@ class creature : public statable, public nameable {
 	void				random_spells(class_s type, int level, int count);
 	void				update_poison(bool interactive);
 	void				update_wears();
-	friend dginf<creature>;
 public:
 	explicit operator bool() const { return ability[Strenght] != 0; }
 	void				activate(spell_s v) { active_spells.set(v); }
@@ -1279,7 +1267,6 @@ public:
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
-	static unsigned long long getchecksum();
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
 	int					getgold() const { return citya::get(Gold); }
@@ -1444,24 +1431,7 @@ NOBSDATA(historyi)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(variant)
-MNLNK(ability_s, abilityi)
-MNLNK(alignment_s, alignmenti)
-MNLNK(building_s, buildingi)
-MNLNK(class_s, classi)
-MNLNK(action_s, actioni)
-MNLNK(damage_s, damagei)
-MNLNK(enchant_s, enchanti)
-MNLNK(feat_s, feati)
-MNLNK(gender_s, genderi)
-MNLNK(intellegence_s, intellegencei)
-MNLNK(item_s, itemi)
-MNLNK(item_feat_s, itemfeati)
-MNLNK(morale_s, moralei)
-MNLNK(monster_s, monsteri)
-MNLNK(race_s, racei)
-MNLNK(resource_s, resourcei)
-MNLNK(size_s, sizei)
-MNLNK(spell_s, spelli)
-MNLNK(usability_s, usabilityi)
-MNLNK(variant_s, varianti)
-MNLNK(wear_s, weari)
+BSLNK(item_s, itemi)
+BSLNK(monster_s, monsteri)
+BSLNK(race_s, racei)
+BSLNK(resource_s, resourcei)

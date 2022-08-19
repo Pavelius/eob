@@ -44,3 +44,4 @@ public:
 	static unsigned char upper(unsigned char sym);
 	static void			upper(char* s);
 };
+typedef const char* (*fngetname)(const void* object, stringbuilder& sb);

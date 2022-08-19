@@ -80,31 +80,6 @@ creature* variant::getcreature() const {
 	return location.monsters + value;
 }
 
-const char* variant::getname() const {
-	static char strings[2][128];
-	static stringbuilder sbs[] = {strings[0], strings[1]};
-	static unsigned char counter;
-	auto p = bsdata<varianti>::elements + type;
-	if(!p->source)
-		return "None";
-	auto pe = p->source->ptr(value);
-	auto& sb = sbs[(counter++) % 1];
-	sb.clear();
-	return p->pgetname(pe, sb);
-}
-
-point variant::getposition() const {
-	return {0, 0};
-}
-
-varianti* varianti::find(const markup* v) {
-	for(auto& e : bsdata<varianti>()) {
-		if(e.form == v)
-			return &e;
-	}
-	return 0;
-}
-
 variant_s varianti::find(const array* source) {
 	for(auto& e : bsdata<varianti>()) {
 		if(e.source == source)
@@ -113,69 +88,11 @@ variant_s varianti::find(const array* source) {
 	return NoVariant;
 }
 
-variant variant::find(const char* name) {
-	if(!name || name[0] == 0)
-		return variant();
-	char temp[260]; stringbuilder sb(temp);
-	for(auto& ei : bsdata<varianti>()) {
-		if(!ei.source || !ei.pgetname)
-			continue;
-		auto m = ei.source->getcount();
-		for(unsigned v = 0; v < m; v++) {
-			sb.clear();
-			auto object = ei.source->ptr(v);
-			auto pn = ei.pgetname(object, sb);
-			if(pn && pn[0] && strcmp(name, pn) == 0) {
-				auto t = (variant_s)(&ei - bsdata<varianti>::elements);
-				return {t, (unsigned char)v};
-			}
-		}
-		sb.clear();
+const char* variant::getname() const {
+	switch(type) {
+	case Item: return bsdata<itemi>::elements[value].name;
+	case Enchant: return bsdata<enchanti>::elements[value].name;
+	case Spell: return bsdata<spelli>::elements[value].name;
+	default: return "No name";
 	}
-	return variant();
-}
-
-variant varianti::find(const char* name) const {
-	if(!name || name[0] == 0 || !source || !pgetname)
-		return variant();
-	char temp[260]; stringbuilder sb(temp);
-	auto m = source->getcount();
-	for(unsigned v = 0; v < m; v++) {
-		sb.clear();
-		auto object = source->ptr(v);
-		auto pn = pgetname(object, sb);
-		if(pn && pn[0] && strcmp(name, pn) == 0) {
-			auto t = (variant_s)(this - bsdata<varianti>::elements);
-			return {t, (unsigned char)v};
-		}
-	}
-	sb.clear();
-	return variant();
-}
-
-void varianti::getmetadata(stringbuilder& sb) {
-	sb.addn("{");
-	auto result = 0;
-	for(auto& e : bsdata<varianti>()) {
-		if(result)
-			sb.add(",");
-		sb.addn("\t\"%1\" : {", e.name);
-		if(e.form) {
-			auto requisit_count = 0;
-			for(auto pm = e.form; *pm; pm++) {
-				if(!pm->title)
-					continue;
-				if(requisit_count)
-					sb.add(",");
-				if(pm->value.type)
-					sb.addn("\t\t\"%1\" : \"%2\"", pm->title, pm->value.type->title);
-				else
-					sb.addn("\t\t\"%1\" : \"complex\"", pm->title);
-				requisit_count++;
-			}
-		}
-		sb.addn("}");
-		result++;
-	}
-	sb.addn("}");
 }
