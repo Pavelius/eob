@@ -1210,7 +1210,6 @@ struct companyi {
 	unsigned char		start; // starting settlement
 	const char*			intro; // When start new game
 	int					start_gold;
-	int					pixels_per_day;
 	bool				read(const char* name);
 	void				write(const char* name);
 	static void			readn(const char* url);
