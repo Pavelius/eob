@@ -28,8 +28,8 @@ static bool isheader() {
 
 static void readid() {
 	value.clear();
-	char temp[260];
-	p = psidn(p, temp, zendof(temp));
+	char temp[260]; stringbuilder sb(temp);
+	p = sb.psidf(p);
 	skipws();
 	value.text = szdup(temp);
 }
@@ -38,8 +38,8 @@ static void readname() {
 	value.clear();
 	if(*p != '\"')
 		return;
-	char temp[4096];
-	p = psstr(p + 1, temp, '\"');
+	char temp[4096]; stringbuilder sb(temp);
+	p = sb.psstr(p + 1, '\"');
 	if(*p == '\"')
 		p++;
 	skipws();
@@ -73,20 +73,20 @@ static void readtext() {
 
 static void readnumber() {
 	value.clear();
-	p = psnum(p, value.number);
+	p = stringbuilder::read(p, value.number);
 	skipws();
 }
 
 static void readenum(array& source) {
 	value.clear();
-	char temp[128];
+	char temp[260]; stringbuilder sb(temp);
 	auto p1 = p;
 	if(*p == '\"') {
-		p = psstr(p + 1, temp, '\"');
+		p = sb.psstr(p + 1, '\"');
 		if(*p == '\"')
 			p++;
 	} else
-		p = psidn(p, temp);
+		p = sb.psidf(p);
 	skipws();
 	value.text = szdup(temp);
 	auto i = source.find(value.text, 0);

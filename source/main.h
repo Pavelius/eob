@@ -727,8 +727,8 @@ class itema : public adat<item*, 48> {
 	void				select(pitem proc, bool keep);
 public:
 	void				broken(bool keep) { select(&item::isbroken, keep); }
-	item*				choose(const char* format, bool cancel_button, fngetname panel);
-	item*				choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fngetname getname = 0) const;
+	item*				choose(const char* format, bool cancel_button, fntext panel);
+	item*				choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname = 0) const;
 	void				cost(bool keep) { select(&item::iscost, keep); }
 	void				costgp(bool keep) { select(&item::iscostgp, keep); }
 	void				cursed(bool keep) { select(&item::iscursed, keep); }

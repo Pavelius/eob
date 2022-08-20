@@ -191,9 +191,6 @@
     <ClCompile Include="stringbuilder.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="string_value.cpp">
-      <Filter>Поддержка</Filter>
-    </ClCompile>
     <ClCompile Include="creaturea.cpp">
       <Filter>Логика</Filter>
     </ClCompile>

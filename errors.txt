@@ -1,2 +1,2 @@
 ﻿In file `company/Rogue.txt`:
- Line 29: Expected header 'Reward'
+ Line 6: Expected header 'Reward'

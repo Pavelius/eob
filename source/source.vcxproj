@@ -218,7 +218,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="stringbuilder.cpp" />
-    <ClCompile Include="string_value.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="usability.cpp" />
     <ClCompile Include="variant.cpp" />

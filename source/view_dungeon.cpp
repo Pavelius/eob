@@ -255,8 +255,7 @@ static void compass() {
 
 static void render_player_damage(int x, int y, int hits, unsigned counter) {
 	draw::state push;
-	char temp[32];
-	sznum(temp, hits);
+	char temp[32]; stringbuilder sb(temp); sb.addint(hits);
 	draw::image(x, y - 1, gres(THROWN), 0, (counter % 2) ? ImageMirrorH : 0);
 	draw::fore = colors::damage;
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);
@@ -265,11 +264,11 @@ static void render_player_damage(int x, int y, int hits, unsigned counter) {
 static void render_player_attack(int x, int y, int hits) {
 	static int side;
 	draw::state push;
-	char temp[32];
+	char temp[32]; stringbuilder sb(temp);
 	if(hits == -1)
-		zprint(temp, "miss");
+		sb.add("miss");
 	else
-		sznum(temp, hits);
+		sb.add("%1i", hits);
 	draw::image(x, y - 1, gres(THROWN), 1, ((side++) % 2) ? ImageMirrorH : 0);
 	draw::fore = colors::damage;
 	draw::text(x - draw::textw(temp) / 2, y - 3, temp);

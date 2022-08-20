@@ -51,17 +51,13 @@ inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numer
 void*								loadb(const char* url, int* size = 0, int additional_bytes_alloated = 0); // Load binary file.
 char*								loadt(const char* url, int* size = 0); // Load text file and decode it to system codepage.
 bool								matchuc(const char* name, const char* filter);
-const char*							psidn(const char* p, char* result, char* result_end); // safe parse identifier name from string
-inline const char*					psidn(const char* p, char* result) { return psidn(p, result, result + 128); }
-const char*							psnum(const char* p, int& value); // Parse number from string
-const char*							psstr(const char* p, char* value, char end_symbol = '\"'); // Parse string from string (like c format "Some\nstring")
 unsigned							rmoptimal(unsigned need_count);
 void								rmremove(void* data, unsigned size, unsigned index, unsigned& count, int elements_count);
 void*								rmreserve(void* data, unsigned new_size);
 void								rmreserve(void** data, unsigned count, unsigned& count_maximum, unsigned size);
+inline const char*					skipsp(const char* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
 inline const char*					skipspcr(const char* p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }
 float								sqrt(const float x); // Return aquare root of 'x'
-int									sz2num(const char* p1, const char** pp1 = 0);
 void								szencode(char* output, int output_count, codepages output_code, const char* input, int input_count, codepages input_code);
 unsigned							szget(const char** input, codepages page = metrics::code);
 int									szcmpi(const char* p1, const char* p2);
@@ -72,10 +68,7 @@ char*								szfnamewe(char* result, const char* name); // get file name without
 unsigned							szlower(unsigned u); // to lower reg
 void								szlower(char* p, int count = 1); // to lower reg
 bool								szmatch(const char* text, const char* name); //
-char*								sznum(char* result, int num, int precision = 0, const char* empthy = 0, int radix = 10);
 bool								szpmatch(const char* text, const char* pattern);
-char*								szprint(char* result, const char* result_maximum, const char* format, ...);
-char*								szprintv(char* result, const char* result_maximum, const char* format, const char* format_param);
 void								szput(char** output, unsigned u, codepages page = metrics::code);
 char*								szput(char* output, unsigned u, codepages page = metrics::code); // Fast symbol put function. Return 'output'.
 const char*							skipcr(const char* p);
@@ -101,10 +94,8 @@ template<class T> inline void		zcpy(T* p1, const T* p2, int max_count) { while(*
 template<class T> inline T*			zend(T* p) { while(*p) p++; return p; }
 template<class T> inline void		zcat(T* p1, const T e) { p1 = zend(p1); p1[0] = e; p1[1] = 0; }
 template<class T> inline void		zcat(T* p1, const T* p2) { zcpy(zend(p1), p2); }
-template<class T> inline int		zlen(T* p) { return zend(p) - p; }
-template<unsigned N> inline char*	zprint(char(&result)[N], const char* format, ...) { return szprintv(result, result + N - 1, format, (const char*)&format + sizeof(format)); }
+template<class T> constexpr size_t	zlen(T* p) { return zend(p) - p; }
 template<class T> inline void		zshuffle(T* p, int count) { for(int i = 0; i < count; i++) iswap(p[i], p[rand() % count]); }
-template<class T> inline T*			zskipsp(T* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
 // Storge like vector
 template<class T, int count_max = 128>
 struct adat {

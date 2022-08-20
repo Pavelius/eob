@@ -52,7 +52,9 @@ static const char* parse_rich(const char* p, imagei& im, char* ps, const char* p
 		if(*p != ' ')
 			return 0;
 		p++;
-		im.frame = sz2num(p, &p);
+		int frame;
+		p = stringbuilder::read(p, frame);
+		im.frame = frame;
 		if(*p != 10)
 			return 0;
 		p++;

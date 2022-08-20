@@ -990,7 +990,7 @@ static void prevpage() {
 		setfocus(0, 0);
 }
 
-item* itema::choose(const char* title, bool cancel_button, fngetname panel) {
+item* itema::choose(const char* title, bool cancel_button, fntext panel) {
 	parami param = {};
 	param.maximum = getcount();
 	char temp[260]; stringbuilder sb(temp);
@@ -1065,7 +1065,7 @@ static int headerc(int x, int y, const char* prefix, const char* title, const ch
 	return 11;
 }
 
-static fngetname compare_callback;
+static fntext compare_callback;
 
 static int qsort_compare(const void* v1, const void* v2) {
 	auto p1 = (void**)v1;
@@ -1081,7 +1081,7 @@ static int qsort_compare(const void* v1, const void* v2) {
 	return strcmp(s1, s2);
 }
 
-static void sort(void** storage, unsigned maximum, fngetname getname) {
+static void sort(void** storage, unsigned maximum, fntext getname) {
 	compare_callback = getname;
 	qsort(storage, maximum, sizeof(storage[0]), qsort_compare);
 }
@@ -1178,9 +1178,9 @@ int variantc::chooselv(class_s type) const {
 		int y = rc.y1;
 		for(int i = 0; i < 9; i++) {
 			const int dx = 12;
-			char temp[16];
+			char temp[16]; stringbuilder sb(temp);
 			auto level = i + 1;
-			sznum(temp, level);
+			sb.add("%1i", level);
 			unsigned flags = 0;
 			flatb(x + i * dx, y, dx, (level == current_level) ? Focused : 0, temp);
 		}
@@ -1257,7 +1257,7 @@ static void avatars(int x, int y, const creature* pc, const creaturea* allowed, 
 	avatar(x + 72, y + 52, 3, pc, allowed, change, proc);
 }
 
-item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fngetname getname) const {
+item* itema::choose(const char* format, bool* cancel_button, const creature* current, const creaturea* allowed, creature** change, fntext getname) const {
 	if(cancel_button)
 		*cancel_button = false;
 	openform();
@@ -1501,14 +1501,13 @@ static void abilities(int x, int y, creature* pc) {
 	auto cls = pc->getclass();
 	auto exp = pc->getexperience() / bsdata<classi>::elements[cls].classes.count;
 	for(int i = 0; i < 3; i++) {
-		char temp[16];
 		auto m = pc->getclass(cls, i);
 		if(!m)
 			continue;
 		text(x1, y1, bsdata<classi>::elements[m].name);
-		sznum(temp, pc->get(m));
+		sb.clear(); sb.add("%1i", pc->get(m));
 		text(x1 + 6 * 8, y1, temp);
-		sznum(temp, (int)exp);
+		sb.clear(); sb.clear(); sb.add("%1i", exp);
 		text(x1 + 6 * 11, y1, temp);
 		y1 += 7;
 	}
@@ -1649,8 +1648,8 @@ static int number(int x, int y, int w, const char* title, const char* v, unsigne
 }
 
 static int number(int x, int y, int w, const char* title, int v, unsigned flags) {
-	char temp[32];
-	sznum(temp, v);
+	char temp[32]; stringbuilder sb(temp);
+	sb.addint(v, 0, 10);
 	return number(x, y, w, title, temp, flags);
 }
 
@@ -1718,9 +1717,10 @@ void creature::view_ability() {
 		y += buttonx(x, y, 0, KeyLeft, prev_portrait, 0);
 		y += buttonx(x, y, 0, KeyRight, next_portrait, 0);
 		x = 148; y = 104;
-		zprint(temp, "%1 %2", bsdata<racei>::elements[getrace()].name, bsdata<genderi>::elements[getgender()].name);
+		stringbuilder sb(temp);
+		sb.add("%1 %2", bsdata<racei>::elements[getrace()].name, bsdata<genderi>::elements[getgender()].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
-		zprint(temp, bsdata<classi>::elements[type].name);
+		sb.clear(); sb.add(bsdata<classi>::elements[type].name);
 		text(x + (width - draw::textw(temp)) / 2, y, temp, -1, TextBold); y += draw::texth() + 2;
 		render_ability(148, 128, 32, TextBold);
 		render_combat(224, 128, 32, TextBold);
@@ -1941,8 +1941,10 @@ void creature::preparespells(class_s type) {
 		y += texth() + 2;
 		fore = colors::white;
 		auto x1 = x;
-		for(int i = 0; i < 9; i++)
-			buttonx(x1, y, -1, sznum(temp, i + 1), (void*)(i + 1), 0);
+		for(int i = 0; i < 9; i++) {
+			sb.clear(); sb.add("%1i", i + 1);
+			buttonx(x1, y, -1, temp, (void*)(i + 1), 0);
+		}
 		y += texth() + 8;
 		sb.clear();
 		sb.add("%1i of %2i remaining", prepared_spells, maximum_spells);
@@ -1952,7 +1954,7 @@ void creature::preparespells(class_s type) {
 		fore = colors::white;
 		auto ym = 174 - texth() * 2 - 7 - 6;
 		for(auto& e : result) {
-			sznum(temp, pc->getprepare(e));
+			sb.clear(); sb.add("%1i", pc->getprepare(e));
 			text(aligned(x, menu_width, AlignRight, textw(temp)), y, temp, -1, TextBold);
 			labelt(x, y, menu_width - 8 * 2, bsdata<spelli>::elements[e].name, &e, 0);
 			if(y >= ym)

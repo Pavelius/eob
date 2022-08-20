@@ -1,8 +1,10 @@
 #include "crt.h"
 #include "io_stream.h"
+#include "stringbuilder.h"
 
 io::stream& io::stream::operator<<(const int n) {
-	char temp[32]; sznum(temp, n);
+	char temp[32]; stringbuilder sb(temp);
+	sb.addint(n, 0, 10);
 	return *this << temp;
 }
 
