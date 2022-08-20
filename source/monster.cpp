@@ -15,7 +15,7 @@ monsteri bsdata<monsteri>::elements[] = {
 	{"Gnoll", FLIND, {0}, Humanoid, Male, Medium, LawfulEvil, Low, {}, {2, 3}, 5, {Mace}},
 	{"Ghoul", GHOUL, {0}, Humanoid, Male, Medium, ChaoticEvil, Semi, {Undead}, {2}, 6, {Claws, Bite}, {OfParalize}},
 	{"Goblin", GOBLIN, {0}, Goblinoid, Male, Medium, LawfulEvil, Low, {}, {1, -1}, 6, {Axe}},
-	{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {0, 4}, 7, {Dagger}},
+	{"Kobold", KOBOLD, {0}, Goblinoid, Male, Small, ChaoticEvil, Low, {}, {1, -3}, 7, {Dagger}},
 	{"Kuotoa", KUOTOA, {0}, Humanoid, Male, Large, NeutralEvil, Semi, {}, {3}, 7, {Slam}},
 	{"Leech", LEECH, {0}, Animal, Male, Large, TrueNeutral, AnimalInt, {}, {2}, 9, {Bite2d6}, {OfVampirism}},
 	{"Orc", ORC, {0}, Goblinoid, Male, Medium, LawfulEvil, Ave, {}, {1}, 7, {SwordLong}},

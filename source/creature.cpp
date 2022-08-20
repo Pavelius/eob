@@ -509,8 +509,11 @@ void creature::finish() {
 	basic.feats.add(ci.feats);
 	update_start();
 	update_finish();
-	if(ismonster())
+	if(ismonster()) {
 		basic.hits_rolled = gethitdice().roll();
+		if(basic.hits_rolled < 1)
+			basic.hits_rolled = 1;
+	}
 	else {
 		for(int i = 0; i < 3; i++) {
 			auto c = getclass(getclass(), i);
