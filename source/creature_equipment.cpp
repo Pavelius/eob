@@ -46,7 +46,8 @@ void creature::random_equipment(int level) {
 			continue;
 		item it = e.object;
 		it.finish();
-		it.setstarted(true);
+		if(e.level != 0)
+			it.setstarted(true);
 		if(e.slot) {
 			if(wears[e.slot])
 				continue;

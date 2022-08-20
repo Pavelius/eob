@@ -47,7 +47,6 @@ BSDATA(resourcei) = {
 	{"PORTM", PackCenter},
 	{"THROWN", PackInterface},
 	{"XSPL", PackInterface},
-	{"WORLD", PackInterface},
 	{"NPC", Pack160x96},
 	{"BPLACE", Pack320x120},
 	{"ADVENTURE", Pack160x96},

@@ -1110,20 +1110,6 @@ void draw::pause() {
 	closeform();
 }
 
-int	gamei::getmapheight() {
-	auto p = gres(WORLD);
-	if(!p)
-		return 0;
-	return p->frames[0].sx;
-}
-
-int	gamei::getmapwidth() {
-	auto p = gres(WORLD);
-	if(!p)
-		return 0;
-	return p->frames[0].sy;
-}
-
 static int get_spells_prepared(creature* pc, aref<spell_s> spells) {
 	int result = 0;
 	for(auto e : spells)

@@ -534,28 +534,6 @@ static bool serialize(dungeoni& e, short unsigned index, char level, bool write_
 	return true;
 }
 
-static bool serialize(const char* name, companyi& e, bool write_mode) {
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("modules/%1.gmd", name);
-	io::file file(temp, write_mode ? StreamWrite : StreamRead);
-	if(!file)
-		return false;
-	archive a(file, write_mode);
-	if(!a.signature("MOD"))
-		return false;
-	a.set(e);
-	return addstatical(a);
-}
-
-void companyi::write(const char* name) {
-	serialize(name, *this, true);
-}
-
-bool companyi::read(const char* name) {
-	auto result = serialize(name, *this, false);
-	return result;
-}
-
 void dungeoni::write() {
 	serialize(*this, overland_index, level, true);
 }

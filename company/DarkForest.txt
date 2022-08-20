@@ -14,18 +14,16 @@
 
 #Entering
 
-/BUILDNGS 11
-Old collector builded hundred years ago. What lie below the earth?
+/ADVENTURE 2
+After a some hours of travel you reach a old forest located to the north from the city.
 
 #History
-Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.
+This forest is good for prey and living. Your kind not distrubed us so offten. But master need us to find that thing. That ugly thing.
 #History
-Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!
-#History
-This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.
+Our master may ba ungry if we fail our task. We need to kill all humans and elves walking this trees. All must be killed.
 
 #Site FOREST 1
-#Habbit Orc Wolf
+#Habbit Goblin Wolf
 
 #Reward
 

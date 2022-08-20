@@ -11,11 +11,12 @@ struct archive {
 	bool			checksum(unsigned long long v);
 	bool			signature(const char* id);
 	void			set(array& value);
-	bool			version(short major, short minor);
+	void			set(const char*& value);
 	template<typename T> void set(T& value) {
 		if(writemode)
 			source.write(&value, sizeof(value));
 		else
 			source.read(&value, sizeof(value));
 	}
+	bool			version(short major, short minor);
 };

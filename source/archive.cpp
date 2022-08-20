@@ -45,7 +45,7 @@ void archive::set(array& value) {
 		if(writemode) {
 			source.write(&value.size, sizeof(value.size));
 			source.write(&value.count, sizeof(value.count));
-			source.write(value.data, value.size*value.count);
+			source.write(value.data, value.size * value.count);
 		} else {
 			value.clear();
 			source.read(&value.size, sizeof(value.size));
@@ -53,13 +53,37 @@ void archive::set(array& value) {
 			source.read(&count, sizeof(count));
 			value.reserve(count);
 			value.count = count;
-			source.read(value.data, value.size*value.count);
+			source.read(value.data, value.size * value.count);
 		}
 	} else {
 		set(value.count);
 		if(writemode)
-			source.write(value.data, value.size*value.count);
+			source.write(value.data, value.size * value.count);
 		else
-			source.read(value.data, value.size*value.count);
+			source.read(value.data, value.size * value.count);
+	}
+}
+
+void archive::set(const char*& value) {
+	if(writemode) {
+		auto n = value ? zlen(value) : 0;
+		source.write(n);
+		if(n)
+			source.write(value, n);
+	} else {
+		int n = 0;
+		source.read(n);
+		if(n) {
+			char temp[512];
+			auto pb = temp;
+			if(n > (sizeof(temp) - 1))
+				pb = new char[n + 1];
+			source.read(pb, n);
+			pb[n] = 0;
+			value = szdup(pb);
+			if(pb != temp)
+				delete[] pb;
+		} else
+			value = 0;
 	}
 }

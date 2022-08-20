@@ -39,7 +39,7 @@ enum resource_s : unsigned char {
 	BORDER, OUTTAKE, DECORS,
 	CHARGEN, CHARGENB, COMPASS, INVENT, ITEMS, ITEMGS, ITEMGL,
 	BLUE, BRICK, CRIMSON, DROW, DUNG, GREEN, FOREST, MEZZ, SILVER, XANATHA,
-	MENU, PLAYFLD, INTRO, PORTM, THROWN, XSPL, WORLD,
+	MENU, PLAYFLD, INTRO, PORTM, THROWN, XSPL,
 	NPC, BPLACE, ADVENTURE, BUILDNGS, DUNGEONS, CRYSTAL, SCENES,
 	// Monsters
 	ANKHEG, ANT, BLDRAGON, BUGBEAR, CLERIC1, CLERIC2, CLERIC3, DRAGON, DWARF, FLIND,
@@ -1186,35 +1186,11 @@ struct adventurei : historyi {
 	static void			play();
 	void				read(const char* url);
 };
-struct settlementi {
-	const char*			name;
-	imagei				image;
-	point				position;
-	const char*			description;
-	cflags<building_s>	buildings;
-	spellf				spells;
-	unsigned char		prosperty;
-	char				mood_tavern, mood_inn, mood_other;
-	bool				apply(building_s b, action_s a, bool run);
-	variant				enter();
-	action_s			enter(building_s id);
-	int					getdrinkcost() const { return 1 + getrarity() / 2; }
-	int					gethealingcost() const;
-	int					getequipmentcost(adventurei& e) const;
-	void				getdescriptor(stringbuilder& sb) const;
-	rarity_s			getrarity() const;
-	int					getrestcost(building_s b) const;
-	bool				is(building_s v) const { return buildings.is(v); }
-	void				play();
-	void				update();
-};
 struct companyi {
 	const char*			name;
-	const char*			intro; // When start new game
+	const char*			intro;
 	int					start_gold;
-	bool				read(const char* name);
 	void				readc(const char* name);
-	void				write(const char* name);
 };
 struct chati {
 	talk_s				action;
@@ -1272,8 +1248,6 @@ public:
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
 	int					getgold() const { return citya::get(Gold); }
 	void				getheroes(creature** result, direction_s dir);
-	static int			getmapheight();
-	static int			getmapwidth();
 	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
 	int					getside(int side, direction_s dr);

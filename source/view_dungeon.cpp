@@ -482,9 +482,6 @@ bool draw::settiles(resource_s type) {
 	render_mirror1 = CellSecrectButton;
 	render_mirror2 = CellPassable;
 	switch(type) {
-	case FOREST:
-		render_flipped_wall = -1;
-		break;
 	case BLUE:
 		render_door_type = BLUE;
 		break;
