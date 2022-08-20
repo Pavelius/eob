@@ -7,6 +7,7 @@ static unsigned short	path_stack[256];
 static unsigned char	path_push;
 static unsigned char	path_pop;
 const unsigned char		CellMask = 0x1F;
+static direction_s		all_around[] = {Left, Right, Up, Down};
 
 static void snode(indext index, short unsigned* pathmap, short unsigned cost) {
 	if(index == Blocked)
@@ -1276,4 +1277,19 @@ bool dungeoni::islying(indext index, item_s type) const {
 			return true;
 	}
 	return false;
+}
+
+int	dungeoni::getneightboard(indext index, cell_s t1, cell_s t2) {
+	if(isblocked(index))
+		return 0;
+	auto result = 0;
+	for(auto d : all_around) {
+		auto i1 = to(index, d);
+		if(i1 == Blocked)
+			continue;
+		auto t = get(i1);
+		if(t == t1 || t == t2)
+			result++;
+	}
+	return result;
 }

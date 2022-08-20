@@ -307,7 +307,6 @@ typedef dataset<Reputation, int> citya;
 class creature;
 class creaturea;
 class item;
-struct adventurei;
 struct settlementi;
 struct variant {
 	variant_s			type;
@@ -340,7 +339,6 @@ struct variant {
 	constexpr explicit operator int() const { return (type << 8) | value; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	void				clear() { type = NoVariant; value = 0; }
-	auto				getadventure() const { return (adventurei*)getpointer(Adventure); }
 	creature*			getcreature() const;
 	const char*			getname() const;
 	void*				getpointer(variant_s t) const;
@@ -604,6 +602,8 @@ struct sitei {
 		race_s			language; // All messages in this language
 	};
 	struct crypti {
+		cell_s			corner;
+		int				corner_count;
 		monster_s		boss;
 		explicit operator bool() const { return boss != NoMonster; }
 	};
@@ -1103,6 +1103,7 @@ struct dungeoni {
 	item_s				getkeytype(cell_s keyhole) const;
 	indext				getnearest(indext index, int radius, cell_s t1);
 	short unsigned*		getnearestfree(indext* indicies, indext index);
+	int					getneightboard(indext index, cell_s t1, cell_s t2);
 	const char*			getnavigation(indext index) const;
 	direction_s			getpassable(indext index, direction_s* dirs);
 	indext				getretreat(indext from, int radius) const;
@@ -1406,6 +1407,7 @@ NOBSDATA(historyi)
 NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(variant)
+BSLNK(cell_s, celli)
 BSLNK(item_s, itemi)
 BSLNK(monster_s, monsteri)
 BSLNK(race_s, racei)

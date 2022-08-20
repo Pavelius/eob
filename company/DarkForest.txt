@@ -24,6 +24,7 @@ Our master may ba ungry if we fail our task. We need to kill all humans and elve
 
 #Site FOREST 1
 #Habbit Goblin Wolf
+#Corner Grave 4
 
 #Reward
 

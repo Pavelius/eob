@@ -8,10 +8,11 @@ struct roomi {
 	direction_s		dir;
 	unsigned		flags;
 };
-static direction_s		all_around[] = {Left, Right, Up, Down};
-static roomi			rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
-static unsigned char	stack_put; // Вершина стека.
-static unsigned char	stack_get; // Низ стека
+static direction_s	all_around[] = {Left, Right, Up, Down};
+static roomi		rooms[256]; // Кольцевой буфер генератора. Главное чтоб разница не была 256 значений.
+static unsigned char stack_put; // Вершина стека.
+static unsigned char stack_get; // Низ стека
+static indexa		indecies;
 typedef void fnroom(dungeoni& e, direction_s dir, const sitei* site, indext* indecies);
 
 typedef void(*dungeon_proc)(dungeoni* pd, short unsigned index, direction_s dir, unsigned flags);
@@ -930,6 +931,30 @@ static void create_room(dungeoni& e, shape_s place, const sitei* site, fnroom pr
 	create_room(e, i, place, dir, site, proc);
 }
 
+static void select_corners(dungeoni& e) {
+	indecies.clear();
+	for(auto i = 0; i < mpx * mpy; i++) {
+		if(e.get(i) != CellPassable)
+			continue;
+		if(e.getneightboard(i, CellWall, CellUnknown) == 3
+			&& e.getneightboard(i, CellPassable, CellPassable) == 1)
+			indecies.add(i);
+	}
+}
+
+static void add_corners(dungeoni& e, cell_s value, size_t count) {
+	if(!value)
+		return;
+	select_corners(e);
+	zshuffle(indecies.data, indecies.count);
+	if(count > indecies.count)
+		count = indecies.count;
+	for(size_t i = 0; i < count; i++) {
+		auto index = indecies.data[i];
+		e.set(index, value);
+	}
+}
+
 void adventurei::create(bool interactive) const {
 	auto count = levels->getleveltotal();
 	if(!count)
@@ -983,6 +1008,7 @@ void adventurei::create(bool interactive) const {
 			if(j == special_item_level)
 				validate_special_items(e);
 			add_spawn_points(e);
+			add_corners(e, p->crypt.corner, p->crypt.corner_count);
 			e.overland_index = bsdata<adventurei>::source.indexof(this);
 			previous = &e;
 		}

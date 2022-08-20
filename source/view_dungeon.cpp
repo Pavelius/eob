@@ -91,11 +91,8 @@ static point item_position[18 * 4] = {
 };
 
 static int get_tile(cell_s id, bool mirrored) {
-	if(id == CellWall && mirrored) {
-		if(render_flipped_wall == -1)
-			return bsdata<celli>::elements[id].frame;
-		return render_flipped_wall;
-	}
+	if(id == CellWall && mirrored)
+		return 1 * walls_frames;
 	return bsdata<celli>::elements[id].frame;
 }
 

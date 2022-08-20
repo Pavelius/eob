@@ -171,7 +171,10 @@ static void read_site(adventurei& e) {
 			readval(pv->head.wands);
 		else if(isheader("Boss"))
 			readval(pv->crypt.boss);
-		else
+		else if(isheader("Corner")) {
+			readval(pv->crypt.corner);
+			readval(pv->crypt.corner_count);
+		} else
 			break;
 		skipwscr();
 	}
