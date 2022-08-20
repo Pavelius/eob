@@ -58,6 +58,7 @@ void								rmreserve(void** data, unsigned count, unsigned& count_maximum, unsi
 inline const char*					skipsp(const char* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
 inline const char*					skipspcr(const char* p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }
 float								sqrt(const float x); // Return aquare root of 'x'
+const char*							szdup(const char* p);
 void								szencode(char* output, int output_count, codepages output_code, const char* input, int input_count, codepages input_code);
 unsigned							szget(const char** input, codepages page = metrics::code);
 int									szcmpi(const char* p1, const char* p2);

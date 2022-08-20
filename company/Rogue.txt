@@ -1,78 +1,78 @@
-##Variable
+#Variable
 
 TheivesGuild
 Harpers
 
-##Quest "Flooded Collectors"
+#Quest "Flooded Collectors"
 
-##Summary
+#Summary
 
-#NPC 50
+/NPC 50
 "Well met, my friends." Chief of local guard was good spirited. You sit in local tavern. "My name if Halfast Rodgar. And I am chief of local guard as you now."
 "We have a problem in collectors. Two our men goind down and not returned. There is a some kind of monsters inside."
 "I need your help to deal with them. Kill them all. Going down to the last level and kill all of these creatures and our comunity will reward you."
 
-##Agree
+#Agree
 
-#NPC 50
+/NPC 50
 "Very well! You are good mens. Let's luck be with you."
 
-##Entering
+#Entering
 
-#BUILDNGS 11
+/BUILDNGS 11
 Old collector builded hundred years ago. What lie below the earth?
 
-##History
+#History
 Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.
-##History
+#History
 Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!
-##History
+#History
 This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.
 
-##Site BRICK 2
-##Habbit Kobold Leech
-##Site BRICK 2
-##Habbit Skeleton Zombie
-##Site BRICK 1
-##Habbit Zombie Ghoul
+#Site BRICK 2
+#Habbit Kobold Leech
+#Site BRICK 2
+#Habbit Skeleton Zombie
+#Site BRICK 1
+#Habbit Zombie Ghoul
 
-##Reward
+#Reward
 
-#NPC 50
+/NPC 50
 "You are back? I don't expect this. So ... here you reward."
 "And found me later. You may give a service to goverment and army."
 
-##Quest "Dark Forest"
+#Quest "Dark Forest"
 
-##Summary
+#Summary
 
-#NPC 50
+/NPC 50
 "Well met, my friends." Chief of local guard was good spirited. You sit in local tavern. "My name if Halfast Rodgar. And I am chief of local guard as you now."
 "We have a problem in collectors. Two our men goind down and not returned. There is a some kind of monsters inside."
 "I need your help to deal with them. Kill them all. Going down to the last level and kill all of these creatures and our comunity will reward you."
 
-##Agree
+#Agree
 
-#NPC 50
+/NPC 50
 "Very well! You are good mens. Let's luck be with you."
 
-##Entering
+#Entering
 
-#BUILDNGS 11
+/BUILDNGS 11
 Old collector builded hundred years ago. What lie below the earth?
 
-##History
+#History
 Years ago we found this place. It's perfect place, fresh food is always on ground and some times adventurers leak there and get rumor from outside.
-##History
+#History
 Our master want answers. What lie up ground? Big city? How it big and how it reach? Adventurers tell some information but we need more. Master need more!
-##History
+#History
 This leech is ugly disasters. It come from underground sea, where it hunt a blind fish. But how it get there? Some where must be hole from where it come here.
 
-##Site FOREST 1
-##Habbit Orc Wolf
+#Site FOREST 1
+#Habbit Orc Wolf
 
-##Reward
+#Reward
 
-#NPC 50
+/NPC 50
 "You are back? I don't expect this. So ... here you reward."
 "And found me later. You may give a service to goverment and army."

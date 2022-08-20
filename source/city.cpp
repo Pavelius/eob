@@ -24,7 +24,7 @@ void gamei::playcity() {
 	while(draw::isallowmodal()) {
 		aw.clear();
 		aw.add((int)enter_quest, "Quest");
-		auto p = (fnevent)aw.choosebg("#BUILDNGS 17\nYou are on the street of city Waterdeep. Spend some money and rest for a moment.");
+		auto p = (fnevent)aw.choosebg("/BUILDNGS 17\nYou are on the street of city Waterdeep. Spend some money and rest for a moment.");
 		if(p)
 			p();
 	}

@@ -278,7 +278,7 @@
     <ClCompile Include="log.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="quest.cpp">
+    <ClCompile Include="adventure.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="variable.cpp">

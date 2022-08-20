@@ -200,7 +200,7 @@
     <ClCompile Include="metadata.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="nameable.cpp" />
-    <ClCompile Include="quest.cpp" />
+    <ClCompile Include="adventure.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="avatar.cpp" />

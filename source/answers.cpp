@@ -43,7 +43,7 @@ static const char* nextword(const char* p) {
 }
 
 static const char* parse_rich(const char* p, imagei& im, char* ps, const char* pe) {
-	while(*p == '#') {
+	while(*p == '/') {
 		auto p1 = p + 1; p = nextword(p1);
 		auto pr = resourcei::find(p1, p - p1);
 		if(!pr)

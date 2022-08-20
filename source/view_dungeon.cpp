@@ -27,6 +27,7 @@ struct renderi {
 extern sprite*			gres(resource_s id);
 static cell_s			render_mirror1, render_mirror2;
 static resource_s		render_door_type;
+static resource_s		render_dungeon;
 static int				render_flipped_wall;
 static sprite*			map_tiles;
 static int				disp_damage[6];
@@ -371,7 +372,7 @@ static void view_effects(int x, int y, const creature* pc) {
 		if(i1 >= mn)
 			i1 = 0;
 		auto n = frametick % 64;
-		f = source[i1].mix(source[i0], n*4);
+		f = source[i1].mix(source[i0], n * 4);
 	}
 	rectb(rc, f);
 }
@@ -476,6 +477,7 @@ void draw::animation::attack(creature* attacker, wear_s slot, int hits) {
 bool draw::settiles(resource_s type) {
 	map_tiles = gres(type);
 	render_flipped_wall = 1 * walls_frames;
+	render_dungeon = type;
 	render_door_type = BRICK;
 	render_mirror1 = CellSecrectButton;
 	render_mirror2 = CellPassable;
@@ -779,6 +781,12 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 					if(flip)
 						p->flags[1] = ImageMirrorH;
 				}
+			}
+			if(render_dungeon == BRICK) {
+				if(rec == CellStairsUp)
+					p->frame[1] = decor_offset + 19 * decor_frames + pos_levels[i];
+				else if(rec == CellStairsDown)
+					p->frame[1] = decor_offset + 20 * decor_frames + pos_levels[i];
 			}
 			auto povr = add_wall_decor(p, index, Down, decor_front[i], flip, true);
 			p = add_cellar_items(p, i, povr);
@@ -1183,12 +1191,12 @@ static void render_screen() {
 	// 2 - 80x59, side has 24
 	// 1 - 128x96, side has 24
 	// 0 - 176x120 - background
-	draw::state push;
+	state push;
 	renderi* zorder[512];
 	unsigned flags = flip_flags(game.getcamera(), game.getdirection());
 	//draw::image(scrx/2((flags&ImageMirrorH) != 0) ? 22 * 8 : 0, 0, map_tiles, 0, flags);
-	draw::image(scrx / 2, scry / 2, map_tiles, 0, flags);
-	draw::setclip({0, 0, scrx, scry});
+	image(scrx / 2, scry / 2, map_tiles, 0, flags);
+	setclip({0, 0, scrx, scry});
 	renderi** pz = zorder;
 	for(renderi* p = disp_data; p->rdata; p++)
 		*pz++ = p;
@@ -1196,8 +1204,8 @@ static void render_screen() {
 	for(auto p1 = zorder; p1 < pz; p1++) {
 		renderi* p = *p1;
 		if(p->clip) {
-			draw::state push;
-			draw::setclip(p->clip);
+			state push;
+			setclip(p->clip);
 			p->paint();
 		} else
 			p->paint();

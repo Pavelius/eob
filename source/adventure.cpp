@@ -1,7 +1,6 @@
 #include "main.h"
 #include "log.h"
 
-const char* szdup(const char* p);
 static const char* p;
 static bool need_continue;
 
@@ -23,7 +22,7 @@ static void skipwscr() {
 }
 
 static bool isheader() {
-	return p[0] == '#' && p[1] == '#';
+	return p[0] == '#';
 }
 
 static void readid() {
@@ -99,7 +98,7 @@ static void readenum(array& source) {
 static bool isheader(const char* id) {
 	if(!isheader())
 		return false;
-	auto p1 = p + 2;
+	auto p1 = p + 1;
 	while(*p1) {
 		if(*id == 0 && !ischa(*p1) && !isnum(*p1)) {
 			p = p1; skipws();
