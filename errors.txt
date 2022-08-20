@@ -1,2 +1,2 @@
-﻿In file `company/Rogue.txt`:
- Line 6: Expected header 'Reward'
+﻿Can't find file 'company/FloodedCollectors.txt'
+Can't find file 'company/DarkForest.txt'

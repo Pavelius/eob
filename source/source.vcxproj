@@ -234,7 +234,9 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\company\Rogue.txt" />
+    <Text Include="..\company\Basic.txt" />
+    <Text Include="..\company\DarkForest.txt" />
+    <Text Include="..\company\FloodedCollectors.txt" />
     <Text Include="..\errors.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

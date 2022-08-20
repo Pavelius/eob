@@ -13,9 +13,12 @@ static void enter_quest() {
 	choose_quest();
 	if(!last_quest)
 		return;
+#ifdef _DEBUG
+#else
 	if(!answers::confirm(last_quest->summary))
 		return;
 	answers::message(last_quest->agree);
+#endif
 	last_quest->enter();
 }
 

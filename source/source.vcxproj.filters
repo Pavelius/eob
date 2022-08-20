@@ -19,6 +19,15 @@
     <Filter Include="Данные">
       <UniqueIdentifier>{9d5c7a29-5697-48ba-96b5-c3b82d207b00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Данные\Adventures">
+      <UniqueIdentifier>{3cdd79dd-7ef2-404b-a74f-aafbfc140faa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Данные\Campaign">
+      <UniqueIdentifier>{a77bfa2d-0056-4179-8f7d-5cd92a53e197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Данные\Other">
+      <UniqueIdentifier>{0b05ea22-a947-445e-9a85-767236549775}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win.h">
@@ -292,19 +301,25 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\import\western_heartlands.json">
-      <Filter>Данные</Filter>
-    </None>
     <None Include="cpp.hint">
-      <Filter>Данные</Filter>
+      <Filter>Данные\Other</Filter>
+    </None>
+    <None Include="..\import\western_heartlands.json">
+      <Filter>Данные\Other</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\company\Rogue.txt">
-      <Filter>Данные</Filter>
+    <Text Include="..\company\DarkForest.txt">
+      <Filter>Данные\Adventures</Filter>
+    </Text>
+    <Text Include="..\company\FloodedCollectors.txt">
+      <Filter>Данные\Adventures</Filter>
     </Text>
     <Text Include="..\errors.txt">
-      <Filter>Данные</Filter>
+      <Filter>Данные\Other</Filter>
+    </Text>
+    <Text Include="..\company\Basic.txt">
+      <Filter>Данные\Campaign</Filter>
     </Text>
   </ItemGroup>
 </Project>

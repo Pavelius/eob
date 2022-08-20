@@ -247,7 +247,6 @@ void debug_dungeon2() {
 	location.clear();
 	location_above.clear();
 	random_heroes();
-	//test_dungeon(BRICK);
 	test_dungeon2(BRICK);
 	draw::settiles(location.head.type);
 	game.setcamera(location.getindex(16, 16), Up);
@@ -261,15 +260,38 @@ void debug_dungeon2() {
 
 #endif // DEBUG
 
-void gamei::newgame() {
-	srand(clock());
-	//debug_dungeon2();
-	//return;
+static void read_adventures() {
+	char temp[260]; stringbuilder sb(temp);
+	for(auto& e : bsdata<adventurei>()) {
+		sb.clear();
+		sb.add("company/%1.txt", e.id);
+		e.read(temp);
+	}
+}
+
+static bool reading() {
+	game.readc("company/Basic.txt");
+	read_adventures();
+	return log::geterrors() == 0;
+}
+
+static void clear_all() {
+	bsdata<variablei>::source.clear();
+	bsdata<adventurei>::source.clear();
 	location.clear();
 	location_above.clear();
 	game.clear();
 	game.clearfiles();
 	party.clear();
+}
+
+void gamei::newgame() {
+	srand(clock());
+	//debug_dungeon2();
+	//return;
+	clear_all();
+	if(!reading())
+		return;
 	for(unsigned i = 0; i < 4; i++)
 		bsdata<creature>::elements[i].clear();
 #ifdef _DEBUG
@@ -292,11 +314,6 @@ void gamei::newgame() {
 	game.passtime(12 * 60);
 	game.write();
 	setnext(game.playcity);
-}
-
-static bool reading() {
-	companyi::readn("company/Rogue.txt");
-	return log::geterrors() == 0;
 }
 
 int main(int argc, char* argv[]) {

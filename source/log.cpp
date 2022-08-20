@@ -3,6 +3,7 @@
 #include "log.h"
 #include "stringbuilder.h"
 
+bool log::need_continue;
 static int error_count;
 static const char* current_url;
 static const char* current_file;
@@ -25,6 +26,7 @@ const char* log::read(const char* url, bool error_if_not_exist) {
 	}
 	seturl(url);
 	setfile(p_alloc);
+	need_continue = true;
 	return p_alloc;
 }
 
@@ -61,7 +63,7 @@ void log::errorv(const char* position, const char* format) {
 	file << format << "\n";
 }
 
-void log::error(const char* position, const char* format, ...) {
+void log::errorf(const char* position, const char* format, const char* format_param) {
 	char temp[4096]; stringbuilder sb(temp);
 	if(current_url) {
 		sb.add("In file `%1`:", current_url);
@@ -69,8 +71,17 @@ void log::error(const char* position, const char* format, ...) {
 		errorv(0, temp);
 		sb.clear();
 	}
-	sb.addv(format, xva_start(format));
+	sb.addv(format, format_param);
 	errorv(position, temp);
+}
+
+void log::error(const char* position, const char* format, ...) {
+	errorf(position, format, xva_start(format));
+}
+
+void log::cerror(const char* position, const char* format, ...) {
+	need_continue = false;
+	errorf(position, format, xva_start(format));
 }
 
 int log::geterrors() {

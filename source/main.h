@@ -1168,6 +1168,7 @@ struct historyi {
 	unsigned			gethistorymax() const;
 };
 struct adventurei : historyi {
+	const char*			id;
 	const char*			name;
 	const char*			summary;
 	const char*			agree;
@@ -1177,11 +1178,13 @@ struct adventurei : historyi {
 	unsigned char		stage; // 0 - non active
 	void				activate() { if(!stage) stage++; }
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
+	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(bool interactive) const;
 	void				enter();
 	int					getindex() const { return this - bsdata<adventurei>::elements; }
 	const char*			getname() const { return name; }
 	static void			play();
+	void				read(const char* url);
 };
 struct settlementi {
 	const char*			name;
@@ -1207,12 +1210,11 @@ struct settlementi {
 };
 struct companyi {
 	const char*			name;
-	unsigned char		start; // starting settlement
 	const char*			intro; // When start new game
 	int					start_gold;
 	bool				read(const char* name);
+	void				readc(const char* name);
 	void				write(const char* name);
-	static void			readn(const char* url);
 };
 struct chati {
 	talk_s				action;

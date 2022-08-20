@@ -1,8 +1,9 @@
 #include "main.h"
 #include "log.h"
 
+using namespace log;
+
 static const char* p;
-static bool need_continue;
 
 struct svalue {
 	const char*		text;
@@ -115,8 +116,7 @@ static bool reqheader(const char* id) {
 	if(!need_continue)
 		return false;
 	if(!isheader(id)) {
-		need_continue = false;
-		log::error(p, "Expected header \'%1\'", id);
+		log::cerror(p, "Expected header \'%1\'", id);
 		return false;
 	}
 	return true;
@@ -146,13 +146,13 @@ void readval(const char*& v) {
 static void read_site(adventurei& e) {
 	auto pv = e.addsite();
 	if(!pv) {
-		need_continue = false;
-		log::error(p, "Too many sites in adventure \'%1\'", e.name);
+		log::cerror(p, "Too many sites in adventure \'%1\'", e.name);
 		return;
 	}
 	pv->head.keys[0] = KeyCooper;
 	pv->head.keys[1] = KeySilver;
 	pv->head.language = Human;
+	pv->chance.curse = 5;
 	readval(pv->head.type);
 	readval(pv->levels);
 	skipwscr();
@@ -165,37 +165,15 @@ static void read_site(adventurei& e) {
 			readval(pv->head.habbits[1]);
 		} else if(isheader("Language"))
 			readval(pv->head.language);
+		else if(isheader("Curse"))
+			readval(pv->chance.curse);
+		else if(isheader("Item"))
+			readval(pv->head.wands);
 		else if(isheader("Boss"))
 			readval(pv->crypt.boss);
 		else
 			break;
 		skipwscr();
-	}
-}
-
-static void read_adventure() {
-	auto pq = bsdata<adventurei>::add();
-	readname(); pq->name = value.text;
-	skipwscr();
-	int history_current = pq->gethistorymax();
-	while(*p && need_continue) {
-		if(isheader("Summary"))
-			readval(pq->summary);
-		else if(isheader("Agree"))
-			readval(pq->agree);
-		else if(isheader("Entering"))
-			readval(pq->entering);
-		else if(isheader("History"))
-			readval(pq->history[history_current++]);
-		else if(isheader("Site"))
-			read_site(*pq);
-		else
-			break;
-		skipwscr();
-	}
-	if(reqheader("Reward")) {
-		readtext();
-		pq->reward = value.text;
 	}
 }
 
@@ -215,20 +193,52 @@ static void read_variable() {
 	}
 }
 
-void companyi::readn(const char* url) {
+void adventurei::read(const char* url) {
 	p = log::read(url);
 	if(!p)
 		return;
-	need_continue = true;
+	int history_current = gethistorymax();
 	while(*p && need_continue) {
-		if(isheader("Quest"))
-			read_adventure();
+		if(isheader("Summary"))
+			readval(summary);
 		else if(isheader("Variable"))
 			read_variable();
-		else {
-			need_continue = false;
-			log::error(p, "Expected valid header");
-		}
+		else if(isheader("Name")) {
+			readname(); name = value.text;
+			skipwscr();
+		} else if(isheader("Agree"))
+			readval(agree);
+		else if(isheader("Entering"))
+			readval(entering);
+		else if(isheader("History"))
+			readval(history[history_current++]);
+		else if(isheader("Site"))
+			read_site(*this);
+		else
+			break;
+		skipwscr();
+	}
+	if(reqheader("Reward")) {
+		readtext();
+		reward = value.text;
+	}
+	log::close();
+}
+
+void companyi::readc(const char* url) {
+	p = log::read(url);
+	if(!p)
+		return;
+	while(*p && need_continue) {
+		if(isheader("Adventure")) {
+			auto pv = bsdata<adventurei>::add();
+			pv->clear();
+			readid(); pv->id = value.text;
+			skipwscr();
+		} else if(isheader("Intro"))
+			readval(intro);
+		else
+			log::cerror(p, "Expected valid header");
 	}
 	log::close();
 }
