@@ -307,7 +307,14 @@ void gamei::findsecrets() {
 		if(!p || !p->isready())
 			continue;
 		if(p->roll(DetectSecrets)) {
-			p->say(maprnd(speech), name_direction[secret_dir]);
+			switch(getenviroment()) {
+			case FOREST:
+				p->say(maprnd(speech), name_direction[secret_dir]);
+				break;
+			default:
+				p->say(maprnd(speech), name_direction[secret_dir]);
+				break;
+			}
 			break;
 		}
 	}

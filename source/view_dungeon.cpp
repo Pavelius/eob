@@ -612,7 +612,8 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 	// | |_  6 3 8
 	//   |_    2 9
 	//   |     1
-	static char walls_front[18] = {7, 7, 7, 7, 7, 7, 7,
+	static char walls_front[18] = {
+		7, 7, 7, 7, 7, 7, 7,
 		8, 8, 8, 8, 8,
 		9, 9, 9,
 		0, 0, 0,
@@ -776,11 +777,19 @@ static renderi* create_wall(renderi* p, int i, indext index, int frame, cell_s r
 						p->flags[1] = ImageMirrorH;
 				}
 			}
-			if(render_dungeon == BRICK) {
+			switch(game.getenviroment()) {
+			case BRICK:
 				if(rec == CellStairsUp)
 					p->frame[1] = decor_offset + 19 * decor_frames + pos_levels[i];
 				else if(rec == CellStairsDown)
 					p->frame[1] = decor_offset + 20 * decor_frames + pos_levels[i];
+				break;
+			case FOREST:
+				if(rec == CellStairsUp || rec == CellStairsDown) {
+					p->frame[0] = walls_front[i];
+					p->frame[1] = decor_offset + 0 * decor_frames + pos_levels[i];
+				}
+				break;
 			}
 			auto povr = add_wall_decor(p, index, Down, decor_front[i], flip, true);
 			p = add_cellar_items(p, i, povr);
@@ -1289,4 +1298,8 @@ void draw::animation::render(int pause, bool show_screen, void* current_item, co
 		redraw();
 		sleep(pause);
 	}
+}
+
+resource_s gamei::getenviroment() {
+	return render_dungeon;
 }

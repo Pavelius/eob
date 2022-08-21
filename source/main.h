@@ -1246,6 +1246,7 @@ public:
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
 	indext				getcamera() const { return camera_index; }
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
+	static resource_s	getenviroment();
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
 	int					getgold() const { return citya::get(Gold); }
 	void				getheroes(creature** result, direction_s dir);
