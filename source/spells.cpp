@@ -68,7 +68,7 @@ BSDATA(spelli) = {
 	{"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
 	{"Turn Undead", {0, 1}, TargetAllClose, {TurnUndead}, MagicThrown},
 };
-assert_enum(spell, TurnUndead)
+assert_enum(spelli, TurnUndead)
 BSDATAF(spelli)
 
 int	creature::getlevel(spell_s id, class_s type) {

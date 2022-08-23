@@ -26,7 +26,7 @@ BSDATA(actioni) = {
 	{"Work"},
 	{"Experience"},
 };
-assert_enum(action, Experience)
+assert_enum(actioni, Experience)
 BSDATAF(actioni)
 
 BSDATA(talki) = {

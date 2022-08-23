@@ -5,5 +5,5 @@ BSDATA(genderi) = {
 	{"Male"},
 	{"Female"},
 };
-assert_enum(gender, Female)
+assert_enum(genderi, Female)
 BSDATAF(genderi)

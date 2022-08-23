@@ -14,7 +14,7 @@ BSDATA(packi) = {
 	{"Pack320x120", "art/scenes", true},
 	{"Pack320x200", "art/interface", true},
 };
-assert_enum(pack, Pack320x200)
+assert_enum(packi, Pack320x200)
 
 BSDATA(resourcei) = {
 	{"NONE", PackBackground},
@@ -81,7 +81,7 @@ BSDATA(resourcei) = {
 	{"WOLF", PackMonster},
 	{"ZOMBIE", PackMonster},
 };
-assert_enum(resource, ZOMBIE)
+assert_enum(resourcei, ZOMBIE)
 BSDATAF(resourcei)
 
 void view_dungeon_reset();

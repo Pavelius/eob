@@ -13,5 +13,5 @@ BSDATA(damagei) = {
 	{"Death"},
 	{"Petrification"},
 };
-assert_enum(damage, Petrification)
+assert_enum(damagei, Petrification)
 BSDATAF(damagei)

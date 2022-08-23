@@ -7,5 +7,5 @@ BSDATA(sizei) = {
 	{"Tall"},
 	{"Large"},
 };
-assert_enum(size, Large)
+assert_enum(sizei, Large)
 BSDATAF(sizei)

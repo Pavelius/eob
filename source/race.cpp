@@ -21,5 +21,5 @@ BSDATA(racei) = {
 	{0, "Insectoid", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}, {}, {}, {UseLargeWeapon}, {{ResistCharm, 100}}},
 	{0, "Animal", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}},
 };
-assert_enum(race, Animal)
+assert_enum(racei, Animal)
 BSDATAF(racei)

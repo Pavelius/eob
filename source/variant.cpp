@@ -26,7 +26,7 @@ BSDATA(varianti) = {
 	{"Resource", "resources"},
 	{"Spell", "spells", {}},
 };
-assert_enum(variant, Spell)
+assert_enum(varianti, Spell)
 BSDATAF(varianti)
 
 const unsigned creature_players_base = 240;

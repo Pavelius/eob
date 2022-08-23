@@ -13,7 +13,7 @@ durationi bsdata<durationi>::elements[] = {
 	{"4 hours", 0, 0, 60 * 4},
 	{"8 hours", 0, 0, 60 * 8},
 };
-assert_enum(duration, Duration8Hours);
+assert_enum(durationi, Duration8Hours);
 
 int durationi::get(int v) const {
 	auto result = 0;

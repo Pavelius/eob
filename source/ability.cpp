@@ -37,7 +37,7 @@ BSDATA(abilityi) = {
 	{"Reaction bonus"},
 	{"Exeptional Strenght"},
 };
-assert_enum(ability, ExeptionalStrenght)
+assert_enum(abilityi, ExeptionalStrenght)
 BSDATAF(abilityi)
 
 bool abilityi::allow(class_s v) const {

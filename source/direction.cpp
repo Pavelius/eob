@@ -7,4 +7,4 @@ directioni bsdata<directioni>::elements[] = {
 	{"Right"},
 	{"Down"},
 };
-assert_enum(direction, Down);
+assert_enum(directioni, Down);

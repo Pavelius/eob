@@ -34,7 +34,7 @@ BSDATA(shapei) = {
 	"X.......X"
 	"XXXXXXXXX"},
 };
-assert_enum(shape, ShapeHall)
+assert_enum(shapei, ShapeHall)
 
 const char* shapei::getvertical() const {
 	static char temp_data[8 * 8];

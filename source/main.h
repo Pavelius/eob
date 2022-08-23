@@ -8,7 +8,7 @@
 #include "stringbuilder.h"
 #include "variable.h"
 
-#define assert_enum(e, last) static_assert(sizeof(bsdata<e##i>::elements) / sizeof(bsdata<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements");
+#define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements");
 #define MNLNK(T1, T2) BSLNK(T1, T2) DGLNK(T1, T2)
 
 const unsigned short	Blocked = 0xFFFF;
@@ -374,6 +374,9 @@ struct abilityi {
 	cflags<class_s>		match;
 	bool				allow(class_s v) const;
 	int					getmultiplier() const;
+};
+struct cityabilityi {
+	const char*			name;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -1195,6 +1198,7 @@ struct citya : public dataset<Reputation, int> {
 	void				addcity(city_ability_s i, int v) { add(i, v); }
 	void				addgold(int coins) { addcity(Gold, coins); }
 	int					getgold() const { return get(Gold); }
+	int					getcity(city_ability_s i) const { return get(i); }
 	void				pay(int coins) { addgold(-coins); }
 	static void			playinn();
 	static void			playv();
@@ -1216,7 +1220,7 @@ struct encounteri : public creaturea {
 	void				dialog();
 	void				set(reaction_s v);
 };
-class gamei : public companyi, citya {
+class gamei : public companyi, public citya {
 	indext				camera_index;
 	direction_s			camera_direction;
 	char				location_level;

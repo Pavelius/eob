@@ -13,5 +13,5 @@ intellegencei bsdata<intellegencei>::elements[] = {
 	{"Supra", 19, 20},
 	{"Godlike", 21, 25},
 };
-assert_enum(intellegence, Godlike)
+assert_enum(intellegencei, Godlike)
 BSDATAF(intellegencei)

@@ -18,5 +18,5 @@ BSDATA(itemfeati) = {
 	{"Expandable"},
 	{"Unique"},
 };
-assert_enum(itemfeat, Unique)
+assert_enum(itemfeati, Unique)
 BSDATAF(itemfeati)

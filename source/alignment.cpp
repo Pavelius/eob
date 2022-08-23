@@ -11,7 +11,7 @@ alignmenti bsdata<alignmenti>::elements[] = {
 	{"Neutral Evil", Neutral, Evil, {Ranger, Paladin}},
 	{"Chaotic Evil", Chaotic, Evil, {Ranger, Paladin}},
 };
-assert_enum(alignment, ChaoticEvil)
+assert_enum(alignmenti, ChaoticEvil)
 BSDATAF(alignmenti)
 
 moralei bsdata<moralei>::elements[] = {{"Lawful"},
@@ -20,5 +20,5 @@ moralei bsdata<moralei>::elements[] = {{"Lawful"},
 	{"Chaotic"},
 	{"Evil"},
 };
-assert_enum(morale, Evil)
+assert_enum(moralei, Evil)
 BSDATAF(moralei)

@@ -95,7 +95,7 @@ void draw::setnext(void(*v)()) {
 }
 
 int draw::ciclic(int range, int speed) {
-	return iabs((int)((frametick*speed) % range * 2) - range);
+	return iabs((int)((frametick * speed) % range * 2) - range);
 }
 
 static void setblink(color v) {
@@ -170,7 +170,7 @@ int draw::textw(int sym) {
 }
 
 void draw::glyph(int x, int y, int sym, unsigned flags) {
-	if(flags&TextBold) {
+	if(flags & TextBold) {
 		auto push_fore = fore;
 		fore = colors::black;
 		glyph(x + 1, y + 1, sym, 0);
@@ -235,7 +235,7 @@ static void border_down(rect rc) {
 
 static int flatb(int x, int y, int width, unsigned flags, const char* string) {
 	int height = draw::texth() + 1;
-	if(flags&Focused)
+	if(flags & Focused)
 		rectf({x, y, x + width, y + height + 1}, colors::dark);
 	else
 		border_up({x, y, x + width, y + height});
@@ -414,7 +414,7 @@ void draw::itemicn(int x, int y, item* pitm, bool invlist, unsigned flags, void*
 		}
 		itemicn(x, y, *pitm, alpha, state);
 	}
-	if(flags&Disabled)
+	if(flags & Disabled)
 		rectf({rc.x1, rc.y1, rc.x2 + 1, rc.y2 + 1}, colors::black, 192);
 }
 
@@ -424,12 +424,12 @@ static int texti(rect rc, const char* string, unsigned state, int i1, point& p1)
 	int x1 = rc.x1;
 	int y1 = rc.y1 + alignedh(rc, string, state);
 	int dy = texth();
-	if(state&TextSingleLine) {
+	if(state & TextSingleLine) {
 		draw::state push;
 		setclip(rc);
 		auto w = draw::textw(string);
 		auto b = aligned(x1, rc.width(), state, w);
-		p1.x = b + i1*textw('A');
+		p1.x = b + i1 * textw('A');
 		p1.y = y1;
 		text(b, y1, string, -1, state);
 		return dy;
@@ -443,7 +443,7 @@ static int texti(rect rc, const char* string, unsigned state, int i1, point& p1)
 			auto b = aligned(x1, w1, state, w);
 			auto c1 = i1 - (string - ps);
 			if(c1 <= c) {
-				p1.x = b + c1*textw('A');
+				p1.x = b + c1 * textw('A');
 				p1.y = y1;
 			} else
 				c1 -= c;
@@ -509,7 +509,7 @@ static point center(const rect& rc) {
 static int distance(point p1, point p2) {
 	int dx = p1.x - p2.x;
 	int dy = p1.y - p2.y;
-	return isqrt(dx*dx + dy * dy);
+	return isqrt(dx * dx + dy * dy);
 }
 
 static render_control* getnextfocus(void* ev, int key, unsigned param) {
@@ -706,7 +706,7 @@ static int labelb(int x, int y, int width, unsigned flags, const char* string) {
 	draw::state push;
 	auto height = draw::texth();
 	rect rc = {x, y, x + width, y + height};
-	if(flags&Focused)
+	if(flags & Focused)
 		draw::rectf(rc, colors::blue.darken());
 	draw::setclip(rc);
 	draw::text(x + 1, y, string);
@@ -1224,7 +1224,7 @@ static void avatar(int x, int y, int i, const creature* current, const creaturea
 		flags |= Disabled;
 	if(p == current)
 		flags |= Checked;
-	else if((flags&Disabled) == 0) {
+	else if((flags & Disabled) == 0) {
 		if(allowed && change && hot::key == ('1' + i)) {
 			auto new_index = allowed->indexof(p);
 			if(new_index != -1)
@@ -1438,8 +1438,8 @@ static void invertory(int x, int y, creature* pc, void* current_item) {
 	const int dy = 18;
 	sheet_head(x, y, pc);
 	for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i + 1)) {
-		int x1 = x + 11 + ((i - Backpack) % 2)*dx;
-		int y1 = y + 48 + ((i - Backpack) / 2)*dy;
+		int x1 = x + 11 + ((i - Backpack) % 2) * dx;
+		int y1 = y + 48 + ((i - Backpack) / 2) * dy;
 		itemicn(x1, y1, pc->getitem(i), true, 0, current_item);
 	}
 	itemicn(x + 55, y + 64, pc->getitem(Quiver), true, 0, current_item);
@@ -1557,7 +1557,7 @@ static int buttonx(int x, int y, const char* name, int key, callback proc, int p
 	auto si = 0;
 	if(proc == next_portrait || proc == prev_portrait)
 		si = 2;
-	else if(proc == new_game && key=='P')
+	else if(proc == new_game && key == 'P')
 		si = 4;
 	else if(proc == delete_character)
 		si = 6;
@@ -2127,6 +2127,30 @@ void adventurei::play() {
 	}
 }
 
+static void field(const char* header, int width, const char* value) {
+	text(caret.x, caret.y, header);
+	text(caret.x + width, caret.y, value);
+	caret.y += texth();
+}
+
+static void field(const char* header, int width, int value) {
+	char temp[16]; stringbuilder sb(temp);
+	sb.add("%1i", value);
+	field(header, width, temp);
+}
+
+static void paint_status() {
+	auto push_caret = caret;
+	auto push_font = font;
+	setsmallfont();
+	form({0, 122, 178, 174}, 2, false);
+	caret.x = 4; caret.y = 126;
+	for(auto& e : bsdata<cityabilityi>())
+		field(e.name, 64, game.getcity((city_ability_s)(&e - bsdata<cityabilityi>::elements)));
+	font = push_font;
+	caret = push_caret;
+}
+
 void citya::playinn() {
 	auto push_image = answers::last_image;
 	answers::last_image.res = BUILDNGS;
@@ -2136,7 +2160,7 @@ void citya::playinn() {
 			setfocus(party[0]->getitem(RightHand));
 		draw::animation::update();
 		draw::animation::render(0, false, getfocus(), &answers::last_image);
-		form({0, 122, 178, 174}, 2, false);
+		paint_status();
 		domodal();
 		if(handle_shortcuts(false)) {
 			game.endround();

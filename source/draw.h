@@ -176,6 +176,7 @@ void					buttoncancel();
 void					buttonok();
 void					buttonparam();
 extern surface*			canvas;
+extern point			caret;
 bool					create(int width, int height);
 extern callback			domodal;
 void					execute(callback proc, int param = 0);

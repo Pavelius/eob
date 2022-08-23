@@ -29,5 +29,5 @@ BSDATA(weari) = {
 	{"Belt+1", 0},
 	{"Belt+2", 0},
 };
-assert_enum(wear, LastBelt)
+assert_enum(weari, LastBelt)
 BSDATAF(weari)

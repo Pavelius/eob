@@ -296,6 +296,9 @@
     <ClCompile Include="szdup.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
+    <ClCompile Include="cityability.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint">

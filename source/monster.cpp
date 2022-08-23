@@ -28,7 +28,7 @@ monsteri bsdata<monsteri>::elements[] = {
 	{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}},
 	{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
 };
-assert_enum(monster, StaticObject);
+assert_enum(monsteri, StaticObject);
 BSDATAF(monsteri);
 
 bool monsteri::is(variant id) const {

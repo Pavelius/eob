@@ -18,5 +18,5 @@ BSDATA(feati) = {
 	{"Bonus AC vs Large"},
 	{"Bonus hit points"},
 };
-assert_enum(feat, BonusHP)
+assert_enum(feati, BonusHP)
 BSDATAF(feati)

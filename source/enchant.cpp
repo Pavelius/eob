@@ -17,5 +17,5 @@ BSDATA(enchanti) = {
 	{"Vampirism"},
 	{"Wizardy"},
 };
-assert_enum(enchant, OfWizardy)
+assert_enum(enchanti, OfWizardy)
 BSDATAF(enchanti)
