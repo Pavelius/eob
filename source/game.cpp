@@ -581,7 +581,7 @@ void gamei::returntobase() {
 	}
 	location.clear();
 	location_above.clear();
-	draw::setnext(game.playcity);
+	draw::setnext(cityi::play);
 }
 
 //void gamei::render_worldmap(void* object) {
@@ -812,4 +812,69 @@ void gamei::play() {
 
 int	gamei::get(action_s id) const {
 	return 0;
+}
+
+static void load_game() {
+	draw::resetres();
+	if(!game.read())
+		return;
+}
+
+static void main_new_game() {
+	draw::setnext(game.newgame);
+}
+
+static void option_new_game() {
+	if(!draw::dlgask("Are you really want to start new game?"))
+		return;
+	draw::setnext(game.newgame);
+}
+
+static void quit_game() {
+	if(!draw::dlgask("Are you really want to quit game?"))
+		draw::setnext(draw::mainmenu);
+}
+
+void memorize_spells() {
+	creature::preparespells(Mage);
+}
+
+void pray_for_spells() {
+	creature::preparespells(Cleric);
+}
+
+static void option_save_game() {
+	game.write();
+}
+
+void game_options() {
+	static actioni actions[] = {
+		{"New game", option_new_game},
+		{"Load game", load_game},
+		{"Save game", option_save_game},
+		{"Quit game", quit_game},
+	};
+	draw::options("Game options", actions);
+}
+
+void scrible_scrolls();
+
+void draw::options() {
+	static actioni actions[] = {
+		{"Pray for spells", pray_for_spells},
+		{"Memorize spells", memorize_spells},
+		{"Scrible scrolls", scrible_scrolls},
+		{"Game options", game_options},
+	};
+	draw::options("Camp options", actions);
+}
+
+void draw::mainmenu() {
+	answers aw;
+	aw.add((int)main_new_game, "Create New Game");
+	aw.add((int)load_game, "Load Saved game");
+	aw.add((int)quit_game, "Exit game");
+	auto p = (fnevent)aw.choosemn(80, 110, 170, MENU);
+	if(p)
+		setnext(p);
 }

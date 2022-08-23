@@ -2005,7 +2005,7 @@ static void show_skills(void* current_item) {
 	skills(178, 0, creature::get(current_item));
 }
 
-static bool handle_shortcuts(bool allow_move) {
+static bool handle_shortcuts(bool allow_move, fnevent option_proc) {
 	auto pc = creature::get(current_focus);
 	item* current_item = (item*)current_focus;
 	switch(hot::key) {
@@ -2018,7 +2018,8 @@ static bool handle_shortcuts(bool allow_move) {
 			draw::animation::update();
 			draw::animation::render(0);
 		}
-		options();
+		if(option_proc)
+			option_proc();
 		break;
 	case 'I':
 		if(getmode() == show_invertory) {
@@ -2130,7 +2131,7 @@ void adventurei::play() {
 		draw::animation::update();
 		draw::animation::render(0, true, getfocus());
 		domodal();
-		if(handle_shortcuts(true)) {
+		if(handle_shortcuts(true, options)) {
 			game.endround();
 			setnext(play);
 		}
@@ -2188,6 +2189,8 @@ static void paint_status(const char* title) {
 	caret = push_caret;
 }
 
+void city_options();
+
 void cityi::play() {
 	auto push_image = answers::last_image;
 	answers::last_image.res = BUILDNGS;
@@ -2199,47 +2202,12 @@ void cityi::play() {
 		draw::animation::render(0, false, getfocus(), &answers::last_image);
 		paint_status(game.city);
 		domodal();
-		if(handle_shortcuts(false)) {
+		if(handle_shortcuts(false, city_options)) {
 			game.endround();
 			setnext(play);
 		}
 	}
 	answers::last_image = push_image;
-}
-
-static void main_new_game() {
-	setnext(game.newgame);
-}
-
-static void option_new_game() {
-	if(!dlgask("Are you really want to start new game?"))
-		return;
-	setnext(game.newgame);
-}
-
-static void memorize_spells() {
-	creature::preparespells(Mage);
-}
-
-static void pray_for_spells() {
-	creature::preparespells(Cleric);
-}
-
-static void option_save_game() {
-	game.write();
-}
-
-static void quit_game() {
-	if(!dlgask("Are you really want to quit game?"))
-		setnext(mainmenu);
-}
-
-static void settings() {}
-
-static void load_game() {
-	draw::resetres();
-	if(!game.read())
-		return;
 }
 
 void draw::options(const char* header, aref<actioni> actions) {
@@ -2249,36 +2217,4 @@ void draw::options(const char* header, aref<actioni> actions) {
 	auto p = (callback)aw.choosemb(header);
 	if(p)
 		p();
-}
-
-static void game_options() {
-	static actioni actions[] = {
-		{"New game", option_new_game},
-		{"Load game", load_game},
-		{"Save game", option_save_game},
-		{"Quit game", quit_game},
-	};
-	options("Game options", actions);
-}
-
-void scrible_scrolls();
-
-void draw::options() {
-	static actioni actions[] = {
-		{"Pray for spells", pray_for_spells},
-		{"Memorize spells", memorize_spells},
-		{"Scrible scrolls", scrible_scrolls},
-		{"Game options", game_options},
-	};
-	options("Camp options", actions);
-}
-
-void draw::mainmenu() {
-	answers aw;
-	aw.add((int)main_new_game, "Create New Game");
-	aw.add((int)load_game, "Load Saved game");
-	aw.add((int)quit_game, "Exit game");
-	auto p = (callback)aw.choosemn(80, 110, 170, MENU);
-	if(p)
-		setnext(p);
 }

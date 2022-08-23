@@ -1,12 +1,17 @@
 #include "main.h"
 
+void pray_for_spells();
+void memorize_spells();
+void scrible_scrolls();
+void game_options();
+
 static adventurei* last_quest;
 
 static void choose_quest() {
 	answers aw;
 	for(auto& e : bsdata<adventurei>())
 		aw.add((int)&e, e.getname());
-	last_quest = (adventurei*)aw.choosems("Which way to go?");
+	last_quest = (adventurei*)aw.choosemb("Which way to go?");
 }
 
 static void enter_quest() {
@@ -22,26 +27,23 @@ static void enter_quest() {
 	last_quest->enter();
 }
 
-static void enter_inn() {
+static void rent_inn() {
+	if(!draw::dlgask("Do you really want to rent inn for 10 gold pieces?"))
+		return;
+	static actioni actions[] = {
+		{"Pray for spells", pray_for_spells},
+		{"Memorize spells", memorize_spells},
+		{"Scrible scrolls", scrible_scrolls},
+		{"Game options", game_options},
+	};
+	draw::options("Inn options", actions);
 }
 
-static actioni actions[] = {
-	{"Quest", enter_quest},
-	{"Inn", enter_inn},
-};
-
-static void play_actions(const char* header, aref<actioni> actions) {
-	answers aw;
-	while(draw::isallowmodal()) {
-		aw.clear();
-		for(auto& e : actions)
-			aw.add((int)e.proc, e.name);
-		auto p = (fnevent)aw.choosebg(header);
-		if(p)
-			p();
-	}
-}
-
-void companyi::playcity() {
-	play_actions(game.city, actions);
+void city_options() {
+	static actioni actions[] = {
+		{"Enter quest", enter_quest},
+		{"Rent inn", rent_inn},
+		{"Game options", game_options},
+	};
+	draw::options("Camp options", actions);
 }
