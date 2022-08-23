@@ -308,11 +308,12 @@ void gamei::newgame() {
 		p->random_equipment(0);
 		party.add(p);
 	}
-	if(game.intro)
-		answers::message(game.intro);
+	//if(game.intro)
+	//	answers::message(game.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
 	game.write();
+	//answers::last_image.set(BUILDNGS, 6);
 	setnext(game.playcity);
 }
 

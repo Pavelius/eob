@@ -22,13 +22,26 @@ static void enter_quest() {
 	last_quest->enter();
 }
 
-void gamei::playcity() {
+static void enter_inn() {
+}
+
+static actioni actions[] = {
+	{"Quest", enter_quest},
+	{"Inn", enter_inn},
+};
+
+static void play_actions(const char* header, aref<actioni> actions) {
 	answers aw;
 	while(draw::isallowmodal()) {
 		aw.clear();
-		aw.add((int)enter_quest, "Quest");
-		auto p = (fnevent)aw.choosebg("/BUILDNGS 17\nYou are on the street of city Waterdeep. Spend some money and rest for a moment.");
+		for(auto& e : actions)
+			aw.add((int)e.proc, e.name);
+		auto p = (fnevent)aw.choosebg(header);
 		if(p)
 			p();
 	}
+}
+
+void companyi::playcity() {
+	play_actions(game.city, actions);
 }

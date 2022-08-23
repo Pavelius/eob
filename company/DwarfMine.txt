@@ -1,0 +1,29 @@
+#Name "Dwarf citadel"
+
+#Summary
+
+/NPC 51
+"Peace to you, brave adventurers" tall man in tavern greeting to you. "I have bussiness proposition to your group."
+"Famous artifact located in northern mountains in dwarf citadel. Bring it to me and I pay you well."
+
+#Agree
+
+/NPC 51
+"Good. You need bring this artifact here. I will be waiting."
+
+#Entering
+
+/ADVENTURE 0
+After two day you reach a lone mountain, where located dwarf citadel.
+
+#History
+This citadel is grow on the elder moutain. Deep undeground is pure evil.
+
+#Site BLUE 2
+#Habbit Dwarf Spider
+
+#Reward
+
+/NPC 51
+"You are back? I don't expect this. So ... here you reward."
+"And found me later. You may give a service to goverment and army."

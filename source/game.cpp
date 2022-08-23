@@ -700,10 +700,6 @@ void gamei::preserial(bool writemode) {
 	}
 }
 
-void gamei::addgold(int coins) {
-	add(Gold, coins);
-}
-
 void gamei::startgame() {
 	for(auto i = 0; i < 4; i++)
 		party.add(&bsdata<creature>::elements[i]);

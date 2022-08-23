@@ -240,6 +240,8 @@ void companyi::readc(const char* url) {
 			skipwscr();
 		} else if(isheader("Intro"))
 			readval(intro);
+		else if(isheader("City"))
+			readval(city);
 		else
 			log::cerror(p, "Expected valid header");
 	}

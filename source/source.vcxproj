@@ -155,7 +155,6 @@
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
     <ClCompile Include="archive.cpp" />
-    <ClCompile Include="building.cpp" />
     <ClCompile Include="case.cpp" />
     <ClCompile Include="cell.cpp" />
     <ClCompile Include="chat.cpp" />
@@ -236,6 +235,7 @@
   <ItemGroup>
     <Text Include="..\company\Basic.txt" />
     <Text Include="..\company\DarkForest.txt" />
+    <Text Include="..\company\DwarfMine.txt" />
     <Text Include="..\company\FloodedCollectors.txt" />
     <Text Include="..\errors.txt" />
   </ItemGroup>

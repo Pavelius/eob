@@ -257,9 +257,6 @@
     <ClCompile Include="avatar.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="building.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="cell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -320,6 +317,9 @@
     </Text>
     <Text Include="..\company\Basic.txt">
       <Filter>Данные\Campaign</Filter>
+    </Text>
+    <Text Include="..\company\DwarfMine.txt">
+      <Filter>Данные\Adventures</Filter>
     </Text>
   </ItemGroup>
 </Project>

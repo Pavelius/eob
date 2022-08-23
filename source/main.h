@@ -277,9 +277,6 @@ enum ambush_s : unsigned char {
 enum shape_s : unsigned char {
 	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd, ShapeHall,
 };
-enum building_s : unsigned char {
-	Arena, Armory, Bank, Brothel, Inn, Library, Harbor, Prison, Stable, Stock, Tavern, Temple, WizardTower,
-};
 enum good_s : unsigned char {
 	Armors, Books, Clothes, Devices, Food, Jewelry, Papers, Potions, Tools, Weapons
 };
@@ -303,7 +300,6 @@ typedef flagable<1 + LastSpellAbility / 8> spellf;
 typedef flagable<4> flagf;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
 typedef cflags<usability_s> usabilitya;
-typedef dataset<Reputation, int> citya;
 class creature;
 class creaturea;
 class item;
@@ -358,7 +354,7 @@ struct spellprogi {
 };
 struct actioni {
 	const char*			name;
-	bool				talk;
+	fnevent				proc;
 };
 struct talki {
 	const char*			name;
@@ -591,7 +587,7 @@ struct imagei {
 	void				add(stringbuilder& sb) const;
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	const resourcei&	gete() const { return bsdata<resourcei>::elements[res]; }
-	static bool			choose(void* object, const array& source, void* pointer);
+	void				set(resource_s r, unsigned short f) { res = r; frame = f; }
 };
 struct sitei {
 	struct headi {
@@ -1190,8 +1186,16 @@ struct adventurei : historyi {
 struct companyi {
 	const char*			name;
 	const char*			intro;
+	const char*			city;
 	int					start_gold;
+	static void			playcity();
 	void				readc(const char* name);
+};
+struct citya : public dataset<Reputation, int> {
+	void				addcity(city_ability_s i, int v) { add(i, v); }
+	void				addgold(int coins) { addcity(Gold, coins); }
+	int					getgold() const { return get(Gold); }
+	void				pay(int coins) { addgold(-coins); }
 };
 struct chati {
 	talk_s				action;
@@ -1223,10 +1227,8 @@ class gamei : public companyi, citya {
 	unsigned			found_secrets, gold_donated;
 	variant				players[6];
 public:
-	void				add(city_ability_s i, int v) { citya::add(i, v); }
 	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
-	void				addgold(int coins);
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				apply(variant v);
@@ -1248,7 +1250,6 @@ public:
 	creature*			getdefender(short unsigned index, direction_s dr, creature* attacker);
 	static resource_s	getenviroment();
 	int					gethour() const { return (rounds % (24 * 60)) / 60; }
-	int					getgold() const { return citya::get(Gold); }
 	void				getheroes(creature** result, direction_s dir);
 	static int			getrandom(race_s race, gender_s gender);
 	unsigned			getrounds() const { return rounds; }
@@ -1266,9 +1267,7 @@ public:
 	static void			newgame();
 	void				passround();
 	void				passtime(int minutes);
-	void				pay(int coins) { addgold(-coins); }
 	static void			play();
-	static void			playcity();
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
