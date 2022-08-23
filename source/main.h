@@ -1196,6 +1196,8 @@ struct citya : public dataset<Reputation, int> {
 	void				addgold(int coins) { addcity(Gold, coins); }
 	int					getgold() const { return get(Gold); }
 	void				pay(int coins) { addgold(-coins); }
+	static void			playinn();
+	static void			playv();
 };
 struct chati {
 	talk_s				action;
@@ -1369,7 +1371,8 @@ bool					dlgask(const char* text);
 void					dlgmsg(const char* text);
 void					mainmenu();
 void					openform();
-void					options(bool camp_mode);
+void					options(const char* header, aref<actioni> actions);
+void					options();
 void					pause();
 void					redmarker(int x, int y);
 void					setnext(void(*p)());

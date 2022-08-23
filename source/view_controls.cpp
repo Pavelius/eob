@@ -2008,7 +2008,7 @@ static bool handle_shortcuts(bool allow_move) {
 			draw::animation::update();
 			draw::animation::render(0);
 		}
-		options(!allow_move);
+		options();
 		break;
 	case 'I':
 		if(getmode() == show_invertory) {
@@ -2127,6 +2127,25 @@ void adventurei::play() {
 	}
 }
 
+void citya::playinn() {
+	auto push_image = answers::last_image;
+	answers::last_image.res = BUILDNGS;
+	answers::last_image.frame = 7;
+	while(ismodal()) {
+		if(!getfocus())
+			setfocus(party[0]->getitem(RightHand));
+		draw::animation::update();
+		draw::animation::render(0, false, getfocus(), &answers::last_image);
+		form({0, 122, 178, 174}, 2, false);
+		domodal();
+		if(handle_shortcuts(false)) {
+			game.endround();
+			setnext(playinn);
+		}
+	}
+	answers::last_image = push_image;
+}
+
 static void main_new_game() {
 	setnext(game.newgame);
 }
@@ -2162,20 +2181,33 @@ static void load_game() {
 		return;
 }
 
-void draw::options(bool camp_mode) {
-	const char* on = "Game options:";
+void draw::options(const char* header, aref<actioni> actions) {
 	answers aw;
-	aw.add((int)pray_for_spells, "Pray for spells");
-	aw.add((int)memorize_spells, "Memorize spells");
-	aw.add((int)game.scriblescrolls, "Scrible scrolls");
-	aw.add((int)option_new_game, "New game");
-	aw.add((int)load_game, "Load game");
-	aw.add((int)option_save_game, "Save game");
-	aw.add((int)settings, "Settings");
-	aw.add((int)quit_game, "Quit game");
-	auto p = (callback)aw.choosemb(on);
+	for(auto& e : actions)
+		aw.add((int)e.proc, e.name);
+	auto p = (callback)aw.choosemb(header);
 	if(p)
 		p();
+}
+
+static void game_options() {
+	static actioni actions[] = {
+		{"New game", option_new_game},
+		{"Load game", load_game},
+		{"Save game", option_save_game},
+		{"Quit game", quit_game},
+	};
+	options("Game options", actions);
+}
+
+void draw::options() {
+	static actioni actions[] = {
+		{"Pray for spells", pray_for_spells},
+		{"Memorize spells", memorize_spells},
+		{"Scrible scrolls", game.scriblescrolls},
+		{"Game options", game_options},
+	};
+	options("Camp options", actions);
 }
 
 void draw::mainmenu() {

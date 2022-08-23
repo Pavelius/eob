@@ -297,6 +297,8 @@ void gamei::findsecrets() {
 		"I see something on %1 trees",
 		"Trees on the %1 side seems to be unstable",
 	};
+	if(!location)
+		return;
 	direction_s secret_dir = Center;
 	auto index = game.getcamera();
 	auto dir = game.getdirection();

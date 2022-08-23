@@ -314,7 +314,7 @@ void gamei::newgame() {
 	game.passtime(12 * 60);
 	game.write();
 	//answers::last_image.set(BUILDNGS, 6);
-	setnext(game.playcity);
+	setnext(game.playinn);
 }
 
 int main(int argc, char* argv[]) {
