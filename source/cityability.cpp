@@ -1,11 +1,10 @@
 #include "main.h"
 
 BSDATA(cityabilityi) = {
-	{"Criminals"},
-	{"Donations"},
-	{"Gold"},
+	{"Blessing"},
 	{"Prosperty"},
 	{"Reputation"},
+	{"Gold", "%1i gp"},
 };
-assert_enum(cityabilityi, Reputation)
+assert_enum(cityabilityi, Gold)
 BSDATAF(cityabilityi)

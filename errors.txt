@@ -1,2 +1,2 @@
-﻿Can't find file 'company/FloodedCollectors.txt'
-Can't find file 'company/DarkForest.txt'
+﻿In file `company/Basic.txt`:
+ Line 8: Expected valid header

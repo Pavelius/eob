@@ -720,7 +720,7 @@ static const char* get_power_name(const void* object, stringbuilder& sb) {
 	return p->power.getname();
 }
 
-void gamei::scriblescrolls() {
+void scrible_scrolls() {
 	creaturea source;
 	for(auto p : party) {
 		if(p && p->iscast(Mage))

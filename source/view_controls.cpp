@@ -233,6 +233,10 @@ static void border_down(rect rc) {
 	draw::line(rc.x1 + 1, rc.y1, rc.x2 - 1, rc.y1);
 }
 
+static void border_down() {
+	border_down({caret.x, caret.y, caret.x + width, caret.y + height});
+}
+
 static int flatb(int x, int y, int width, unsigned flags, const char* string) {
 	int height = draw::texth() + 1;
 	if(flags & Focused)
@@ -244,16 +248,20 @@ static int flatb(int x, int y, int width, unsigned flags, const char* string) {
 }
 
 void draw::greenbar(rect rc, int vc, int vm) {
-	if(!vc || !vm || vc <= 0)
+	if(!vm)
 		return;
+	if(vc < 0)
+		vc = 0;
 	color c0 = colors::black;
 	color c1 = colors::green.darken().mix(colors::red, vc * 255 / vm);
 	border_down(rc);
 	rc.y1++;
 	rc.x1++;
 	rectf(rc, colors::down);
-	rc.x2 = rc.x1 + vc * rc.width() / vm;
-	rectf(rc, c1);
+	if(vc) {
+		rc.x2 = rc.x1 + vc * rc.width() / vm;
+		rectf(rc, c1);
+	}
 }
 
 rect draw::form(rect rc, int count, bool focused, bool pressed) {
@@ -655,6 +663,8 @@ bool draw::ismodal() {
 	render_current = render_objects;
 	domodal = standart_domodal;
 	current_param = 0;
+	caret.clear();
+	width = 320; height = 200;
 	if(next_proc) {
 		break_modal = false;
 		return false;
@@ -2130,41 +2140,68 @@ void adventurei::play() {
 static void field(const char* header, int width, const char* value) {
 	text(caret.x, caret.y, header);
 	text(caret.x + width, caret.y, value);
-	caret.y += texth();
 }
 
-static void field(const char* header, int width, int value) {
-	char temp[16]; stringbuilder sb(temp);
-	sb.add("%1i", value);
-	field(header, width, temp);
+static void field(const char* header, int width, int total, int value, int maximum) {
+	//char temp[16]; stringbuilder sb(temp);
+	//if(!format)
+	//	format = "%1i";
+	//sb.add(format, value);
+	text(caret.x, caret.y, header);
+	greenbar({caret.x + width, caret.y, caret.x + total, caret.y + 5}, value, maximum);
 }
 
-static void paint_status() {
+static void paint_header(const char* title, int width) {
+	auto push_fore = fore;
+	fore = colors::header;
+	text({caret.x, caret.y, caret.x + width, caret.y + texth()}, title, AlignCenter);
+	fore = push_fore;
+}
+
+static void party_status() {
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("You have ");
+	sb.add("%1i GP", game.getcity(Gold));
+	text(caret.x, caret.y, temp);
+}
+
+static void paint_status(const char* title) {
 	auto push_caret = caret;
 	auto push_font = font;
 	setsmallfont();
 	form({0, 122, 178, 174}, 2, false);
-	caret.x = 4; caret.y = 126;
-	for(auto& e : bsdata<cityabilityi>())
-		field(e.name, 64, game.getcity((city_ability_s)(&e - bsdata<cityabilityi>::elements)));
+	caret.x = 8; caret.y = 126;
+	if(title) {
+		paint_header(title, 178);
+		caret.y += texth() + 2;
+	}
+	for(auto& e : bsdata<cityabilityi>()) {
+		if(e.format)
+			continue;
+		auto value = game.getcity((city_ability_s)(&e - bsdata<cityabilityi>::elements));
+		field(e.name, 64, 160, value, 100);
+		caret.y += texth();
+	}
+	caret.y += texth();
+	party_status();
 	font = push_font;
 	caret = push_caret;
 }
 
-void citya::playinn() {
+void cityi::play() {
 	auto push_image = answers::last_image;
 	answers::last_image.res = BUILDNGS;
-	answers::last_image.frame = 7;
+	answers::last_image.frame = game.city_frame;
 	while(ismodal()) {
 		if(!getfocus())
 			setfocus(party[0]->getitem(RightHand));
 		draw::animation::update();
 		draw::animation::render(0, false, getfocus(), &answers::last_image);
-		paint_status();
+		paint_status(game.city);
 		domodal();
 		if(handle_shortcuts(false)) {
 			game.endround();
-			setnext(playinn);
+			setnext(play);
 		}
 	}
 	answers::last_image = push_image;
@@ -2224,11 +2261,13 @@ static void game_options() {
 	options("Game options", actions);
 }
 
+void scrible_scrolls();
+
 void draw::options() {
 	static actioni actions[] = {
 		{"Pray for spells", pray_for_spells},
 		{"Memorize spells", memorize_spells},
-		{"Scrible scrolls", game.scriblescrolls},
+		{"Scrible scrolls", scrible_scrolls},
 		{"Game options", game_options},
 	};
 	options("Camp options", actions);

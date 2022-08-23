@@ -244,7 +244,7 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum city_ability_s : unsigned char {
-	Criminals, Donations, Gold, Prosperty, Reputation,
+	Blessing, Prosperty, Reputation, Gold,
 };
 enum action_s : unsigned char {
 	Reshufle,
@@ -377,6 +377,7 @@ struct abilityi {
 };
 struct cityabilityi {
 	const char*			name;
+	const char*			format;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -1190,18 +1191,17 @@ struct companyi {
 	const char*			name;
 	const char*			intro;
 	const char*			city;
-	int					start_gold;
+	short				city_frame;
 	static void			playcity();
 	void				readc(const char* name);
 };
-struct citya : public dataset<Reputation, int> {
+struct cityi : public dataset<Gold, int> {
 	void				addcity(city_ability_s i, int v) { add(i, v); }
 	void				addgold(int coins) { addcity(Gold, coins); }
 	int					getgold() const { return get(Gold); }
 	int					getcity(city_ability_s i) const { return get(i); }
 	void				pay(int coins) { addgold(-coins); }
-	static void			playinn();
-	static void			playv();
+	static void			play();
 };
 struct chati {
 	talk_s				action;
@@ -1220,7 +1220,7 @@ struct encounteri : public creaturea {
 	void				dialog();
 	void				set(reaction_s v);
 };
-class gamei : public companyi, public citya {
+class gamei : public companyi, public cityi {
 	indext				camera_index;
 	direction_s			camera_direction;
 	char				location_level;
@@ -1247,7 +1247,7 @@ public:
 	void				equiping();
 	adventurei*			getadventure();
 	void				findsecrets();
-	constexpr int		get(city_ability_s id) const { return citya::get(id); }
+	constexpr int		get(city_ability_s id) const { return cityi::get(id); }
 	int					get(action_s id) const;
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
@@ -1280,8 +1280,7 @@ public:
 	bool				readtext(const char* url);
 	void				returntobase();
 	static bool			roll(int value);
-	static void			scriblescrolls();
-	void				set(city_ability_s i, int v) { citya::set(i, v); }
+	void				set(city_ability_s i, int v) { cityi::set(i, v); }
 	void				setcamera(indext index, direction_s direction = Center);
 	void				startgame();
 	void				thrown(item* itm);
@@ -1352,6 +1351,7 @@ rect					form(rect rc, int count = 1, bool focused = false, bool pressed = false
 infoproc				getmode();
 void*					getfocus();
 void					greenbar(rect rc, int vc, int vm);
+void					greenbar(int vc, int vm);
 int						header(int x, int y, const char* text);
 void					initialize();
 bool					isallowmodal();

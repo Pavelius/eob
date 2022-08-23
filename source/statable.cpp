@@ -180,10 +180,10 @@ void statable::update_stats() {
 		2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5,
 		6, 6, 6, 6, 7
 	};
-	static char charisma_reaction_bonus[] = {-8,
-		-7, -6, -5, -4, -3, -2, -1, 0, 0, 0,
-		0, 0, 1, 2, 3, 5, 6, 7, 8, 9,
-		10, 11, 12, 13, 14
+	static char charisma_reaction_bonus[] = {
+		-8, -7, -6, -5, -4, -3, -2, -1, 0, 0,
+		0, 0, 0, 1, 2, 3, 5, 6, 7, 8,
+		9, 10, 11, 12, 13, 14
 	};
 	static char theive_skills_by_dex[ReadLanguages - ClimbWalls + 1][20] = {
 		{-60, -55, -50, -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 0, 0, 0, 0, 5, 10, 15},

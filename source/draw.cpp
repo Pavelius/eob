@@ -13,6 +13,7 @@ color					draw::fore;
 const sprite*			draw::font;
 color*					draw::palt;
 point					draw::caret;
+int						draw::height, draw::width;
 static unsigned char	forc;
 // Hot keys and menus
 int						hot::animate; // Каждый такт таймера это значение увеличивается на единицу.

@@ -30,11 +30,6 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 	{4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 	{4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
 };
-static char charisma_reaction_bonus[] = {-8,
--7, -6, -5, -4, -3, -2, -1, 0, 0, 0,
-0, 0, 1, 2, 3, 5, 6, 7, 8, 9,
-10, 11, 12, 13, 14
-};
 static char dwarven_constitution_bonuses[] = {
 	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
 	2, 3, 3, 3, 4, 4, 4, 4, 5
@@ -513,8 +508,7 @@ void creature::finish() {
 		basic.hits_rolled = gethitdice().roll();
 		if(basic.hits_rolled < 1)
 			basic.hits_rolled = 1;
-	}
-	else {
+	} else {
 		for(int i = 0; i < 3; i++) {
 			auto c = getclass(getclass(), i);
 			if(!c)

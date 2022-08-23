@@ -133,6 +133,11 @@ void readval(int& v) {
 	v = value.number;
 }
 
+void readval(short& v) {
+	readnumber();
+	v = value.number;
+}
+
 void readval(char& v) {
 	readnumber();
 	v = value.number;
@@ -240,10 +245,12 @@ void companyi::readc(const char* url) {
 			skipwscr();
 		} else if(isheader("Intro"))
 			readval(intro);
-		else if(isheader("City"))
-			readval(city);
-		else
+		else if(isheader("City")) {
+			readname(); city = value.text;
+			readval(city_frame);
+		} else
 			log::cerror(p, "Expected valid header");
+			skipwscr();
 	}
 	log::close();
 }

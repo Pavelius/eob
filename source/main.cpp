@@ -313,8 +313,11 @@ void gamei::newgame() {
 	draw::resetres();
 	game.passtime(12 * 60);
 	game.write();
+	game.addgold(120);
+	game.addcity(Prosperty, 20);
+	game.addcity(Reputation, 10 + game.getaverage(ReactionBonus));
 	//answers::last_image.set(BUILDNGS, 6);
-	setnext(game.playinn);
+	setnext(cityi::play);
 }
 
 int main(int argc, char* argv[]) {
