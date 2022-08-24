@@ -316,8 +316,7 @@ void gamei::newgame() {
 	game.addgold(120);
 	game.addcity(Prosperty, 20);
 	game.addcity(Reputation, 10 + game.getaverage(ReactionBonus));
-	//answers::last_image.set(BUILDNGS, 6);
-	setnext(cityi::play);
+	setnext(cityi::entercity);
 }
 
 int main(int argc, char* argv[]) {

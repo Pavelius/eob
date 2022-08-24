@@ -1191,13 +1191,16 @@ struct companyi {
 	const char*			name;
 	const char*			intro;
 	const char*			city;
-	short				city_frame;
+	const char*			inn;
+	short				city_frame, inn_frame;
 	static void			playcity();
 	void				readc(const char* name);
 };
 struct cityi : public dataset<Gold, int> {
+	static const char*	header;
 	void				addcity(city_ability_s i, int v) { add(i, v); }
 	void				addgold(int coins) { addcity(Gold, coins); }
+	static void			entercity();
 	int					getgold() const { return get(Gold); }
 	int					getcity(city_ability_s i) const { return get(i); }
 	void				pay(int coins) { addgold(-coins); }

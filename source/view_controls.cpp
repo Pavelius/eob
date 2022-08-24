@@ -2166,14 +2166,14 @@ static void party_status() {
 	text(caret.x, caret.y, temp);
 }
 
-static void paint_status(const char* title) {
+static void paint_status() {
 	auto push_caret = caret;
 	auto push_font = font;
 	setsmallfont();
 	form({0, 122, 178, 174}, 2, false);
 	caret.x = 8; caret.y = 126;
-	if(title) {
-		paint_header(title, 178);
+	if(cityi::header) {
+		paint_header(cityi::header, 178);
 		caret.y += texth() + 2;
 	}
 	for(auto& e : bsdata<cityabilityi>()) {
@@ -2192,22 +2192,18 @@ static void paint_status(const char* title) {
 void city_options();
 
 void cityi::play() {
-	auto push_image = answers::last_image;
-	answers::last_image.res = BUILDNGS;
-	answers::last_image.frame = game.city_frame;
 	while(ismodal()) {
 		if(!getfocus())
 			setfocus(party[0]->getitem(RightHand));
 		draw::animation::update();
 		draw::animation::render(0, false, getfocus(), &answers::last_image);
-		paint_status(game.city);
+		paint_status();
 		domodal();
 		if(handle_shortcuts(false, city_options)) {
 			game.endround();
 			setnext(play);
 		}
 	}
-	answers::last_image = push_image;
 }
 
 void draw::options(const char* header, aref<actioni> actions) {

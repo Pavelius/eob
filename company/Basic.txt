@@ -6,6 +6,7 @@ Each of you have reason to leave own settlement and start adventurer. Why? This 
 After all you feast is ending. You leave tavern, walking on the street big city of Waterdeep...
 
 #City "Village Hunter ville" 26
+#Inn "Inn Precise Hunter" 7
 
 #Adventure FloodedCollectors
 #Adventure DarkForest
