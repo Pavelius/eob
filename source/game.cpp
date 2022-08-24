@@ -464,25 +464,6 @@ void gamei::passtime(int minutes) {
 	}
 }
 
-void gamei::enter(unsigned short index, char level, bool set_camera) {
-	adventure_index = index;
-	location_level = level;
-	location.clear();
-	location_above.clear();
-	auto pa = getadventure();
-	if(!location.read(adventure_index, location_level)) {
-		pa->create(visialize_map);
-		if(!location.read(adventure_index, location_level))
-			return;
-	}
-	if(location_level > 1)
-		location_above.read(adventure_index, location_level - 1);
-	draw::settiles(location.head.type);
-	if(set_camera)
-		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
-	draw::setnext(play);
-}
-
 void adventurei::enter() {
 	game.passtime(xrand(60 * 3, 60 * 18));
 	answers::message(entering);
@@ -579,9 +560,11 @@ void gamei::returntobase() {
 		if(p)
 			p->removeloot();
 	}
+	// Cleanup locations
 	location.clear();
 	location_above.clear();
-	draw::setnext(cityi::play);
+	// City enter
+	draw::setnext(enter_city);
 }
 
 //void gamei::render_worldmap(void* object) {
@@ -803,13 +786,6 @@ bool gamei::isnight() const {
 	return h >= 22 || h <= 6;
 }
 
-void gamei::play() {
-	if(!game.isalive())
-		draw::setnext(draw::mainmenu);
-	else
-		game.getadventure()->play();
-}
-
 int	gamei::get(action_s id) const {
 	return 0;
 }
@@ -831,8 +807,9 @@ static void option_new_game() {
 }
 
 static void quit_game() {
-	if(!draw::dlgask("Are you really want to quit game?"))
-		draw::setnext(draw::mainmenu);
+	if(draw::dlgask("Are you really want to quit game?"))
+		exit(0);
+	draw::setnext(draw::mainmenu);
 }
 
 void memorize_spells() {
@@ -857,18 +834,6 @@ void game_options() {
 	draw::options("Game options", actions);
 }
 
-void scrible_scrolls();
-
-void draw::options() {
-	static actioni actions[] = {
-		{"Pray for spells", pray_for_spells},
-		{"Memorize spells", memorize_spells},
-		{"Scrible scrolls", scrible_scrolls},
-		{"Game options", game_options},
-	};
-	draw::options("Camp options", actions);
-}
-
 void draw::mainmenu() {
 	answers aw;
 	aw.add((int)main_new_game, "Create New Game");
@@ -877,4 +842,37 @@ void draw::mainmenu() {
 	auto p = (fnevent)aw.choosemn(80, 110, 170, MENU);
 	if(p)
 		setnext(p);
+}
+
+static void play_indoor() {
+	static actioni actions[] = {
+		{"Pray for spells", pray_for_spells},
+		{"Memorize spells", memorize_spells},
+		{"Scrible scrolls", scrible_scrolls},
+		{"Game options", game_options},
+	};
+	last_image.clear();
+	last_name = 0;
+	last_menu = actions;
+	last_menu_header = "Camp options";
+	draw::setnext(play_adventure);
+}
+
+void gamei::enter(unsigned short index, char level, bool set_camera) {
+	adventure_index = index;
+	location_level = level;
+	location.clear();
+	location_above.clear();
+	auto pa = getadventure();
+	if(!location.read(adventure_index, location_level)) {
+		pa->create(visialize_map);
+		if(!location.read(adventure_index, location_level))
+			return;
+	}
+	if(location_level > 1)
+		location_above.read(adventure_index, location_level - 1);
+	draw::settiles(location.head.type);
+	if(set_camera)
+		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+	draw::setnext(play_indoor);
 }

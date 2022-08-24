@@ -2005,7 +2005,7 @@ static void show_skills(void* current_item) {
 	skills(178, 0, creature::get(current_item));
 }
 
-static bool handle_shortcuts(bool allow_move, fnevent option_proc) {
+static bool handle_shortcuts(bool allow_move) {
 	auto pc = creature::get(current_focus);
 	item* current_item = (item*)current_focus;
 	switch(hot::key) {
@@ -2018,8 +2018,7 @@ static bool handle_shortcuts(bool allow_move, fnevent option_proc) {
 			draw::animation::update();
 			draw::animation::render(0);
 		}
-		if(option_proc)
-			option_proc();
+		draw::options(last_menu_header, last_menu);
 		break;
 	case 'I':
 		if(getmode() == show_invertory) {
@@ -2124,20 +2123,6 @@ static bool handle_shortcuts(bool allow_move, fnevent option_proc) {
 	return false;
 }
 
-void adventurei::play() {
-	while(ismodal()) {
-		if(!getfocus())
-			setfocus(party[0]->getitem(RightHand));
-		draw::animation::update();
-		draw::animation::render(0, true, getfocus());
-		domodal();
-		if(handle_shortcuts(true, options)) {
-			game.endround();
-			setnext(play);
-		}
-	}
-}
-
 static void field(const char* header, int width, const char* value) {
 	text(caret.x, caret.y, header);
 	text(caret.x + width, caret.y, value);
@@ -2172,8 +2157,8 @@ static void paint_status() {
 	setsmallfont();
 	form({0, 122, 178, 174}, 2, false);
 	caret.x = 8; caret.y = 126;
-	if(cityi::header) {
-		paint_header(cityi::header, 178);
+	if(last_name) {
+		paint_header(last_name, 178);
 		caret.y += texth() + 2;
 	}
 	for(auto& e : bsdata<cityabilityi>()) {
@@ -2189,23 +2174,6 @@ static void paint_status() {
 	caret = push_caret;
 }
 
-void city_options();
-
-void cityi::play() {
-	while(ismodal()) {
-		if(!getfocus())
-			setfocus(party[0]->getitem(RightHand));
-		draw::animation::update();
-		draw::animation::render(0, false, getfocus(), &answers::last_image);
-		paint_status();
-		domodal();
-		if(handle_shortcuts(false, city_options)) {
-			game.endround();
-			setnext(play);
-		}
-	}
-}
-
 void draw::options(const char* header, aref<actioni> actions) {
 	answers aw;
 	for(auto& e : actions)
@@ -2213,4 +2181,37 @@ void draw::options(const char* header, aref<actioni> actions) {
 	auto p = (callback)aw.choosemb(header);
 	if(p)
 		p();
+}
+
+void play_adventure() {
+	if(!game.isalive()) {
+		draw::setnext(draw::mainmenu);
+		return;
+	}
+	while(ismodal()) {
+		if(!getfocus())
+			setfocus(party[0]->getitem(RightHand));
+		draw::animation::update();
+		draw::animation::render(0, true, getfocus());
+		domodal();
+		if(handle_shortcuts(true)) {
+			game.endround();
+			setnext(play_adventure);
+		}
+	}
+}
+
+void play_city() {
+	while(ismodal()) {
+		if(!getfocus())
+			setfocus(party[0]->getitem(RightHand));
+		draw::animation::update();
+		draw::animation::render(0, false, getfocus(), &last_image);
+		paint_status();
+		domodal();
+		if(handle_shortcuts(false)) {
+			game.endround();
+			setnext(play_city);
+		}
+	}
 }

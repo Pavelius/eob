@@ -111,7 +111,7 @@ static void test_dungeon2(resource_s type) {
 	location.stat.up.index = location.getindex(x, y + 1);
 	location.stat.up.dir = Up;
 	location.finish(CellPassable);
-	draw::setnext(game.play);
+	draw::setnext(play_adventure);
 }
 
 static creature* add_hero(int n, gender_s gender, race_s race, class_s type, alignment_s alignment) {
@@ -255,7 +255,7 @@ void debug_dungeon2() {
 		p->random_equipment(0);
 		party.add(p);
 	}
-	setnext(game.play);
+	setnext(play_adventure);
 }
 
 #endif // DEBUG
@@ -316,7 +316,7 @@ void gamei::newgame() {
 	game.addgold(120);
 	game.addcity(Prosperty, 20);
 	game.addcity(Reputation, 10 + game.getaverage(ReactionBonus));
-	setnext(cityi::entercity);
+	setnext(enter_city);
 }
 
 int main(int argc, char* argv[]) {

@@ -1,12 +1,6 @@
 #include "main.h"
 
-void pray_for_spells();
-void memorize_spells();
-void scrible_scrolls();
-void game_options();
-
 static adventurei* last_quest;
-const char* cityi::header;
 
 static void choose_quest() {
 	answers aw;
@@ -28,38 +22,38 @@ static void enter_quest() {
 	last_quest->enter();
 }
 
-void cityi::entercity() {
-	answers::last_image.res = BUILDNGS;
-	answers::last_image.frame = game.city_frame;
-	cityi::header = game.city;
-	play();
-}
-
-static void leave_inn() {
-	draw::setnext(game.entercity);
-}
-
 static void rent_inn() {
 	if(!draw::dlgask("Do you really want to rent inn for 10 gold pieces?"))
 		return;
-	answers::last_image.res = BUILDNGS;
-	answers::last_image.frame = game.inn_frame;
-	cityi::header = game.inn;
-	static actioni actions[] = {
-		{"Pray for spells", pray_for_spells},
-		{"Memorize spells", memorize_spells},
-		{"Scrible scrolls", scrible_scrolls},
-		{"Leave inn", leave_inn},
-		{"Game options", game_options},
-	};
-	draw::options("Inn options", actions);
+	enter_inn();
 }
 
-void city_options() {
+void enter_city() {
 	static actioni actions[] = {
 		{"Enter quest", enter_quest},
 		{"Rent inn", rent_inn},
 		{"Game options", game_options},
 	};
-	draw::options("Camp options", actions);
+	last_image.res = BUILDNGS;
+	last_image.frame = game.city_frame;
+	last_name = game.city;
+	last_menu = actions;
+	last_menu_header = "City options";
+	draw::setnext(play_city);
+}
+
+void enter_inn() {
+	static actioni actions[] = {
+		{"Pray for spells", pray_for_spells},
+		{"Memorize spells", memorize_spells},
+		{"Scrible scrolls", scrible_scrolls},
+		{"Leave inn", enter_city},
+		{"Game options", game_options},
+	};
+	last_image.res = BUILDNGS;
+	last_image.frame = game.inn_frame;
+	last_name = game.inn;
+	last_menu = actions;
+	last_menu_header = "Inn options";
+	draw::setnext(play_city);
 }

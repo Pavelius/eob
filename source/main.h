@@ -1184,7 +1184,6 @@ struct adventurei : historyi {
 	void				enter();
 	int					getindex() const { return this - bsdata<adventurei>::elements; }
 	const char*			getname() const { return name; }
-	static void			play();
 	void				read(const char* url);
 };
 struct companyi {
@@ -1197,14 +1196,11 @@ struct companyi {
 	void				readc(const char* name);
 };
 struct cityi : public dataset<Gold, int> {
-	static const char*	header;
 	void				addcity(city_ability_s i, int v) { add(i, v); }
 	void				addgold(int coins) { addcity(Gold, coins); }
-	static void			entercity();
 	int					getgold() const { return get(Gold); }
 	int					getcity(city_ability_s i) const { return get(i); }
 	void				pay(int coins) { addgold(-coins); }
-	static void			play();
 };
 struct chati {
 	talk_s				action;
@@ -1276,7 +1272,6 @@ public:
 	static void			newgame();
 	void				passround();
 	void				passtime(int minutes);
-	static void			play();
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
@@ -1315,7 +1310,6 @@ class answers {
 public:
 	answers();
 	adat<element, 32>	elements;
-	static imagei		last_image;
 	void				add(int id, const char* name, ...) { addv(id, name, xva_start(name)); }
 	void				addv(int id, const char* name, const char* format);
 	void				clear() { elements.clear(); sc.clear(); }
@@ -1332,7 +1326,6 @@ public:
 	static bool			confirm(const char* title, const char* positive = "Accept", const char* negative = "Decline");
 	static void			message(const char* format);
 	int					random() const;
-	static void			set(const imagei& v) { last_image = v; }
 	void				sort();
 };
 namespace draw {
@@ -1396,6 +1389,10 @@ extern gamei			game;
 extern dungeoni			location_above;
 extern dungeoni			location;
 extern creaturea		party;
+extern imagei			last_image;
+extern aref<actioni>	last_menu;
+extern const char*		last_name;
+extern const char*		last_menu_header;
 inline int				gx(indext index) { return index % mpx; }
 inline int				gy(indext index) { return index / mpx; }
 indext					to(indext index, direction_s d);
@@ -1405,6 +1402,15 @@ direction_s				pointto(indext from, indext to);
 int						rangeto(indext i1, indext i2);
 direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
+// Script functions
+void enter_city();
+void enter_inn();
+void game_options();
+void memorize_spells();
+void pray_for_spells();
+void play_adventure();
+void play_city();
+void scrible_scrolls();
 // Function get comon name
 template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)

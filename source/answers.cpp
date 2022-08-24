@@ -1,6 +1,9 @@
 #include "main.h"
 
-imagei answers::last_image;
+imagei last_image;
+aref<actioni> last_menu;
+const char* last_name;
+const char* last_menu_header;
 
 int answers::compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
