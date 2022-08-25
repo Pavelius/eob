@@ -14,6 +14,7 @@ BSDATA(itemfeati) = {
 	{"Countable"},
 	{"Valuable"},
 	{"Famed"},
+	{"Wised"},
 	{"Not for sale"},
 	{"Expandable"},
 	{"Unique"},

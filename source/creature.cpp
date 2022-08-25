@@ -11,10 +11,11 @@ char reaction_adjustment[] = {
 	0, 0, 0, 0, 0, 1, 2, 2, 3, 3,
 	4, 4, 4, 5, 5
 };
-static char hit_points_adjustment[] = {-4,
--3, -2, -2, -1, -1, -1, 0, 0, 0,
-0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
-5, 6, 6, 6, 7, 7
+static char hit_points_adjustment[] = {
+	-4,
+	-3, -2, -2, -1, -1, -1, 0, 0, 0,
+	0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
+	5, 6, 6, 6, 7, 7
 };
 static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 	{2, 0, 0, 0, 0, 0, 0}, // Wisdow 14
@@ -1481,17 +1482,26 @@ class_s	creature::getcaster() const {
 }
 
 void creature::removeloot() {
-	auto total_experience = 0;
-	for(auto& e : wears) {
+	for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i+1)) {
+		auto& e = wears[i];
 		if(!e)
 			continue;
-		if(e.isstarted())
-			e.clear();
-		else if(e.is(Valuable)) {
-			// Valuable items get experience
-			total_experience += e.getcost();
-			e.clear();
+		if(!e.isstarted()) {
+			if(e.is(Valuable))
+				last_loot.gold += e.gete().costgp;
+			if(e.is(Famed))
+				last_loot.reputation += 2;
+			if(e.is(Wised)) {
+				last_loot.experience += 100;
+				if(e.is(UseArcane))
+					last_loot.experience += 100;
+				if(e.is(UseDivine))
+					last_loot.blessing += 1;
+			}
+			if(e.gettype()==Bones)
+				last_loot.blessing += 1;
 		}
+		e.clear();
 	}
 }
 

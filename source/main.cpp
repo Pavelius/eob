@@ -315,7 +315,7 @@ void gamei::newgame() {
 	game.write();
 	game.addgold(120);
 	game.addcity(Prosperty, 20);
-	game.addcity(Reputation, 10 + game.getaverage(ReactionBonus));
+	game.addcity(Reputation, 50 + game.getaverage(ReactionBonus));
 	setnext(enter_city);
 }
 

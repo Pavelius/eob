@@ -140,6 +140,7 @@
     <ClInclude Include="flagable.h" />
     <ClInclude Include="io_stream.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="loot.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="itema.cpp" />
     <ClCompile Include="item_feat.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="loot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metadata.cpp" />
     <ClCompile Include="monster.cpp" />

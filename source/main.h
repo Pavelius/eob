@@ -3,6 +3,7 @@
 #include "dataset.h"
 #include "dice.h"
 #include "flagable.h"
+#include "loot.h"
 #include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
@@ -234,7 +235,7 @@ enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
 	Natural, Charged, Countable,
-	Valuable, Famed,
+	Valuable, Famed, Wised,
 	NotForSale, Expandable, Unique
 };
 enum reaction_s : unsigned char {
@@ -1239,6 +1240,7 @@ public:
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
+	void				camp(item_s food, bool cursed, int additional_bonus = 0);
 	void				clear();
 	void				clearfiles();
 	void				endround();
@@ -1347,7 +1349,7 @@ rect					form(rect rc, int count = 1, bool focused = false, bool pressed = false
 infoproc				getmode();
 void*					getfocus();
 void					greenbar(rect rc, int vc, int vm);
-void					greenbar(int vc, int vm);
+void					greenbarx(rect rc, int vc, int vm);
 int						header(int x, int y, const char* text);
 void					initialize();
 bool					isallowmodal();

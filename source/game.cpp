@@ -554,48 +554,6 @@ void gamei::equiping() {
 	}
 }
 
-void gamei::returntobase() {
-	// Clear all items
-	for(auto p : party) {
-		if(p)
-			p->removeloot();
-	}
-	// Cleanup locations
-	location.clear();
-	location_above.clear();
-	// City enter
-	draw::setnext(enter_city);
-}
-
-//void gamei::render_worldmap(void* object) {
-//	auto pg = (gamei*)object;
-//	point origin;
-//	draw::fullimage(pg->location_index.getposition(), &origin);
-//	point pt = pg->location_index.getposition() - origin;
-//	draw::redmarker(pt.x - 4, pt.y - 4);
-//	auto pn = pg->location_index.getname();
-//	if(pn)
-//		draw::textbc(pt.x, pt.y + 8, pn);
-//}
-//
-//void gamei::worldmap() {
-//	render_worldmap(this);
-//	draw::pause();
-//}
-
-//void gamei::rideto(variant v) {
-//	if(location_index == v)
-//		return;
-//	// TODO: calculate ride time
-//	draw::fullimage(location_index.getposition(), v.getposition(), 0);
-//	location_index = v;
-//	draw::appear(render_worldmap, this, 1000);
-//	auto pa = location_index.getadventure();
-//	if(pa && pa->message_entering)
-//		answers::message(pa->message_entering);
-//	enter(location_index, 1);
-//}
-
 bool gamei::is(variant id) const {
 	for(auto p : party) {
 		if(!p)
@@ -658,6 +616,7 @@ bool gamei::roll(int value) {
 void gamei::clear() {
 	memset(this, 0, sizeof(*this));
 	camera_index = Blocked;
+	adventure_index = Blocked;
 }
 
 void gamei::clearfiles() {
@@ -744,15 +703,13 @@ void creature::autocast(creaturea& party) {
 	}
 }
 
-void gamei::camp(item& it) {
+void gamei::camp(item_s food, bool poisoned, int additional_bonus) {
 	for(auto p : party) {
 		if(!p->isready())
 			continue;
 		p->autocast(party);
 	}
 	game.passtime(60 * 8);
-	auto food = it.gettype();
-	auto poisoned = it.iscursed();
 	if(poisoned)
 		mslog("Food was poisoned!");
 	for(auto p : party) {
@@ -763,16 +720,17 @@ void gamei::camp(item& it) {
 			p->add(Poison, Instant, NoSave);
 		} else {
 			switch(food) {
-			case Ration:
-				healed += xrand(1, 3);
-				break;
-			case RationIron:
-				healed += xrand(2, 6);
-				break;
+			case Ration: healed += xrand(1, 3); break;
+			case RationIron: healed += xrand(2, 6); break;
 			}
+			healed += additional_bonus;
 		}
 		p->resting(healed);
 	}
+}
+
+void gamei::camp(item& it) {
+	camp(it.gettype(), it.iscursed());
 }
 
 void gamei::endround() {
@@ -860,19 +818,23 @@ static void play_indoor() {
 
 void gamei::enter(unsigned short index, char level, bool set_camera) {
 	adventure_index = index;
-	location_level = level;
-	location.clear();
-	location_above.clear();
-	auto pa = getadventure();
-	if(!location.read(adventure_index, location_level)) {
-		pa->create(visialize_map);
-		if(!location.read(adventure_index, location_level))
-			return;
+	if(adventure_index == 0xFFFF)
+		draw::setnext(enter_city);
+	else {
+		location_level = level;
+		location.clear();
+		location_above.clear();
+		auto pa = getadventure();
+		if(!location.read(adventure_index, location_level)) {
+			pa->create(visialize_map);
+			if(!location.read(adventure_index, location_level))
+				return;
+		}
+		if(location_level > 1)
+			location_above.read(adventure_index, location_level - 1);
+		draw::settiles(location.head.type);
+		if(set_camera)
+			setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
+		draw::setnext(play_indoor);
 	}
-	if(location_level > 1)
-		location_above.read(adventure_index, location_level - 1);
-	draw::settiles(location.head.type);
-	if(set_camera)
-		setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
-	draw::setnext(play_indoor);
 }

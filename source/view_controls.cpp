@@ -247,6 +247,22 @@ static int flatb(int x, int y, int width, unsigned flags, const char* string) {
 	return draw::texth();
 }
 
+void draw::greenbarx(rect rc, int vc, int vm) {
+	if(!vm)
+		return;
+	if(vc < 0)
+		vc = 0;
+	color c1 = colors::green.darken();
+	border_down(rc);
+	rc.y1++;
+	rc.x1++;
+	rectf(rc, colors::down);
+	if(vc) {
+		rc.x2 = rc.x1 + vc * rc.width() / vm;
+		rectf(rc, c1);
+	}
+}
+
 void draw::greenbar(rect rc, int vc, int vm) {
 	if(!vm)
 		return;
@@ -2129,12 +2145,8 @@ static void field(const char* header, int width, const char* value) {
 }
 
 static void field(const char* header, int width, int total, int value, int maximum) {
-	//char temp[16]; stringbuilder sb(temp);
-	//if(!format)
-	//	format = "%1i";
-	//sb.add(format, value);
 	text(caret.x, caret.y, header);
-	greenbar({caret.x + width, caret.y, caret.x + total, caret.y + 5}, value, maximum);
+	greenbarx({caret.x + width, caret.y, caret.x + total, caret.y + 5}, value, maximum);
 }
 
 static void paint_header(const char* title, int width) {
@@ -2202,6 +2214,10 @@ void play_adventure() {
 }
 
 void play_city() {
+	if(!game.isalive()) {
+		draw::setnext(draw::mainmenu);
+		return;
+	}
 	while(ismodal()) {
 		if(!getfocus())
 			setfocus(party[0]->getitem(RightHand));

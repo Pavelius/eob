@@ -22,8 +22,30 @@ static void enter_quest() {
 	last_quest->enter();
 }
 
+static int getdiscounted(int cost) {
+	auto count = (game.get(Reputation) - 50) / 5;
+	cost -= count;
+	if(cost < 1)
+		cost = 1;
+	return cost;
+}
+
+static bool pay(int cost) {
+	if(game.getcity(Gold) < cost) {
+		draw::dlgmsg("You don't have enought gold piece!");
+		return false;
+	}
+	game.addcity(Gold, -cost);
+	return true;
+}
+
 static void rent_inn() {
-	if(!draw::dlgask("Do you really want to rent inn for 10 gold pieces?"))
+	auto cost = getdiscounted(30);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("Do you really want to rent inn for %1i gold pieces?", cost);
+	if(!draw::dlgask(temp))
+		return;
+	if(!pay(cost))
 		return;
 	enter_inn();
 }
@@ -34,6 +56,12 @@ void enter_city() {
 		{"Rent inn", rent_inn},
 		{"Game options", game_options},
 	};
+	if(location) {
+		if(game.city)
+			mslog("Party return to %1", game.city);
+	}
+	location.clear();
+	location_above.clear();
 	last_image.res = BUILDNGS;
 	last_image.frame = game.city_frame;
 	last_name = game.city;
@@ -42,11 +70,53 @@ void enter_city() {
 	draw::setnext(play_city);
 }
 
+static void addval(stringbuilder& sb, const char* pb, int value, const char* name) {
+	if(!value)
+		return;
+	if(pb[0])
+		sb.add(", ");
+	sb.add("%1i %2", value, name);
+}
+
+static void gain_loot() {
+	last_loot.clear();
+	for(auto p : party) {
+		if(p)
+			p->removeloot();
+	}
+	if(!last_loot)
+		return;
+	char temp[512]; stringbuilder sb(temp);
+	sb.addn("/BUILDNGS 18");
+	sb.addn("After return to settlement you visit a shop and sell all items, which you get in adventure. After all you gain: ");
+	auto pb = sb.get();
+	addval(sb, pb, last_loot.gold, "gold pieces");
+	addval(sb, pb, last_loot.experience, "epxerience points");
+	addval(sb, pb, last_loot.reputation, "reputation");
+	addval(sb, pb, last_loot.blessing, "god blessing");
+	answers::message(temp);
+	game.addcity(Gold, last_loot.gold);
+	game.addcity(Reputation, last_loot.reputation);
+	game.addcity(Blessing, last_loot.blessing);
+	game.addexpc(last_loot.experience, 0);
+}
+
+void gamei::returntobase() {
+	gain_loot();
+	draw::setnext(enter_city);
+}
+
+static void rest_party() {
+	game.camp(RationIron, false, 4);
+	draw::setnext(enter_city);
+}
+
 void enter_inn() {
 	static actioni actions[] = {
 		{"Pray for spells", pray_for_spells},
 		{"Memorize spells", memorize_spells},
 		{"Scrible scrolls", scrible_scrolls},
+		{"Rest party", rest_party},
 		{"Leave inn", enter_city},
 		{"Game options", game_options},
 	};

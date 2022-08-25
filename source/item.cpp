@@ -239,6 +239,7 @@ static enchantmenti old_tome[] = {
 
 BSDATA(itemi) = {
 	{"No item"},
+
 	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {2, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 	{"Axe", Common, {7, 4, 1}, 2 * GP, 0, Weapons, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {2, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 	{"Club", Common, {76, 12, 1}, 0, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
@@ -269,9 +270,9 @@ BSDATA(itemi) = {
 	{"Boots", Common, {21, 9}, 1 * GP, 0, Clothes, Legs, {}, {}, {}, {0, 1}, magic_boots},
 
 	{"Bracers", Rare, {25, 16}, 2 * GP, 0, Armors, Elbow, {}, {}, {}, {}, magic_bracers},
-	{"Necklage", Rare, {33, 13}, 15 * GP, 1, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
-	{"Necklage", VeryRare, {34, 13}, 50 * GP, 2, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
-	{"Jewelry", Artifact, {108, 13}, 100 * GP, 3, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
+	{"Necklage", Rare, {33, 13}, 15 * GP, 1, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
+	{"Necklage", VeryRare, {34, 13}, 50 * GP, 2, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
+	{"Jewelry", Artifact, {108, 13}, 100 * GP, 3, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
 
 	{"Arrow", Common, {16, 5}, 1 * GP, 0, Weapons, Quiver, {}, {Countable}},
 	{"Dart", Common, {14, 0}, 1 * GP, 0, Weapons, RightHand, {}, {Countable}},
@@ -280,9 +281,9 @@ BSDATA(itemi) = {
 	{"Bones", Common, {43, 7}, 0, 0, Tools, {}, {}, {}},
 	{"Map", Common, {86, 12}, 0, 0, Papers, {}, {}, {}},
 
-	{"Holy Symbol", Rare, {53, 20}, 0, 0, Tools, {}, {UseDivine}, {UseInHand}},
-	{"Holy Symbol", Rare, {27, 20}, 0, 0, Tools, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
-	{"Spell book", VeryRare, {35, 11}, 0, 0, Books, {}, {UseArcane}, {UseInHand}},
+	{"Holy Symbol", Rare, {53, 20}, 0, 0, Tools, {}, {UseDivine}, {UseInHand, Wised}},
+	{"Holy Symbol", Rare, {27, 20}, 0, 0, Tools, {}, {UseDivine, UseMartialWeapon}, {UseInHand, Wised}},
+	{"Spell book", VeryRare, {35, 11}, 0, 0, Books, {}, {UseArcane}, {UseInHand, Wised}},
 	{"Lockpicks", Rare, {54, 1}, 5 * GP, 0, Tools, Backpack, {UseTheif}, {Expandable}},
 
 	{"Wand", Rare, {52, 10}, 100 * GP, 0, Devices, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, magic_wand},
@@ -298,9 +299,9 @@ BSDATA(itemi) = {
 	{"Diamond key", Artifact, {102, 8}, 0, 0, Tools},
 	{"Green key", Artifact, {50, 8}, 0, 0, Tools},
 
-	{"Ring", Rare, {55, 15}, 5 * GP, 1, Jewelry, RightRing, {UseArcane}, {}, {}, {}, magic_rings},
-	{"Ring", Rare, {78, 15}, 30 * GP, 1, Jewelry, RightRing, {}, {}, {}, {}, magic_rings},
-	{"Ring", VeryRare, {79, 15}, 70 * GP, 1, Jewelry, RightRing, {}, {}, {}, {}, magic_rings},
+	{"Ring", Rare, {55, 15}, 5 * GP, 1, Jewelry, RightRing, {UseArcane}, {Valuable}, {}, {}, magic_rings},
+	{"Ring", Rare, {78, 15}, 30 * GP, 1, Jewelry, RightRing, {}, {Valuable}, {}, {}, magic_rings},
+	{"Ring", VeryRare, {79, 15}, 70 * GP, 1, Jewelry, RightRing, {}, {Valuable}, {}, {}, magic_rings},
 
 	{"Potion", Rare, {39, 19}, 50 * GP, 0, Potions, Backpack, {}, {}, {}, {}, magic_potions},
 	{"Potion", Rare, {40, 19}, 60 * GP, 0, Potions, Backpack, {}, {Expandable}, {}, {}, magic_potions},
