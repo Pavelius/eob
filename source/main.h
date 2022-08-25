@@ -356,6 +356,8 @@ struct spellprogi {
 struct actioni {
 	const char*			name;
 	fnevent				proc;
+	fntestcase			test;
+	int					param;
 };
 struct talki {
 	const char*			name;
@@ -1031,16 +1033,16 @@ struct dungeoni {
 		overlayi		wands; // where is crypt located
 		indext			spawn[2]; // new monster appera here
 		monster_s		boss; // Type of boss;
-		unsigned char	messages; // count of messages
-		unsigned char	secrets; // count of secret rooms
-		unsigned char	artifacts; // count of artifact items
-		unsigned char	rings; // count of magical rings
-		unsigned char	weapons; // count of magical weapons
-		unsigned char	elements; // count of corridors
-		unsigned char	traps; // count of traps
-		unsigned char	bones; // count of bones
-		unsigned char	gems; // count of gems
-		unsigned char	relicts; // count of books and holy symbols
+		short unsigned	messages; // count of messages
+		short unsigned	secrets; // count of secret rooms
+		short unsigned	artifacts; // count of artifact items
+		short unsigned	rings; // count of magical rings
+		short unsigned	weapons; // count of magical weapons
+		short unsigned	elements; // count of corridors
+		short unsigned	traps; // count of traps
+		short unsigned	bones; // count of bones
+		short unsigned	gems; // count of gems
+		short unsigned	relicts; // count of books and holy symbols
 		short unsigned	items; // total count of items
 		short unsigned	overlays; // total count of overlays
 		short unsigned	monsters; // total count of monsters
@@ -1178,6 +1180,7 @@ struct adventurei : historyi {
 	const char*			reward;
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active
+	short unsigned		goals[GrabAllSpecialItems + 1];
 	void				activate() { if(!stage) stage++; }
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				clear() { memset(this, 0, sizeof(*this)); }
@@ -1192,7 +1195,8 @@ struct companyi {
 	const char*			intro;
 	const char*			city;
 	const char*			inn;
-	short				city_frame, inn_frame;
+	const char*			temple;
+	short				city_frame, inn_frame, temple_frame;
 	static void			playcity();
 	void				readc(const char* name);
 };
@@ -1407,6 +1411,7 @@ inline int				d100() { return rand() % 100; }
 // Script functions
 void enter_city();
 void enter_inn();
+void enter_temple();
 void game_options();
 void memorize_spells();
 void pray_for_spells();

@@ -251,6 +251,9 @@ void companyi::readc(const char* url) {
 		} else if(isheader("Inn")) {
 			readname(); inn = value.text;
 			readval(inn_frame);
+		} else if(isheader("Temple")) {
+			readname(); temple = value.text;
+			readval(temple_frame);
 		} else
 			log::cerror(p, "Expected valid header");
 			skipwscr();

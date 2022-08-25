@@ -1,6 +1,7 @@
 #include "main.h"
 
 static adventurei* last_quest;
+static int last_value;
 
 static void choose_quest() {
 	answers aw;
@@ -50,10 +51,61 @@ static void rent_inn() {
 	enter_inn();
 }
 
+static void play_dialog() {
+	answers an;
+	for(auto& e : last_menu) {
+		if(e.test && !e.test(e.param))
+			continue;
+		an.add((int)&e, e.name);
+	}
+	auto pa = (actioni*)an.choosebg(last_menu_header);
+	if(pa) {
+		if(pa->test && !pa->test(pa->param))
+			return;
+		last_value = pa->param;
+		draw::setnext(pa->proc);
+	}
+}
+
+static int get_donation_level() {
+	switch(last_value) {
+	case 1000: return 2;
+	case 5000: return 3;
+	default: return 1;
+	}
+}
+
+static void make_donation() {
+	auto cost = getdiscounted(500);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("Do you really want donate %1i gold pieces?", cost);
+	if(!draw::dlgask(temp))
+		return;
+	if(pay(cost)) {
+		game.addcity(Blessing, 1);
+	}
+	draw::setnext(play_city);
+}
+
+static void enter_temple() {
+	static actioni actions[] = {
+		{"Donate", make_donation},
+		{"Leave temple", enter_city},
+		{"Game options", game_options},
+	};
+	last_image.res = BUILDNGS;
+	last_image.frame = game.temple_frame;
+	last_name = game.temple;
+	last_menu = actions;
+	last_menu_header = "Temple options";
+	draw::setnext(play_city);
+}
+
 void enter_city() {
 	static actioni actions[] = {
 		{"Enter quest", enter_quest},
 		{"Rent inn", rent_inn},
+		{"Visit temple", enter_temple},
 		{"Game options", game_options},
 	};
 	if(location) {

@@ -603,8 +603,9 @@ void dungeoni::overlayi::clear() {
 void dungeoni::update_goals() {
 	if(!is(KillBoss) && stat.boss && !stat.boss_alive) {
 		set(KillBoss);
-		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 2);
-		game.addexp(Lawful, 50); game.addexp(Good, 50);
+		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 1);
+		game.addexp(Lawful, 100);
+		game.addexp(Good, 50);
 	}
 	if(!is(ExploreMostDungeon)) {
 		const auto explored_maximum = mpx * mpy;
@@ -969,6 +970,10 @@ unsigned dungeoni::getmonstercount() const {
 }
 
 void dungeoni::passhour() {
+	if(is(KillAlmostAllMonsters))
+		return;
+	if(is(KillBoss))
+		return;
 	short unsigned monster_count = getmonstercount();
 	if(monster_count >= stat.monsters / 2)
 		return;

@@ -7,6 +7,7 @@ After all you feast is ending. You leave tavern, walking on the street big city 
 
 #City "Village Hunter ville" 26
 #Inn "Inn Precise Hunter" 7
+#Temple "Temple of Wise God" 8
 
 #Adventure FloodedCollectors
 #Adventure DarkForest
