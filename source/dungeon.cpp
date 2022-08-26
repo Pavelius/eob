@@ -606,6 +606,7 @@ void dungeoni::update_goals() {
 		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 1);
 		game.addexp(Lawful, 100);
 		game.addexp(Good, 50);
+		game.say("This place is safe now!");
 	}
 	if(!is(ExploreMostDungeon)) {
 		const auto explored_maximum = mpx * mpy;
@@ -615,17 +616,19 @@ void dungeoni::update_goals() {
 				explored++;
 		}
 		auto percent = 100 * explored / explored_maximum;
-		if(percent > 80) {
+		if(percent >= 70) {
 			set(ExploreMostDungeon);
 			game.addexpc(500, 0);
+			game.say("We explored most part of this place.");
 		}
 	}
 	if(!is(KillAlmostAllMonsters) && stat.monsters) {
-		auto percent = 100 * stat.monsters_killed / stat.monsters;
-		if(percent > 80) {
+		auto percent = 100 * stat.monsters_alive / stat.monsters;
+		if(percent <= 20) {
 			set(KillAlmostAllMonsters);
 			game.addexpc(800, 0);
 			game.addexp(Evil, 100);
+			game.say("We kill almost all of them!");
 		}
 	}
 }
@@ -977,18 +980,20 @@ void dungeoni::passhour() {
 	short unsigned monster_count = getmonstercount();
 	if(monster_count >= stat.monsters / 2)
 		return;
-	short unsigned source[2];
-	source[0] = stat.spawn[0];
-	source[1] = stat.spawn[1];
-	zshuffle(source, sizeof(source) / sizeof(source[0]));
-	for(auto index : source) {
-		if(index == Blocked)
-			continue;
-		auto distance = rangeto(index, game.getcamera());
-		if(distance <= 3)
-			continue;
-		addmonster(head.habbits[rand() % 2], index);
-		break;
+	if(d100() < 30) {
+		short unsigned source[2];
+		source[0] = stat.spawn[0];
+		source[1] = stat.spawn[1];
+		zshuffle(source, sizeof(source) / sizeof(source[0]));
+		for(auto index : source) {
+			if(index == Blocked)
+				continue;
+			auto distance = rangeto(index, game.getcamera());
+			if(distance <= 3)
+				continue;
+			addmonster(head.habbits[rand() % 2], index);
+			break;
+		}
 	}
 }
 
@@ -1229,7 +1234,8 @@ void dungeoni::set(indext index, direction_s dir, shape_s type, point& size, ind
 }
 
 const char* dungeoni::getnavigation(indext index) const {
-	static const char* names[] = {"north-west", "northen", "north-east",
+	static const char* names[] = {
+		"north-west", "northen", "north-east",
 		"western", "central", "easten",
 		"south-west", "southern", "south-east"
 	};

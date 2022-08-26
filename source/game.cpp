@@ -861,3 +861,10 @@ bool gamei::enchant(spell_s id, int level, bool run) {
 	}
 	return true;
 }
+
+void gamei::say(const char* format, ...) {
+	auto pc = party.random();
+	if(!pc)
+		return;
+	pc->sayv(format, xva_start(format));
+}

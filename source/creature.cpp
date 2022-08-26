@@ -1169,6 +1169,7 @@ bool creature::use(item* pi) {
 	spell_s spell_element;
 	char name[128]; stringbuilder sb(name); pi->getname(sb);
 	bool consume = true;
+	bool disable = false;
 	auto type = pi->gettype();
 	auto po = location.getoverlay(game.getcamera(), game.getdirection());
 	auto magic = pi->getmagic();
@@ -1226,9 +1227,10 @@ bool creature::use(item* pi) {
 				mslog("You remove pit");
 			}
 		} else if(po && po->type == CellTrapLauncher) {
-			if(location.isactive(po))
+			if(location.isactive(po)) {
+				disable = true;
 				pc->say("This trap already disabled");
-			else if(pc->use(RemoveTraps, forward_index, magic * 5, 0, 100, true)) {
+			} else if(pc->use(RemoveTraps, forward_index, magic * 5, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You disable trap");
 			}
@@ -1236,9 +1238,10 @@ bool creature::use(item* pi) {
 			auto bonus = 0;
 			if(po->type == CellKeyHole2)
 				bonus -= 10;
-			if(location.isactive(po))
+			if(location.isactive(po)) {
+				disable = true;
 				pc->say("This lock already open");
-			else if(pc->use(OpenLocks, forward_index, magic * 3, 0, 100, true)) {
+			} else if(pc->use(OpenLocks, forward_index, magic * 3, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You pick lock");
 			}
@@ -1250,8 +1253,10 @@ bool creature::use(item* pi) {
 			mslog("Lockpicks bite your finger and turn to dust");
 			pc->damage(Pierce, dice::roll(1, 3));
 			consume = true;
-		} else if(d100() < 15 - magic)
-			pi->damage("Your %1 is damaged", "You broke %1");
+		} else if(d100() < 15 - magic) {
+			if(!disable)
+				pi->damage("Your %1 is damaged", "You broke %1");
+		}
 		break;
 	case MagicWand:
 		consume = false;
@@ -1299,6 +1304,21 @@ bool creature::use(item* pi) {
 			else
 				mslog("Nothing happened, when %1 try use scroll", pc->getname());
 		}
+		break;
+	case HolySymbol:
+	case HolySymbolEvil:
+		pc->say("Holy god, give us your blessing!");
+		game.addcity(Blessing, 1);
+		game.addexp(type == HolySymbol ? Good : Evil, 100);
+		break;
+	case MagicBook:
+		pc->say("Interesting...");
+		pc->addexp(300);
+		break;
+	case Bones:
+		pc->say("Rest in peace, unknown fellow");
+		game.addcity(Blessing, 1);
+		game.addexp(Good, 50);
 		break;
 	case KeyShelf: case KeySilver: case KeyCooper: case KeySkull: case KeySpider:
 	case KeyMoon: case KeyDiamond: case KeyGreen:

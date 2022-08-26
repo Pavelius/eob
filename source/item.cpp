@@ -238,6 +238,7 @@ static enchantmenti old_tome[] = {
 };
 
 BSDATA(itemi) = {
+
 	{"No item"},
 
 	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {2, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
@@ -335,7 +336,9 @@ BSDATA(itemi) = {
 	{"Shoking hand", Common, {80}, 0, 0, Weapons, RightHand, {}, {Natural, Charged}, {2, Electricity, -4, {1, 8}, {}}},
 	{"Flame blade", Common, {82}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, SevereDamageUndead}, {2, Fire, -5, {1, 4, 4}, {}}},
 	{"Flame hand", Common, {81}, 0, 0, Weapons, RightHand, {}, {Natural, Charged, Ranged}, {2, Fire, -1, {1, 4, 1}, {}}},
+
 };
+
 assert_enum(itemi, LastItem)
 BSDATAF(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");

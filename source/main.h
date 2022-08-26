@@ -1296,6 +1296,7 @@ public:
 	bool				question(item* current_item);
 	bool				read();
 	static bool			roll(int value);
+	void				say(const char* format, ...);
 	void				set(city_ability_s i, int v) { cityi::set(i, v); }
 	void				setcamera(indext index, direction_s direction = Center);
 	void				thrown(item* itm);
