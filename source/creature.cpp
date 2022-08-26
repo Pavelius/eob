@@ -1324,11 +1324,17 @@ bool creature::use(item* pi) {
 	return true;
 }
 
-void creature::enchant(spell_s id, int level) {
+bool creature::enchant(spell_s id, int level, bool run) {
+	auto result = false;
 	for(auto& e : wears) {
-		if(e)
-			e.cast(id, level, true);
+		if(e) {
+			if(e.cast(id, level, run))
+				result = true;
+			if(!run && result)
+				break;
+		}
 	}
+	return result;
 }
 
 int	creature::getfoodmax() const {

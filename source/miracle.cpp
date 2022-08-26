@@ -11,7 +11,7 @@ static void remove_spell(spell_s v) {
 	}
 }
 
-static bool healing(int param, bool run) {
+static bool healing(bool run) {
 	if(game.is(Healed))
 		return true;
 	if(run)
@@ -19,14 +19,15 @@ static bool healing(int param, bool run) {
 	return true;
 }
 
-static bool cold_resistance(int param, bool run) {
+static bool cold_resistance(bool run) {
 	if(game.iseffect(ResistColdSpell))
 		return false;
-	game.addspell(ResistColdSpell, 60 * 24 * 3);
+	if(run)
+		game.addspell(ResistColdSpell, 60 * 24 * 3);
 	return true;
 }
 
-static bool remove_poison(int param, bool run) {
+static bool remove_poison(bool run) {
 	if(!game.iseffect(Poison))
 		return false;
 	if(run)
@@ -34,16 +35,25 @@ static bool remove_poison(int param, bool run) {
 	return true;
 }
 
+static bool identify_items(bool run) {
+	if(!game.enchant(Identify, 1, false))
+		return false;
+	if(run)
+		game.enchant(Identify, 1, true);
+	return true;
+}
+
 static miraclei small_miracles[] = {
-	{"ColdResistance", cold_resistance},
-	{"Healing", healing},
-	{"RemovePoison", remove_poison},
+	{"ColdResistance", cold_resistance, "You feel winter breath"},
+	{"Identifying", identify_items, "Sundelly you known all items power in your backpacks!"},
+	{"Healing", healing, "You wound is healing magical means"},
+	{"RemovePoison", remove_poison, "Poison stop run in your veins"},
 };
 
 static const miraclei* random_miracle(const aref<miraclei>& source) {
 	adat<const miraclei*> collections;
 	for(auto& e : source) {
-		if(!e.proc(0, false))
+		if(!e.proc(false))
 			continue;
 		collections.add(&e);
 	}
@@ -54,6 +64,9 @@ static const miraclei* random_miracle(const aref<miraclei>& source) {
 
 void add_small_miracle() {
 	auto p = random_miracle(small_miracles);
-	if(p)
-		p->proc(0, true);
+	if(p) {
+		p->proc(true);
+		if(p->text)
+			mslog(p->text);
+	}
 }

@@ -552,7 +552,7 @@ void gamei::equiping() {
 		if(!p)
 			continue;
 		p->random_equipment(1);
-		p->enchant(Identify, 1);
+		p->enchant(Identify, 1, true);
 	}
 }
 
@@ -849,4 +849,15 @@ void gamei::enter(unsigned short index, char level, bool set_camera) {
 void gamei::addspell(spell_s v, unsigned duration) {
 	for(auto p : party)
 		p->add(v, duration);
+}
+
+bool gamei::enchant(spell_s id, int level, bool run) {
+	auto result = false;
+	for(auto p : party) {
+		if(p->enchant(id, level, run))
+			result = true;
+		if(!run && result)
+			break;
+	}
+	return true;
 }

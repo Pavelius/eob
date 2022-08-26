@@ -2,7 +2,6 @@
 
 companyi campaign;
 static adventurei* last_quest;
-static int last_value;
 
 bool cityi::askmiracle() {
 	auto r = d100();
@@ -61,15 +60,14 @@ static void rent_inn() {
 static void play_dialog() {
 	answers an;
 	for(auto& e : last_menu) {
-		if(e.test && !e.test(e.param))
+		if(e.test && !e.test())
 			continue;
 		an.add((int)&e, e.name);
 	}
 	auto pa = (actioni*)an.choosebg(last_menu_header);
 	if(pa) {
-		if(pa->test && !pa->test(pa->param))
+		if(pa->test && !pa->test())
 			return;
-		last_value = pa->param;
 		draw::setnext(pa->proc);
 	}
 }

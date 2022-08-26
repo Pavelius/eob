@@ -357,12 +357,12 @@ struct actioni {
 	const char*			name;
 	fnevent				proc;
 	fntestcase			test;
-	int					param;
 	int					key;
 };
 struct miraclei {
 	const char*			name;
 	fnscript			proc;
+	const char*			text;
 };
 struct talki {
 	const char*			name;
@@ -850,7 +850,7 @@ public:
 	static race_s		chooserace(bool interactive);
 	spell_s				choosespell(class_s type) const;
 	void				damage(damage_s type, int hits, int magic_bonus = 0);
-	void				enchant(spell_s id, int level);
+	bool				enchant(spell_s id, int level, bool run);
 	void				equip(item it);
 	void				exhause();
 	item*				find(item_s v) const;
@@ -1261,6 +1261,7 @@ public:
 	void				each(fnparty proc) const;
 	void				endround();
 	void				enter(unsigned short index, char level, bool set_camera = true);
+	bool				enchant(spell_s id, int level, bool run);
 	void				equiping();
 	void				findsecrets();
 	constexpr int		get(city_ability_s id) const { return cityi::get(id); }

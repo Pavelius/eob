@@ -952,16 +952,16 @@ const actioni* draw::dlgall(const char* format, const aref<actioni>& source) {
 
 bool draw::dlgask(const char* text) {
 	static actioni actions[] = {
-		{"Yes", 0, 0, 1, KeyEnter},
-		{"No", 0, 0, 0, KeyEscape},
+		{"Yes", 0, 0, KeyEnter},
+		{"No", 0, 0, KeyEscape},
 	};
 	auto p = dlgall(text, actions);
-	return p->param != 0;
+	return (p->key == KeyEnter);
 }
 
 void draw::dlgmsg(const char* text) {
 	static actioni actions[] = {
-		{"OK", 0, 0, 0, KeyEnter},
+		{"OK", 0, 0, KeyEnter},
 	};
 	dlgall(text, actions);
 }
