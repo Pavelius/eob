@@ -14,8 +14,10 @@ bool cityi::askmiracle() {
 
 static void choose_quest() {
 	answers aw;
-	for(auto& e : bsdata<adventurei>())
-		aw.add((int)&e, e.getname());
+	for(auto& e : bsdata<adventurei>()) {
+		if(e.stage==1 || e.stage==2)
+			aw.add((int)&e, e.getname());
+	}
 	last_quest = (adventurei*)aw.choosemb("Which way to go?");
 }
 
@@ -23,9 +25,12 @@ static void enter_quest() {
 	choose_quest();
 	if(!last_quest)
 		return;
-	if(!answers::confirm(last_quest->summary))
-		return;
-	answers::message(last_quest->agree);
+	if(last_quest->stage == 1) {
+		if(!answers::confirm(last_quest->summary))
+			return;
+		answers::message(last_quest->agree);
+		last_quest->stage = 2;
+	}
 	last_quest->enter();
 }
 

@@ -3,7 +3,7 @@
 /SCENES 3
 At least you meet in tavern. You feast this great day with good bear and food.
 Each of you have reason to leave own settlement and start adventurer. Why? This is not important. You are already here.
-After all you feast is ending. You leave tavern, walking on the street big city of Waterdeep...
+After all you feast is ending. You leave tavern, walking on the street small village Hunter Ville, located on the west of Western Hertlands in Faerun region ...
 
 #Feast
 
@@ -15,6 +15,6 @@ Good tastet food and drink make you feel good.
 #Temple "Temple of Wise God" 8
 #Tavern "Tavern Roaring Boar" 5
 
-#Adventure FloodedCollectors
-#Adventure DarkForest
+#Adventure FloodedCollectors 2
+#Adventure DarkForest 1
 #Adventure DwarfMine

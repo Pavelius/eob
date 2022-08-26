@@ -308,8 +308,8 @@ void gamei::newgame() {
 		p->random_equipment(0);
 		party.add(p);
 	}
-	//if(game.intro)
-	//	answers::message(game.intro);
+	//if(campaign.intro)
+	//	answers::message(campaign.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
 	game.write();

@@ -1185,9 +1185,9 @@ struct adventurei : historyi {
 	const char*			entering;
 	const char*			reward;
 	sitei				levels[8];
-	unsigned char		stage; // 0 - non active
+	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
 	short unsigned		goals[GrabAllSpecialItems + 1];
-	void				activate() { if(!stage) stage++; }
+	void				activate() { if(stage) stage = 1; }
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(bool interactive) const;

@@ -151,7 +151,7 @@ void readval(const char*& v) {
 static void read_site(adventurei& e) {
 	auto pv = e.addsite();
 	if(!pv) {
-		log::cerror(p, "Too many sites in adventure \'%1\'", e.name);
+		cerror(p, "Too many sites in adventure \'%1\'", e.name);
 		return;
 	}
 	pv->head.keys[0] = KeyCooper;
@@ -242,7 +242,7 @@ void companyi::readc(const char* url) {
 			auto pv = bsdata<adventurei>::add();
 			pv->clear();
 			readid(); pv->id = value.text;
-			skipwscr();
+			readnumber(); pv->stage = value.number;
 		} else if(isheader("Intro"))
 			readval(intro);
 		else if(isheader("Feast"))
@@ -261,7 +261,7 @@ void companyi::readc(const char* url) {
 			readval(tavern_frame);
 		} else
 			log::cerror(p, "Expected valid header");
-			skipwscr();
+		skipwscr();
 	}
 	log::close();
 }
