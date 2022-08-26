@@ -270,9 +270,9 @@ BSDATA(itemi) = {
 	{"Boots", Common, {21, 9}, 1 * GP, 0, Clothes, Legs, {}, {}, {}, {0, 1}, magic_boots},
 
 	{"Bracers", Rare, {25, 16}, 2 * GP, 0, Armors, Elbow, {}, {}, {}, {}, magic_bracers},
-	{"Necklage", Rare, {33, 13}, 15 * GP, 1, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
-	{"Necklage", VeryRare, {34, 13}, 50 * GP, 2, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
-	{"Jewelry", Artifact, {108, 13}, 100 * GP, 3, {Jewelry}, Neck, {}, {Valuable}, {}, {}, magic_amulets},
+	{"Necklage", Rare, {33, 13}, 15 * GP, 1, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
+	{"Necklage", VeryRare, {34, 13}, 50 * GP, 2, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
+	{"Jewelry", Artifact, {108, 13}, 100 * GP, 3, {Jewelry}, Neck, {}, {}, {}, {}, magic_amulets},
 
 	{"Arrow", Common, {16, 5}, 1 * GP, 0, Weapons, Quiver, {}, {Countable}},
 	{"Dart", Common, {14, 0}, 1 * GP, 0, Weapons, RightHand, {}, {Countable}},
@@ -281,9 +281,9 @@ BSDATA(itemi) = {
 	{"Bones", Common, {43, 7}, 0, 0, Tools, {}, {}, {}},
 	{"Map", Common, {86, 12}, 0, 0, Papers, {}, {}, {}},
 
-	{"Holy Symbol", Rare, {53, 20}, 0, 0, Tools, {}, {UseDivine}, {UseInHand, Wised}},
-	{"Holy Symbol", Rare, {27, 20}, 0, 0, Tools, {}, {UseDivine, UseMartialWeapon}, {UseInHand, Wised}},
-	{"Spell book", VeryRare, {35, 11}, 0, 0, Books, {}, {UseArcane}, {UseInHand, Wised}},
+	{"Holy Symbol", Rare, {53, 20}, 0, 0, Tools, {}, {UseDivine}, {UseInHand}},
+	{"Holy Symbol", Rare, {27, 20}, 0, 0, Tools, {}, {UseDivine, UseMartialWeapon}, {UseInHand}},
+	{"Spell book", VeryRare, {35, 11}, 0, 0, Books, {}, {UseArcane}, {UseInHand}},
 	{"Lockpicks", Rare, {54, 1}, 5 * GP, 0, Tools, Backpack, {UseTheif}, {Expandable}},
 
 	{"Wand", Rare, {52, 10}, 100 * GP, 0, Devices, {}, {UseArcane}, {UseInHand, Charged}, {}, {}, magic_wand},
@@ -299,27 +299,27 @@ BSDATA(itemi) = {
 	{"Diamond key", Artifact, {102, 8}, 0, 0, Tools},
 	{"Green key", Artifact, {50, 8}, 0, 0, Tools},
 
-	{"Ring", Rare, {55, 15}, 5 * GP, 1, Jewelry, RightRing, {UseArcane}, {Valuable}, {}, {}, magic_rings},
-	{"Ring", Rare, {78, 15}, 30 * GP, 1, Jewelry, RightRing, {}, {Valuable}, {}, {}, magic_rings},
-	{"Ring", VeryRare, {79, 15}, 70 * GP, 1, Jewelry, RightRing, {}, {Valuable}, {}, {}, magic_rings},
+	{"Ring", Rare, {55, 15}, 5 * GP, 1, Jewelry, RightRing, {UseArcane}, {}, {}, {}, magic_rings},
+	{"Ring", Rare, {78, 15}, 30 * GP, 1, Jewelry, RightRing, {}, {}, {}, {}, magic_rings},
+	{"Ring", VeryRare, {79, 15}, 70 * GP, 1, Jewelry, RightRing, {}, {}, {}, {}, magic_rings},
 
 	{"Potion", Rare, {39, 19}, 50 * GP, 0, Potions, Backpack, {}, {}, {}, {}, magic_potions},
 	{"Potion", Rare, {40, 19}, 60 * GP, 0, Potions, Backpack, {}, {Expandable}, {}, {}, magic_potions},
 	{"Potion", Rare, {41, 19}, 70 * GP, 0, Potions, Backpack, {}, {}, {}, {}, magic_potions},
 
-	{"Red gem", VeryRare, {93, 22}, 200 * GP, 5, Jewelry, {}, {}, {Valuable}},
-	{"Blue gem", VeryRare, {94, 22}, 400 * GP, 6, Jewelry, {}, {}, {Valuable}},
-	{"Green gem", VeryRare, {95, 22}, 500 * GP, 8, Jewelry, {}, {}, {Valuable}},
-	{"Purple gem", VeryRare, {96, 22}, 1000 * GP, 10, Jewelry, {}, {}, {Valuable}},
+	{"Red gem", VeryRare, {93, 22}, 200 * GP, 5, Jewelry, {}, {}, {}},
+	{"Blue gem", VeryRare, {94, 22}, 400 * GP, 6, Jewelry, {}, {}, {}},
+	{"Green gem", VeryRare, {95, 22}, 500 * GP, 8, Jewelry, {}, {}, {}},
+	{"Purple gem", VeryRare, {96, 22}, 1000 * GP, 10, Jewelry, {}, {}, {}},
 
 	{"Ration", Common, {38, 14}, 1 * GP, 0, Food, Backpack, {}, {Expandable}},
 	{"Iron ration", Uncommon, {37, 14}, 2 * GP, 0, Food, Backpack, {}, {Expandable}},
 
 	{"Dust of Ages", Artifact, {97, 25}, 0, 0, Tools, {}, {UseArcane}, {Unique}},
-	{"Horn", Artifact, {59, 23}, 0, 0, Tools, {}, {}, {Unique, Famed}},
+	{"Horn", Artifact, {59, 23}, 0, 0, Tools, {}, {}, {Unique}},
 	{"Mantist Head", Artifact, {51, 18}, 0, 0, Tools, {}, {}, {Unique}},
-	{"Scepeter", Artifact, {66, 17}, 0, 0, Weapons, RightHand, {}, {Unique, Famed}, {2, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
-	{"Silver sword", Artifact, {65, 0}, 0, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, Famed, SevereDamageUndead}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
+	{"Scepeter", Artifact, {66, 17}, 0, 0, Weapons, RightHand, {}, {Unique}, {2, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
+	{"Silver sword", Artifact, {65, 0}, 0, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
 	{"Stone amulet", Artifact, {64, 13}, 0, 0, Tools, Neck, {}, {Unique}},
 	{"Stone dagger", Artifact, {60, 3}, 0, 0, Weapons, {}, {}, {Unique}},
 	{"Stone gem", Artifact, {57, 22}, 0, 0, Jewelry, {}, {}, {Unique}},
@@ -615,6 +615,38 @@ int	item::getcost() const {
 			r += 1;
 	}
 	return r;
+}
+
+static int getraritycost(rarity_s r) {
+	switch(r) {
+	case Uncommon: return 200;
+	case Rare: return 1000;
+	case VeryRare: return 3000;
+	case Artifact: return 10000;
+	default: return 0;
+	}
+}
+
+int	item::getcostgp() const {
+	auto cost = bsdata<itemi>::elements[type].costgp;
+	if(isidentified()) {
+		if(iscursed())
+			return 0;
+		auto pe = getenchantment();
+		auto mc = getraritycost(pe->rarity);
+		switch(type) {
+		case MageScroll: case PriestScroll:
+			mc /= 20;
+			break;
+		case RedPotion:
+		case BluePotion:
+		case GreenPotion:
+			mc /= 10;
+			break;
+		}
+		cost += mc;
+	}
+	return cost;
 }
 
 int item::getcount() const {

@@ -1492,22 +1492,8 @@ void creature::removeloot() {
 		auto& e = wears[i];
 		if(!e)
 			continue;
-		if(!e.isstarted()) {
-			if(e.is(Valuable))
-				last_loot.gold += e.gete().costgp;
-			if(e.is(Famed))
-				last_loot.reputation += 2;
-			if(e.is(Wised)) {
-				last_loot.experience += 100;
-				if(e.is(UseArcane))
-					last_loot.experience += 100;
-				if(e.is(UseDivine))
-					last_loot.blessing += 1;
-			}
-			if(e.gettype()==Bones)
-				last_loot.blessing += 1;
-		}
-		e.clear();
+		if(e.isstarted() || e.is(Expandable))
+			e.clear();
 	}
 }
 

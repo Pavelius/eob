@@ -826,7 +826,7 @@ static void play_indoor() {
 void gamei::enter(unsigned short index, char level, bool set_camera) {
 	adventure_index = index;
 	if(adventure_index == 0xFFFF)
-		draw::setnext(enter_city);
+		draw::setnext(return_to_city);
 	else {
 		location_level = level;
 		location.clear();

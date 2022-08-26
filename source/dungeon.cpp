@@ -875,7 +875,7 @@ bool dungeoni::move(direction_s direction) {
 		game.write();
 		clearboost();
 		if(level <= 1) {
-			return_to_city();
+			game.enter(0xFFFF, 0);
 			return false;
 		}
 		game.enter(overland_index, level - 1);

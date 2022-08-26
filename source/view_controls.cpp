@@ -2117,8 +2117,8 @@ static bool handle_shortcuts(bool allow_move) {
 	case 'D':
 		if(allow_move)
 			location.dropitem((item*)current_focus);
-		else if(dlgask("You can't pick this item again. Do you really want to drop item?"))
-			((item*)current_focus)->clear();
+		else
+			((item*)current_focus)->sell();
 		return true;
 	case 'U':
 		return creature::use((item*)current_focus);

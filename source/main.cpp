@@ -308,6 +308,7 @@ void gamei::newgame() {
 		p->random_equipment(0);
 		party.add(p);
 	}
+	game.enchant(Identify, 1, true);
 	//if(campaign.intro)
 	//	answers::message(campaign.intro);
 	draw::resetres();

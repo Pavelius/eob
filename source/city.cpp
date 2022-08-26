@@ -15,7 +15,7 @@ bool cityi::askmiracle() {
 static void choose_quest() {
 	answers aw;
 	for(auto& e : bsdata<adventurei>()) {
-		if(e.stage==1 || e.stage==2)
+		if(e.stage == 1 || e.stage == 2)
 			aw.add((int)&e, e.getname());
 	}
 	last_quest = (adventurei*)aw.choosemb("Which way to go?");
@@ -157,30 +157,28 @@ static void addval(stringbuilder& sb, const char* pb, int value, const char* nam
 }
 
 static void gain_loot() {
-	last_loot.clear();
 	for(auto p : party) {
 		if(p)
 			p->removeloot();
 	}
-	if(!last_loot)
-		return;
-	char temp[512]; stringbuilder sb(temp);
-	sb.addn("/BUILDNGS 18");
-	sb.addn("After return to settlement you visit a shop and sell all items, which you get in adventure. After all you gain: ");
-	auto pb = sb.get();
-	addval(sb, pb, last_loot.gold, "gold pieces");
-	addval(sb, pb, last_loot.experience, "epxerience points");
-	addval(sb, pb, last_loot.reputation, "reputation");
-	addval(sb, pb, last_loot.blessing, "god blessing");
-	answers::message(temp);
-	game.addcity(Gold, last_loot.gold);
-	game.addcity(Reputation, last_loot.reputation);
-	game.addcity(Blessing, last_loot.blessing);
-	game.addexpc(last_loot.experience, 0);
+	//char temp[512]; stringbuilder sb(temp);
+	//sb.addn("/BUILDNGS 18");
+	//sb.addn("After return to settlement you visit a shop and sell all items, which you get in adventure. After all you gain: ");
+	//auto pb = sb.get();
+	//addval(sb, pb, last_loot.gold, "gold pieces");
+	//addval(sb, pb, last_loot.experience, "epxerience points");
+	//addval(sb, pb, last_loot.reputation, "reputation");
+	//addval(sb, pb, last_loot.blessing, "god blessing");
+	//answers::message(temp);
+	//game.addcity(Gold, last_loot.gold);
+	//game.addcity(Reputation, last_loot.reputation);
+	//game.addcity(Blessing, last_loot.blessing);
+	//game.addexpc(last_loot.experience, 0);
 }
 
 void return_to_city() {
 	gain_loot();
+	game.write();
 	draw::setnext(enter_city);
 }
 
@@ -203,4 +201,19 @@ void enter_inn() {
 	last_menu = actions;
 	last_menu_header = "Inn options";
 	draw::setnext(play_city);
+}
+
+void item::sell() {
+	if(!type)
+		return;
+	char temp[512]; stringbuilder sb(temp);
+	auto cost = getdiscounted(getcostgp() / 2);
+	if(!cost)
+		sb.add("Do you really want to drop this item away?");
+	else
+		sb.add("Do you really want to sell item for %1i gold pieces?", cost);
+	if(!draw::dlgask(temp))
+		return;
+	game.addcity(Gold, cost);
+	clear();
 }

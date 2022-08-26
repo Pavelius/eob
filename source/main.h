@@ -235,7 +235,6 @@ enum item_feat_s : unsigned char {
 	TwoHanded, Light, Versatile, Ranged, Deadly, Quick, UseInHand,
 	SevereDamageUndead,
 	Natural, Charged, Countable,
-	Valuable, Famed, Wised,
 	NotForSale, Expandable, Unique
 };
 enum reaction_s : unsigned char {
@@ -659,7 +658,7 @@ public:
 	item_s				getammo() const { return gete().ammo; }
 	int					getarmorpenalty(ability_s skill) const;
 	int					getcost() const;
-	int					getcostgp() const { return gete().costgp; }
+	int					getcostgp() const;
 	int					getcount() const;
 	int					getcharges() const { return charges; }
 	constexpr const itemi& gete() const { return bsdata<itemi>::elements[type]; }
@@ -699,6 +698,7 @@ public:
 	bool				istwohanded() const { return is(TwoHanded); }
 	bool				match(const typea& v) const { for(auto e : v) if(e == type) return true; return false; }
 	static void			select(adat<item>& result, good_s good, rarity_s rarity);
+	void				sell();
 	void				setbroken(int value) { broken = value; }
 	void				setcharges(int v);
 	void				setcount(int v);
