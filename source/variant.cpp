@@ -1,6 +1,6 @@
 #include "main.h"
 
-static array game_source(&game, sizeof(companyi), 1);
+static array game_source(&game, sizeof(campaigni), 1);
 
 BSDATA(varianti) = {
 	{"None"},

@@ -280,6 +280,7 @@ static void clear_all() {
 	bsdata<adventurei>::source.clear();
 	location.clear();
 	location_above.clear();
+	campaign.clear();
 	game.clear();
 	game.clearfiles();
 	party.clear();
@@ -313,10 +314,9 @@ void gamei::newgame() {
 	//	answers::message(campaign.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
+	game.setcity(campaign.stats);
+	game.addcity(Reputation, game.getaverage(ReactionBonus));
 	game.write();
-	game.addgold(120);
-	game.addcity(Prosperty, 20);
-	game.addcity(Reputation, 50 + game.getaverage(ReactionBonus));
 	setnext(enter_city);
 }
 

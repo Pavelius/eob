@@ -196,11 +196,11 @@ struct adatc {
 class array {
 	void*					data;
 	unsigned				size;
-	unsigned				count;
 	unsigned				count_maximum;
 	bool					growable;
 	friend struct archive;
 public:
+	unsigned				count;
 	constexpr array() : data(0), size(0), count(0), count_maximum(0), growable(true) {}
 	constexpr array(unsigned size) : data(0), size(size), count(0), count_maximum(0), growable(true) {}
 	constexpr array(void* data, unsigned size, unsigned count) : data(data), size(size), count(count), count_maximum(0), growable(false) {}

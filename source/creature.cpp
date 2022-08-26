@@ -1513,7 +1513,7 @@ class_s	creature::getcaster() const {
 }
 
 void creature::removeloot() {
-	for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i+1)) {
+	for(auto i = Backpack; i <= LastBackpack; i = (wear_s)(i + 1)) {
 		auto& e = wears[i];
 		if(!e)
 			continue;

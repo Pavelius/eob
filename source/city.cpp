@@ -1,6 +1,6 @@
 #include "main.h"
 
-companyi campaign;
+campaigni campaign;
 static adventurei* last_quest;
 
 bool cityi::askmiracle() {
@@ -161,23 +161,16 @@ static void gain_loot() {
 		if(p)
 			p->removeloot();
 	}
-	//char temp[512]; stringbuilder sb(temp);
-	//sb.addn("/BUILDNGS 18");
-	//sb.addn("After return to settlement you visit a shop and sell all items, which you get in adventure. After all you gain: ");
-	//auto pb = sb.get();
-	//addval(sb, pb, last_loot.gold, "gold pieces");
-	//addval(sb, pb, last_loot.experience, "epxerience points");
-	//addval(sb, pb, last_loot.reputation, "reputation");
-	//addval(sb, pb, last_loot.blessing, "god blessing");
-	//answers::message(temp);
-	//game.addcity(Gold, last_loot.gold);
-	//game.addcity(Reputation, last_loot.reputation);
-	//game.addcity(Blessing, last_loot.blessing);
-	//game.addexpc(last_loot.experience, 0);
 }
 
 void return_to_city() {
 	gain_loot();
+	if(last_adventure) {
+		if(last_adventure->iscomplete()) {
+			last_adventure->stage = 0xFF;
+			answers::message(last_adventure->reward);
+		}
+	}
 	game.write();
 	draw::setnext(enter_city);
 }

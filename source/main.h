@@ -3,7 +3,6 @@
 #include "dataset.h"
 #include "dice.h"
 #include "flagable.h"
-#include "loot.h"
 #include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
@@ -341,6 +340,9 @@ struct variant {
 };
 typedef variant conditiona[6];
 struct varianta : adat<variant, 12> {
+};
+struct goali {
+	const char*			id;
 };
 struct celli {
 	const char*			name;
@@ -1186,6 +1188,7 @@ struct adventurei : historyi {
 	const char*			reward;
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
+	short unsigned		compete_goals[GrabAllSpecialItems + 1];
 	short unsigned		goals[GrabAllSpecialItems + 1];
 	void				activate() { if(stage) stage = 1; }
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
@@ -1194,9 +1197,20 @@ struct adventurei : historyi {
 	void				enter();
 	int					getindex() const { return this - bsdata<adventurei>::elements; }
 	const char*			getname() const { return name; }
+	bool				iscomplete() const;
 	void				read(const char* url);
 };
-struct companyi {
+extern adventurei* last_adventure;
+struct cityi : public dataset<Gold, int> {
+	void				addcity(city_ability_s i, int v) { add(i, v); }
+	void				addgold(int coins) { addcity(Gold, coins); }
+	bool				askmiracle();
+	int					getgold() const { return get(Gold); }
+	int					getcity(city_ability_s i) const { return get(i); }
+	void				pay(int coins) { addgold(-coins); }
+	void				setcity(const cityi& e) { *this = e; }
+};
+struct campaigni {
 	const char*			name;
 	const char*			intro;
 	const char*			city;
@@ -1205,17 +1219,11 @@ struct companyi {
 	const char*			tavern;
 	const char*			feast;
 	short				city_frame, inn_frame, temple_frame, tavern_frame;
+	cityi				stats;
+	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				readc(const char* name);
 };
-extern companyi			campaign;
-struct cityi : public dataset<Gold, int> {
-	void				addcity(city_ability_s i, int v) { add(i, v); }
-	void				addgold(int coins) { addcity(Gold, coins); }
-	bool				askmiracle();
-	int					getgold() const { return get(Gold); }
-	int					getcity(city_ability_s i) const { return get(i); }
-	void				pay(int coins) { addgold(-coins); }
-};
+extern campaigni		campaign;
 struct chati {
 	talk_s				action;
 	conditiona			conditions;
@@ -1443,7 +1451,9 @@ NOBSDATA(point)
 NOBSDATA(sitei)
 NOBSDATA(variant)
 BSLNK(cell_s, celli)
+BSLNK(city_ability_s, cityabilityi)
 BSLNK(item_s, itemi)
+BSLNK(goal_s, goali)
 BSLNK(monster_s, monsteri)
 BSLNK(race_s, racei)
 BSLNK(resource_s, resourcei)

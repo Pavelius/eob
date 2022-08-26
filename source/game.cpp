@@ -488,6 +488,19 @@ bool creature::set(ability_s skill, short unsigned index) {
 	return false;
 }
 
+template<> void archive::set(adventurei& e) {
+	set(e.id);
+	set(e.stage);
+	set(e.history_progress);
+	set(e.compete_goals);
+}
+
+static void serial_adventures(archive& a) {
+	a.set(bsdata<adventurei>::source.count);
+	for(auto& e : bsdata<adventurei>())
+		a.set(e);
+}
+
 static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
@@ -502,6 +515,7 @@ static bool serialize(bool writemode) {
 		game.preserial(false);
 	a.set(bsdata<boosti>::source);
 	a.set(bsdata<creature>::source);
+	serial_adventures(a);
 	return true;
 }
 

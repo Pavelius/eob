@@ -190,6 +190,7 @@
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="checksum.cpp" />
+    <ClCompile Include="goal.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
     <ClCompile Include="io_stream.cpp" />

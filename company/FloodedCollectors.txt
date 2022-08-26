@@ -40,6 +40,8 @@ Deep undeground living undead. Many of them live here. Some old evil haunted tho
 #Habbit Zombie Ghoul
 #Boss Wight
 
+#Goal KillBoss+1 KillAlmostAllMonsters+5
+
 #Reward
 
 /NPC 50

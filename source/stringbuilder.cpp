@@ -48,7 +48,9 @@ const char* stringbuilder::read(const char* p, long& value) {
 	if(!p)
 		return 0;
 	bool sign = false;
-	if(*p == '-') {
+	if(*p == '+')
+		p++;
+	else if(*p == '-') {
 		sign = true;
 		p++;
 	}

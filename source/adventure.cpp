@@ -11,6 +11,7 @@ struct svalue {
 	void			clear() { memset(this, 0, sizeof(*this)); }
 };
 static svalue		value;
+adventurei*			last_adventure;
 
 static void skipws() {
 	while(*p && (*p == ' ' || *p == '\t'))
@@ -148,6 +149,31 @@ void readval(const char*& v) {
 	v = value.text;
 }
 
+static void readval(cityi& e) {
+	while(*p && need_continue && !isheader()) {
+		city_ability_s id;
+		int bonus = 0;
+		readval(id);
+		if(*p == '+' || *p == '-')
+			readval(bonus);
+		e.add(id, bonus);
+		skipwscr();
+	}
+}
+
+template<typename DT, size_t N, typename T>
+static void readarr(DT(&data)[N], T zero) {
+	while(*p && need_continue && !isheader()) {
+		auto id = zero;
+		int bonus = 0;
+		readval(id);
+		if(*p == '+' || *p == '-')
+			readval(bonus);
+		data[id] += bonus;
+		skipwscr();
+	}
+}
+
 static void read_site(adventurei& e) {
 	auto pv = e.addsite();
 	if(!pv) {
@@ -222,6 +248,8 @@ void adventurei::read(const char* url) {
 			readval(history[history_current++]);
 		else if(isheader("Site"))
 			read_site(*this);
+		else if(isheader("Goal"))
+			readarr(goals, KillBoss);
 		else
 			break;
 		skipwscr();
@@ -233,7 +261,7 @@ void adventurei::read(const char* url) {
 	log::close();
 }
 
-void companyi::readc(const char* url) {
+void campaigni::readc(const char* url) {
 	p = log::read(url);
 	if(!p)
 		return;
@@ -250,7 +278,9 @@ void companyi::readc(const char* url) {
 		else if(isheader("City")) {
 			readname(); city = value.text;
 			readval(city_frame);
-		} else if(isheader("Inn")) {
+		} else if(isheader("Stats"))
+			readval(stats);
+		else if(isheader("Inn")) {
 			readname(); inn = value.text;
 			readval(inn_frame);
 		} else if(isheader("Temple")) {
@@ -264,4 +294,12 @@ void companyi::readc(const char* url) {
 		skipwscr();
 	}
 	log::close();
+}
+
+bool adventurei::iscomplete() const {
+	for(auto i = 0; i <= GrabAllSpecialItems; i = (goal_s)(i + 1)) {
+		if(compete_goals[i] < goals[i])
+			return false;
+	}
+	return true;
 }

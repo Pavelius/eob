@@ -15,6 +15,8 @@ Good tastet food and drink make you feel good.
 #Temple "Temple of Wise God" 8
 #Tavern "Tavern Roaring Boar" 5
 
+#Stats Reputation+50 Prosperty+20 Blessing+5 Gold+120
+
 #Adventure FloodedCollectors 2
 #Adventure DarkForest 1
 #Adventure DwarfMine

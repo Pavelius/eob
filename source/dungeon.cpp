@@ -31,7 +31,7 @@ int dungeoni::getitemside(item* pi) {
 unsigned dungeoni::getitemcount(item_s type) const {
 	unsigned result = 0;
 	for(auto& e : items) {
-		if(!e || e.gettype()!=type)
+		if(!e || e.gettype() != type)
 			continue;
 		result += e.getcount();
 	}
@@ -601,8 +601,11 @@ void dungeoni::overlayi::clear() {
 }
 
 void dungeoni::update_goals() {
+	auto pa = game.getadventure();
 	if(!is(KillBoss) && stat.boss && !stat.boss_alive) {
 		set(KillBoss);
+		if(pa)
+			pa->goals[KillBoss]++;
 		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 1);
 		game.addexp(Lawful, 100);
 		game.addexp(Good, 50);
@@ -618,6 +621,8 @@ void dungeoni::update_goals() {
 		auto percent = 100 * explored / explored_maximum;
 		if(percent >= 70) {
 			set(ExploreMostDungeon);
+			if(pa)
+				pa->goals[ExploreMostDungeon]++;
 			game.addexpc(500, 0);
 			game.say("We explored most part of this place.");
 		}
@@ -626,6 +631,8 @@ void dungeoni::update_goals() {
 		auto percent = 100 * stat.monsters_alive / stat.monsters;
 		if(percent <= 20) {
 			set(KillAlmostAllMonsters);
+			if(pa)
+				pa->goals[KillAlmostAllMonsters]++;
 			game.addexpc(800, 0);
 			game.addexp(Evil, 100);
 			game.say("We kill almost all of them!");
@@ -878,11 +885,13 @@ bool dungeoni::move(direction_s direction) {
 		game.write();
 		clearboost();
 		if(level <= 1) {
+			last_adventure = game.getadventure();
 			game.enter(0xFFFF, 0);
 			return false;
+		} else {
+			game.enter(overland_index, level - 1);
+			game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
 		}
-		game.enter(overland_index, level - 1);
-		game.setcamera(to(stat.down.index, stat.down.dir), stat.down.dir);
 		break;
 	case CellStairsDown:
 		mslog("Going down");
@@ -977,23 +986,20 @@ void dungeoni::passhour() {
 		return;
 	if(is(KillBoss))
 		return;
-	short unsigned monster_count = getmonstercount();
-	if(monster_count >= stat.monsters / 2)
+	if(stat.monsters_alive >= stat.monsters / 2 || (d100() < 70))
 		return;
-	if(d100() < 30) {
-		short unsigned source[2];
-		source[0] = stat.spawn[0];
-		source[1] = stat.spawn[1];
-		zshuffle(source, sizeof(source) / sizeof(source[0]));
-		for(auto index : source) {
-			if(index == Blocked)
-				continue;
-			auto distance = rangeto(index, game.getcamera());
-			if(distance <= 3)
-				continue;
-			addmonster(head.habbits[rand() % 2], index);
-			break;
-		}
+	short unsigned source[2];
+	source[0] = stat.spawn[0];
+	source[1] = stat.spawn[1];
+	zshuffle(source, sizeof(source) / sizeof(source[0]));
+	for(auto index : source) {
+		if(index == Blocked)
+			continue;
+		auto distance = rangeto(index, game.getcamera());
+		if(distance <= 3)
+			continue;
+		addmonster(head.habbits[rand() % 2], index);
+		break;
 	}
 }
 
