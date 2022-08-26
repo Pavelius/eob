@@ -270,7 +270,7 @@ static void read_adventures() {
 }
 
 static bool reading() {
-	game.readc("company/Basic.txt");
+	campaign.readc("company/Basic.txt");
 	read_adventures();
 	return log::geterrors() == 0;
 }

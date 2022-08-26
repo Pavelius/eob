@@ -488,13 +488,6 @@ bool creature::set(ability_s skill, short unsigned index) {
 	return false;
 }
 
-static bool addstatical(archive& a) {
-	if(!a.signature("STD"))
-		return false;
-	a.set(bsdata<creature>::source);
-	return true;
-}
-
 static bool serialize(bool writemode) {
 	io::file file("maps/gamedata.sav", writemode ? StreamWrite : StreamRead);
 	if(!file)
@@ -508,7 +501,8 @@ static bool serialize(bool writemode) {
 	if(!writemode)
 		game.preserial(false);
 	a.set(bsdata<boosti>::source);
-	return addstatical(a);
+	a.set(bsdata<creature>::source);
+	return true;
 }
 
 static bool serialize(dungeoni& e, short unsigned index, char level, bool write_mode) {
@@ -545,6 +539,14 @@ bool gamei::read() {
 	return true;
 }
 
+void gamei::each(fnparty proc) const {
+	for(auto p : party) {
+		if(!p)
+			continue;
+		(p->*proc)();
+	}
+}
+
 void gamei::equiping() {
 	for(auto p : party) {
 		if(!p)
@@ -552,6 +554,16 @@ void gamei::equiping() {
 		p->random_equipment(1);
 		p->enchant(Identify, 1);
 	}
+}
+
+bool gamei::iseffect(spell_s v) const {
+	for(auto p : party) {
+		if(!p)
+			continue;
+		if(p->is(v))
+			return true;
+	}
+	return false;
 }
 
 bool gamei::is(variant id) const {
@@ -837,4 +849,9 @@ void gamei::enter(unsigned short index, char level, bool set_camera) {
 			setcamera(to(location.stat.up.index, location.stat.up.dir), location.stat.up.dir);
 		draw::setnext(play_indoor);
 	}
+}
+
+void gamei::addspell(spell_s v, unsigned duration) {
+	for(auto p : party)
+		p->add(v, duration);
 }

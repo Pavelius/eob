@@ -358,6 +358,11 @@ struct actioni {
 	fnevent				proc;
 	fntestcase			test;
 	int					param;
+	int					key;
+};
+struct miraclei {
+	const char*			name;
+	fnscript			proc;
 };
 struct talki {
 	const char*			name;
@@ -893,6 +898,7 @@ public:
 	bool				have(aref<class_s> source) const;
 	bool				have(item_s v) const;
 	void				heal(bool interactive) { damage(Heal, gethitsmaximum()); }
+	void				healing();
 	bool				haveforsale() const;
 	bool				is(condition_s v) const;
 	bool				is(intellegence_s v) const;
@@ -1197,12 +1203,13 @@ struct companyi {
 	const char*			inn;
 	const char*			temple;
 	short				city_frame, inn_frame, temple_frame;
-	static void			playcity();
 	void				readc(const char* name);
 };
+extern companyi			campaign;
 struct cityi : public dataset<Gold, int> {
 	void				addcity(city_ability_s i, int v) { add(i, v); }
 	void				addgold(int coins) { addcity(Gold, coins); }
+	bool				askmiracle();
 	int					getgold() const { return get(Gold); }
 	int					getcity(city_ability_s i) const { return get(i); }
 	void				pay(int coins) { addgold(-coins); }
@@ -1224,10 +1231,11 @@ struct encounteri : public creaturea {
 	void				dialog();
 	void				set(reaction_s v);
 };
-class gamei : public companyi, public cityi {
+class gamei : public cityi {
+	typedef void(creature::*fnparty)();
 	indext				camera_index;
 	direction_s			camera_direction;
-	char				location_level;
+	unsigned char		location_level;
 	unsigned short		adventure_index;
 	unsigned			rounds;
 	unsigned			rounds_turn;
@@ -1241,19 +1249,21 @@ public:
 	void				add(monster_s id) { killed[id]++; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
+	void				addspell(spell_s v, unsigned duration);
 	void				apply(variant v);
 	void				attack(indext index, bool ranged, ambush_s ambush);
 	void				camp(item& it);
 	void				camp(item_s food, bool cursed, int additional_bonus = 0);
 	void				clear();
 	void				clearfiles();
+	void				each(fnparty proc) const;
 	void				endround();
 	void				enter(unsigned short index, char level, bool set_camera = true);
 	void				equiping();
-	adventurei*			getadventure();
 	void				findsecrets();
 	constexpr int		get(city_ability_s id) const { return cityi::get(id); }
 	int					get(action_s id) const;
+	adventurei*			getadventure();
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);
 	static int			getavatar(unsigned short* result, race_s race, gender_s gender, class_s cls);
@@ -1274,6 +1284,7 @@ public:
 	bool				is(variant v) const;
 	static bool			isalive();
 	bool				isnight() const;
+	bool				iseffect(spell_s v) const;
 	bool				manipulate(item* itm, direction_s direction);
 	static void			newgame();
 	void				passround();
@@ -1281,7 +1292,6 @@ public:
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
-	bool				readtext(const char* url);
 	void				returntobase();
 	static bool			roll(int value);
 	void				set(city_ability_s i, int v) { cityi::set(i, v); }
@@ -1289,9 +1299,6 @@ public:
 	void				startgame();
 	void				thrown(item* itm);
 	void				write();
-	static bool			writemeta(const char* url);
-	static bool			writetext(const char* url, std::initializer_list<variant_s> source);
-	static bool			writetext(const char* url, variant_s id) { return writetext(url, {id}); }
 };
 class variantc : public adat<variant> {
 	typedef bool(adventurei::*fnadventure)() const;
@@ -1373,8 +1380,10 @@ void					avatar(int x, int y, int party_index, unsigned flags, void* current_ite
 void					avatar(int x, int y, creature* pc, unsigned flags, void* current_item);
 void					background(int rid);
 void					closeform();
+const actioni*			dlgall(const char* format, const aref<actioni>& source);
 bool					dlgask(const char* text);
 void					dlgmsg(const char* text);
+void					dlgmsgsm(const char* text);
 void					mainmenu();
 void					openform();
 void					options(const char* header, aref<actioni> actions);
@@ -1409,6 +1418,7 @@ int						rangeto(indext i1, indext i2);
 direction_s				to(direction_s d, direction_s d1);
 inline int				d100() { return rand() % 100; }
 // Script functions
+void add_small_miracle();
 void enter_city();
 void enter_inn();
 void enter_temple();

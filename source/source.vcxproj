@@ -200,6 +200,7 @@
     <ClCompile Include="loot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metadata.cpp" />
+    <ClCompile Include="miracle.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="nameable.cpp" />
     <ClCompile Include="adventure.cpp" />

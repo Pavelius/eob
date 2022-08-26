@@ -42,6 +42,7 @@ namespace metrics {
 const codepages						code = CP1251;
 }
 typedef void(*fnevent)();
+typedef bool(*fnscript)(int param, bool run);
 typedef bool(*fntestcase)(int param);
 typedef int(*fnint)(const void* object);
 typedef const char* (*fnstring)(const void* object);

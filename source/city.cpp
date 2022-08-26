@@ -1,7 +1,17 @@
 #include "main.h"
 
+companyi campaign;
 static adventurei* last_quest;
 static int last_value;
+
+bool cityi::askmiracle() {
+	auto r = d100();
+	auto n = getcity(Blessing);
+	if(r >= n)
+		return false;
+	addcity(Blessing, -1);
+	return true;
+}
 
 static void choose_quest() {
 	answers aw;
@@ -33,7 +43,7 @@ static int getdiscounted(int cost) {
 
 static bool pay(int cost) {
 	if(game.getcity(Gold) < cost) {
-		draw::dlgmsg("You don't have enought gold piece!");
+		draw::dlgmsgsm("You don't have enought gold piece!");
 		return false;
 	}
 	game.addcity(Gold, -cost);
@@ -67,14 +77,6 @@ static void play_dialog() {
 	}
 }
 
-static int get_donation_level() {
-	switch(last_value) {
-	case 1000: return 2;
-	case 5000: return 3;
-	default: return 1;
-	}
-}
-
 static void make_donation() {
 	auto cost = getdiscounted(500);
 	char temp[260]; stringbuilder sb(temp);
@@ -83,6 +85,8 @@ static void make_donation() {
 		return;
 	if(pay(cost)) {
 		game.addcity(Blessing, 1);
+		if(game.askmiracle())
+			add_small_miracle();
 	}
 	draw::setnext(play_city);
 }
@@ -94,8 +98,8 @@ static void enter_temple() {
 		{"Game options", game_options},
 	};
 	last_image.res = BUILDNGS;
-	last_image.frame = game.temple_frame;
-	last_name = game.temple;
+	last_image.frame = campaign.temple_frame;
+	last_name = campaign.temple;
 	last_menu = actions;
 	last_menu_header = "Temple options";
 	draw::setnext(play_city);
@@ -109,14 +113,14 @@ void enter_city() {
 		{"Game options", game_options},
 	};
 	if(location) {
-		if(game.city)
-			mslog("Party return to %1", game.city);
+		if(campaign.city)
+			mslog("Party return to %1", campaign.city);
 	}
 	location.clear();
 	location_above.clear();
 	last_image.res = BUILDNGS;
-	last_image.frame = game.city_frame;
-	last_name = game.city;
+	last_image.frame = campaign.city_frame;
+	last_name = campaign.city;
 	last_menu = actions;
 	last_menu_header = "City options";
 	draw::setnext(play_city);
@@ -173,8 +177,8 @@ void enter_inn() {
 		{"Game options", game_options},
 	};
 	last_image.res = BUILDNGS;
-	last_image.frame = game.inn_frame;
-	last_name = game.inn;
+	last_image.frame = campaign.inn_frame;
+	last_name = campaign.inn;
 	last_menu = actions;
 	last_menu_header = "Inn options";
 	draw::setnext(play_city);

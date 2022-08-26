@@ -913,36 +913,23 @@ static int buttonw(int x, int y, const char* title, void* ev, unsigned key = 0, 
 	return x - x1;
 }
 
-void draw::dlgmsg(const char* text) {
-	draw::state push;
-	draw::screenshoot screen(true);
-	fore = colors::white;
-	rect rc = getformpos(text, draw::texth() + dx * 2);
-	openform();
-	while(draw::ismodal()) {
-		screen.restore();
-		form(rc);
-		auto x1 = rc.x1 + dx;
-		auto y1 = rc.y1 + dx;
-		auto wd = rc.width() - dx * 2;
-		auto rct = rc; rct.offset(dx, dx);
-		y1 += draw::text(rct, text) + dx;
-		x1 = (320 - (36 + 36)) / 2;
-		if(buttonx(x1, y1, 32, "OK", (void*)"OK", 0))
-			execute(buttonok);
-		domodal();
-		navigate();
-	}
-	closeform();
+static int getlinewidth(const aref<actioni>& source) {
+	auto result = 0;
+	for(auto& e : source)
+		result += getbuttonwidth(e.name) + 2;
+	if(result)
+		result -= 2;
+	return result;
 }
 
-bool draw::dlgask(const char* text) {
+const actioni* draw::dlgall(const char* format, const aref<actioni>& source) {
 	draw::state push;
 	draw::screenshoot screen(true);
 	setsmallfont();
 	fore = colors::white;
-	rect rc = getformpos(text, draw::texth() + dx * 2);
+	rect rc = getformpos(format, draw::texth() + dx * 2);
 	openform();
+	auto total_width = getlinewidth(source);
 	while(draw::ismodal()) {
 		screen.restore();
 		form(rc);
@@ -950,17 +937,40 @@ bool draw::dlgask(const char* text) {
 		auto y1 = rc.y1 + dx;
 		auto wd = rc.width() - dx * 2;
 		auto rct = rc; rct.offset(dx, dx);
-		y1 += draw::text(rct, text) + dx;
-		x1 = (320 - (6 * 3 + 6 * 3 + 2 + 6 * 2)) / 2;
-		if(buttonx(x1, y1, -1, "Yes", (void*)"Yes", KeyEnter))
-			execute(buttonok);
-		if(buttonx(x1, y1, -1, "No", (void*)"No", KeyEscape))
-			execute(buttoncancel);
+		y1 += draw::text(rct, format) + dx;
+		x1 = (320 - total_width) / 2;
+		for(auto& e : source) {
+			if(buttonx(x1, y1, -1, e.name, (void*)e.name, e.key))
+				execute(buttonparam, (int)&e);
+		}
 		domodal();
 		navigate();
 	}
 	closeform();
-	return getresult() != 0;
+	return (actioni*)getresult();
+}
+
+bool draw::dlgask(const char* text) {
+	static actioni actions[] = {
+		{"Yes", 0, 0, 1, KeyEnter},
+		{"No", 0, 0, 0, KeyEscape},
+	};
+	auto p = dlgall(text, actions);
+	return p->param != 0;
+}
+
+void draw::dlgmsg(const char* text) {
+	static actioni actions[] = {
+		{"OK", 0, 0, 0, KeyEnter},
+	};
+	dlgall(text, actions);
+}
+
+void draw::dlgmsgsm(const char* text) {
+	auto push_font = font;
+	setsmallfont();
+	dlgmsg(text);
+	font = push_font;
 }
 
 int answers::choosehz(const char* title) const {

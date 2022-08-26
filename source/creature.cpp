@@ -1661,3 +1661,7 @@ void creature::update_finish() {
 		damage(Magic, dice::roll(2, 4), 5);
 	remove(Moved);
 }
+
+void creature::healing() {
+	damage(Heal, xrand(2, 7));
+}
