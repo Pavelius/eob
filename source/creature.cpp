@@ -1309,12 +1309,12 @@ bool creature::use(item* pi) {
 	case HolySymbolEvil:
 		pc->say("Holy god, give your blessing to us!");
 		game.addcity(Blessing, 1);
-		if(type == HolySymbol) {
-			pc->cast(TurnUndead, Cleric, 5);
+		if(game.askmiracle())
+			add_small_miracle();
+		if(type == HolySymbol)
 			game.addexp(Good, 100);
-		} else {
+		else
 			game.addexp(Evil, 100);
-		}
 		break;
 	case MagicBook:
 		pc->say("Interesting...");
