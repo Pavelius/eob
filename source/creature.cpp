@@ -1311,7 +1311,7 @@ bool creature::use(item* pi) {
 		game.addcity(Blessing, 1);
 		if(type == HolySymbol) {
 			pc->cast(TurnUndead, Cleric, 5);
-			game.addexp(Evil, 100);
+			game.addexp(Good, 100);
 		} else {
 			game.addexp(Evil, 100);
 		}
