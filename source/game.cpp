@@ -465,7 +465,7 @@ void gamei::passtime(int minutes) {
 }
 
 void adventurei::enter() {
-	game.passtime(xrand(60 * 3, 60 * 18));
+	game.passtime(xrand(60 * 3, 60 * 12));
 	answers::message(entering);
 	game.equiping();
 	game.enter(getindex(), 1);
@@ -654,11 +654,6 @@ void gamei::preserial(bool writemode) {
 			party.add(p);
 		}
 	}
-}
-
-void gamei::startgame() {
-	for(auto i = 0; i < 4; i++)
-		party.add(&bsdata<creature>::elements[i]);
 }
 
 adventurei* gamei::getadventure() {

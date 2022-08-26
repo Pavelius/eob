@@ -5,9 +5,15 @@ At least you meet in tavern. You feast this great day with good bear and food.
 Each of you have reason to leave own settlement and start adventurer. Why? This is not important. You are already here.
 After all you feast is ending. You leave tavern, walking on the street big city of Waterdeep...
 
+#Feast
+
+/BUILDNGS 6
+Good tastet food and drink make you feel good.
+
 #City "Village Hunter ville" 26
 #Inn "Inn Precise Hunter" 7
 #Temple "Temple of Wise God" 8
+#Tavern "Tavern Roaring Boar" 5
 
 #Adventure FloodedCollectors
 #Adventure DarkForest

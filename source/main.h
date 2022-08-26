@@ -1202,7 +1202,9 @@ struct companyi {
 	const char*			city;
 	const char*			inn;
 	const char*			temple;
-	short				city_frame, inn_frame, temple_frame;
+	const char*			tavern;
+	const char*			feast;
+	short				city_frame, inn_frame, temple_frame, tavern_frame;
 	void				readc(const char* name);
 };
 extern companyi			campaign;
@@ -1292,11 +1294,9 @@ public:
 	void				preserial(bool writemode);
 	bool				question(item* current_item);
 	bool				read();
-	void				returntobase();
 	static bool			roll(int value);
 	void				set(city_ability_s i, int v) { cityi::set(i, v); }
 	void				setcamera(indext index, direction_s direction = Center);
-	void				startgame();
 	void				thrown(item* itm);
 	void				write();
 };
@@ -1427,9 +1427,9 @@ void memorize_spells();
 void pray_for_spells();
 void play_adventure();
 void play_city();
+void return_to_city();
 void scrible_scrolls();
 // Function get comon name
-template<class T> const char* getnm(const void* object, stringbuilder& sb);
 NOBSDATA(abilitya)
 NOBSDATA(dice)
 NOBSDATA(imagei)

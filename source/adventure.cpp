@@ -245,6 +245,8 @@ void companyi::readc(const char* url) {
 			skipwscr();
 		} else if(isheader("Intro"))
 			readval(intro);
+		else if(isheader("Feast"))
+			readval(feast);
 		else if(isheader("City")) {
 			readname(); city = value.text;
 			readval(city_frame);
@@ -254,6 +256,9 @@ void companyi::readc(const char* url) {
 		} else if(isheader("Temple")) {
 			readname(); temple = value.text;
 			readval(temple_frame);
+		} else if(isheader("Tavern")) {
+			readname(); tavern = value.text;
+			readval(tavern_frame);
 		} else
 			log::cerror(p, "Expected valid header");
 			skipwscr();

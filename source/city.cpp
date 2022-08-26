@@ -24,12 +24,9 @@ static void enter_quest() {
 	choose_quest();
 	if(!last_quest)
 		return;
-#ifdef _DEBUG
-#else
 	if(!answers::confirm(last_quest->summary))
 		return;
 	answers::message(last_quest->agree);
-#endif
 	last_quest->enter();
 }
 
@@ -95,7 +92,6 @@ static void enter_temple() {
 	static actioni actions[] = {
 		{"Donate", make_donation},
 		{"Leave temple", enter_city},
-		{"Game options", game_options},
 	};
 	last_image.res = BUILDNGS;
 	last_image.frame = campaign.temple_frame;
@@ -105,11 +101,34 @@ static void enter_temple() {
 	draw::setnext(play_city);
 }
 
+static void eat_and_drink() {
+	if(game.getcity(Gold) >= 2)
+		game.addcity(Gold, -2);
+	game.passtime(xrand(30, 60));
+	answers::message(campaign.feast);
+	game.each(&creature::satisfy);
+	draw::setnext(play_city);
+}
+
+static void enter_tavern() {
+	static actioni actions[] = {
+		{"Eat and drink", eat_and_drink},
+		{"Leave tavern", enter_city},
+	};
+	last_image.res = BUILDNGS;
+	last_image.frame = campaign.tavern_frame;
+	last_name = campaign.tavern;
+	last_menu = actions;
+	last_menu_header = "Tavern options";
+	draw::setnext(play_city);
+}
+
 void enter_city() {
 	static actioni actions[] = {
-		{"Enter quest", enter_quest},
+		{"Go on adventure", enter_quest},
 		{"Rent inn", rent_inn},
 		{"Visit temple", enter_temple},
+		{"Visit tavern", enter_tavern},
 		{"Game options", game_options},
 	};
 	if(location) {
@@ -157,7 +176,7 @@ static void gain_loot() {
 	game.addexpc(last_loot.experience, 0);
 }
 
-void gamei::returntobase() {
+void return_to_city() {
 	gain_loot();
 	draw::setnext(enter_city);
 }
@@ -174,7 +193,6 @@ void enter_inn() {
 		{"Scrible scrolls", scrible_scrolls},
 		{"Rest party", rest_party},
 		{"Leave inn", enter_city},
-		{"Game options", game_options},
 	};
 	last_image.res = BUILDNGS;
 	last_image.frame = campaign.inn_frame;
