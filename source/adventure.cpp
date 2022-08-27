@@ -252,13 +252,15 @@ void adventurei::read(const char* url) {
 			read_site(*this);
 		else if(isheader("Goal"))
 			readarr(goals, KillBoss);
+		else if(isheader("Reward"))
+			readval(reward);
 		else
 			break;
 		skipwscr();
 	}
-	if(reqheader("Reward")) {
+	if(reqheader("Finish")) {
 		readtext();
-		reward = value.text;
+		finish = value.text;
 	}
 	log::close();
 }

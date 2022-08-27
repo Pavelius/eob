@@ -6,18 +6,14 @@ BSDATAC(creature, 32)
 const char* get_name_part(short rec);
 
 static wear_s wear_slots[] = {Head, Neck, Body, Elbow, Legs};
-char reaction_adjustment[] = {
-	-7, -6, -4, -3, -2, -1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 2, 2, 3, 3,
-	4, 4, 4, 5, 5
-};
 static char hit_points_adjustment[] = {
 	-4,
 	-3, -2, -2, -1, -1, -1, 0, 0, 0,
 	0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
 	5, 6, 6, 6, 7, 7
 };
-static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
+static char wisdow_bonus_spells[][7] = {
+	{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 	{2, 0, 0, 0, 0, 0, 0}, // Wisdow 14
 	{2, 1, 0, 0, 0, 0, 0}, // Wisdow 15
 	{2, 2, 0, 0, 0, 0, 0}, // Wisdow 16
@@ -30,10 +26,6 @@ static char wisdow_bonus_spells[][7] = {{1, 0, 0, 0, 0, 0, 0}, // Wisdow 13
 	{4, 3, 3, 3, 2, 1, 0}, // Wisdow 23
 	{4, 3, 3, 3, 3, 2, 0}, // Wisdow 24
 	{4, 3, 3, 3, 3, 3, 1}, // Wisdow 25
-};
-static char dwarven_constitution_bonuses[] = {
-	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
-	2, 3, 3, 3, 4, 4, 4, 4, 5
 };
 static int experience_paladin[21] = {
 	0, 0, 2250, 4500, 9000, 18000, 36000, 75000, 150000, 300000,
@@ -268,17 +260,6 @@ void creature::equip(item it) {
 		}
 	}
 	add(it);
-}
-
-int creature::gethitpenalty(int bonus) const {
-	if(is(Ambidextrity))
-		return 0;
-	auto dex = get(Dexterity);
-	auto bon = maptbl(reaction_adjustment, dex);
-	bonus += bon;
-	if(bonus > 0)
-		bonus = 0;
-	return bonus;
 }
 
 void creature::satisfy() {
@@ -693,7 +674,7 @@ int creature::getspellsperlevel(class_s cls, int spell_level) const {
 	if(cls == Cleric && b) {
 		if(spell_level > 7)
 			spell_level = 7;
-		int wisdow = get(Wisdow);
+		auto wisdow = get(Wisdow);
 		if(wisdow >= 13)
 			b += maptbl(wisdow_bonus_spells, wisdow - 13)[spell_level - 1];
 	}

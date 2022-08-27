@@ -22,7 +22,7 @@ This citadel is grow on the elder moutain. Deep undeground is pure evil.
 #Site BLUE 2
 #Habbit Dwarf Spider
 
-#Reward
+#Finish
 
 /NPC 51
 "You are back? I don't expect this. So ... here you reward."

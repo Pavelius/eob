@@ -12,6 +12,15 @@ bool cityi::askmiracle() {
 	return true;
 }
 
+void cityi::addcity(const cityi& e) {
+	for(auto i = (city_ability_s)0; i <= Gold; i = (city_ability_s)(i + 1)) {
+		if(i == ExperienceReward)
+			game.addexpc(e.data[i], 0);
+		else
+			data[i] += e.data[i];
+	}
+}
+
 static void choose_quest() {
 	answers aw;
 	for(auto& e : bsdata<adventurei>()) {
@@ -167,9 +176,10 @@ void return_to_city() {
 	gain_loot();
 	if(last_adventure) {
 		if(last_adventure->iscomplete()) {
-			game.addcity(Reputation, 1);
 			last_adventure->stage = 0xFF;
-			answers::message(last_adventure->reward);
+			answers::message(last_adventure->finish);
+			game.addcity(Reputation, 1);
+			game.addcity(last_adventure->reward);
 		} else
 			game.addcity(Reputation, -1);
 	}

@@ -27,8 +27,9 @@ Our master may ba ungry if we fail our task. We need to kill all humans and elve
 #Corner Grave 4
 
 #Goal ExploreMostDungeon+1
+#Reward Reputation+2 Experience+1000
 
-#Reward
+#Finish
 
 /NPC 52
 "Forest dwellwed by goblins and this creatures have base located inside? Very well, I known this, but can't have a proves. You reward here and fare well. Meet again in this tavern soon."

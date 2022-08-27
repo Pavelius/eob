@@ -984,7 +984,7 @@ unsigned dungeoni::getmonstercount() const {
 void dungeoni::passhour() {
 	if(is(KillAlmostAllMonsters) || is(KillBoss))
 		return;
-	if(stat.monsters_alive >= stat.monsters / 2 || (d100() < 70))
+	if(stat.monsters_alive >= stat.monsters / 2 || (d100() < 50))
 		return;
 	short unsigned source[2];
 	source[0] = stat.spawn[0];

@@ -244,7 +244,7 @@ enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
 };
 enum city_ability_s : unsigned char {
-	Blessing, Prosperty, Reputation, Gold,
+	Blessing, Prosperty, Reputation, ExperienceReward, Gold,
 };
 enum action_s : unsigned char {
 	Reshufle,
@@ -793,6 +793,7 @@ struct statable {
 	void				add(ability_s id, class_s type);
 	void				apply(const item& it, bool use_spells);
 	void				apply(variant v, int magic, bool use_spells);
+	int					gethitpenalty(int bonus) const;
 	int					getstrex() const;
 	static int			getthac0(class_s type, int level);
 	constexpr bool		is(spell_s v) const { return active_spells.is(v); }
@@ -881,7 +882,6 @@ public:
 	int					getfoodmax() const;
 	int					gethd() const;
 	dice				gethitdice() const;
-	int					gethitpenalty(int bonus) const;
 	short				gethits() const { return hits + hits_aid; }
 	short				gethitsmaximum() const;
 	short unsigned		getindex() const;
@@ -1175,6 +1175,17 @@ struct dungeoni {
 struct indexa : adat<indext, 8 * 8> {
 	void				select(const dungeoni& e, indext i, cell_s id, int r);
 };
+struct cityi {
+	int					data[Gold + 1];
+	void				addcity(city_ability_s i, int v) { data[i] += v; }
+	void				addcity(const cityi& e);
+	void				addgold(int coins) { addcity(Gold, coins); }
+	bool				askmiracle();
+	int					getgold() const { return getcity(Gold); }
+	int					getcity(city_ability_s i) const { return data[i]; }
+	void				pay(int coins) { addgold(-coins); }
+	void				setcity(const cityi& e) { *this = e; }
+};
 struct historyi {
 	static constexpr unsigned history_max = 12;
 	const char*			history[history_max];
@@ -1187,12 +1198,11 @@ struct adventurei : historyi {
 	const char*			summary;
 	const char*			agree;
 	const char*			entering;
-	const char*			reward;
+	const char*			finish;
+	cityi				reward;
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
-	short unsigned		complete_goals[GrabAllSpecialItems + 1];
-	short unsigned		goals[GrabAllSpecialItems + 1];
-	void				activate() { if(stage) stage = 1; }
+	char				complete_goals[GrabAllSpecialItems + 1], goals[GrabAllSpecialItems + 1];
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(bool interactive) const;
@@ -1203,16 +1213,6 @@ struct adventurei : historyi {
 	void				read(const char* url);
 };
 extern adventurei* last_adventure;
-struct cityi {
-	int					data[Gold + 1];
-	void				addcity(city_ability_s i, int v) { data[i] += v; }
-	void				addgold(int coins) { addcity(Gold, coins); }
-	bool				askmiracle();
-	int					getgold() const { return getcity(Gold); }
-	int					getcity(city_ability_s i) const { return data[i]; }
-	void				pay(int coins) { addgold(-coins); }
-	void				setcity(const cityi& e) { *this = e; }
-};
 struct campaigni {
 	const char*			name;
 	const char*			intro;

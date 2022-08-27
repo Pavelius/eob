@@ -42,7 +42,7 @@ Deep undeground living undead. Many of them live here. Some old evil haunted tho
 
 #Goal KillBoss+1 KillAlmostAllMonsters+5
 
-#Reward
+#Finish
 
 /NPC 50
 "You are back? I don't expect this. So ... here you reward."

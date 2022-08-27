@@ -15,7 +15,6 @@ BSDATA(racei) = {
 	{{OpenLocks, 5}, {MoveSilently, 10}, {HearNoise, 5}, {ClimbWalls, -15}, {ReadLanguages, -5}}},
 	{1, "Human", {3, 3, 3, 3, 3, 3}, {18, 18, 18, 18, 18, 18}, {0, 0, 0, 0, 0, 0},
 	{}, {UseLargeWeapon}},
-	//
 	{0, "Humanoid", {3, 3, 3, 3, 3, 3}, {25, 25, 25, 25, 25, 25}, {}, {}, {UseLargeWeapon}},
 	{0, "Goblinoid", {3, 3, 3, 3, 3, 3}, {18, 18, 18, 18, 18, 18}, {}, {}, {UseLargeWeapon}},
 	{0, "Insectoid", {3, 3, 3, 1, 3, 3}, {25, 25, 25, 10, 10, 10}, {}, {}, {UseLargeWeapon}, {{ResistCharm, 100}}},

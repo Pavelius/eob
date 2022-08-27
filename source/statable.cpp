@@ -1,5 +1,10 @@
 #include "main.h"
 
+static char reaction_adjustment[] = {
+	-7, -6, -4, -3, -2, -1, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 1, 2, 2, 3, 3,
+	4, 4, 4, 5, 5
+};
 static char open_doors[] = {
 	18, 20, 22, 26, 28, 30, 32, 34, 36, 38,
 	40, 42, 44, 46, 48, 50, 54, 58, 62,
@@ -387,4 +392,15 @@ void statable::random_ability(race_s race, gender_s gender, class_s type) {
 	for(auto j = 0; j < 6; j++)
 		ability[j] = result[j];
 	ability[ExeptionalStrenght] = xrand(1, 100);
+}
+
+int statable::gethitpenalty(int bonus) const {
+	if(is(Ambidextrity))
+		return 0;
+	auto dex = ability[Dexterity];
+	auto bon = maptbl(reaction_adjustment, dex);
+	bonus += bon;
+	if(bonus > 0)
+		bonus = 0;
+	return bonus;
 }
