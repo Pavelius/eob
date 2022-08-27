@@ -35,7 +35,7 @@ static void enter_quest() {
 }
 
 static int getdiscounted(int cost) {
-	auto count = (game.get(Reputation) - 50) / 5;
+	auto count = (game.getcity(Reputation) - 50) / 5;
 	cost -= count;
 	if(cost < 1)
 		cost = 1;
@@ -167,9 +167,11 @@ void return_to_city() {
 	gain_loot();
 	if(last_adventure) {
 		if(last_adventure->iscomplete()) {
+			game.addcity(Reputation, 1);
 			last_adventure->stage = 0xFF;
 			answers::message(last_adventure->reward);
-		}
+		} else
+			game.addcity(Reputation, -1);
 	}
 	game.write();
 	draw::setnext(enter_city);

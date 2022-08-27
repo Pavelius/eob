@@ -1202,12 +1202,13 @@ struct adventurei : historyi {
 	void				read(const char* url);
 };
 extern adventurei* last_adventure;
-struct cityi : public dataset<Gold, int> {
-	void				addcity(city_ability_s i, int v) { add(i, v); }
+struct cityi {
+	int					data[Gold + 1];
+	void				addcity(city_ability_s i, int v) { data[i] += v; }
 	void				addgold(int coins) { addcity(Gold, coins); }
 	bool				askmiracle();
-	int					getgold() const { return get(Gold); }
-	int					getcity(city_ability_s i) const { return get(i); }
+	int					getgold() const { return getcity(Gold); }
+	int					getcity(city_ability_s i) const { return data[i]; }
 	void				pay(int coins) { addgold(-coins); }
 	void				setcity(const cityi& e) { *this = e; }
 };
@@ -1273,7 +1274,6 @@ public:
 	bool				enchant(spell_s id, int level, bool run);
 	void				equiping();
 	void				findsecrets();
-	constexpr int		get(city_ability_s id) const { return cityi::get(id); }
 	int					get(action_s id) const;
 	adventurei*			getadventure();
 	int					getaverage(ability_s v) const;
@@ -1306,7 +1306,6 @@ public:
 	bool				read();
 	static bool			roll(int value);
 	void				say(const char* format, ...);
-	void				set(city_ability_s i, int v) { cityi::set(i, v); }
 	void				setcamera(indext index, direction_s direction = Center);
 	void				thrown(item* itm);
 	void				write();

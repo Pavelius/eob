@@ -1086,7 +1086,7 @@ void creature::resting(int healed) {
 		case Staff:
 			if(it.iscursed())
 				break;
-			// RULE: Only mages can recharge spells
+			// RULE: Only mages 5+ level can recharge spells
 			if(get(Mage) < 5)
 				break;
 			if(it.getcharges() < 40)
