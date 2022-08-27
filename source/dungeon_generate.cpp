@@ -895,9 +895,11 @@ static void create_lair(dungeoni& e, direction_s dir, const sitei* p, indext* in
 	e.stat.lair.clear();
 	e.stat.lair.index = indecies[0];
 	e.stat.lair.dir = dir;
-	e.set(e.stat.lair.index, CellDoor);
-	if(!p->crypt.boss)
-		e.add(to(e.stat.lair.index, dir), CellDoorButton, to(dir, Down));
+	if(e.head.type != FOREST) {
+		e.set(e.stat.lair.index, CellDoor);
+		if(!p->crypt.boss)
+			e.add(to(e.stat.lair.index, dir), CellDoorButton, to(dir, Down));
+	}
 	auto count = 0;
 	indexa positions;
 	positions.select(e, indecies[1], CellPassable, 5);

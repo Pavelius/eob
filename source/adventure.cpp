@@ -300,7 +300,7 @@ void campaigni::readc(const char* url) {
 
 bool adventurei::iscomplete() const {
 	for(auto i = 0; i <= GrabAllSpecialItems; i = (goal_s)(i + 1)) {
-		if(compete_goals[i] < goals[i])
+		if(complete_goals[i] < goals[i])
 			return false;
 	}
 	return true;

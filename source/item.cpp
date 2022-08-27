@@ -636,7 +636,9 @@ int	item::getcostgp() const {
 		if(iscursed())
 			return 0;
 		auto pe = getenchantment();
-		auto mc = getraritycost(pe->rarity);
+		auto mc = 0;
+		if(pe)
+			mc = getraritycost(pe->rarity);
 		switch(type) {
 		case MageScroll: case PriestScroll:
 			mc /= 20;

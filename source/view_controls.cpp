@@ -1559,18 +1559,23 @@ static void skills(int x, int y, creature* pc) {
 static void goals(int x, int y, creature* pc) {
 	if(!pc)
 		return;
+	auto pa = game.getadventure();
+	if(!pa)
+		return;
 	auto push_fore = fore;
 	blanksheet(x, y, pc);
 	state push; setsmallfont();
 	fore = colors::info::text;
 	int x1 = x + 4;
 	int y1 = y + 54;
-	header(x1, y + 42, "Goals");
+	header(x1, y + 42, "Current Quest");
 	for(auto i = KillBoss; i <= GrabAllSpecialItems; i = (goal_s)(i + 1)) {
-		fore = push_fore;
-		if(!location.is(i))
-			fore = fore.mix(colors::main);
-		texth3(x1, y1, bsdata<goali>::elements[i].id);
+		if(!pa->goals[i])
+			continue;
+		texth3(x1, y1, bsdata<goali>::elements[i].name);
+		char temp[16]; stringbuilder sb(temp);
+		sb.add("%1i/%2i", pa->complete_goals[i], pa->goals[i]);
+		text(x1 + 6 * 17, y1, temp);
 		y1 += 7;
 	}
 	fore = push_fore;

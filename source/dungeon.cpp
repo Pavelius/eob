@@ -605,7 +605,7 @@ void dungeoni::update_goals() {
 	if(!is(KillBoss) && stat.boss && !stat.boss_alive) {
 		set(KillBoss);
 		if(pa)
-			pa->goals[KillBoss]++;
+			pa->complete_goals[KillBoss]++;
 		game.addexpc(2000, bsdata<monsteri>::get(stat.boss).hd[0] + 1);
 		game.addexp(Lawful, 100);
 		game.addexp(Good, 50);
@@ -622,7 +622,7 @@ void dungeoni::update_goals() {
 		if(percent >= 70) {
 			set(ExploreMostDungeon);
 			if(pa)
-				pa->goals[ExploreMostDungeon]++;
+				pa->complete_goals[ExploreMostDungeon]++;
 			game.addexpc(500, 0);
 			game.say("We explored most part of this place.");
 		}
@@ -632,7 +632,7 @@ void dungeoni::update_goals() {
 		if(percent <= 20) {
 			set(KillAlmostAllMonsters);
 			if(pa)
-				pa->goals[KillAlmostAllMonsters]++;
+				pa->complete_goals[KillAlmostAllMonsters]++;
 			game.addexpc(800, 0);
 			game.addexp(Evil, 100);
 			game.say("We kill almost all of them!");
@@ -982,9 +982,7 @@ unsigned dungeoni::getmonstercount() const {
 }
 
 void dungeoni::passhour() {
-	if(is(KillAlmostAllMonsters))
-		return;
-	if(is(KillBoss))
+	if(is(KillAlmostAllMonsters) || is(KillBoss))
 		return;
 	if(stat.monsters_alive >= stat.monsters / 2 || (d100() < 70))
 		return;

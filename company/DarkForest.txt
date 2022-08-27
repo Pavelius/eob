@@ -26,6 +26,8 @@ Our master may ba ungry if we fail our task. We need to kill all humans and elve
 #Habbit Goblin Wolf
 #Corner Grave 4
 
+#Goal KillAlmostAllMonsters+1
+
 #Reward
 
 /NPC 50

@@ -343,6 +343,7 @@ struct varianta : adat<variant, 12> {
 };
 struct goali {
 	const char*			id;
+	const char*			name;
 };
 struct celli {
 	const char*			name;
@@ -1188,7 +1189,7 @@ struct adventurei : historyi {
 	const char*			reward;
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
-	short unsigned		compete_goals[GrabAllSpecialItems + 1];
+	short unsigned		complete_goals[GrabAllSpecialItems + 1];
 	short unsigned		goals[GrabAllSpecialItems + 1];
 	void				activate() { if(stage) stage = 1; }
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }

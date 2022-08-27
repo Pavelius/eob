@@ -844,8 +844,13 @@ void creature::damage(damage_s type, int hits, int magic_bonus) {
 			hits = hits * (100 - v) / 100;
 		}
 	}
-	if(di.immunity && is(di.immunity))
-		hits = 0;
+	if(di.immunity && is(di.immunity)) {
+		auto have_immunity = true;
+		if(di.immunity == ImmuneNormalWeapon && magic_bonus > 0)
+			have_immunity = false;
+		if(have_immunity)
+			hits = 0;
+	}
 	if(hits == 0)
 		return;
 	remove_hits(hits_aid, hits);

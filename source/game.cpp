@@ -492,7 +492,7 @@ template<> void archive::set(adventurei& e) {
 	set(e.id);
 	set(e.stage);
 	set(e.history_progress);
-	set(e.compete_goals);
+	set(e.complete_goals);
 }
 
 static void serial_adventures(archive& a) {
