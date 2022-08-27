@@ -293,9 +293,6 @@
     <ClCompile Include="variable.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>
-    <ClCompile Include="metadata.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="szdup.cpp">
       <Filter>Поддержка</Filter>
     </ClCompile>

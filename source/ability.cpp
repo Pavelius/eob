@@ -57,6 +57,7 @@ int abilityi::getmultiplier() const {
 	case SaveVsPoison:
 	case SaveVsTraps:
 	case SaveVsMagic:
+	case BonusSave:
 		return 5;
 	case ClimbWalls:
 	case HearNoise:
@@ -64,6 +65,8 @@ int abilityi::getmultiplier() const {
 	case OpenLocks:
 	case RemoveTraps:
 	case ReadLanguages:
+		return 5;
+	case ResistMagic:
 		return 5;
 	case ResistCharm:
 	case ResistCold:

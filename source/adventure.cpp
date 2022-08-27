@@ -1,6 +1,8 @@
 #include "main.h"
 #include "log.h"
 
+BSDATAC(adventurei, 256)
+
 using namespace log;
 
 static const char* p;
@@ -180,8 +182,8 @@ static void read_site(adventurei& e) {
 		cerror(p, "Too many sites in adventure \'%1\'", e.name);
 		return;
 	}
-	pv->head.keys[0] = KeyCooper;
-	pv->head.keys[1] = KeySilver;
+	pv->head.keys[0] = KeySilver;
+	pv->head.keys[1] = KeyCooper;
 	pv->head.language = Human;
 	pv->chance.curse = 5;
 	readval(pv->head.type);

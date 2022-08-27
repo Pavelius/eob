@@ -1609,6 +1609,7 @@ void creature::update_wears() {
 	statable::apply(wears[LeftRing], true);
 	statable::apply(wears[RightHand], false);
 	statable::apply(wears[LeftHand], false);
+	ability[AC] += wears[LeftHand].getitem().armor.ac;
 }
 
 static void copy_value(statable& p1, statable& p2) {

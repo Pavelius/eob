@@ -1556,6 +1556,26 @@ static void skills(int x, int y, creature* pc) {
 	}
 }
 
+static void goals(int x, int y, creature* pc) {
+	if(!pc)
+		return;
+	auto push_fore = fore;
+	blanksheet(x, y, pc);
+	state push; setsmallfont();
+	fore = colors::info::text;
+	int x1 = x + 4;
+	int y1 = y + 54;
+	header(x1, y + 42, "Goals");
+	for(auto i = KillBoss; i <= GrabAllSpecialItems; i = (goal_s)(i + 1)) {
+		fore = push_fore;
+		if(!location.is(i))
+			fore = fore.mix(colors::main);
+		texth3(x1, y1, bsdata<goali>::elements[i].id);
+		y1 += 7;
+	}
+	fore = push_fore;
+}
+
 static void prev_portrait() {
 	current_portrait--;
 }
@@ -2031,6 +2051,10 @@ static void show_skills(void* current_item) {
 	skills(178, 0, creature::get(current_item));
 }
 
+static void show_goals(void* current_item) {
+	goals(178, 0, creature::get(current_item));
+}
+
 static bool handle_shortcuts(bool allow_move) {
 	auto pc = creature::get(current_focus);
 	item* current_item = (item*)current_focus;
@@ -2064,6 +2088,12 @@ static bool handle_shortcuts(bool allow_move) {
 			setmode(0);
 		else
 			setmode(show_abilities);
+		break;
+	case 'H':
+		if(getmode() == show_goals)
+			setmode(0);
+		else
+			setmode(show_goals);
 		break;
 	case 'X':
 		if(getmode() == show_skills)
