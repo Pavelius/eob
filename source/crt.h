@@ -147,34 +147,6 @@ struct aref {
 	int						indexof(const T t) const { for(unsigned i = 0; i < count; i++) if(data[i] == t) return i; return -1; }
 	bool					is(const T t) const { return indexof(t) != -1; }
 };
-// Autogrow typized array
-template<class T>
-struct arem : aref<T> {
-	unsigned				count_maximum;
-	constexpr arem() : aref<T>(0, 0), count_maximum(0) {}
-	~arem() { if(aref<T>::data && count_maximum) delete aref<T>::data; }
-	T*						add() { reserve(aref<T>::count + 1); return &aref<T>::data[aref<T>::count++]; }
-	void					add(const T& e) { *(add()) = e; }
-	void					clear() { aref<T>::count = 0; }
-	void					remove(int index, int elements_count = 1) { rmremove(aref<T>::data, sizeof(T), index, aref<T>::count, elements_count); }
-	void					reserve(unsigned count) { rmreserve((void**)&(aref<T>::data), count, count_maximum, sizeof(T)); }
-};
-// Abstract flag data bazed on enumerator
-template<typename T, typename DT = unsigned>
-class cflags {
-	DT						data = 0;
-public:
-	constexpr cflags() : data(0) {}
-	cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
-	constexpr explicit operator bool() const { return data != 0; }
-	constexpr void			add(const T id) { data |= 1 << id; }
-	constexpr void			add(const cflags& e) { data |= e.data; }
-	constexpr void			clear() { data = 0; }
-	constexpr bool			is(const T id) const { return (data & (1 << id)) != 0; }
-	constexpr bool			allof(const cflags& e) const { return (data & e.data) == data; }
-	constexpr bool			is(const cflags& e) const { return (data & e.data) != 0; }
-	constexpr void			remove(T id) { data &= ~(1 << id); }
-};
 // Abstract pair element
 template<typename K, typename V>
 struct pair {

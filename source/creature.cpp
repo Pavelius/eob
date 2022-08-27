@@ -35,9 +35,15 @@ static char dwarven_constitution_bonuses[] = {
 	0, 0, 0, 0, 1, 1, 1, 2, 2, 2,
 	2, 3, 3, 3, 4, 4, 4, 4, 5
 };
+static int experience_paladin[21] = {
+	0, 0, 2250, 4500, 9000, 18000, 36000, 75000, 150000, 300000,
+	600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000,
+	3600000
+};
 static int experience_warrior[21] = {
 	0, 0, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000,
-	500000, 750000, 1000000, 1250000, 1500000, 1750000, 2000000, 2250000, 2500000, 2750000, 3000000
+	500000, 750000, 1000000, 1250000, 1500000, 1750000, 2000000, 2250000, 2500000, 2750000,
+	3000000
 };
 static int experience_wizard[21] = {
 	0, 0, 2500, 5000, 10000, 20000, 40000, 60000, 90000, 135000,
@@ -55,7 +61,8 @@ static int experience_rogue[21] = {
 static int* get_experience_table(class_s cls) {
 	switch(cls) {
 	case Cleric: return experience_priest;
-	case Fighter: case Paladin: case Ranger: return experience_warrior;
+	case Fighter: return experience_warrior;
+	case Paladin: case Ranger: return experience_paladin;
 	case Mage: return experience_wizard;
 	default: return experience_rogue;
 	}

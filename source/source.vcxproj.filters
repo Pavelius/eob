@@ -81,6 +81,9 @@
     <ClInclude Include="loot.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="cflags.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

@@ -1,5 +1,6 @@
 ﻿#include "color.h"
 #include "crt.h"
+#include "cflags.h"
 #include "dataset.h"
 #include "dice.h"
 #include "flagable.h"
@@ -289,16 +290,16 @@ enum goal_s : unsigned char {
 	KillBoss, KillAlmostAllMonsters, ExploreMostDungeon,
 	GrabAlmostAllGems, GrabAllSpecialItems,
 };
-typedef short unsigned indext;
 typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
 typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
 typedef cflags<fevent_s> eventf;
+typedef cflags<usability_s> usabilitya;
 typedef flagable<1 + LastSpellAbility / 8> spellf;
 typedef flagable<4> flagf;
+typedef short unsigned indext;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
-typedef cflags<usability_s> usabilitya;
 class creature;
 class creaturea;
 class item;
@@ -399,7 +400,7 @@ struct alignmenti {
 	const char*			name;
 	morale_s			law;
 	morale_s			morale;
-	adat<class_s, 8>	restricted;
+	cflags<class_s>		restricted;
 };
 struct classi {
 	const char*			name;
@@ -1257,7 +1258,6 @@ class gamei : public cityi {
 	unsigned			found_secrets, gold_donated;
 	variant				players[6];
 public:
-	void				add(creature* v);
 	void				add(monster_s id) { killed[id]++; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);

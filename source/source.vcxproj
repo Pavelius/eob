@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="archive.h" />
+    <ClInclude Include="cflags.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
     <ClInclude Include="dataset.h" />
