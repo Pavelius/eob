@@ -7,6 +7,7 @@ BSDATA(feati) = {
 	{"Ambidextrity"},
 	{"No exeptional strenght"},
 	{"Undead"},
+	{"Slowest"},
 	{"Resist bludgeon"},
 	{"Resist slashing"},
 	{"Resist pierce"},

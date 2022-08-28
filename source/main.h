@@ -9,20 +9,17 @@
 #include "stringbuilder.h"
 #include "variable.h"
 
-#define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements");
-#define MNLNK(T1, T2) BSLNK(T1, T2) DGLNK(T1, T2)
-
-const unsigned short	Blocked = 0xFFFF;
-const int				walls_frames = 9;
-const int				walls_count = 6;
-const int				door_offset = 1 + walls_frames * walls_count;
-const int				decor_offset = door_offset + 9;
-const int				decor_count = 21;
-const int				decor_frames = 10;
-const int				scrx = 22 * 8;
-const int				scry = 15 * 8;
-const int				mpx = 38;
-const int				mpy = 23;
+const unsigned short Blocked = 0xFFFF;
+const int walls_frames = 9;
+const int walls_count = 6;
+const int door_offset = 1 + walls_frames * walls_count;
+const int decor_offset = door_offset + 9;
+const int decor_count = 21;
+const int decor_frames = 10;
+const int scrx = 22 * 8;
+const int scry = 15 * 8;
+const int mpx = 38;
+const int mpy = 23;
 
 enum {
 	GP = 1
@@ -148,7 +145,7 @@ enum enchant_s : unsigned char {
 	OfAccuracy, OfCold,
 	OfEnergyDrain,
 	OfFear, OfFire, OfHolyness,
-	OfParalize, OfPoison, OfPoisonStrong,
+	OfParalize, OfPoison,
 	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
 	OfVampirism, OfWizardy,
 };
@@ -222,7 +219,7 @@ enum direction_s {
 enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
 	HolyGrace, Ambidextrity, NoExeptionalStrenght,
-	Undead,
+	Undead, Slowest,
 	ResistBludgeon, ResistSlashing, ResistPierce, ImmuneNormalWeapon, ImmuneDisease,
 	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
 };

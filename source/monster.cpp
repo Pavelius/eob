@@ -22,10 +22,10 @@ monsteri bsdata<monsteri>::elements[] = {
 	{"Shadow", SHADOW, {0}, Humanoid, Male, Medium, ChaoticEvil, Low, {Undead, ImmuneNormalWeapon}, {3, 3}, 7, {Bite1d41}, {OfStrenghtDrain}},
 	{"Skeleton", SKELETON, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, ResistPierce, ResistSlashing}, {1}, 7, {Axe}},
 	{"Skeleton Warrior", SKELWAR, {0}, Human, Male, Medium, NeutralEvil, Exeptional, {Undead, ImmuneNormalWeapon}, {9, 10}, 2, {SwordTwoHanded}, {OfFear}, {{ResistMagic, 90}}},
-	{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoisonStrong}},
+	{"Spider", SPIDER1, {0}, Insectoid, Male, Large, ChaoticEvil, AnimalInt, {}, {4, 4}, 4, {Bite}, {OfPoison}},
 	{"Wight", WIGHT, {0}, Human, Male, Medium, LawfulEvil, Ave, {Undead, ImmuneNormalWeapon}, {4, 3}, 7, {Slam1d4}, {OfEnergyDrain}},
 	{"Wolf", WOLF, {0}, Animal, Male, Large, TrueNeutral, Semi, {}, {3}, 7, {Bite1d41}},
-	{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead}, {2}, 8, {Slam}},
+	{"Zombie", ZOMBIE, {0}, Human, Male, Medium, TrueNeutral, Semi, {Undead, Slowest}, {2}, 8, {Slam}},
 	{"Object", NONE, {0}, Human, NoGender, Medium, TrueNeutral, NoInt, {}, {3}, 10, {}}
 };
 assert_enum(monsteri, StaticObject);
@@ -48,8 +48,6 @@ int monsteri::getexperience() const {
 		r += 1;
 	if(is(OfPoison))
 		r += 1;
-	else if(is(OfPoisonStrong))
-		r += 2;
 	if(is(ResistBludgeon) || is(ResistPierce) || is(ResistSlashing))
 		r += 1;
 	if(is(ImmuneNormalWeapon))

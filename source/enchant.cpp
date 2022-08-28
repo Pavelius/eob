@@ -9,7 +9,6 @@ BSDATA(enchanti) = {
 	{"Holyness"},
 	{"Paralize"},
 	{"Poison"},
-	{"Strong Poison"},
 	{"Sharpness"},
 	{"Smashing"},
 	{"Speed"},

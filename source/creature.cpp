@@ -279,8 +279,7 @@ void creature::subenergy() {
 
 void creature::attack_drain(creature* defender, char& value, int& hits) {
 	if(is(NegativePlanProtection) && roll(SaveVsParalization)) {
-		hits = 0;
-		damage(Magic, dice::roll(2, 6));
+		hits = 0; damage(Magic, dice::roll(2, 6));
 		defender->remove(NegativePlanProtection);
 	} else
 		value++;

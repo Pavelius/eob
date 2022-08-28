@@ -272,6 +272,8 @@ void statable::update_stats() {
 		if(ability[ResistCold] < 50)
 			ability[ResistCold] = 50;
 	}
+	if(is(Slowest))
+		ability[Speed] -= 20;
 }
 
 static int get_save_group(class_s value) {
