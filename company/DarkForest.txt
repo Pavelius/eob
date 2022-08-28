@@ -28,6 +28,7 @@ Our master may ba ungry if we fail our task. We need to kill all humans and elve
 
 #Goal ExploreMostDungeon+1
 #Reward Reputation+2 Experience+1000
+#Unlock DwarfMine
 
 #Finish
 

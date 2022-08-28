@@ -297,6 +297,7 @@ typedef cflags<feat_s> feata;
 typedef cflags<fevent_s> eventf;
 typedef cflags<usability_s> usabilitya;
 typedef flagable<1 + LastSpellAbility / 8> spellf;
+typedef flagable<16> adventuref;
 typedef flagable<4> flagf;
 typedef short unsigned indext;
 typedef adatc<ability_s, char, DetectSecrets + 1> skilla;
@@ -305,8 +306,8 @@ class creaturea;
 class item;
 struct settlementi;
 struct variant {
-	variant_s			type;
-	unsigned char		value;
+	variant_s		type;
+	unsigned char	value;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(const variant_s t, unsigned char v) : type(t), value(v) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
@@ -1186,14 +1187,16 @@ struct cityi {
 	void				pay(int coins) { addgold(-coins); }
 	void				setcity(const cityi& e) { *this = e; }
 };
+struct idable {
+	const char*			id;
+};
 struct historyi {
 	static constexpr unsigned history_max = 12;
 	const char*			history[history_max];
 	unsigned char		history_progress;
 	unsigned			gethistorymax() const;
 };
-struct adventurei : historyi {
-	const char*			id;
+struct adventurei : idable, historyi {
 	const char*			name;
 	const char*			summary;
 	const char*			agree;
@@ -1203,6 +1206,7 @@ struct adventurei : historyi {
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
 	char				complete_goals[GrabAllSpecialItems + 1], goals[GrabAllSpecialItems + 1];
+	adventuref			unlock;
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(bool interactive) const;
@@ -1268,7 +1272,7 @@ public:
 	void				camp(item_s food, bool cursed, int additional_bonus = 0);
 	void				clear();
 	void				clearfiles();
-	void				each(fnparty proc) const;
+	//void				each(fnparty proc) const;
 	void				endround();
 	void				enter(unsigned short index, char level, bool set_camera = true);
 	bool				enchant(spell_s id, int level, bool run);
@@ -1311,8 +1315,6 @@ public:
 	void				write();
 };
 class variantc : public adat<variant> {
-	typedef bool(adventurei::*fnadventure)() const;
-	void				match(fnadventure p, bool keep);
 public:
 	void				cspells(const creature* p, bool expand);
 	int					chooselv(class_s type) const;

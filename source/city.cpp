@@ -118,7 +118,8 @@ static void eat_and_drink() {
 		game.addcity(Gold, -2);
 	game.passtime(xrand(30, 60));
 	answers::message(campaign.feast);
-	game.each(&creature::satisfy);
+	for(auto p : party)
+		p->satisfy();
 	draw::setnext(play_city);
 }
 
@@ -172,14 +173,24 @@ static void gain_loot() {
 	}
 }
 
+static void gain_reward() {
+	game.addcity(Reputation, 1);
+	game.addcity(last_adventure->reward);
+	for(auto i = 0; i < 128; i++) {
+		if(last_adventure->unlock.is(i)) {
+			if(bsdata<adventurei>::elements[i].stage == 0)
+				bsdata<adventurei>::elements[i].stage = 1;
+		}
+	}
+}
+
 void return_to_city() {
 	gain_loot();
 	if(last_adventure) {
 		if(last_adventure->iscomplete()) {
 			last_adventure->stage = 0xFF;
 			answers::message(last_adventure->finish);
-			game.addcity(Reputation, 1);
-			game.addcity(last_adventure->reward);
+			gain_reward();
 		} else
 			game.addcity(Reputation, -1);
 	}
@@ -213,6 +224,8 @@ void item::sell() {
 		return;
 	char temp[512]; stringbuilder sb(temp);
 	auto cost = getdiscounted(getcostgp() / 2);
+	if(cost <= 3)
+		cost = 0;
 	if(!cost)
 		sb.add("Do you really want to drop this item away?");
 	else

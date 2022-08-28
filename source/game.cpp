@@ -553,14 +553,6 @@ bool gamei::read() {
 	return true;
 }
 
-void gamei::each(fnparty proc) const {
-	for(auto p : party) {
-		if(!p)
-			continue;
-		(p->*proc)();
-	}
-}
-
 void gamei::equiping() {
 	for(auto p : party) {
 		if(!p)

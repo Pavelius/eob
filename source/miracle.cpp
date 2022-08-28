@@ -14,8 +14,10 @@ static void remove_spell(spell_s v) {
 static bool healing(bool run) {
 	if(game.is(Healed))
 		return true;
-	if(run)
-		game.each(&creature::healing);
+	if(run) {
+		for(auto p : party)
+			p->healing();
+	}
 	return true;
 }
 
