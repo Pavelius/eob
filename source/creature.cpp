@@ -1074,10 +1074,10 @@ void creature::resting(int healed) {
 			if(it.iscursed())
 				break;
 			// RULE: Only mages 5+ level can recharge spells
-			if(get(Mage) < 5)
-				break;
-			if(it.getcharges() < 40)
-				it.setcharges(it.getcharges() + 1);
+			if(get(Mage) >= 5) {
+				if(it.getcharges() < 40)
+					it.setcharges(it.getcharges() + 1);
+			}
 			break;
 		case MageScroll:
 		case PriestScroll:
@@ -1094,11 +1094,11 @@ void creature::resting(int healed) {
 		case RedPotion:
 		case GreenPotion:
 		case BluePotion:
-			if(!get(Mage))
-				break;
-			if(!it.isidentified() && roll(Intellegence)) {
-				it.setidentified(1);
-				say(it, "It's %1");
+			if(get(Mage) >= 1) {
+				if(!it.isidentified() && roll(Intellegence)) {
+					it.setidentified(1);
+					say(it, "It's %1");
+				}
 			}
 			break;
 		default:
