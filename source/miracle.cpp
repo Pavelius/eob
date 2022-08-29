@@ -45,6 +45,18 @@ static bool identify_items(bool run) {
 	return true;
 }
 
+static void apply_miracle(spell_s v) {
+	auto level = 20;
+	auto& ei = bsdata<spelli>::elements[v];
+	switch(ei.range) {
+	case TargetAllAlly:
+	case TargetAlly:
+		for(auto p : party)
+			p->apply(v, 20);
+		break;
+	}
+}
+
 static miraclei small_miracles[] = {
 	{"ColdResistance", cold_resistance, "You feel winter breath"},
 	{"Identifying", identify_items, "Sundelly you known all items power in your backpacks!"},

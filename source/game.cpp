@@ -171,7 +171,7 @@ void gamei::attack(indext index_of_monsters, bool ranged, ambush_s ambush) {
 			if(!attacker->isready())
 				continue;
 			// RULE: surprise depends on MoveSilently
-			if(attacker->roll(MoveSilently) || attacker->is(Invisibility)) {
+			if(attacker->is(Invisibility) || attacker->roll(MoveSilently)) {
 				if(!surprise_message) {
 					if(ambush == PartyAmbush)
 						mslog("You are surprised!");

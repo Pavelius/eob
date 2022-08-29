@@ -193,7 +193,7 @@ bool creature::roll(ability_s id, int bonus) const {
 	auto n = get(id);
 	if(id >= Strenght && id <= Charisma)
 		n *= 5;
-	n += bonus * 5;
+	n += bonus * 5; // Bonus already have percent
 	if(n <= 0)
 		return false;
 	auto d = d100();
@@ -1214,7 +1214,7 @@ bool creature::use(item* pi) {
 	case TheifTools:
 		consume = false;
 		if(location.get(forward_index) == CellPit) {
-			if(pc->use(RemoveTraps, forward_index, 10 + magic * 2, 0, 100, true)) {
+			if(pc->use(RemoveTraps, forward_index, 2 + magic, 0, 100, true)) {
 				location.set(forward_index, CellPassable);
 				mslog("You remove pit");
 			}
@@ -1222,7 +1222,7 @@ bool creature::use(item* pi) {
 			if(location.isactive(po)) {
 				disable = true;
 				pc->say("This trap already disabled");
-			} else if(pc->use(RemoveTraps, forward_index, magic * 5, 0, 100, true)) {
+			} else if(pc->use(RemoveTraps, forward_index, magic, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You disable trap");
 			}
@@ -1233,7 +1233,7 @@ bool creature::use(item* pi) {
 			if(location.isactive(po)) {
 				disable = true;
 				pc->say("This lock already open");
-			} else if(pc->use(OpenLocks, forward_index, magic * 3, 0, 100, true)) {
+			} else if(pc->use(OpenLocks, forward_index, magic, 0, 100, true)) {
 				location.setactive(po, true);
 				mslog("You pick lock");
 			}
