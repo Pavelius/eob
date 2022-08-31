@@ -314,7 +314,7 @@ void gamei::newgame() {
 	//	answers::message(campaign.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
-	game.setcity(campaign.stats);
+	game.setcity(campaign.start_stats);
 	game.addcity(Reputation, game.getaverage(ReactionBonus));
 	game.write();
 	setnext(enter_city);

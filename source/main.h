@@ -1223,7 +1223,8 @@ struct campaigni {
 	const char*			tavern;
 	const char*			feast;
 	short				city_frame, inn_frame, temple_frame, tavern_frame;
-	cityi				stats;
+	cityi				start_stats;
+	unsigned			lose_round;
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				readc(const char* name);
 };

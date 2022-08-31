@@ -293,8 +293,12 @@ void campaigni::readc(const char* url) {
 			readname(); city = value.text;
 			readval(city_frame);
 		} else if(isheader("Stats"))
-			readval(stats);
-		else if(isheader("Inn")) {
+			readval(start_stats);
+		else if(isheader("MonthFail")) {
+			auto i = 0;
+			readval(i);
+			lose_round = i * 24 * 60 * 30;
+		} else if(isheader("Inn")) {
 			readname(); inn = value.text;
 			readval(inn_frame);
 		} else if(isheader("Temple")) {
