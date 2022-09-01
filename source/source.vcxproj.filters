@@ -78,9 +78,6 @@
     <ClInclude Include="variable.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
-    <ClInclude Include="loot.h">
-      <Filter>Логика</Filter>
-    </ClInclude>
     <ClInclude Include="cflags.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
@@ -305,9 +302,6 @@
     <ClCompile Include="cityability.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="loot.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="miracle.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -320,9 +314,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint">
-      <Filter>Данные\Other</Filter>
-    </None>
-    <None Include="..\import\western_heartlands.json">
       <Filter>Данные\Other</Filter>
     </None>
   </ItemGroup>

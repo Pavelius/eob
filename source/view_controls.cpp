@@ -1559,11 +1559,11 @@ static void skills(int x, int y, creature* pc) {
 static void goals(int x, int y, creature* pc) {
 	if(!pc)
 		return;
+	auto push_fore = fore;
+	blanksheet(x, y, pc);
 	auto pa = game.getadventure();
 	if(!pa)
 		return;
-	auto push_fore = fore;
-	blanksheet(x, y, pc);
 	state push; setsmallfont();
 	fore = colors::info::text;
 	int x1 = x + 4;
@@ -2217,6 +2217,14 @@ static void paint_status() {
 	if(last_name) {
 		paint_header(last_name, 178);
 		caret.y += texth() + 2;
+	}
+	auto ptm = eventi::findtimer();
+	if(ptm) {
+		auto v = game.getrounds();
+		auto v1 = ptm->getstart();
+		auto v2 = ptm->getfinish();
+		if(v1 < v && v < v2)
+			field("Time", 64, 160, v2 - v, v2 - v1);
 	}
 	for(auto& e : bsdata<cityabilityi>()) {
 		if(e.format)

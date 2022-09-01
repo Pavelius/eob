@@ -1,6 +1,14 @@
 #include "crt.h"
 #include "event.h"
 
+BSDATA(eventsi) = {
+	{"Time"},
+	{"Expand"},
+	{"Overwelmed"},
+};
+assert_enum(eventsi, VariableOverwelmedEvent)
+BSDATAF(eventsi)
+
 BSDATAC(eventi, 256)
 
 eventi* eventi::add(event_s type) {

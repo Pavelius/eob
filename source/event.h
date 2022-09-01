@@ -3,6 +3,9 @@
 enum event_s : unsigned char {
 	TimeEvent, VariableExpandEvent, VariableOverwelmedEvent
 };
+struct eventsi {
+	const char*			id;
+};
 struct eventi {
 	event_s				type;
 	unsigned			param1, param2;

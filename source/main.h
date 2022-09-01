@@ -534,7 +534,6 @@ struct monsteri {
 	item_s				attacks[4];
 	variant				enchantments[2];
 	skilla				skills;
-	//
 	int					getexperience() const;
 	char				getpallette() const;
 	bool				is(variant id) const;
@@ -564,7 +563,6 @@ struct resourcei {
 	bool				isdungeon() const;
 	bool				ismonster() const;
 	static resourcei*	find(const char* id, unsigned size);
-	static int			preview(int x, int y, int width, const void* object);
 };
 struct effecti {
 	variant				type;
@@ -711,23 +709,12 @@ public:
 	bool				stack(item& v);
 	void				use() { setcount(getcount() - 1); }
 };
-struct buildingi {
-	const char*			name;
-	const char*			description;
-	actionf				actions;
-	goodf				goods;
-	shape_s				shape;
-	bool				is(action_s v) const { return actions.is(v); }
-};
 struct boosti {
 	variant				owner;
 	spell_s				id;
 	unsigned			round;
 	constexpr explicit operator bool() const { return owner.type != NoVariant; }
 	void				clear();
-};
-struct speechi {
-	const char*			name;
 };
 class itema : public adat<item*, 48> {
 	typedef bool (item::*pitem)() const;
@@ -776,7 +763,6 @@ public:
 	void				set(monster_s v) { kind = v; }
 	void				set(race_s v) { race = v; }
 };
-// Conceptual ability storages
 struct statable {
 	char				ability[ExeptionalStrenght + 1] = {};
 	spellf				active_spells;
@@ -1263,7 +1249,6 @@ public:
 	void				camp(item_s food, bool cursed, int additional_bonus = 0);
 	void				clear();
 	void				clearfiles();
-	//void				each(fnparty proc) const;
 	void				endround();
 	void				enter(unsigned short index, char level, bool set_camera = true);
 	bool				enchant(spell_s id, int level, bool run);

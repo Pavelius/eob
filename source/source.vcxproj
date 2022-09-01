@@ -142,7 +142,6 @@
     <ClInclude Include="flagable.h" />
     <ClInclude Include="io_stream.h" />
     <ClInclude Include="log.h" />
-    <ClInclude Include="loot.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
@@ -201,7 +200,6 @@
     <ClCompile Include="itema.cpp" />
     <ClCompile Include="item_feat.cpp" />
     <ClCompile Include="log.cpp" />
-    <ClCompile Include="loot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="miracle.cpp" />
     <ClCompile Include="monster.cpp" />
@@ -236,7 +234,6 @@
     <ClCompile Include="win_time.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\import\western_heartlands.json" />
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
