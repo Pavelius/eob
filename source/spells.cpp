@@ -316,7 +316,7 @@ void creature::apply(spell_s id, int level) {
 			if(pe->type == CellKeyHole1 || pe->type == CellKeyHole2) {
 				if(pe->is(Active))
 					return;
-				pe->set(Active);
+				pe->add(Active);
 				say("Lock is open now!");
 			}
 		}

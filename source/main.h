@@ -3,6 +3,7 @@
 #include "cflags.h"
 #include "dataset.h"
 #include "dice.h"
+#include "event.h"
 #include "flagable.h"
 #include "point.h"
 #include "rect.h"
@@ -28,9 +29,6 @@ enum fcell : unsigned {
 	Passable, EmpthyStartIndex,
 	LookWall, LookOverlay, LookObject,
 	PassableActivated
-};
-enum fevent_s : unsigned char {
-	Wilderness, City, Starting
 };
 enum resource_s : unsigned char {
 	NONE,
@@ -189,7 +187,7 @@ enum damage_s : unsigned char {
 enum save_s : unsigned char {
 	NoSave, SaveHalf, SaveNegate,
 };
-enum overlay_flag_s : unsigned char {
+enum flag_s : unsigned char {
 	Active
 };
 enum cell_s : unsigned char {
@@ -291,7 +289,6 @@ typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
 typedef cflags<variant_s> variantf;
 typedef cflags<feat_s> feata;
-typedef cflags<fevent_s> eventf;
 typedef cflags<usability_s> usabilitya;
 typedef flagable<1 + LastSpellAbility / 8> spellf;
 typedef flagable<16> adventuref;
@@ -1013,18 +1010,14 @@ struct shapei {
 	const char*			get(direction_s d, point& result_size) const;
 };
 struct dungeoni {
-	struct overlayi {
+	struct overlayi : cflags<flag_s> {
 		cell_s			type; // type of overlay
 		direction_s		dir; // overlay direction
 		indext			index; // index
 		indext			index_link; // linked to this location
 		short unsigned	subtype; // depends on value type
-		short unsigned	flags;
 		constexpr explicit operator bool() const { return index != Blocked; }
 		void			clear();
-		bool			is(overlay_flag_s v) const { return (flags & (1 << v)) != 0; }
-		void			remove(overlay_flag_s v) { flags &= ~(1 << v); }
-		void			set(overlay_flag_s v) { flags |= 1 << v; }
 	};
 	struct groundi : item {
 		indext			index;

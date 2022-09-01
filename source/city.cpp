@@ -3,6 +3,13 @@
 campaigni campaign;
 static adventurei* last_quest;
 
+static int get_time_left() {
+	auto p = eventi::findtimer();
+	if(!p)
+		return -1;
+	return p->param2 - game.getrounds();
+}
+
 bool cityi::askmiracle() {
 	auto r = d100();
 	auto n = getcity(Blessing);

@@ -84,6 +84,9 @@
     <ClInclude Include="cflags.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -310,6 +313,9 @@
     </ClCompile>
     <ClCompile Include="goal.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>Поддержка</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

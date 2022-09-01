@@ -248,7 +248,7 @@ void dungeoni::setactive(overlayi* po, bool value) {
 	auto right = to(wall, to(po->dir, Right));
 	if(po->is(Active) != value) {
 		if(value)
-			po->set(Active);
+			po->add(Active);
 		else
 			po->remove(Active);
 		switch(po->type) {
