@@ -3,6 +3,10 @@
 campaigni campaign;
 static adventurei* last_quest;
 
+void cityi::clear() {
+	memset(this, 0, sizeof(*this));
+}
+
 static int get_time_left() {
 	auto p = eventi::findtimer();
 	if(!p)
@@ -181,8 +185,9 @@ static void gain_loot() {
 }
 
 static void gain_reward() {
+	last_adventure->stage = 0xFF;
+	answers::message(last_adventure->finish);
 	game.addcity(Reputation, 1);
-	game.addcity(last_adventure->reward);
 	for(auto i = 0; i < 128; i++) {
 		if(last_adventure->unlock.is(i)) {
 			if(bsdata<adventurei>::elements[i].stage == 0)
@@ -194,11 +199,9 @@ static void gain_reward() {
 void return_to_city() {
 	gain_loot();
 	if(last_adventure) {
-		if(last_adventure->iscomplete()) {
-			last_adventure->stage = 0xFF;
-			answers::message(last_adventure->finish);
+		if(last_adventure->iscomplete())
 			gain_reward();
-		} else
+		else
 			game.addcity(Reputation, -1);
 	}
 	game.write();

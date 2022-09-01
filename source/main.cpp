@@ -310,11 +310,10 @@ void gamei::newgame() {
 		party.add(p);
 	}
 	game.enchant(Identify, 1, true);
-	//if(campaign.intro)
-	//	answers::message(campaign.intro);
+	if(campaign.intro)
+		answers::message(campaign.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
-	game.setcity(campaign.start_stats);
 	game.addcity(Reputation, game.getaverage(ReactionBonus));
 	game.write();
 	setnext(enter_city);

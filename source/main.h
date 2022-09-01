@@ -1158,6 +1158,7 @@ struct cityi {
 	void				addcity(const cityi& e);
 	void				addgold(int coins) { addcity(Gold, coins); }
 	bool				askmiracle();
+	void				clear();
 	int					getgold() const { return getcity(Gold); }
 	int					getcity(city_ability_s i) const { return data[i]; }
 	void				pay(int coins) { addgold(-coins); }
@@ -1178,7 +1179,6 @@ struct adventurei : idable, historyi {
 	const char*			agree;
 	const char*			entering;
 	const char*			finish;
-	cityi				reward;
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
 	char				complete_goals[GrabAllSpecialItems + 1], goals[GrabAllSpecialItems + 1];
@@ -1202,7 +1202,6 @@ struct campaigni {
 	const char*			tavern;
 	const char*			feast;
 	short				city_frame, inn_frame, temple_frame, tavern_frame;
-	cityi				start_stats;
 	unsigned			lose_round;
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				readc(const char* name);

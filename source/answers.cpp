@@ -2,8 +2,10 @@
 
 imagei last_image;
 aref<actioni> last_menu;
+static cityi last_loot;
 const char* last_name;
 const char* last_menu_header;
+static char temp_buffer[260];
 
 int answers::compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
@@ -39,28 +41,58 @@ static void pause(const char* format) {
 	aw.choosehz(format);
 }
 
-static const char* nextword(const char* p) {
-	while(*p && *p != ' ' && *p != 13)
-		p++;
+static const char* readid(const char* p) {
+	stringbuilder sb(temp_buffer);
+	p = sb.psidf(p);
+	return skipsp(p);
+}
+
+static const char* readvalue(const char* p, int& value) {
+	p = stringbuilder::read(p, value);
+	return skipsp(p);
+}
+
+static const char* readvalue(const char* p, unsigned short& value) {
+	int v = 0;
+	p = stringbuilder::read(p, v); value = v;
+	return skipsp(p);
+}
+
+static const char* readvalue(const char* p, const array& source, int& record, int& value) {
+	value = 0;
+	p = readid(p);
+	record = source.find(temp_buffer, 0);
+	if(*p == '+' || *p == '-')
+		p = readvalue(p, value);
+	return skipsp(p);
+}
+
+static const char* readvalue(const char* p, cityi& value) {
+	while(ischa(*p)) {
+		int record, bonus;
+		p = readvalue(p, bsdata<cityabilityi>::source, record, bonus);
+		value.data[record] += bonus;
+	}
 	return p;
 }
 
-static const char* parse_rich(const char* p, imagei& im, char* ps, const char* pe) {
+static bool iscommand(const char* id) {
+	return strcmp(temp_buffer, id) == 0;
+}
+
+static const char* parse_rich(const char* p, char* ps, const char* pe) {
 	while(*p == '/') {
-		auto p1 = p + 1; p = nextword(p1);
-		auto pr = resourcei::find(p1, p - p1);
-		if(!pr)
-			return 0;
-		im.res = (resource_s)(pr - bsdata<resourcei>::elements);
-		if(*p != ' ')
-			return 0;
-		p++;
-		int frame;
-		p = stringbuilder::read(p, frame);
-		im.frame = frame;
-		if(*p != 10)
-			return 0;
-		p++;
+		p = readid(p + 1);
+		if(iscommand("REWARD"))
+			p = readvalue(p, last_loot);
+		else {
+			auto index = bsdata<resourcei>::source.find(temp_buffer, 0);
+			if(index == -1)
+				return 0;
+			last_image.res = (resource_s)index;
+			p = readvalue(p, last_image.frame);
+		}
+		p = skipspcr(p);
 	}
 	while(*p && *p != 10) {
 		if(ps < pe)
@@ -73,16 +105,24 @@ static const char* parse_rich(const char* p, imagei& im, char* ps, const char* p
 	return p;
 }
 
+static void apply_loot(cityi& e) {
+	game.addcity(e);
+}
+
 int	answers::choosebg(const char* title) const {
 	auto push_image = last_image;
+	auto push_loot = last_loot;
+	last_loot.clear();
 	last_image.clear();
 	char temp[512]; temp[0] = 0; auto p = title;
 	while(p && *p) {
 		if(temp[0])
 			pause(temp);
-		p = parse_rich(p, last_image, temp, zendof(temp));
+		p = parse_rich(p, temp, zendof(temp));
 	}
+	apply_loot(last_loot);
 	auto result = choosehz(temp);
+	last_loot = push_loot;
 	last_image = push_image;
 	return result;
 }

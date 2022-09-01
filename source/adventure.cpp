@@ -260,8 +260,6 @@ void adventurei::read(const char* url) {
 			read_site(*this);
 		else if(isheader("Goal"))
 			readarr(goals, KillBoss);
-		else if(isheader("Reward"))
-			readval(reward);
 		else if(isheader("Unlock"))
 			readval(unlock);
 		else
@@ -292,9 +290,7 @@ void campaigni::readc(const char* url) {
 		else if(isheader("City")) {
 			readname(); city = value.text;
 			readval(city_frame);
-		} else if(isheader("Stats"))
-			readval(start_stats);
-		else if(isheader("MonthFail")) {
+		} else if(isheader("MonthFail")) {
 			auto i = 0;
 			readval(i);
 			lose_round = i * 24 * 60 * 30;
