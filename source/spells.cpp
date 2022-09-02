@@ -63,6 +63,7 @@ BSDATA(spelli) = {
 	{"Remove paralizes", {0, 3}, TargetAllAlly, {RemoveParalizes}},
 
 	{"Cure Serious Wounds", {0, 4}, TargetAlly, {Heal, Instant, NoSave, 0, {2, 8, 1}}},
+	{"Neutralize Poison", {0, 4}, TargetAlly, {NeutralizePoison}},
 	{"Cause Poison", {0, 4}, TargetClose, {Poison, Instant, SaveNegate}},
 
 	{"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
@@ -116,13 +117,16 @@ static bool cast_on_items(spell_s id, int level, creature* caster, itema& result
 		if(say_success) {
 			char temp[260]; stringbuilder sb(temp); p->getname(sb);
 			auto pt = say_success[rand() % 3];
-			caster->say(pt, temp);
+			if(!caster)
+				caster = p->getowner();
+			if(caster)
+				caster->say(pt, temp);
 		}
 	}
 	return true;
 }
 
-static bool cast_on_party_items(spell_s id, int level, creature* caster) {
+bool cast_on_party_items(spell_s id, int level, creature* caster) {
 	itema result;
 	for(auto p : party) {
 		if(!p)
@@ -329,6 +333,9 @@ void creature::apply(spell_s id, int level) {
 		break;
 	case RemoveParalizes:
 		remove(HoldPerson);
+		break;
+	case NeutralizePoison:
+		remove(Poison);
 		break;
 	case TurnUndead:
 		if(!is(Undead))

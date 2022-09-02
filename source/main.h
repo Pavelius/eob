@@ -94,7 +94,7 @@ enum spell_s : unsigned char {
 	CreateFood, CureBlindnessDeafness, Disease, CureDisease, Haste, MageFear, NegativePlanProtection,
 	Regeneration, RemoveCurse, RemoveParalizes,
 	// Spells (level 4)
-	CureSeriousWounds, Poison,
+	CureSeriousWounds, NeutralizePoison, Poison,
 	// Specila ability
 	LayOnHands, TurnUndead,
 	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
@@ -359,7 +359,7 @@ struct actioni {
 };
 struct miraclei {
 	const char*			name;
-	fnscript			proc;
+	spell_s				spell;
 	const char*			text;
 };
 struct talki {

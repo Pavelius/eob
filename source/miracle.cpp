@@ -1,73 +1,75 @@
 #include "main.h"
 
-static void remove_spell(spell_s v) {
-	for(auto& e : bsdata<boosti>()) {
-		if(e.id != v)
-			continue;
-		auto p = e.owner.getcreature();
-		if(!p || !p->ishero())
-			continue;
-		e.clear();
-	}
+static void instant_creature_spell(spell_s spell) {
+	for(auto p : party)
+		p->apply(spell, 20);
 }
 
-static bool healing(bool run) {
-	if(game.is(Healed))
-		return true;
+static bool duration_creature_spell(spell_s spell, bool run) {
+	if(game.iseffect(spell))
+		return false;
 	if(run) {
 		for(auto p : party)
-			p->healing();
+			p->add(spell, 3 * 24 * 60, NoSave, 0);
 	}
 	return true;
 }
 
-static bool cold_resistance(bool run) {
-	if(game.iseffect(ResistColdSpell))
-		return false;
-	if(run)
-		game.addspell(ResistColdSpell, 60 * 24 * 3);
-	return true;
+static bool instant_item_spell(spell_s spell, bool run) {
+	return game.enchant(spell, 20, run);
 }
 
-static bool remove_poison(bool run) {
-	if(!game.iseffect(Poison))
+static bool instant_creature_spell(spell_s spell, spell_s dispell, bool run) {
+	if(!game.iseffect(dispell))
 		return false;
-	if(run)
-		remove_spell(Poison);
-	return true;
-}
-
-static bool identify_items(bool run) {
-	if(!game.enchant(Identify, 1, false))
-		return false;
-	if(run)
-		game.enchant(Identify, 1, true);
-	return true;
-}
-
-static void apply_miracle(spell_s v) {
-	auto level = 20;
-	auto& ei = bsdata<spelli>::elements[v];
-	switch(ei.range) {
-	case TargetAllAlly:
-	case TargetAlly:
+	if(run) {
 		for(auto p : party)
-			p->apply(v, 20);
-		break;
+			p->apply(spell, 20);
 	}
+	return true;
+}
+
+static bool apply_miracle(spell_s spell, bool run) {
+	switch(spell) {
+	case Bless:
+	case DetectEvil:
+	case DetectMagic:
+	case ResistColdSpell:
+	case Haste:
+	case FeatherFall:
+	case MageArmor:
+		return duration_creature_spell(spell, run);
+	case Identify:
+	case Mending:
+		return instant_item_spell(spell, run);
+	case CureLightWounds:
+	case CureSeriousWounds:
+		if(!game.is(Healed))
+			return false;
+		if(run)
+			instant_creature_spell(spell);
+		break;
+	case NeutralizePoison:
+		return instant_creature_spell(spell, Poison, run);
+	case RemoveParalizes:
+		return instant_creature_spell(spell, HoldPerson, run);
+	default:
+		return false;
+	}
+	return true;
 }
 
 static miraclei small_miracles[] = {
-	{"ColdResistance", cold_resistance, "You feel winter breath"},
-	{"Identifying", identify_items, "Sundelly you known all items power in your backpacks!"},
-	{"Healing", healing, "You wound is healing magical means"},
-	{"RemovePoison", remove_poison, "Poison stop run in your veins"},
+	{"ColdResistance", ResistColdSpell, "You feel winter breath"},
+	{"Identifying", Identify, "Sundelly you known all items power in your backpacks!"},
+	{"Healing", CureSeriousWounds, "You wound is healing magical means"},
+	{"RemovePoison", NeutralizePoison, "Poison stop run in your veins"},
 };
 
 static const miraclei* random_miracle(const aref<miraclei>& source) {
 	adat<const miraclei*> collections;
 	for(auto& e : source) {
-		if(!e.proc(false))
+		if(!apply_miracle(e.spell, false))
 			continue;
 		collections.add(&e);
 	}
@@ -79,7 +81,7 @@ static const miraclei* random_miracle(const aref<miraclei>& source) {
 void add_small_miracle() {
 	auto p = random_miracle(small_miracles);
 	if(p) {
-		p->proc(true);
+		apply_miracle(p->spell, true);
 		if(p->text)
 			mslog(p->text);
 	}
