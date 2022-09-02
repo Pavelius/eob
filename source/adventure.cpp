@@ -163,14 +163,6 @@ static void readval(cityi& e) {
 	}
 }
 
-static void readval(adventuref& e) {
-	while(*p && need_continue && !isheader()) {
-		readenum(bsdata<adventurei>::source);
-		e.set(value.number);
-		skipwscr();
-	}
-}
-
 template<typename DT, size_t N, typename T>
 static void readarr(DT(&data)[N], T zero) {
 	while(*p && need_continue && !isheader()) {
@@ -260,8 +252,6 @@ void adventurei::read(const char* url) {
 			read_site(*this);
 		else if(isheader("Goal"))
 			readarr(goals, KillBoss);
-		else if(isheader("Unlock"))
-			readval(unlock);
 		else
 			break;
 		skipwscr();

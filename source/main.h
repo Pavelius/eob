@@ -1182,7 +1182,6 @@ struct adventurei : idable, historyi {
 	sitei				levels[8];
 	unsigned char		stage; // 0 - non active, 1 - active, 2 - accepted, 0xFF - finished
 	char				complete_goals[GrabAllSpecialItems + 1], goals[GrabAllSpecialItems + 1];
-	adventuref			unlock;
 	sitei*				addsite() { for(auto& e : levels) if(!e) return &e; return 0; }
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(bool interactive) const;

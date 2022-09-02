@@ -5,12 +5,12 @@
 /NPC 52
 "Welcome, friends." Man in tavern treat beer to you. "My name is Brons Halest. And I have proposition for you."
 "Long time ago, as you known, wood of Sharp Teeth was dwellved by elves. But, elves gone and forest became wild and unfriendly."
-"I need your help to sneack in wood for scout territory. Scout this forest and return to me. I will give you some reward for this simple task."
+"I need your help to sneack in wood and scouting territory. When you finish return to me and I will give you some reward for this simple task."
 
 #Agree
 
 /NPC 52
-"Good! Beware of monster from trees. I waiting for you report here, in tavern."
+"Good! Beware of monster from trees. I will be waiting for you report here, in tavern."
 
 #Entering
 
@@ -27,10 +27,11 @@ Our master may ba ungry if we fail our task. We need to kill all humans and elve
 #Corner Grave 4
 
 #Goal ExploreMostDungeon+1
-#Unlock DwarfMine
 
 #Finish
 
 /NPC 52
-/Reward Reputation+2 Experience+1000
-"Forest dwellwed by goblins and this creatures have base located inside? Very well, I known this, but can't have a proves. You reward here and fare well. Meet again in this tavern soon."
+/REWARD Reputation+2 Experience+1000
+/UNLOCK DwarfMine
+"Forest dwellwed by goblins and this creatures have base located inside? Very well, I known this, but can't have a proves. Here is your reward ..."
+"Meet again in this tavern soon."

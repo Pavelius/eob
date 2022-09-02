@@ -188,12 +188,6 @@ static void gain_reward() {
 	last_adventure->stage = 0xFF;
 	answers::message(last_adventure->finish);
 	game.addcity(Reputation, 1);
-	for(auto i = 0; i < 128; i++) {
-		if(last_adventure->unlock.is(i)) {
-			if(bsdata<adventurei>::elements[i].stage == 0)
-				bsdata<adventurei>::elements[i].stage = 1;
-		}
-	}
 }
 
 void return_to_city() {

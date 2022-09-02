@@ -2,10 +2,10 @@
 
 imagei last_image;
 aref<actioni> last_menu;
-static cityi last_loot;
 const char* last_name;
 const char* last_menu_header;
 static char temp_buffer[260];
+static char error_buffer[512];
 
 int answers::compare(const void* v1, const void* v2) {
 	return strcmp(((answers::element*)v1)->text, ((answers::element*)v2)->text);
@@ -41,6 +41,9 @@ static void pause(const char* format) {
 	aw.choosehz(format);
 }
 
+static void error(const char* format, ...) {
+}
+
 static const char* readid(const char* p) {
 	stringbuilder sb(temp_buffer);
 	p = sb.psidf(p);
@@ -67,6 +70,14 @@ static const char* readvalue(const char* p, const array& source, int& record, in
 	return skipsp(p);
 }
 
+static const char* readenum(const char* p, const array& source, int& value) {
+	p = readid(p);
+	value = source.find(temp_buffer, 0);
+	if(value == -1)
+		error("Can't find element with value \'%1\'", temp_buffer);
+	return skipsp(p);
+}
+
 static const char* readvalue(const char* p, cityi& value) {
 	while(ischa(*p)) {
 		int record, bonus;
@@ -76,22 +87,38 @@ static const char* readvalue(const char* p, cityi& value) {
 	return p;
 }
 
+static const char* readvalue(const char* p, adventuref& value) {
+	int record;
+	while(ischa(*p)) {
+		p = readenum(p, bsdata<adventurei>::source, record);
+		value.set(record);
+	}
+	return p;
+}
+
+static const char* readpart(const char* p, imagei& value) {
+	auto index = bsdata<resourcei>::source.find(temp_buffer, 0);
+	if(index == -1) {
+		error("Can't find image resource \'%1\'", temp_buffer);
+		value.res = ADVENTURE;
+	} else
+		value.res = (resource_s)index;
+	return readvalue(p, value.frame);
+}
+
 static bool iscommand(const char* id) {
 	return strcmp(temp_buffer, id) == 0;
 }
 
-static const char* parse_rich(const char* p, char* ps, const char* pe) {
+static const char* parse_rich(const char* p, cityi& loot, adventuref& unlock, char* ps, const char* pe) {
 	while(*p == '/') {
 		p = readid(p + 1);
 		if(iscommand("REWARD"))
-			p = readvalue(p, last_loot);
-		else {
-			auto index = bsdata<resourcei>::source.find(temp_buffer, 0);
-			if(index == -1)
-				return 0;
-			last_image.res = (resource_s)index;
-			p = readvalue(p, last_image.frame);
-		}
+			p = readvalue(p, loot);
+		else if(iscommand("UNLOCK"))
+			p = readvalue(p, unlock);
+		else
+			p = readpart(p, last_image);
 		p = skipspcr(p);
 	}
 	while(*p && *p != 10) {
@@ -109,20 +136,32 @@ static void apply_loot(cityi& e) {
 	game.addcity(e);
 }
 
+static void apply_unlock(adventuref& source) {
+	auto m = source.getmaximum();
+	for(auto i = 0; i < m; i++) {
+		if(source.is(i)) {
+			if(bsdata<adventurei>::elements[i].stage == 0) {
+				bsdata<adventurei>::elements[i].stage = 1;
+				mslog("Unlocked %1", bsdata<adventurei>::elements[i].name);
+			}
+		}
+	}
+}
+
 int	answers::choosebg(const char* title) const {
+	cityi loot = {};
+	adventuref unlock = {};
 	auto push_image = last_image;
-	auto push_loot = last_loot;
-	last_loot.clear();
 	last_image.clear();
 	char temp[512]; temp[0] = 0; auto p = title;
 	while(p && *p) {
 		if(temp[0])
 			pause(temp);
-		p = parse_rich(p, temp, zendof(temp));
+		p = parse_rich(p, loot, unlock, temp, zendof(temp));
 	}
-	apply_loot(last_loot);
+	apply_loot(loot);
+	apply_unlock(unlock);
 	auto result = choosehz(temp);
-	last_loot = push_loot;
 	last_image = push_image;
 	return result;
 }

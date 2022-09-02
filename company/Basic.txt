@@ -16,6 +16,6 @@ Good tastet food and drink make you feel good.
 #Temple "Temple of Wise God" 8
 #Tavern "Tavern Roaring Boar" 5
 
-#Adventure FloodedCollectors 2
+#Adventure FloodedCollectors 1
 #Adventure DarkForest 1
 #Adventure DwarfMine

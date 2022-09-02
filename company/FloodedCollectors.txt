@@ -2,8 +2,9 @@
 
 #Variable
 
-TheivesGuild
+CityGuards
 Harpers
+TheivesGuild
 
 #Summary
 
@@ -45,5 +46,6 @@ Deep undeground living undead. Many of them live here. Some old evil haunted tho
 #Finish
 
 /NPC 50
+/REWARD Gold+300 Experience+2000
 "You are back? I don't expect this. So ... here you reward."
 "And found me later. You may give a service to goverment and army."
