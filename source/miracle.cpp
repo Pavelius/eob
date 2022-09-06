@@ -53,17 +53,31 @@ static bool apply_miracle(spell_s spell, bool run) {
 		return instant_creature_spell(spell, Poison, run);
 	case RemoveParalizes:
 		return instant_creature_spell(spell, HoldPerson, run);
+	case RaiseStrenght: case RaiseConstitution: case RaiseDexterity:
+	case RaiseIntellect: case RaiseWisdow: case RaiseCharisma:
+		if(run)
+			instant_creature_spell(spell);
+		break;
+	case GainExperience:
+		if(run)
+			instant_creature_spell(spell);
+		break;
 	default:
 		return false;
 	}
 	return true;
 }
 
+struct miraclei {
+	spell_s		spell;
+	const char*	text;
+};
 static miraclei small_miracles[] = {
-	{"ColdResistance", ResistColdSpell, "You feel winter breath"},
-	{"Identifying", Identify, "Sundelly you known all items power in your backpacks!"},
-	{"Healing", CureSeriousWounds, "You wound is healing magical means"},
-	{"RemovePoison", NeutralizePoison, "Poison stop run in your veins"},
+	{ResistColdSpell, "You feel winter breath"},
+	{Identify, "Sundelly you known all items power in your backpacks!"},
+	{CureSeriousWounds, "You wound is healing magical means"},
+	{NeutralizePoison, "Poison stop run in your veins"},
+	{GainExperience, "You feel powerfull knowledge insight"},
 };
 
 static const miraclei* random_miracle(const aref<miraclei>& source) {

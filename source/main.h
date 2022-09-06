@@ -97,7 +97,9 @@ enum spell_s : unsigned char {
 	CureSeriousWounds, NeutralizePoison, Poison,
 	// Specila ability
 	LayOnHands, TurnUndead,
-	FirstSpellAbility = LayOnHands, LastSpellAbility = TurnUndead,
+	RaiseStrenght, RaiseDexterity, RaiseConstitution, RaiseIntellect, RaiseWisdow, RaiseCharisma,
+	GainExperience,
+	FirstSpellAbility = LayOnHands, LastSpellAbility = GainExperience,
 };
 enum class_s : unsigned char {
 	NoClass,
@@ -356,11 +358,6 @@ struct actioni {
 	fnevent				proc;
 	fntestcase			test;
 	int					key;
-};
-struct miraclei {
-	const char*			name;
-	spell_s				spell;
-	const char*			text;
 };
 struct talki {
 	const char*			name;
@@ -781,6 +778,7 @@ struct statable {
 	constexpr bool		is(feat_s v) const { return feats.is(v); }
 	constexpr bool		is(usability_s v) const { return usability.is(v); }
 	void				random_ability(race_s race, gender_s gender, class_s type);
+	bool				raiseability(race_s race, ability_s v, bool run);
 	void				update_attacks(class_s type, int level);
 	void				update_stats();
 };

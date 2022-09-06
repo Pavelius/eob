@@ -64,6 +64,7 @@ static enchantmenti magic_potions[] = {
 	{Common, "insight", {BonusExperience, 1}},
 	{Uncommon, "extra-healing", {CureSeriousWounds, 1}},
 	{Uncommon, "cure disease", {CureDisease, 1}},
+	{Uncommon, "cure poison", {NeutralizePoison, 1}},
 	{Uncommon, "invisibility", {Invisibility, 1}},
 	{Uncommon, "knowledge", {Identify, 1}},
 	{Uncommon, "poison", {Poison, 1}},

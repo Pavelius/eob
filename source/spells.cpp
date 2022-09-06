@@ -68,8 +68,16 @@ BSDATA(spelli) = {
 
 	{"Lay on Hands", {0, 1}, TargetAlly, {Heal, Instant, NoSave, 0, {2}}},
 	{"Turn Undead", {0, 1}, TargetAllClose, {TurnUndead}, MagicThrown},
+
+	{"Raise Strenght", {}, TargetAlly, {RaiseStrenght}},
+	{"Raise Dexterity", {}, TargetAlly, {RaiseDexterity}},
+	{"Raise Constitution", {}, TargetAlly, {RaiseConstitution}},
+	{"Raise Intellect", {}, TargetAlly, {RaiseIntellect}},
+	{"Raise Wisdow", {}, TargetAlly, {RaiseWisdow}},
+	{"Raise Charisma", {}, TargetAlly, {RaiseCharisma}},
+	{"GainExperience", {}, TargetAlly, {GainExperience}},
 };
-assert_enum(spelli, TurnUndead)
+assert_enum(spelli, GainExperience)
 BSDATAF(spelli)
 
 int	creature::getlevel(spell_s id, class_s type) {
@@ -341,6 +349,13 @@ void creature::apply(spell_s id, int level) {
 		if(!is(Undead))
 			return;
 		turnundead(level);
+		break;
+	case RaiseStrenght: case RaiseDexterity: case RaiseConstitution:
+	case RaiseIntellect: case RaiseWisdow: case RaiseCharisma:
+		basic.raiseability(getrace(), (ability_s)(id - RaiseStrenght + Strenght), true);
+		break;
+	case GainExperience:
+		addexp(500);
 		break;
 	default:
 		ei.effect.apply(this, level);

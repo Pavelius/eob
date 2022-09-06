@@ -406,3 +406,12 @@ int statable::gethitpenalty(int bonus) const {
 		bonus = 0;
 	return bonus;
 }
+
+bool statable::raiseability(race_s race, ability_s v, bool run) {
+	auto& ei = bsdata<racei>::elements[race];
+	if(ei.maximum.data[v] >= ability[v])
+		return false;
+	if(run)
+		ability[v]++;
+	return true;
+}
