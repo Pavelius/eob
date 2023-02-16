@@ -137,7 +137,9 @@
     <ClInclude Include="crt.h" />
     <ClInclude Include="dataset.h" />
     <ClInclude Include="dice.h" />
+    <ClInclude Include="direction.h" />
     <ClInclude Include="draw.h" />
+    <ClInclude Include="duration.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="flagable.h" />
     <ClInclude Include="io_stream.h" />

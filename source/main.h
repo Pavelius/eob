@@ -3,6 +3,8 @@
 #include "cflags.h"
 #include "dataset.h"
 #include "dice.h"
+#include "direction.h"
+#include "duration.h"
 #include "event.h"
 #include "flagable.h"
 #include "point.h"
@@ -61,13 +63,6 @@ enum gender_s : unsigned char {
 enum size_s : unsigned char {
 	Tiny, Small, Medium, Tall, Large,
 };
-enum duration_s : unsigned char {
-	Instant,
-	Duration1PerLevel, Duration1d4P1PerLevel,
-	Duration5PerLevel,
-	DurationTurn, DurationTurnPerLevel,
-	DurationHour, Duration1HourPerLevel, Duration2Hours, Duration4Hours, Duration8Hours,
-};
 enum target_s : unsigned char {
 	TargetSelf,
 	TargetThrow, TargetThrowHitFighter, TargetAllThrow,
@@ -116,17 +111,11 @@ enum monster_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	LastAbility = Charisma,
-	// Saves
 	SaveVsParalization, SaveVsPoison, SaveVsTraps, SaveVsMagic,
-	FirstSave = SaveVsParalization, LastSave = SaveVsMagic,
-	// Theif skills
 	ClimbWalls, HearNoise, MoveSilently, OpenLocks, RemoveTraps, ReadLanguages,
-	// Other skills
 	LearnSpell,
 	ResistCharm, ResistCold, ResistFire, ResistMagic,
 	CriticalDeflect, DetectSecrets,
-	// Additional ability
 	AC,
 	AttackMelee, AttackRange, AttackAll,
 	DamageMelee, DamageRange, DamageAll,
@@ -211,10 +200,6 @@ enum cell_s : unsigned char {
 };
 enum cell_flag_s : unsigned char {
 	CellExplored, CellActive
-};
-enum direction_s {
-	Center,
-	Left, Up, Right, Down
 };
 enum feat_s : unsigned char {
 	BonusSaveVsPoison, BonusSaveVsSpells,
@@ -414,15 +399,6 @@ struct damagei {
 	feat_s				half;
 	ability_s			reduce;
 	feat_s				immunity;
-};
-struct directioni {
-	const char*			name;
-};
-struct durationi {
-	const char*			name;
-	unsigned			multiplier, divider, addiction;
-	dice				base;
-	int					get(int v) const;
 };
 struct genderi {
 	const char*			name;
@@ -802,11 +778,9 @@ class creature : public statable, public nameable {
 	char				pallette = 0;
 	short				food = 0;
 	reaction_s			reaction = Indifferent;
-	//
 	void				addboost(spell_s id, unsigned duration);
 	void				attack_drain(creature* defender, char& value, int& hits);
 	void				campcast(item& it);
-	int					get_base_save_throw(ability_s st) const;
 	class_s				getbestclass() const { return getclass(getclass(), 0); }
 	void				prepare_random_spells(class_s type, int level);
 	char				racial_bonus(char* data) const;

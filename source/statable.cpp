@@ -59,7 +59,7 @@ static char save_index[] = {
 	1,
 	3,
 };
-static_assert(sizeof(save_index) / sizeof(save_index[0]) == (SaveVsMagic - FirstSave) + 1, "Invalid count of save index elements");
+static_assert(sizeof(save_index) / sizeof(save_index[0]) == (SaveVsMagic - SaveVsParalization) + 1, "Invalid count of save index elements");
 
 void statable::apply(const item& it, bool use_spell) {
 	auto pe = it.getenchantment();
@@ -286,7 +286,7 @@ static int get_save_group(class_s value) {
 }
 
 static int get_save_thrown(ability_s id, class_s type, const char* levels) {
-	auto index = save_index[id - FirstSave];
+	auto index = save_index[id - SaveVsParalization];
 	auto result = 20;
 	for(unsigned i = 0; i < bsdata<classi>::elements[type].classes.count; i++) {
 		auto n = levels[i];

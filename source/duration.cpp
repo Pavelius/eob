@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "duration.h"
 
 durationi bsdata<durationi>::elements[] = {
 	{"Instant"},
