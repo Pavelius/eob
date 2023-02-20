@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="alignment.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="cflags.h" />
     <ClInclude Include="color.h" />
@@ -140,16 +141,20 @@
     <ClInclude Include="direction.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="duration.h" />
+    <ClInclude Include="enchant.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="feat.h" />
     <ClInclude Include="flagable.h" />
+    <ClInclude Include="gender.h" />
     <ClInclude Include="goal.h" />
+    <ClInclude Include="intellegence.h" />
     <ClInclude Include="io_stream.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="my_initialize_list.h" />
+    <ClInclude Include="shape.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="win.h" />
@@ -161,7 +166,6 @@
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
     <ClCompile Include="archive.cpp" />
-    <ClCompile Include="case.cpp" />
     <ClCompile Include="cell.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="city.cpp" />

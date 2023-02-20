@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "shape.h"
 
 BSDATA(shapei) = {
 	{"ShapeCorner", {4, 4},

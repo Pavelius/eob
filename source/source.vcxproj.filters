@@ -96,6 +96,21 @@
     <ClInclude Include="feat.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="intellegence.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="gender.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="alignment.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="enchant.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="shape.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -276,9 +291,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="cell.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="case.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="examine.cpp">

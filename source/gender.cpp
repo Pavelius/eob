@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "gender.h"
 
 BSDATA(genderi) = {
 	{"Transgender"},

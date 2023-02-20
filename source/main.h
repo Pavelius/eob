@@ -1,16 +1,20 @@
-﻿#include "color.h"
+﻿#include "alignment.h"
+#include "color.h"
 #include "crt.h"
 #include "cflags.h"
 #include "dataset.h"
 #include "dice.h"
-#include "direction.h"
 #include "duration.h"
+#include "enchant.h"
 #include "event.h"
 #include "feat.h"
 #include "flagable.h"
+#include "gender.h"
 #include "goal.h"
+#include "intellegence.h"
 #include "point.h"
 #include "rect.h"
+#include "shape.h"
 #include "stringbuilder.h"
 #include "variable.h"
 
@@ -50,17 +54,6 @@ enum resource_s : unsigned char {
 enum race_s : unsigned char {
 	Dwarf, Elf, HalfElf, Halfling, Human,
 	Humanoid, Goblinoid, Insectoid, Animal,
-};
-enum alignment_s : unsigned char {
-	LawfulGood, NeutralGood, ChaoticGood, LawfulNeutral, TrueNeutral, ChaoticNeutral, LawfulEvil, NeutralEvil, ChaoticEvil,
-	FirstAlignment = LawfulGood, LastAlignment = ChaoticEvil,
-};
-enum morale_s : unsigned char {
-	Lawful, Good, Neutral, Chaotic, Evil,
-};
-enum gender_s : unsigned char {
-	NoGender,
-	Male, Female,
 };
 enum size_s : unsigned char {
 	Tiny, Small, Medium, Tall, Large,
@@ -131,14 +124,6 @@ enum wear_s : unsigned char {
 	Head, Neck, Body, RightHand, LeftHand, RightRing, LeftRing, Elbow, Legs, Quiver,
 	FirstBelt, SecondBelt, LastBelt,
 	FirstInvertory = Backpack, LastInvertory = LastBelt
-};
-enum enchant_s : unsigned char {
-	OfAccuracy, OfCold,
-	OfEnergyDrain,
-	OfFear, OfFire, OfHolyness,
-	OfParalize, OfPoison,
-	OfSharpness, OfSmashing, OfSpeed, OfStrenghtDrain,
-	OfVampirism, OfWizardy,
 };
 enum rarity_s : unsigned char {
 	Common, Uncommon, Rare, VeryRare, Artifact
@@ -217,9 +202,6 @@ enum item_feat_s : unsigned char {
 enum reaction_s : unsigned char {
 	Indifferent, Friendly, Hostile,
 };
-enum intellegence_s : unsigned char {
-	NoInt, AnimalInt, Semi, Low, Ave, Very, High, Exeptional, Genius, Supra, Godlike,
-};
 enum city_ability_s : unsigned char {
 	Blessing, Prosperty, Reputation, ExperienceReward, Gold,
 };
@@ -250,9 +232,6 @@ enum pack_s : unsigned char {
 };
 enum ambush_s : unsigned char {
 	NoAmbush, MonsterAmbush, PartyAmbush
-};
-enum shape_s : unsigned char {
-	ShapeCorner, ShapeRoom, ShapeRoomLarge, ShapeDeadEnd, ShapeHall,
 };
 enum good_s : unsigned char {
 	Armors, Books, Clothes, Devices, Food, Jewelry, Papers, Potions, Tools, Weapons
@@ -357,9 +336,6 @@ struct cityabilityi {
 struct abilitya {
 	char				data[Charisma + 1];
 };
-struct moralei {
-	const char*			name;
-};
 struct alignmenti {
 	const char*			name;
 	morale_s			law;
@@ -387,9 +363,6 @@ struct damagei {
 	ability_s			reduce;
 	feat_s				immunity;
 };
-struct genderi {
-	const char*			name;
-};
 struct sizei {
 	const char*			name;
 };
@@ -398,17 +371,10 @@ struct namei {
 	gender_s			gender;
 	const char*			name;
 };
-struct intellegencei {
-	const char*			name;
-	char				v1, v2;
-};
 struct usabilityi {
 	const char*			name;
 };
 struct itemfeati {
-	const char*			name;
-};
-struct casei {
 	const char*			name;
 };
 struct varianti {
@@ -472,9 +438,6 @@ struct itemi {
 	aref<enchantmenti>	enchantments;
 	item_s				ammo;
 	size_s				getsize() const;
-};
-struct enchanti {
-	const char*			name;
 };
 struct monsteri {
 	const char*			name;
@@ -942,13 +905,6 @@ public:
 	void				select();
 	void				select(indext index);
 	void				set(reaction_s v);
-};
-struct shapei {
-	const char*			id;
-	point				size;
-	const char*			data;
-	const char*			getvertical() const;
-	const char*			get(direction_s d, point& result_size) const;
 };
 struct dungeoni {
 	struct overlayi : cflags<flag_s> {

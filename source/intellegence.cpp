@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "intellegence.h"
 
 intellegencei bsdata<intellegencei>::elements[] = {
 	{"NoInt"},
