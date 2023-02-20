@@ -114,6 +114,9 @@
     <ClInclude Include="size.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="variant.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

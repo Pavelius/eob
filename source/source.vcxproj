@@ -158,6 +158,7 @@
     <ClInclude Include="size.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="variable.h" />
+    <ClInclude Include="variant.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
   <ItemGroup>
