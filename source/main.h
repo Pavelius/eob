@@ -6,7 +6,9 @@
 #include "direction.h"
 #include "duration.h"
 #include "event.h"
+#include "feat.h"
 #include "flagable.h"
+#include "goal.h"
 #include "point.h"
 #include "rect.h"
 #include "stringbuilder.h"
@@ -201,13 +203,6 @@ enum cell_s : unsigned char {
 enum cell_flag_s : unsigned char {
 	CellExplored, CellActive
 };
-enum feat_s : unsigned char {
-	BonusSaveVsPoison, BonusSaveVsSpells,
-	HolyGrace, Ambidextrity, NoExeptionalStrenght,
-	Undead, Slowest,
-	ResistBludgeon, ResistSlashing, ResistPierce, ImmuneNormalWeapon, ImmuneDisease,
-	BonusVsElfWeapon, BonusToHitVsGoblinoid, BonusDamageVsEnemy, BonusACVsLargeEnemy, BonusHP,
-};
 enum usability_s : unsigned char {
 	UseLeatherArmor, UseMetalArmor, UseShield,
 	UseTheifWeapon, UseMartialWeapon, UseLargeWeapon,
@@ -268,10 +263,6 @@ enum condition_s : unsigned char {
 enum actionf_s : unsigned char {
 	CheckCondition, MayLoseReputation, DependOnReputation,
 };
-enum goal_s : unsigned char {
-	KillBoss, KillAlmostAllMonsters, ExploreMostDungeon,
-	GrabAlmostAllGems, GrabAllSpecialItems,
-};
 typedef cflags<action_s> actionf;
 typedef cflags<good_s> goodf;
 typedef cflags<variant_s> variantf;
@@ -323,10 +314,6 @@ struct variant {
 };
 typedef variant conditiona[6];
 struct varianta : adat<variant, 12> {
-};
-struct goali {
-	const char*			id;
-	const char*			name;
 };
 struct celli {
 	const char*			name;
@@ -486,9 +473,6 @@ struct itemi {
 	item_s				ammo;
 	size_s				getsize() const;
 };
-struct feati {
-	const char*			name;
-};
 struct enchanti {
 	const char*			name;
 };
@@ -621,7 +605,6 @@ public:
 	constexpr bool operator==(const item& i) const { return i.type == type && i.subtype == subtype && i.flags == flags && i.charges == charges; }
 	bool				cast(spell_s id, int level, bool run);
 	void				clear();
-	static bool			choose_enchantment(void* object, const array& source, void* pointer);
 	bool				damage(const char* text_damage, const char* text_brokes);
 	void				finish();
 	void				get(combati& result, size_s enemy_size) const;

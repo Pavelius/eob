@@ -141,7 +141,9 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="duration.h" />
     <ClInclude Include="event.h" />
+    <ClInclude Include="feat.h" />
     <ClInclude Include="flagable.h" />
+    <ClInclude Include="goal.h" />
     <ClInclude Include="io_stream.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="main.h" />

@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "goal.h"
 
 BSDATA(goali) = {
 	{"KillBoss", "Boss killed"},

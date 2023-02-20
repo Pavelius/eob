@@ -90,6 +90,12 @@
     <ClInclude Include="duration.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="goal.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="feat.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

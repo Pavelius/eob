@@ -1,4 +1,5 @@
-#include "main.h"
+#include "crt.h"
+#include "feat.h"
 
 BSDATA(feati) = {
 	{"Bonus save vs Poison"},
