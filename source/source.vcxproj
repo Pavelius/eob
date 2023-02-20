@@ -155,6 +155,7 @@
     <ClInclude Include="rect.h" />
     <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="shape.h" />
+    <ClInclude Include="size.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="win.h" />

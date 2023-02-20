@@ -14,6 +14,7 @@
 #include "intellegence.h"
 #include "point.h"
 #include "rect.h"
+#include "size.h"
 #include "shape.h"
 #include "stringbuilder.h"
 #include "variable.h"
@@ -54,9 +55,6 @@ enum resource_s : unsigned char {
 enum race_s : unsigned char {
 	Dwarf, Elf, HalfElf, Halfling, Human,
 	Humanoid, Goblinoid, Insectoid, Animal,
-};
-enum size_s : unsigned char {
-	Tiny, Small, Medium, Tall, Large,
 };
 enum target_s : unsigned char {
 	TargetSelf,
@@ -362,9 +360,6 @@ struct damagei {
 	feat_s				half;
 	ability_s			reduce;
 	feat_s				immunity;
-};
-struct sizei {
-	const char*			name;
 };
 struct namei {
 	race_s				race;
