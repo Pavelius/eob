@@ -239,9 +239,7 @@ static enchantmenti old_tome[] = {
 };
 
 BSDATA(itemi) = {
-
 	{"No item"},
-
 	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {2, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 	{"Axe", Common, {7, 4, 1}, 2 * GP, 0, Weapons, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {2, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 	{"Club", Common, {76, 12, 1}, 0, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},

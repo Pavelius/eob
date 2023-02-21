@@ -17,6 +17,7 @@
 #include "stringbuilder.h"
 #include "variant.h"
 #include "variable.h"
+#include "wear.h"
 
 const unsigned short Blocked = 0xFFFF;
 const int walls_frames = 9;
@@ -115,12 +116,6 @@ enum ability_s : unsigned char {
 	BonusExperience, BonusSave, ReactionBonus,
 	ExeptionalStrenght,
 	Hits
-};
-enum wear_s : unsigned char {
-	Backpack, LastBackpack = Backpack + 13,
-	Head, Neck, Body, RightHand, LeftHand, RightRing, LeftRing, Elbow, Legs, Quiver,
-	FirstBelt, SecondBelt, LastBelt,
-	FirstInvertory = Backpack, LastInvertory = LastBelt
 };
 enum rarity_s : unsigned char {
 	Common, Uncommon, Rare, VeryRare, Artifact
@@ -479,10 +474,6 @@ struct sitei {
 	crypti				crypt;
 	constexpr explicit operator bool() const { return head.type != NONE; }
 	unsigned			getleveltotal() const;
-};
-struct weari {
-	const char*			name;
-	const char*			choose_name;
 };
 class item {
 	item_s				type;

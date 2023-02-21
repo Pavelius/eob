@@ -117,6 +117,9 @@
     <ClInclude Include="variant.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="wear.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

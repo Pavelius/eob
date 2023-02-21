@@ -1,45 +1,33 @@
 #include "main.h"
 
-static array game_source(&game, sizeof(campaigni), 1);
-
 BSDATA(varianti) = {
 	{"None"},
-	{"Ability", "abilities", {Action}},
-	{"Action", "actions", {Action}},
-	{"Adventure", "adventures", {}},
-	{"Alignment", "alignments", {Action}},
-	{"Case", "cases", {Action}},
-	{"Cell", "cells"},
-	{"Class", "classes", {Action}},
-	{"Cleaveress", "cleveress"},
-	{"Condition", "conditions", {Action}},
-	{"Creature", "creatures", {}},
-	{"Damage", "damages", {}},
-	{"Enchant", "enchants", {}},
-	{"Feat", "feats", {Action}},
-	{"Gender", "genders", {Action}},
-	{"Item", "items", {Action}},
-	{"Morale", "morals", {}},
-	{"Race", "races", {Action}},
-	{"Rarity", "rarities"},
-	{"Reaction", "reactions", {Action}},
-	{"Resource", "resources"},
-	{"Spell", "spells", {}},
+	{"Ability"},
+	{"Action"},
+	{"Adventure"},
+	{"Alignment"},
+	{"Case"},
+	{"Cell"},
+	{"Class"},
+	{"Cleaveress"},
+	{"Condition"},
+	{"Creature"},
+	{"Damage"},
+	{"Enchant"},
+	{"Feat"},
+	{"Gender"},
+	{"Item"},
+	{"Morale"},
+	{"Race"},
+	{"Rarity"},
+	{"Reaction"},
+	{"Resource"},
+	{"Spell"},
 };
 assert_enum(varianti, Spell)
 BSDATAF(varianti)
 
 const unsigned creature_players_base = 240;
-
-variant::variant(variant_s v, const void* p) {
-	if(!p) {
-		type = NoVariant;
-		value = 0;
-	} else {
-		type = v;
-		value = bsdata<varianti>::elements[v].source->indexof(p);
-	}
-}
 
 variant::variant(const void* p) {
 	if(!p) {
@@ -66,26 +54,12 @@ variant::variant(const void* p) {
 	}
 }
 
-void* variant::getpointer(variant_s t) const {
-	if(type != t)
-		return 0;
-	return bsdata<varianti>::elements[t].source->ptr(value);
-}
-
 creature* variant::getcreature() const {
 	if(type != Creature)
 		return 0;
 	if(value >= creature_players_base)
 		return bsdata<creature>::elements + (value - creature_players_base);
 	return location.monsters + value;
-}
-
-variant_s varianti::find(const array* source) {
-	for(auto& e : bsdata<varianti>()) {
-		if(e.source == source)
-			return variant_s(&e - bsdata<varianti>::elements);
-	}
-	return NoVariant;
 }
 
 const char* variant::getname() const {
