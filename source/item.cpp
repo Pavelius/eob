@@ -1,4 +1,6 @@
-#include "main.h"
+#include "ability.h"
+#include "item.h"
+#include "spell.h"
 
 static enchantmenti magic_swords[] = {
 	{},
@@ -240,6 +242,7 @@ static enchantmenti old_tome[] = {
 
 BSDATA(itemi) = {
 	{"No item"},
+
 	{"Battle axe", Uncommon, {7, 4, 1}, 5 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {UseInHand, Versatile, Deadly}, {2, Slashing, -7, {1, 8}, {1, 8}}, {}, magic_weapon},
 	{"Axe", Common, {7, 4, 1}, 2 * GP, 0, Weapons, RightHand, {UseMartialWeapon}, {UseInHand, Deadly}, {2, Slashing, -4, {1, 6}, {1, 4}}, {}, magic_weapon},
 	{"Club", Common, {76, 12, 1}, 0, 0, Weapons, RightHand, {}, {UseInHand}, {2, Bludgeon, -4, {1, 6}, {1, 4}}, {}, magic_bludgeon},
@@ -252,7 +255,7 @@ BSDATA(itemi) = {
 	{"Staff", Uncommon, {8, 3, 1}, 0, 0, Weapons, RightHand, {}, {TwoHanded, UseInHand}, {2, Bludgeon, -8, {1, 6}, {1, 4}}, {}, magic_staff},
 	{"Bastard sword", VeryRare, {45, 0, 1}, 25 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {Versatile, UseInHand}, {2, Slashing, -6, {2, 4}, {2, 8}}, {}, magic_swords},
 	{"Longsword", VeryRare, {1, 0, 1}, 15 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, UseInHand}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_swords},
-	{"Short sword", VeryRare, {2, 0, 1}, 10 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {2, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
+	{"Short sword", Rare, {2, 0, 1}, 10 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {Quick, UseInHand}, {2, Slashing, -3, {1, 6}, {1, 8}}, {}, magic_swords},
 	{"Two-handed sword", Artifact, {42, 0, 1}, 50 * GP, 0, Weapons, RightHand, {UseLargeWeapon, UseMartialWeapon}, {TwoHanded, UseInHand}, {2, Slashing, -10, {1, 10}, {3, 6}}, {}, magic_swords},
 	{"Bow", VeryRare, {10, 6, 1, Arrow}, 75 * GP, 0, Weapons, RightHand, {UseTheifWeapon}, {TwoHanded, Ranged, UseInHand}, {4, Pierce, -8, {1, 8}, {1, 8}}, {}, {}, Arrow},
 	{"Sling", Common, {18, 4, 0, Stone}, 1 * GP, 0, Weapons, RightHand, {}, {Ranged, UseInHand}, {2, Bludgeon, -6, {1, 4}, {1, 4}}, {}, {}, Stone},
@@ -279,6 +282,8 @@ BSDATA(itemi) = {
 	{"Stone", Common, {19, 2}, 0, 0, Weapons, Quiver, {}, {Countable}},
 
 	{"Bones", Common, {43, 7}, 0, 0, Tools, {}, {}, {}},
+	{"Skull", Common, {89, 7}, 0, 0, Tools, {}, {}, {}},
+	{"Bone", Common, {90, 7}, 0, 0, Tools, {}, {}, {}},
 	{"Map", Common, {86, 12}, 0, 0, Papers, {}, {}, {}},
 
 	{"Holy Symbol", Rare, {53, 20}, 0, 0, Tools, {}, {UseDivine}, {UseInHand}},
@@ -317,6 +322,9 @@ BSDATA(itemi) = {
 
 	{"Dust of Ages", Artifact, {97, 25}, 0, 0, Tools, {}, {UseArcane}, {Unique}},
 	{"Horn", Artifact, {59, 23}, 0, 0, Tools, {}, {}, {Unique}},
+	{"Tiger Eye", Artifact, {67, 23}, 0, 0, Tools, {}, {}, {Unique}},
+	{"Heft", Artifact, {68, 23}, 0, 0, Tools, {}, {}, {Unique}},
+	{"Tooth", Artifact, {56, 23}, 0, 0, Tools, {}, {}, {Unique}},
 	{"Mantist Head", Artifact, {51, 18}, 0, 0, Tools, {}, {}, {Unique}},
 	{"Scepeter", Artifact, {66, 17}, 0, 0, Weapons, RightHand, {}, {Unique}, {2, Bludgeon, -5, {1, 6}, {1, 6}}, {}, magic_weapon},
 	{"Silver sword", Artifact, {65, 0}, 0, 0, Weapons, RightHand, {UseLargeWeapon, UseTheifWeapon}, {Quick, Unique, SevereDamageUndead}, {2, Slashing, -5, {1, 8}, {1, 12}}, {}, magic_weapon},
@@ -341,6 +349,12 @@ BSDATA(itemi) = {
 assert_enum(itemi, LastItem)
 BSDATAF(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
+
+void					mslog(const char* format, ...);
+
+static int d100() {
+	return rand() % 100;
+}
 
 static unsigned char find_power(const aref<enchantmenti>& source, variant v) {
 	for(auto& e : source) {
@@ -547,7 +561,7 @@ void item::setcharges(int value) {
 
 bool item::damage(const char* text_damage, const char* text_broke) {
 	char name[128];
-	if(broken) {
+	if(broken>=3) {
 		// Not all items can be broken
 		if(is(Natural) || is(Unique) || isartifact())
 			return false;
@@ -568,7 +582,7 @@ bool item::damage(const char* text_damage, const char* text_broke) {
 			use();
 			return !(*this);
 		}
-		broken = 1;
+		broken++;
 	}
 	return false;
 }
@@ -685,20 +699,6 @@ bool item::stack(item& v) {
 	return result;
 }
 
-creature* item::getowner() const {
-	if(!this)
-		return 0;
-	if((void*)this >= location.monsters
-		&& (void*)this < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
-		return location.monsters + ((creature*)this - location.monsters);
-	if(bsdata<creature>::source.indexof(this) != -1)
-		return bsdata<creature>::elements + bsdata<creature>::source.indexof(this);
-	if((void*)this >= bsdata<creature>::elements
-		&& (void*)this < bsdata<creature>::source.end())
-		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
-	return 0;
-}
-
 size_s itemi::getsize() const {
 	return this->image.size ? Large : Small;
 }
@@ -714,13 +714,6 @@ bool item::ispower(variant v) const {
 
 bool item::issmall() const {
 	return gete().image.size == 0;
-}
-
-wear_s item::getequiped() const {
-	auto p = getowner();
-	if(p)
-		return p->getslot(this);
-	return Backpack;
 }
 
 void item::select(adat<item>& result, good_s good, rarity_s rarity) {

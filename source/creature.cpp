@@ -418,7 +418,7 @@ void creature::attack(creature* defender, wear_s slot, int bonus, int multiplier
 		draw::animation::clear();
 		// Weapon can be broken
 		if(rolls == 1 && wi.weapon) {
-			if(d100() < 30) {
+			if(d100() < 50) {
 				if(wi.weapon->damage(0, 0))
 					usequick();
 			} else
@@ -1674,4 +1674,25 @@ void creature::update_finish() {
 
 void creature::healing() {
 	damage(Heal, xrand(2, 7));
+}
+
+creature* item::getowner() const {
+	if(!this)
+		return 0;
+	if((void*)this >= location.monsters
+		&& (void*)this < location.monsters + sizeof(location.monsters) / sizeof(location.monsters[0]))
+		return location.monsters + ((creature*)this - location.monsters);
+	if(bsdata<creature>::source.indexof(this) != -1)
+		return bsdata<creature>::elements + bsdata<creature>::source.indexof(this);
+	if((void*)this >= bsdata<creature>::elements
+		&& (void*)this < bsdata<creature>::source.end())
+		return bsdata<creature>::elements + ((creature*)this - bsdata<creature>::elements);
+	return 0;
+}
+
+wear_s item::getequiped() const {
+	auto p = getowner();
+	if(p)
+		return p->getslot(this);
+	return Backpack;
 }

@@ -120,6 +120,24 @@
     <ClInclude Include="wear.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="item.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="damage.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="rarity.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="usability.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="ability.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="spell.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

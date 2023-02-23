@@ -131,11 +131,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ability.h" />
     <ClInclude Include="alignment.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="cflags.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="crt.h" />
+    <ClInclude Include="damage.h" />
     <ClInclude Include="dataset.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="direction.h" />
@@ -149,14 +151,18 @@
     <ClInclude Include="goal.h" />
     <ClInclude Include="intellegence.h" />
     <ClInclude Include="io_stream.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="rarity.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="size.h" />
+    <ClInclude Include="spell.h" />
     <ClInclude Include="stringbuilder.h" />
+    <ClInclude Include="usability.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="variant.h" />
     <ClInclude Include="wear.h" />

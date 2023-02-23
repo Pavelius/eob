@@ -184,7 +184,8 @@ static item_s random_subtype(item_s type) {
 }
 
 static item_s random_type(bool small_size = false) {
-	static item_s standart_item_types[] = {RedPotion, RedPotion, RedPotion,
+	static item_s standart_item_types[] = {
+		RedPotion, RedPotion, RedPotion,
 		SwordLong,
 		Helm,
 		Shield,
@@ -201,7 +202,8 @@ static item_s random_type(bool small_size = false) {
 		DungeonMap,
 		PriestScroll, PriestScroll
 	};
-	static item_s small_item_types[] = {RedPotion, RedPotion, RedPotion,
+	static item_s small_item_types[] = {
+		RedPotion, RedPotion, RedPotion,
 		RedGem,
 		RedRing,
 		KeyCooper, KeyCooper, KeyCooper,
@@ -246,7 +248,7 @@ static item create_item(dungeoni* pd, item_s type, int bonus_level) {
 	case BluePotion:
 	case RedPotion:
 	case GreenPotion:
-		if(rarity == Common && !it.iscursed() && d100() < 60)
+		if(rarity == Common && !it.iscursed() && d100() < 30)
 			it.setidentified(1);
 		break;
 	case RedRing:
@@ -734,10 +736,6 @@ static void drop_special_ground(item& it, indext index) {
 	it.clear();
 }
 
-static int get_item_count_total() {
-
-}
-
 static void validate_special_items(dungeoni& location) {
 	if(!location.head.wands)
 		return;
@@ -873,11 +871,6 @@ static void add_spawn_points(dungeoni& location) {
 	zshuffle(source.data, source.count);
 	for(unsigned i = 0; i < sizeof(location.stat.spawn) / sizeof(location.stat.spawn[0]); i++)
 		location.stat.spawn[i] = source.data[i];
-}
-
-static void den(dungeoni* pd, indext index, direction_s dir, unsigned flags) {
-	if(!pd->isroom(index, dir, 2, 6))
-		return;
 }
 
 static void stairs_up(dungeoni& e, direction_s dir, const sitei* p, indext* indecies) {
