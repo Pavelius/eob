@@ -1,12 +1,9 @@
-namespace {
-union hashsum {
-	unsigned long long l;
-	unsigned u[2];
-};
-}
-static_assert(sizeof(hashsum) == 8, "union `hashsum` must be 8 bytes");
-
 unsigned long long calculate_checksum(unsigned char* start, unsigned count) {
+	union hashsum {
+		unsigned long long l;
+		unsigned u[2];
+	};
+	static_assert(sizeof(hashsum) == 8, "union `hashsum` must be 8 bytes");
 	unsigned r = 0;
 	for(unsigned i = 0; i < count; i++)
 		r += i * start[i];

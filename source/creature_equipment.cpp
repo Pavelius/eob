@@ -1,10 +1,10 @@
 #include "main.h"
 
 struct equipmenti {
-	int				level;
-	conditiona		conditions;
-	item			object;
-	wear_s			slot;
+	int			level;
+	conditiona	conditions;
+	item		object;
+	wear_s		slot;
 };
 
 BSDATA(equipmenti) = {
@@ -23,6 +23,7 @@ BSDATA(equipmenti) = {
 	{0, {}, Dagger, RightHand},
 	{0, {}, ArmorLeather, Body},
 	{1, {}, RationIron},
+	{1, {Ranger}, Arrow},
 	{1, {Fighter}, Ration},
 	{1, {Theif}, TheifTools},
 	{1, {Cleric}, {BluePotion, CureLightWounds}},

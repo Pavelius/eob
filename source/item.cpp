@@ -350,7 +350,7 @@ assert_enum(itemi, LastItem)
 BSDATAF(itemi);
 static_assert(sizeof(item) == 4, "Not valid items count");
 
-void					mslog(const char* format, ...);
+void mslog(const char* format, ...);
 
 static int d100() {
 	return rand() % 100;
