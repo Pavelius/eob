@@ -81,10 +81,10 @@ static enchantmenti magic_potions[] = {
 };
 static enchantmenti magic_bracers[] = {
 	{},
-	{Uncommon, "bulgary+2", {OpenLocks, 2}},
+	{Uncommon, "bulgary", {OpenLocks, 2}},
 	{Uncommon, "protection+1", {AC, 1}},
-	{Uncommon, "bulgary+3", {OpenLocks, 3}},
-	{Uncommon, "traps+3", {RemoveTraps, 3}},
+	{Uncommon, "bulgary", {OpenLocks, 3}},
+	{Uncommon, "disarming", {RemoveTraps, 3}},
 	{Rare, "protection+2", {AC, 2}},
 	{Rare, "orge strenght", {Strenght, 1}},
 	{Rare, "archery", {Dexterity, 1}},

@@ -109,7 +109,8 @@ enum action_s : unsigned char {
 };
 enum talk_s : unsigned char {
 	Greeting,
-	FailLie, TalkAbout, TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
+	FailLie, FailPet,
+	TalkAbout, TalkArtifact, TalkCursed, TalkMagic, TalkLoot, TalkLootCellar, TalkHistory, TalkRumor,
 };
 enum pack_s : unsigned char {
 	PackDungeon, PackMonster, PackOuttake,
@@ -798,6 +799,7 @@ public:
 	void				add(cityabilitya& e) { cityi::add(e); }
 	void				add(monster_s id) { killed[id]++; }
 	void				addexp(morale_s id, unsigned v);
+	void				addexp(class_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
 	void				addspell(spell_s v, unsigned duration);
 	void				apply(variant v);
@@ -813,6 +815,7 @@ public:
 	void				findsecrets();
 	int					get(action_s v) const;
 	int					get(city_ability_s v) const { return cityabilitya::get(v); }
+	int					getbest(ability_s v, class_s type) const;
 	adventurei*			getadventure();
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);

@@ -584,6 +584,15 @@ void gamei::addexp(morale_s id, unsigned value) {
 	}
 }
 
+void gamei::addexp(class_s id, unsigned value) {
+	for(auto p : party) {
+		if(!p)
+			continue;
+		if(p->ismatch(id))
+			p->addexp(value);
+	}
+}
+
 void gamei::addexpc(unsigned value, int killing_hit_dice) {
 	unsigned count = 0;
 	for(auto p : party) {
@@ -617,6 +626,20 @@ int	gamei::getaverage(ability_s id) const {
 	if(!count)
 		return 0;
 	return total / count;
+}
+
+int	gamei::getbest(ability_s id, class_s type) const {
+	auto result = 0;
+	for(auto p : party) {
+		if(!p || !p->isready())
+			continue;
+		if(!p->ismatch(type))
+			continue;
+		auto v = p->get(id);
+		if(v > result)
+			result = v;
+	}
+	return result;
 }
 
 bool gamei::roll(int value) {
