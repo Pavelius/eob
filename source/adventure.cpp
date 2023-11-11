@@ -158,7 +158,7 @@ static void readval(cityi& e) {
 		readval(id);
 		if(*p == '+' || *p == '-')
 			readval(bonus);
-		e.data[id] += bonus;
+		e.abilities[id] += bonus;
 		skipwscr();
 	}
 }

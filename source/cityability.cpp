@@ -1,4 +1,5 @@
-#include "main.h"
+#include "cityability.h"
+#include "crt.h"
 
 BSDATA(cityabilityi) = {
 	{"Blessing"},

@@ -138,6 +138,12 @@
     <ClInclude Include="spell.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="cityability.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="city.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">

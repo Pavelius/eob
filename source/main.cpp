@@ -216,31 +216,12 @@ static void show_monsters() {
 
 void random_heroes() {
 	creature* p;
-	//
 	p = add_hero(0, Male, Human, Paladin, LawfulGood);
-	p->set({SwordLong, Fire}, RightHand);
-	p->equip({GreenRing, Regeneration});
-	p->equip({Bracers, Strenght});
-	//
 	p = add_hero(1, Male, Dwarf, Fighter, LawfulGood);
-	p->set({AxeBattle, OfSharpness}, RightHand);
-	p->equip({BlueRing, Invisibility});
-	//
 	p = add_hero(2, Female, Elf, MageTheif, ChaoticGood);
-	//p->setknown(Identify);
-	p->equip({RedRing, OfWizardy});
-	//item s1 = {MageScroll, ReadLanguagesSpell};
-	//item s2 = {MageScroll, MagicMissile};
-	//s1.setidentified(1);
-	//s2.setidentified(1);
-	//p->add(s1);
-	//p->add(s2);
-	p->equip({RedRing, ResistFire});
-	p->set({Staff, BurningHands}, RightHand);
-	//
 	p = add_hero(3, Male, Dwarf, Cleric, LawfulGood);
-	p->add({GreenPotion, BonusExperience, 2});
-	p->add({GreenPotion, BonusExperience, 3});
+	//p->add({GreenPotion, BonusExperience, 2});
+	//p->add({GreenPotion, BonusExperience, 3});
 }
 
 void debug_dungeon2() {

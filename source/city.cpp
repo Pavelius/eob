@@ -1,7 +1,9 @@
+#include "city.h"
+#include "crt.h"
 #include "main.h"
 
-campaigni campaign;
-static adventurei* last_quest;
+campaigni			campaign;
+static adventurei*	last_quest;
 
 void cityi::clear() {
 	memset(this, 0, sizeof(*this));
@@ -12,24 +14,6 @@ static int get_time_left() {
 	if(!p)
 		return -1;
 	return p->param2 - game.getrounds();
-}
-
-bool cityi::askmiracle() {
-	auto r = d100();
-	auto n = getcity(Blessing);
-	if(r >= n)
-		return false;
-	addcity(Blessing, -1);
-	return true;
-}
-
-void cityi::addcity(const cityi& e) {
-	for(auto i = (city_ability_s)0; i <= Gold; i = (city_ability_s)(i + 1)) {
-		if(i == ExperienceReward)
-			game.addexpc(e.data[i], 0);
-		else
-			data[i] += e.data[i];
-	}
 }
 
 static void choose_quest() {
@@ -67,7 +51,7 @@ static bool pay(int cost) {
 		draw::dlgmsgsm("You don't have enought gold piece!");
 		return false;
 	}
-	game.addcity(Gold, -cost);
+	game.pay(cost);
 	return true;
 }
 
@@ -238,4 +222,22 @@ void item::sell() {
 		return;
 	game.addcity(Gold, cost);
 	clear();
+}
+
+bool cityi::askmiracle() {
+	auto r = d100();
+	auto n = getcity(Blessing);
+	if(r >= n)
+		return false;
+	addcity(Blessing, -1);
+	return true;
+}
+
+void cityi::addcity(const cityi& e) {
+	for(auto i = (city_ability_s)0; i <= Gold; i = (city_ability_s)(i + 1)) {
+		if(i == ExperienceReward)
+			game.addexpc(e.abilities[i], 0);
+		else
+			abilities[i] += e.abilities[i];
+	}
 }

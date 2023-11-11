@@ -82,7 +82,7 @@ static const char* readvalue(const char* p, cityi& value) {
 	while(ischa(*p)) {
 		int record, bonus;
 		p = readvalue(p, bsdata<cityabilityi>::source, record, bonus);
-		value.data[record] += bonus;
+		value.abilities[record] += bonus;
 	}
 	return p;
 }

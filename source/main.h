@@ -1,5 +1,6 @@
 ﻿#include "ability.h"
 #include "alignment.h"
+#include "city.h"
 #include "color.h"
 #include "dataset.h"
 #include "duration.h"
@@ -107,9 +108,6 @@ enum cell_flag_s : unsigned char {
 enum reaction_s : unsigned char {
 	Indifferent, Friendly, Hostile,
 };
-enum city_ability_s : unsigned char {
-	Blessing, Prosperty, Reputation, ExperienceReward, Gold,
-};
 enum action_s : unsigned char {
 	Reshufle,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
@@ -181,10 +179,6 @@ struct abilityi {
 	cflags<class_s>		match;
 	bool				allow(class_s v) const;
 	int					getmultiplier() const;
-};
-struct cityabilityi {
-	const char*			name;
-	const char*			format;
 };
 struct abilitya {
 	char				data[Charisma + 1];
@@ -751,18 +745,6 @@ struct dungeoni {
 };
 struct indexa : adat<indext, 8 * 8> {
 	void				select(const dungeoni& e, indext i, cell_s id, int r);
-};
-struct cityi {
-	int					data[Gold + 1];
-	void				addcity(city_ability_s i, int v) { data[i] += v; }
-	void				addcity(const cityi& e);
-	void				addgold(int coins) { addcity(Gold, coins); }
-	bool				askmiracle();
-	void				clear();
-	int					getgold() const { return getcity(Gold); }
-	int					getcity(city_ability_s i) const { return data[i]; }
-	void				pay(int coins) { addgold(-coins); }
-	void				setcity(const cityi& e) { *this = e; }
 };
 struct idable {
 	const char*			id;
