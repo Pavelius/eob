@@ -1401,10 +1401,13 @@ void creature::setmoved(bool value) {
 }
 
 reaction_s creature::rollreaction(int bonus) const {
-	static reaction_s result_table[19] = {Friendly, Friendly,
-		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
-		Hostile, Hostile, Hostile, Hostile, Hostile, Hostile,
-		Hostile, Hostile, Hostile, Hostile, Hostile};
+	static reaction_s result_table[19] = {
+		Friendly, Friendly, Friendly, Friendly, Friendly,
+		Indifferent, Indifferent, Indifferent, Indifferent, Indifferent,
+		Indifferent, Indifferent, Indifferent,
+		Hostile, Hostile, Hostile, Hostile,
+		Hostile, Hostile
+	};
 	bonus += party.getaverage(ReactionBonus);
 	auto result = (rand() % 10) + (rand() % 10) + 2 - bonus;
 	result = imax(2, imin(20, result));

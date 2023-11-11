@@ -37,3 +37,13 @@ const char* chati::find(const aref<variant>& variants) const {
 	}
 	return 0;
 }
+
+int	chati::getconditions() const {
+	auto result = 0;
+	for(auto v : conditions) {
+		if(!v)
+			break;
+		result++;
+	}
+	return result;
+}

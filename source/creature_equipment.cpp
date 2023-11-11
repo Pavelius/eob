@@ -13,6 +13,8 @@ BSDATA(equipmenti) = {
 	{0, {Halfling, Fighter}, SwordShort, RightHand},
 	{0, {Fighter}, SwordLong, RightHand},
 	{0, {Fighter}, ArmorStuddedLeather, Body},
+	{0, {Paladin}, SwordLong, RightHand},
+	{0, {Paladin}, SwordBastard, RightHand},
 	{0, {Ranger}, SwordLong, RightHand},
 	{0, {Ranger}, SwordShort, LeftHand},
 	{0, {Cleric}, ArmorLeather, Body},

@@ -180,6 +180,7 @@ struct alignmenti {
 	morale_s			law;
 	morale_s			morale;
 	cflags<class_s>		restricted;
+	int					reaction;
 };
 struct classi {
 	const char*			name;
@@ -573,7 +574,7 @@ public:
 	void				rollinitiative();
 	void				satisfy() { apply(&creature::satisfy); }
 	void				select();
-	void				select(indext index);
+	void				select(indext index, bool only_ready = true);
 	void				set(reaction_s v);
 };
 struct dungeoni {
@@ -767,6 +768,7 @@ struct chati {
 	const char*			text;
 	constexpr operator bool() const { return text[0] != 0; }
 	const char*			find(const aref<variant>& variants) const;
+	int					getconditions() const;
 };
 struct encounteri : public creaturea {
 	reaction_s			reaction;

@@ -33,7 +33,7 @@ creature* creaturea::getbest(ability_s v) const {
 	auto v2 = -1;
 	for(auto p : *this) {
 		auto v1 = p->get(v);
-		if(v1 <= 0)
+		if(v1 < 0)
 			continue;
 		if(v2 == -1 || v1 > v2) {
 			v2 = v1;
@@ -64,14 +64,14 @@ void creaturea::select() {
 	}
 }
 
-void creaturea::select(indext index) {
+void creaturea::select(indext index, bool only_ready) {
 	if(game.getcamera() == index)
 		select();
 	else {
 		creature* monster_data[4];
 		location.getmonsters(monster_data, index, Right);
 		for(auto p : monster_data) {
-			if(!p || !p->isready())
+			if(!p || (only_ready && !p->isready()))
 				continue;
 			add(p);
 		}

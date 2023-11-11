@@ -871,6 +871,10 @@ bool dungeoni::move(direction_s direction) {
 	int i = game.getcamera();
 	int i1 = to(i, to(game.getdirection(), direction));
 	auto t = get(i1);
+	if(ismonster(i1)) {
+		game.interract(i1);
+		return false;
+	}
 	if(isblocked(i1) || ismonster(i1)
 		|| ((t == CellStairsUp || t == CellStairsDown) && direction != Up)) {
 		mslog("You can\'t go that way");

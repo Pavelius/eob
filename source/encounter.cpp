@@ -25,6 +25,18 @@ static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack};
 static cflags<action_s> friendly_actions = {Trade, Talk, Repair, Pet};
 static item_s common_trade[] = {Ration, KeySilver, BluePotion};
 
+static void remove_less_specific(adat<const chati*>& result) {
+	auto condition_count = -1;
+	for(auto& e : result) {
+		if(condition_count == -1)
+			condition_count = e->getconditions();
+		else if(e->getconditions() < condition_count) {
+			result.count = &e - result.data;
+			break;
+		}
+	}
+}
+
 static const chati* find(talk_s id, encounteri& scene, const aref<chati>& source) {
 	adat<const chati*> result;
 	for(auto& e : source) {
@@ -34,6 +46,9 @@ static const chati* find(talk_s id, encounteri& scene, const aref<chati>& source
 			continue;
 		result.add(&e);
 	}
+	if(!result)
+		return 0;
+	remove_less_specific(result);
 	if(!result)
 		return 0;
 	return result.data[rand() % result.count];
@@ -302,9 +317,14 @@ bool encounteri::apply(action_s id, bool run) {
 	return true;
 }
 
+static int get_monster_reaction(creature* leader) {
+	auto result = bsdata<alignmenti>::elements[leader->getalignment()].reaction;
+	return result;
+}
+
 void gamei::interract(indext monster_index) {
 	encounteri encounter;
-	encounter.select(monster_index);
+	encounter.select(monster_index, false);
 	auto leader = encounter.getleader();
 	if(!leader)
 		return;
@@ -316,8 +336,10 @@ void gamei::interract(indext monster_index) {
 	location.formation(monster_index, direction);
 	location.turnto(party_index, to(direction, Down), &party_ambush);
 	encounter.set(leader->getreaction());
-	if(encounter.reaction == Indifferent)
-		encounter.set(leader->rollreaction(0));
+	if(encounter.reaction == Indifferent) {
+		auto bonus = get_monster_reaction(leader);
+		encounter.set(leader->rollreaction(bonus));
+	}
 	//encounter.set(Friendly);
 	if(encounter.reaction == Indifferent || encounter.reaction == Friendly) {
 		party_ambush = false;

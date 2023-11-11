@@ -9,4 +9,5 @@ enum alignment_s : unsigned char {
 };
 struct moralei {
 	const char*		name;
+	int				reaction;
 };
