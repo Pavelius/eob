@@ -1,3 +1,4 @@
+#include "intellegence.h"
 #include "main.h"
 
 static chati messages[] = {
@@ -304,7 +305,7 @@ bool encounteri::apply(action_s id, bool run) {
 void gamei::interract(indext monster_index) {
 	encounteri encounter;
 	encounter.select(monster_index);
-	auto leader = encounter.getbest(Intellegence);
+	auto leader = encounter.getleader();
 	if(!leader)
 		return;
 	auto party_index = game.getcamera();

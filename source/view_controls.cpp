@@ -1,5 +1,6 @@
 #include "main.h"
 #include "draw.h"
+#include "varianta.h"
 
 using namespace draw;
 

@@ -240,9 +240,6 @@ void debug_dungeon2() {
 	setnext(play_adventure);
 }
 
-static void test_variant() {
-}
-
 #endif // DEBUG
 
 static void read_adventures() {
@@ -307,7 +304,6 @@ void gamei::newgame() {
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
 	util_main();
-	test_variant();
 #endif
 	if(!reading())
 		return -1;

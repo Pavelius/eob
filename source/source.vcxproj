@@ -169,6 +169,7 @@
     <ClInclude Include="usability.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="variant.h" />
+    <ClInclude Include="varianta.h" />
     <ClInclude Include="wear.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>

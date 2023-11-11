@@ -1,31 +1,31 @@
 #include "main.h"
 
-BSDATA(varianti) = {
-	{"None"},
-	{"Ability"},
-	{"Action"},
-	{"Adventure"},
-	{"Alignment"},
-	{"Case"},
-	{"Cell"},
-	{"Class"},
-	{"Cleaveress"},
-	{"Condition"},
-	{"Creature"},
-	{"Damage"},
-	{"Enchant"},
-	{"Feat"},
-	{"Gender"},
-	{"Item"},
-	{"Morale"},
-	{"Race"},
-	{"Rarity"},
-	{"Reaction"},
-	{"Resource"},
-	{"Spell"},
-};
-assert_enum(varianti, Spell)
-BSDATAF(varianti)
+//BSDATA(varianti) = {
+//	{"None"},
+//	{"Ability"},
+//	{"Action"},
+//	{"Adventure"},
+//	{"Alignment"},
+//	{"Case"},
+//	{"Cell"},
+//	{"Class"},
+//	{"Cleaveress"},
+//	{"Condition"},
+//	{"Creature"},
+//	{"Damage"},
+//	{"Enchant"},
+//	{"Feat"},
+//	{"Gender"},
+//	{"Item"},
+//	{"Morale"},
+//	{"Race"},
+//	{"Rarity"},
+//	{"Reaction"},
+//	{"Resource"},
+//	{"Spell"},
+//};
+//assert_enum(varianti, Spell)
+//BSDATAF(varianti)
 
 const unsigned creature_players_base = 240;
 
@@ -42,15 +42,6 @@ variant::variant(const void* p) {
 	} else {
 		type = NoVariant;
 		value = 0;
-		for(auto i = (variant_s)1; i <= Spell; i = (variant_s)(i + 1)) {
-			if(!bsdata<varianti>::elements[i].source)
-				continue;
-			if(bsdata<varianti>::elements[i].source->indexof(p) != -1) {
-				type = i;
-				value = bsdata<varianti>::elements[i].source->indexof(p);
-				break;
-			}
-		}
 	}
 }
 

@@ -1,5 +1,7 @@
 #include "main.h"
 #include "archive.h"
+#include "intellegence.h"
+#include "varianta.h"
 
 BSDATAC(creature, 32)
 

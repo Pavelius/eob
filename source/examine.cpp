@@ -1,4 +1,5 @@
 #include "main.h"
+#include "varianta.h"
 
 static chati messages[] = {
 	{TalkAbout, {BRICK, CellDecor2, Uncommon}, "Dirty drainage gate"},

@@ -1,403 +1,406 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Интерфейс">
-      <UniqueIdentifier>{3082bc5c-54fb-4f01-b825-2ff2e7841f2c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Платформа">
-      <UniqueIdentifier>{57ab0906-556c-4fd0-893e-6ea2ceccb66c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Поддержка">
-      <UniqueIdentifier>{446cd21d-25ee-4c1c-9443-8fe6076ee2fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Утилиты">
-      <UniqueIdentifier>{c6aca1e2-a50e-4704-8711-94b9d0ebb23f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Логика">
-      <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Данные">
+    <Filter Include="Data">
       <UniqueIdentifier>{9d5c7a29-5697-48ba-96b5-c3b82d207b00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Данные\Adventures">
+    <Filter Include="Data\Adventures">
       <UniqueIdentifier>{3cdd79dd-7ef2-404b-a74f-aafbfc140faa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Данные\Campaign">
+    <Filter Include="Data\Campaign">
       <UniqueIdentifier>{a77bfa2d-0056-4179-8f7d-5cd92a53e197}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Данные\Other">
+    <Filter Include="Data\Other">
       <UniqueIdentifier>{0b05ea22-a947-445e-9a85-767236549775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{3082bc5c-54fb-4f01-b825-2ff2e7841f2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{e9aefefe-a266-4f68-946e-a979e48cb8c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{57ab0906-556c-4fd0-893e-6ea2ceccb66c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support">
+      <UniqueIdentifier>{446cd21d-25ee-4c1c-9443-8fe6076ee2fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{c6aca1e2-a50e-4704-8711-94b9d0ebb23f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win.h">
-      <Filter>Платформа</Filter>
+      <Filter>Platform</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="dice.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="io_stream.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="point.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="draw.h">
-      <Filter>Интерфейс</Filter>
+      <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="color.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="crt.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="rect.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="archive.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="stringbuilder.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="flagable.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="my_initialize_list.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="dataset.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="variable.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="cflags.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="event.h">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClInclude>
     <ClInclude Include="direction.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="duration.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="goal.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="feat.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="intellegence.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="gender.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="alignment.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="enchant.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="shape.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="size.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="variant.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="wear.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="item.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="damage.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="rarity.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="usability.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="ability.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="spell.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="cityability.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="city.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="campaign.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="target.h">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="varianta.h">
+      <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
-      <Filter>Платформа</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="win_io_file.cpp">
-      <Filter>Платформа</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="win_time.cpp">
-      <Filter>Платформа</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="ability.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="alignment.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="class.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="creature.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="direction.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="dungeon.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="dungeon_generate.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="gender.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="monster.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="nameable.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="race.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="spell.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="view_automap.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="view_controls.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="view_dungeon.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="dice.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="io_stream.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="point.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="draw.cpp">
-      <Filter>Интерфейс</Filter>
+      <Filter>Interface</Filter>
     </ClCompile>
     <ClCompile Include="scale.c">
-      <Filter>Интерфейс</Filter>
+      <Filter>Interface</Filter>
     </ClCompile>
     <ClCompile Include="color.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="crt.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="geometry.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="site.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="sprite_util.cpp">
-      <Filter>Утилиты</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="eob_util.cpp">
-      <Filter>Утилиты</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="eob3_util.cpp">
-      <Filter>Утилиты</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="answers.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="intellegence.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="duration.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="boost.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="variant.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="archive.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="stringbuilder.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="creaturea.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="itema.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="surface_serial.cpp">
-      <Filter>Интерфейс</Filter>
+      <Filter>Interface</Filter>
     </ClCompile>
     <ClCompile Include="effect.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="wear.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="usability.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="damage.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="item_feat.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="size.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="feat.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="enchant.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="resource.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="action.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="varianta.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="creature_equipment.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="shape.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="encounter.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="company.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="avatar.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="cell.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="examine.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="chat.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="checksum.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="statable.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="indexa.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="city.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="log.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="adventure.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="variable.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="szdup.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="cityability.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="miracle.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="goal.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="event.cpp">
-      <Filter>Поддержка</Filter>
+      <Filter>Support</Filter>
     </ClCompile>
     <ClCompile Include="campaign.cpp">
-      <Filter>Логика</Filter>
+      <Filter>Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint">
-      <Filter>Данные\Other</Filter>
+      <Filter>Data\Other</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\company\DarkForest.txt">
-      <Filter>Данные\Adventures</Filter>
+      <Filter>Data\Adventures</Filter>
     </Text>
     <Text Include="..\company\FloodedCollectors.txt">
-      <Filter>Данные\Adventures</Filter>
+      <Filter>Data\Adventures</Filter>
     </Text>
     <Text Include="..\errors.txt">
-      <Filter>Данные\Other</Filter>
+      <Filter>Data\Other</Filter>
     </Text>
     <Text Include="..\company\Basic.txt">
-      <Filter>Данные\Campaign</Filter>
+      <Filter>Data\Campaign</Filter>
     </Text>
     <Text Include="..\company\DwarfMine.txt">
-      <Filter>Данные\Adventures</Filter>
+      <Filter>Data\Adventures</Filter>
     </Text>
   </ItemGroup>
 </Project>

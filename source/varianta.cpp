@@ -1,4 +1,5 @@
 #include "main.h"
+#include "varianta.h"
 
 static int compare(const void* v1, const void* v2) {
 	auto p1 = (variant*)v1;
@@ -70,17 +71,17 @@ void variantc::sort() {
 	qsort(data, count, sizeof(data[0]), compare);
 }
 
-void variantc::select(variant_s type) {
-	auto& ei = bsdata<varianti>::elements[type];
-	auto p = ei.source;
-	if(!p)
-		return;
-	variant v;
-	v.type = type;
-	for(v.value = 0; v.value <= p->getcount(); v.value++) {
-		auto pn = v.getname();
-		if(!pn || pn[0] == 0)
-			continue;
-		add(v);
-	}
-}
+//void variantc::select(variant_s type) {
+//	auto& ei = bsdata<varianti>::elements[type];
+//	auto p = ei.source;
+//	if(!p)
+//		return;
+//	variant v;
+//	v.type = type;
+//	for(v.value = 0; v.value <= p->getcount(); v.value++) {
+//		auto pn = v.getname();
+//		if(!pn || pn[0] == 0)
+//			continue;
+//		add(v);
+//	}
+//}

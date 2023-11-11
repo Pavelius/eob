@@ -1,6 +1,3 @@
-#include "cflags.h"
-#include "crt.h"
-
 #pragma once
 
 enum variant_s : unsigned char {
@@ -32,8 +29,8 @@ class creature;
 struct variant {
 	variant_s		type;
 	unsigned char	value;
-	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(const variant_s t, unsigned char v) : type(t), value(v) {}
+	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(const ability_s v) : type(Ability), value(v) {}
 	constexpr variant(const alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(const cell_s v) : type(Cell), value(v) {}
@@ -51,15 +48,8 @@ struct variant {
 	variant(const void* v);
 	constexpr explicit operator bool() const { return type != NoVariant; }
 	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
-	void		clear() { type = NoVariant; value = 0; }
-	creature*	getcreature() const;
-	const char*	getname() const;
+	void			clear() { type = NoVariant; value = 0; }
+	creature*		getcreature() const;
+	const char*		getname() const;
 };
 typedef variant conditiona[6];
-typedef cflags<variant_s> variantf;
-struct varianta : adat<variant, 12> {
-};
-struct varianti {
-	const char*	name;
-	array*		source;
-};

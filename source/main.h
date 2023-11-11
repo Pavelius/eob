@@ -9,7 +9,6 @@
 #include "flagable.h"
 #include "gender.h"
 #include "goal.h"
-#include "intellegence.h"
 #include "item.h"
 #include "point.h"
 #include "rect.h"
@@ -17,7 +16,6 @@
 #include "spell.h"
 #include "target.h"
 #include "stringbuilder.h"
-#include "variant.h"
 #include "variable.h"
 #include "wear.h"
 
@@ -195,9 +193,6 @@ struct classi {
 	adat<race_s, 12>	races;
 	const spellprogi*	spells[2];
 };
-struct commandi {
-	const char*			name;
-};
 struct namei {
 	race_s				race;
 	gender_s			gender;
@@ -232,9 +227,7 @@ struct monsteri {
 struct racei {
 	char				characters;
 	const char*			name;
-	abilitya			minimum;
-	abilitya			maximum;
-	abilitya			adjustment;
+	abilitya			minimum, maximum, adjustment;
 	feata				feats;
 	usabilitya			usability;
 	skilla				skills;
@@ -852,17 +845,6 @@ public:
 	void				setcamera(indext index, direction_s direction = Center);
 	void				thrown(item* itm);
 	void				write();
-};
-class variantc : public adat<variant> {
-public:
-	void				cspells(const creature* p, bool expand);
-	int					chooselv(class_s type) const;
-	void				exclude(variant v);
-	void				match(variant v, bool keep);
-	void				match(point start, int radius, bool keep);
-	void				matchsl(class_s type, int level);
-	void				select(variant_s type);
-	void				sort();
 };
 class answers {
 	char				buffer[512];

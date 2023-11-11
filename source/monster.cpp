@@ -1,3 +1,4 @@
+#include "intellegence.h"
 #include "main.h"
 
 static const int hd_experience[] = {
