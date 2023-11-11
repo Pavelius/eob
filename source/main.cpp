@@ -1,3 +1,4 @@
+#include "campaign.h"
 #include "main.h"
 #include "draw.h"
 #include "log.h"
@@ -298,7 +299,7 @@ void gamei::newgame() {
 		answers::message(campaign.intro);
 	draw::resetres();
 	game.passtime(12 * 60);
-	game.addcity(Reputation, game.getaverage(ReactionBonus));
+	game.add(Reputation, game.getaverage(ReactionBonus));
 	game.write();
 	setnext(enter_city);
 }

@@ -1,8 +1,8 @@
+#include "campaign.h"
 #include "city.h"
 #include "crt.h"
 #include "main.h"
 
-campaigni			campaign;
 static adventurei*	last_quest;
 
 void cityi::clear() {
@@ -39,7 +39,7 @@ static void enter_quest() {
 }
 
 static int getdiscounted(int cost) {
-	auto count = (game.getcity(Reputation) - 50) / 5;
+	auto count = (game.get(Reputation) - 50) / 5;
 	cost -= count;
 	if(cost < 1)
 		cost = 1;
@@ -47,7 +47,7 @@ static int getdiscounted(int cost) {
 }
 
 static bool pay(int cost) {
-	if(game.getcity(Gold) < cost) {
+	if(game.get(Gold) < cost) {
 		draw::dlgmsgsm("You don't have enought gold piece!");
 		return false;
 	}
@@ -55,13 +55,19 @@ static bool pay(int cost) {
 	return true;
 }
 
+static bool ask_pay(const char* format, int cost) {
+	char temp[260]; stringbuilder sb(temp);
+	sb.add(format, cost);
+	if(!draw::dlgask(temp))
+		return false;
+	if(!pay(cost))
+		return false;
+	return true;
+}
+
 static void rent_inn() {
 	auto cost = getdiscounted(30);
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("Do you really want to rent inn for %1i gold pieces?", cost);
-	if(!draw::dlgask(temp))
-		return;
-	if(!pay(cost))
+	if(!ask_pay("Do you really want to rent inn for %1i gold pieces?", cost))
 		return;
 	enter_inn();
 }
@@ -83,12 +89,8 @@ static void play_dialog() {
 
 static void make_donation() {
 	auto cost = getdiscounted(500);
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("Do you really want donate %1i gold pieces?", cost);
-	if(!draw::dlgask(temp))
-		return;
-	if(pay(cost)) {
-		game.addcity(Blessing, 1);
+	if(ask_pay("Do you really want donate %1i gold pieces?", cost)) {
+		game.add(Blessing, 1);
 		if(game.askmiracle())
 			add_small_miracle();
 	}
@@ -109,8 +111,8 @@ static void enter_temple() {
 }
 
 static void eat_and_drink() {
-	if(game.getcity(Gold) >= 2)
-		game.addcity(Gold, -2);
+	if(game.get(Gold) >= 2)
+		game.add(Gold, -2);
 	game.passtime(xrand(30, 60));
 	answers::message(campaign.feast);
 	for(auto p : party)
@@ -171,7 +173,7 @@ static void gain_loot() {
 static void gain_reward() {
 	last_adventure->stage = 0xFF;
 	answers::message(last_adventure->finish);
-	game.addcity(Reputation, 1);
+	game.add(Reputation, 1);
 }
 
 void return_to_city() {
@@ -180,7 +182,7 @@ void return_to_city() {
 		if(last_adventure->iscomplete())
 			gain_reward();
 		else
-			game.addcity(Reputation, -1);
+			game.add(Reputation, -1);
 	}
 	game.write();
 	draw::setnext(enter_city);
@@ -220,20 +222,20 @@ void item::sell() {
 		sb.add("Do you really want to sell item for %1i gold pieces?", cost);
 	if(!draw::dlgask(temp))
 		return;
-	game.addcity(Gold, cost);
+	game.add(Gold, cost);
 	clear();
 }
 
 bool cityi::askmiracle() {
 	auto r = d100();
-	auto n = getcity(Blessing);
+	auto n = get(Blessing);
 	if(r >= n)
 		return false;
-	addcity(Blessing, -1);
+	add(Blessing, -1);
 	return true;
 }
 
-void cityi::addcity(const cityi& e) {
+void cityi::add(const cityabilitya& e) {
 	for(auto i = (city_ability_s)0; i <= Gold; i = (city_ability_s)(i + 1)) {
 		if(i == ExperienceReward)
 			game.addexpc(e.abilities[i], 0);

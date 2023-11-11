@@ -1300,7 +1300,7 @@ bool creature::use(item* pi) {
 	case HolySymbol:
 	case HolySymbolEvil:
 		pc->say("Holy god, give your blessing to us!");
-		game.addcity(Blessing, 1);
+		game.add(Blessing, 1);
 		if(game.askmiracle())
 			add_small_miracle();
 		if(type == HolySymbol)
@@ -1314,7 +1314,7 @@ bool creature::use(item* pi) {
 		break;
 	case Bones:
 		pc->say("Rest in peace, unknown fellow");
-		game.addcity(Blessing, 1);
+		game.add(Blessing, 1);
 		game.addexp(Good, 50);
 		break;
 	case KeyShelf: case KeySilver: case KeyCooper: case KeySkull: case KeySpider:

@@ -2204,7 +2204,7 @@ static void paint_header(const char* title, int width) {
 static void party_status() {
 	char temp[260]; stringbuilder sb(temp);
 	sb.add("You have ");
-	sb.add("%1i GP", game.getcity(Gold));
+	sb.add("%1i GP", game.get(Gold));
 	text(caret.x, caret.y, temp);
 }
 
@@ -2229,7 +2229,7 @@ static void paint_status() {
 	for(auto& e : bsdata<cityabilityi>()) {
 		if(e.format)
 			continue;
-		auto value = game.getcity((city_ability_s)(&e - bsdata<cityabilityi>::elements));
+		auto value = game.get((city_ability_s)(&e - bsdata<cityabilityi>::elements));
 		field(e.name, 64, 160, value, 100);
 		caret.y += texth();
 	}

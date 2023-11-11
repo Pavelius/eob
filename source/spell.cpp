@@ -1,4 +1,5 @@
 #include "main.h"
+#include "target.h"
 
 static int turn_undead_index[15] = {0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11};
 static int turn_undead_chance[][12] = {

@@ -5,6 +5,6 @@ enum goal_s : unsigned char {
 	GrabAlmostAllGems, GrabAllSpecialItems,
 };
 struct goali {
-	const char*			id;
-	const char*			name;
+	const char*	id;
+	const char*	name;
 };

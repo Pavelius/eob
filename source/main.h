@@ -15,6 +15,7 @@
 #include "rect.h"
 #include "shape.h"
 #include "spell.h"
+#include "target.h"
 #include "stringbuilder.h"
 #include "variant.h"
 #include "variable.h"
@@ -53,13 +54,6 @@ enum resource_s : unsigned char {
 enum race_s : unsigned char {
 	Dwarf, Elf, HalfElf, Halfling, Human,
 	Humanoid, Goblinoid, Insectoid, Animal,
-};
-enum target_s : unsigned char {
-	TargetSelf,
-	TargetThrow, TargetThrowHitFighter, TargetAllThrow,
-	TargetClose, TargetAllClose,
-	TargetAlly, TargetAllAlly,
-	TargetItems, TargetAllyItems, TargetAllAllyItems,
 };
 enum message_s : unsigned char {
 	MessageMagicWeapons, MessageMagicRings, MessageSecrets, MessageTraps,
@@ -774,20 +768,6 @@ struct adventurei : idable, historyi {
 	void				read(const char* url);
 };
 extern adventurei* last_adventure;
-struct campaigni {
-	const char*			name;
-	const char*			intro;
-	const char*			city;
-	const char*			inn;
-	const char*			temple;
-	const char*			tavern;
-	const char*			feast;
-	short				city_frame, inn_frame, temple_frame, tavern_frame;
-	unsigned			lose_round;
-	void				clear() { memset(this, 0, sizeof(*this)); }
-	void				readc(const char* name);
-};
-extern campaigni		campaign;
 struct chati {
 	talk_s				action;
 	conditiona			conditions;
@@ -819,6 +799,8 @@ class gamei : public cityi {
 	unsigned			found_secrets, gold_donated;
 	variant				players[6];
 public:
+	void				add(city_ability_s v, int n) { cityi::add(v, n); }
+	void				add(cityabilitya& e) { cityi::add(e); }
 	void				add(monster_s id) { killed[id]++; }
 	void				addexp(morale_s id, unsigned v);
 	void				addexpc(unsigned v, int killing_hit_dice);
@@ -834,7 +816,8 @@ public:
 	bool				enchant(spell_s id, int level, bool run);
 	void				equiping();
 	void				findsecrets();
-	int					get(action_s id) const;
+	int					get(action_s v) const;
+	int					get(city_ability_s v) const { return cityabilitya::get(v); }
 	adventurei*			getadventure();
 	int					getaverage(ability_s v) const;
 	static int			getavatar(race_s race, gender_s gender, class_s cls);

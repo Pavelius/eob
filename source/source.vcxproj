@@ -134,6 +134,7 @@
     <ClInclude Include="ability.h" />
     <ClInclude Include="alignment.h" />
     <ClInclude Include="archive.h" />
+    <ClInclude Include="campaign.h" />
     <ClInclude Include="cflags.h" />
     <ClInclude Include="city.h" />
     <ClInclude Include="cityability.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="size.h" />
     <ClInclude Include="spell.h" />
     <ClInclude Include="stringbuilder.h" />
+    <ClInclude Include="target.h" />
     <ClInclude Include="usability.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="variant.h" />
@@ -177,6 +179,7 @@
     <ClCompile Include="alignment.cpp" />
     <ClCompile Include="answers.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="campaign.cpp" />
     <ClCompile Include="cell.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="city.cpp" />
@@ -236,7 +239,7 @@
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="variable.cpp" />
     <ClCompile Include="varianta.cpp" />
-    <ClCompile Include="spells.cpp" />
+    <ClCompile Include="spell.cpp" />
     <ClCompile Include="sprite_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>

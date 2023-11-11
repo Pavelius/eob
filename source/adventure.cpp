@@ -1,3 +1,4 @@
+#include "campaign.h"
 #include "main.h"
 #include "log.h"
 

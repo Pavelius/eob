@@ -144,6 +144,12 @@
     <ClInclude Include="city.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="campaign.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="target.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_draw.cpp">
@@ -194,7 +200,7 @@
     <ClCompile Include="race.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="spells.cpp">
+    <ClCompile Include="spell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="view_automap.cpp">
@@ -367,6 +373,9 @@
     </ClCompile>
     <ClCompile Include="event.cpp">
       <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="campaign.cpp">
+      <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

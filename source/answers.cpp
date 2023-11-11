@@ -133,7 +133,7 @@ static const char* parse_rich(const char* p, cityi& loot, adventuref& unlock, ch
 }
 
 static void apply_loot(cityi& e) {
-	game.addcity(e);
+	game.add(e);
 }
 
 static void apply_unlock(adventuref& source) {
