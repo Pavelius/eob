@@ -23,6 +23,7 @@ BSDATA(actioni) = {
 	{"Trade"},
 	{"Travel"},
 	{"Pet"},
+	{"Hunt"},
 	{"Work"},
 	{"Experience"},
 };

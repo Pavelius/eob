@@ -104,7 +104,7 @@ enum action_s : unsigned char {
 	Reshufle,
 	Attack, Bribe, Buy, Donate, Drink, Fun, HealAction, Gambling,
 	Leave, Lie, Quest, Pay, Repair, Rest, Sacrifice, Sell,
-	Talk, Take, Trade, Travel, Pet, Work,
+	Talk, Take, Trade, Travel, Pet, Hunt, Work,
 	Experience,
 };
 enum talk_s : unsigned char {

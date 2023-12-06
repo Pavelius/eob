@@ -22,7 +22,7 @@ static chati messages[] = {
 	{TalkRumor, {}, "\"Light side is weak.\""},
 };
 static cflags<action_s> indiferent_actions = {Lie, Bribe, Attack, Pet};
-static cflags<action_s> friendly_actions = {Trade, Talk, Repair};
+static cflags<action_s> friendly_actions = {Trade, Talk, Repair, Hunt};
 static item_s common_trade[] = {Ration, KeySilver, BluePotion};
 
 static void remove_less_specific(adat<const chati*>& result) {
@@ -306,6 +306,12 @@ bool encounteri::apply(action_s id, bool run) {
 			} else
 				set(Hostile);
 		}
+		break;
+	case Hunt:
+		if(!leader->ismindless())
+			return false;
+		if(run)
+			location.dropitem(leader->getindex(), Ration, 0);
 		break;
 	case Repair:
 		if(leader->ismindless())

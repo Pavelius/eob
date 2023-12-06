@@ -1,2 +1,0 @@
-﻿In file `company/DarkForest.txt`:
- Line 29: Expected header 'Finish'
