@@ -135,7 +135,7 @@ static bool cast_on_items(spell_s id, int level, creature* caster, itema& result
 	return true;
 }
 
-bool cast_on_party_items(spell_s id, int level, creature* caster) {
+static bool cast_on_party_items(spell_s id, int level, creature* caster) {
 	itema result;
 	for(auto p : party) {
 		if(!p)

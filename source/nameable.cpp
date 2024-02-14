@@ -1,5 +1,10 @@
 #include "main.h"
 
+struct namei {
+	race_s		race;
+	gender_s	gender;
+	const char*	name;
+};
 BSDATA(namei) = {
 	{Human, Male, ""},
 	{Dwarf, Male, "Adrik"},

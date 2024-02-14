@@ -9,6 +9,7 @@
 #include "flagable.h"
 #include "gender.h"
 #include "goal.h"
+#include "history.h"
 #include "item.h"
 #include "point.h"
 #include "rect.h"
@@ -194,11 +195,6 @@ struct classi {
 	abilitya			minimum;
 	adat<race_s, 12>	races;
 	const spellprogi*	spells[2];
-};
-struct namei {
-	race_s				race;
-	gender_s			gender;
-	const char*			name;
 };
 struct usabilityi {
 	const char*			name;
@@ -737,12 +733,6 @@ struct indexa : adat<indext, 8 * 8> {
 };
 struct idable {
 	const char*			id;
-};
-struct historyi {
-	static constexpr unsigned history_max = 12;
-	const char*			history[history_max];
-	unsigned char		history_progress;
-	unsigned			gethistorymax() const;
 };
 struct adventurei : idable, historyi {
 	const char*			name;
